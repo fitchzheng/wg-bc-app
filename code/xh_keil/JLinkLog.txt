@@ -1,0 +1,3057 @@
+T3B60 000:157.996   SEGGER J-Link V7.82 Log File
+T3B60 000:158.104   DLL Compiled: Oct 13 2022 13:32:51
+T3B60 000:158.113   Logging started @ 2025-12-18 09:07
+T3B60 000:158.122 - 158.126ms
+T3B60 000:158.149 JLINK_SetWarnOutHandler(...)
+T3B60 000:158.174 - 0.029ms
+T3B60 000:158.184 JLINK_OpenEx(...)
+T3B60 000:159.719   Firmware: J-Link V9 compiled Dec  8 2023 20:16:22
+T3B60 000:160.038   Firmware: J-Link V9 compiled Dec  8 2023 20:16:22
+T3B60 000:160.192   Decompressing FW timestamp took 118 us
+T3B60 000:165.917   Hardware: V9.70
+T3B60 000:165.946   S/N: 602713511
+T3B60 000:165.959   OEM: SEGGER
+T3B60 000:165.971   Feature(s): GDB, RDI, FlashBP, FlashDL, JFlash
+T3B60 000:166.855   TELNET listener socket opened on port 19021
+T3B60 000:166.958   WEBSRV WEBSRV_Init(): Starting webserver thread(s)
+T3B60 000:167.093   WEBSRV Webserver running on local port 19080
+T3B60 000:171.001 - 12.827ms returns "O.K."
+T3B60 000:171.033 JLINK_GetEmuCaps()
+T3B60 000:171.042 - 0.013ms returns 0xB9FF7BBF
+T3B60 000:171.055 JLINK_TIF_GetAvailable(...)
+T3B60 000:171.174 - 0.126ms
+T3B60 000:171.189 JLINK_SetErrorOutHandler(...)
+T3B60 000:171.198 - 0.013ms
+T3B60 000:171.223 JLINK_ExecCommand("ProjectFile = "E:\Project\2025\Interleaved-BiDC\code\xh_keil\JLinkSettings.ini"", ...). 
+T3B60 000:185.309   XML file found at: C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\HDSC-JLinkDevices.xml
+T3B60 000:185.938   C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\HDSC-JLinkDevices.xml evaluated successfully.
+T3B60 000:185.955     Device entry created:  CYCLONE V
+T3B60 000:185.969       ChipInfo:
+T3B60 000:185.982         Vendor:          Altera
+T3B60 000:185.995         Name:            CYCLONE V
+T3B60 000:186.012         Core:            JLINK_CORE_CORTEX_A9
+T3B60 000:186.090         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Altera\Cyclone_V\Altera_Cyclone_V.JLinkScript
+T3B60 000:186.110     Device entry modified: AMA3B1KK-KBR
+T3B60 000:186.188       ChipInfo:
+T3B60 000:186.207         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\AmbiqMicro\AmbiqMicro_Apollo3.pex
+T3B60 000:186.254     Device entry modified: AMA3B1KK-KCR
+T3B60 000:186.379       ChipInfo:
+T3B60 000:186.408         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\AmbiqMicro\AmbiqMicro_Apollo3.pex
+T3B60 000:186.423     Device entry modified: AMAPH1KK-KBR
+T3B60 000:186.553       ChipInfo:
+T3B60 000:186.588         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\AmbiqMicro\AmbiqMicro_Apollo2.pex
+T3B60 000:186.603     Device entry modified: AMAPH1KK-KCR
+T3B60 000:186.669       ChipInfo:
+T3B60 000:186.697         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\AmbiqMicro\AmbiqMicro_Apollo2.pex
+T3B60 000:186.712     Device entry modified: MSP3_AN524_M33
+T3B60 000:186.858       ChipInfo:
+T3B60 000:186.874         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ARM\SSE200-MPS3\ARM_SSE-200-MPS3_Core0.pex
+T3B60 000:186.902     Device entry modified: MSP3_AN524_M33_0
+T3B60 000:187.013       ChipInfo:
+T3B60 000:187.042         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ARM\SSE200-MPS3\ARM_SSE-200-MPS3_Core0.pex
+T3B60 000:187.086     Device entry modified: MSP3_AN524_M33_1
+T3B60 000:187.228       ChipInfo:
+T3B60 000:187.275         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ARM\SSE200-MPS3\ARM_SSE-200-MPS3_Core1.pex
+T3B60 000:187.290     Device entry modified: ATSAMA5D21C-CU
+T3B60 000:187.376       ChipInfo:
+T3B60 000:187.392         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\Atmel_ATSAMA5D2x.pex
+T3B60 000:187.406     Device entry modified: ATSAMA5D22C-CN
+T3B60 000:187.469       ChipInfo:
+T3B60 000:187.484         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\Atmel_ATSAMA5D2x.pex
+T3B60 000:187.541     Device entry modified: ATSAMA5D23C-CN
+T3B60 000:187.608       ChipInfo:
+T3B60 000:187.622         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\Atmel_ATSAMA5D2x.pex
+T3B60 000:187.637     Device entry modified: ATSAMA5D24C-CU
+T3B60 000:187.700       ChipInfo:
+T3B60 000:187.715         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\Atmel_ATSAMA5D2x.pex
+T3B60 000:187.729     Device entry modified: ATSAMA5D25C
+T3B60 000:187.791       ChipInfo:
+T3B60 000:187.806         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\Atmel_ATSAMA5D2x.pex
+T3B60 000:187.820     Device entry modified: ATSAMA5D26C-CN
+T3B60 000:187.883       ChipInfo:
+T3B60 000:187.898         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\Atmel_ATSAMA5D2x.pex
+T3B60 000:187.911     Device entry modified: ATSAMA5D27C-CN
+T3B60 000:187.982       ChipInfo:
+T3B60 000:187.997         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\Atmel_ATSAMA5D2x.pex
+T3B60 000:188.010       FlashBankInfo:
+T3B60 000:188.023         Name:            QSPI Flash
+T3B60 000:188.035         BaseAddr:        0xD0000000
+T3B60 000:188.160     Device entry modified: ATSAMA5D28C-CN
+T3B60 000:188.257       ChipInfo:
+T3B60 000:188.272         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\Atmel_ATSAMA5D2x.pex
+T3B60 000:188.287     Device entry modified: ATSAMB11G18A-MU-T
+T3B60 000:188.297       FlashBankInfo:
+T3B60 000:188.310         Name:            QSPI Flash
+T3B60 000:188.322         BaseAddr:        0x60000000
+T3B60 000:188.433     Device entry modified: ATSAMD51G18A
+T3B60 000:188.506       ChipInfo:
+T3B60 000:188.521         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\SAME5x\Atmel_SAME54.pex
+T3B60 000:188.535     Device entry modified: ATSAMD51G19A
+T3B60 000:188.597       ChipInfo:
+T3B60 000:188.612         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\SAME5x\Atmel_SAME54.pex
+T3B60 000:188.626     Device entry modified: ATSAMD51J18A
+T3B60 000:188.688       ChipInfo:
+T3B60 000:188.703         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\SAME5x\Atmel_SAME54.pex
+T3B60 000:188.718     Device entry modified: ATSAMD51J19A
+T3B60 000:188.779       ChipInfo:
+T3B60 000:188.794         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\SAME5x\Atmel_SAME54.pex
+T3B60 000:188.808     Device entry modified: ATSAMD51J20A
+T3B60 000:188.869       ChipInfo:
+T3B60 000:188.884         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\SAME5x\Atmel_SAME54.pex
+T3B60 000:188.898     Device entry modified: ATSAMD51N19A
+T3B60 000:188.960       ChipInfo:
+T3B60 000:188.974         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\SAME5x\Atmel_SAME54.pex
+T3B60 000:188.988     Device entry modified: ATSAMD51N20A
+T3B60 000:189.050       ChipInfo:
+T3B60 000:189.064         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\SAME5x\Atmel_SAME54.pex
+T3B60 000:189.079     Device entry modified: ATSAMD51P19A
+T3B60 000:189.140       ChipInfo:
+T3B60 000:189.171         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\SAME5x\Atmel_SAME54.pex
+T3B60 000:189.186     Device entry modified: ATSAMD51P20A
+T3B60 000:189.249       ChipInfo:
+T3B60 000:189.278         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\SAME5x\Atmel_SAME54.pex
+T3B60 000:189.292     Device entry modified: ATSAME51J18A
+T3B60 000:189.353       ChipInfo:
+T3B60 000:189.368         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\SAME5x\Atmel_SAME54.pex
+T3B60 000:189.385     Device entry modified: ATSAME51J19A
+T3B60 000:189.447       ChipInfo:
+T3B60 000:189.462         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\SAME5x\Atmel_SAME54.pex
+T3B60 000:189.492     Device entry modified: ATSAME51N19A
+T3B60 000:189.598       ChipInfo:
+T3B60 000:189.628         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\SAME5x\Atmel_SAME54.pex
+T3B60 000:189.657     Device entry modified: ATSAME51N20A
+T3B60 000:189.747       ChipInfo:
+T3B60 000:189.778         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\SAME5x\Atmel_SAME54.pex
+T3B60 000:189.793     Device entry modified: ATSAME53J18A
+T3B60 000:189.898       ChipInfo:
+T3B60 000:189.913         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\SAME5x\Atmel_SAME54.pex
+T3B60 000:189.927     Device entry modified: ATSAME53J19A
+T3B60 000:189.988       ChipInfo:
+T3B60 000:190.003         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\SAME5x\Atmel_SAME54.pex
+T3B60 000:190.017     Device entry modified: ATSAME53J20A
+T3B60 000:190.078       ChipInfo:
+T3B60 000:190.093         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\SAME5x\Atmel_SAME54.pex
+T3B60 000:190.107     Device entry modified: ATSAME53N19A
+T3B60 000:190.184       ChipInfo:
+T3B60 000:190.200         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\SAME5x\Atmel_SAME54.pex
+T3B60 000:190.215     Device entry modified: ATSAME53N20A
+T3B60 000:190.299       ChipInfo:
+T3B60 000:190.313         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\SAME5x\Atmel_SAME54.pex
+T3B60 000:190.328     Device entry modified: ATSAME54N19A
+T3B60 000:190.389       ChipInfo:
+T3B60 000:190.403         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\SAME5x\Atmel_SAME54.pex
+T3B60 000:190.418     Device entry modified: ATSAME54N20A
+T3B60 000:190.478       ChipInfo:
+T3B60 000:190.493         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\SAME5x\Atmel_SAME54.pex
+T3B60 000:190.508     Device entry modified: ATSAME54P19A
+T3B60 000:190.568       ChipInfo:
+T3B60 000:190.584         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\SAME5x\Atmel_SAME54.pex
+T3B60 000:190.598     Device entry modified: ATSAME54P20A
+T3B60 000:190.658       ChipInfo:
+T3B60 000:190.673         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\SAME5x\Atmel_SAME54.pex
+T3B60 000:190.687     Device entry modified: ATSAME70J19A
+T3B60 000:190.754       ChipInfo:
+T3B60 000:190.770         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\Atmel_SAME70.pex
+T3B60 000:190.784     Device entry modified: ATSAME70J20A
+T3B60 000:190.845       ChipInfo:
+T3B60 000:190.860         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\Atmel_SAME70.pex
+T3B60 000:190.875     Device entry modified: ATSAME70J21A
+T3B60 000:190.936       ChipInfo:
+T3B60 000:190.951         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\Atmel_SAME70.pex
+T3B60 000:190.965     Device entry modified: ATSAME70N19A
+T3B60 000:191.027       ChipInfo:
+T3B60 000:191.042         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\Atmel_SAME70.pex
+T3B60 000:191.057     Device entry modified: ATSAME70N20A
+T3B60 000:191.117       ChipInfo:
+T3B60 000:191.132         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\Atmel_SAME70.pex
+T3B60 000:191.147     Device entry modified: ATSAME70N21A
+T3B60 000:191.260       ChipInfo:
+T3B60 000:191.276         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\Atmel_SAME70.pex
+T3B60 000:191.292     Device entry modified: ATSAME70Q19A
+T3B60 000:191.355       ChipInfo:
+T3B60 000:191.370         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\Atmel_SAME70.pex
+T3B60 000:191.384     Device entry modified: ATSAME70Q20A
+T3B60 000:191.445       ChipInfo:
+T3B60 000:191.460         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\Atmel_SAME70.pex
+T3B60 000:191.474     Device entry modified: ATSAME70Q21A
+T3B60 000:191.536       ChipInfo:
+T3B60 000:191.551         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\Atmel_SAME70.pex
+T3B60 000:191.566     Device entry modified: BCM43907
+T3B60 000:191.628       ChipInfo:
+T3B60 000:191.643         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Broadcom\BCM43907.JLinkScript
+T3B60 000:191.657     Device entry modified: CR600
+T3B60 000:191.720       ChipInfo:
+T3B60 000:191.735         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ClouderSemi\CR600\CR600.JLinkScript
+T3B60 000:191.748       FlashBankInfo:
+T3B60 000:191.760         Name:            QSPI flash
+T3B60 000:191.774         BaseAddr:        0x20000000
+T3B60 000:191.887     Device entry modified: CYW43907
+T3B60 000:191.960       ChipInfo:
+T3B60 000:191.977         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Broadcom\BCM43907.JLinkScript
+T3B60 000:191.992     Device entry modified: S6J328CK
+T3B60 000:192.055       ChipInfo:
+T3B60 000:192.070         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Cypress\Cypress_S6J328.pex
+T3B60 000:192.084     Device entry modified: S6J328CL
+T3B60 000:192.146       ChipInfo:
+T3B60 000:192.161         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Cypress\Cypress_S6J328.pex
+T3B60 000:192.176     Device entry modified: S6J324CKSM
+T3B60 000:192.277       ChipInfo:
+T3B60 000:192.292         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Cypress\Traveo_S6J3300\Cypress_S6J33xx.pex
+T3B60 000:192.307     Device entry modified: S6J331EKC
+T3B60 000:192.377       ChipInfo:
+T3B60 000:192.392         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Cypress\Traveo_S6J3300\Cypress_S6J33xx.pex
+T3B60 000:192.407     Device entry modified: S6J331EJA
+T3B60 000:192.469       ChipInfo:
+T3B60 000:192.484         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Cypress\Traveo_S6J3300\Cypress_S6J33xx.pex
+T3B60 000:192.498     Device entry modified: S6J331EKE
+T3B60 000:192.560       ChipInfo:
+T3B60 000:192.576         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Cypress\Traveo_S6J3300\Cypress_S6J33xx.pex
+T3B60 000:192.590     Device entry modified: S6J332CJB
+T3B60 000:192.652       ChipInfo:
+T3B60 000:192.667         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Cypress\Traveo_S6J3300\Cypress_S6J33xx.pex
+T3B60 000:192.680     Device entry modified: S6J332CJT
+T3B60 000:192.742       ChipInfo:
+T3B60 000:192.757         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Cypress\Traveo_S6J3300\Cypress_S6J33xx.pex
+T3B60 000:192.771     Device entry modified: S6J332CKS
+T3B60 000:192.834       ChipInfo:
+T3B60 000:192.849         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Cypress\Traveo_S6J3300\Cypress_S6J33xx.pex
+T3B60 000:192.863     Device entry modified: S6J332EJB
+T3B60 000:192.925       ChipInfo:
+T3B60 000:192.940         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Cypress\Traveo_S6J3300\Cypress_S6J33xx.pex
+T3B60 000:192.954     Device entry modified: S6J334BJD
+T3B60 000:193.016       ChipInfo:
+T3B60 000:193.031         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Cypress\Traveo_S6J3300\Cypress_S6J33xx.pex
+T3B60 000:193.076     Device entry modified: S6J334CHB
+T3B60 000:193.142       ChipInfo:
+T3B60 000:193.157         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Cypress\Traveo_S6J3300\Cypress_S6J33xx.pex
+T3B60 000:193.172     Device entry modified: S6J334CJE
+T3B60 000:193.236       ChipInfo:
+T3B60 000:193.251         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Cypress\Traveo_S6J3300\Cypress_S6J33xx.pex
+T3B60 000:193.265     Device entry modified: S6J334CJT
+T3B60 000:193.327       ChipInfo:
+T3B60 000:193.342         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Cypress\Traveo_S6J3300\Cypress_S6J33xx.pex
+T3B60 000:193.355     Device entry modified: S6J334CKS
+T3B60 000:193.418       ChipInfo:
+T3B60 000:193.433         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Cypress\Traveo_S6J3300\Cypress_S6J33xx.pex
+T3B60 000:193.447     Device entry modified: S6J334DJE
+T3B60 000:193.509       ChipInfo:
+T3B60 000:193.524         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Cypress\Traveo_S6J3300\Cypress_S6J33xx.pex
+T3B60 000:193.538     Device entry modified: S6J334DJT
+T3B60 000:193.600       ChipInfo:
+T3B60 000:193.615         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Cypress\Traveo_S6J3300\Cypress_S6J33xx.pex
+T3B60 000:193.629     Device entry modified: S6J334EJA
+T3B60 000:193.693       ChipInfo:
+T3B60 000:193.707         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Cypress\Traveo_S6J3300\Cypress_S6J33xx.pex
+T3B60 000:193.721     Device entry modified: S6J334EJE
+T3B60 000:193.784       ChipInfo:
+T3B60 000:193.799         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Cypress\Traveo_S6J3300\Cypress_S6J33xx.pex
+T3B60 000:193.813     Device entry modified: S6J334EJT
+T3B60 000:193.875       ChipInfo:
+T3B60 000:193.890         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Cypress\Traveo_S6J3300\Cypress_S6J33xx.pex
+T3B60 000:193.904     Device entry modified: CEC1702
+T3B60 000:193.922       FlashBankInfo:
+T3B60 000:193.935         Name:            SPI Flash
+T3B60 000:193.948         BaseAddr:        0x60000000
+T3B60 000:194.065     Device entry modified: nRF52832_xxAA
+T3B60 000:194.137       ChipInfo:
+T3B60 000:194.153         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NordicSemi\nRF52.pex
+T3B60 000:194.186     Device entry modified: nRF52832_xxAB
+T3B60 000:194.263       ChipInfo:
+T3B60 000:194.278         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NordicSemi\nRF52.pex
+T3B60 000:194.293     Device entry modified: nRF52840_xxAA
+T3B60 000:194.355       ChipInfo:
+T3B60 000:194.370         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NordicSemi\nRF52.pex
+T3B60 000:194.384     Device entry modified: MCIMX6X1_A9
+T3B60 000:194.454       ChipInfo:
+T3B60 000:194.469         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\iMX6SX\iMX6SX_CortexA9.JLinkScript
+T3B60 000:194.482       FlashBankInfo:
+T3B60 000:194.495         Name:            QSPI Flash
+T3B60 000:194.508         BaseAddr:        0x70000000
+T3B60 000:194.619     Device entry modified: MCIMX6X1_M4
+T3B60 000:194.684       ChipInfo:
+T3B60 000:194.699         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\iMX6SX\iMX6SX_CortexM4.JLinkScript
+T3B60 000:194.713     Device entry modified: MCIMX6X2_A9
+T3B60 000:194.776       ChipInfo:
+T3B60 000:194.791         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\iMX6SX\iMX6SX_CortexA9.JLinkScript
+T3B60 000:194.804       FlashBankInfo:
+T3B60 000:194.819         Name:            QSPI Flash
+T3B60 000:194.832         BaseAddr:        0x70000000
+T3B60 000:194.941     Device entry modified: MCIMX6X2_M4
+T3B60 000:195.006       ChipInfo:
+T3B60 000:195.021         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\iMX6SX\iMX6SX_CortexM4.JLinkScript
+T3B60 000:195.036     Device entry modified: MCIMX6X3_A9
+T3B60 000:195.099       ChipInfo:
+T3B60 000:195.114         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\iMX6SX\iMX6SX_CortexA9.JLinkScript
+T3B60 000:195.127       FlashBankInfo:
+T3B60 000:195.139         Name:            QSPI Flash
+T3B60 000:195.152         BaseAddr:        0x70000000
+T3B60 000:195.304     Device entry modified: MCIMX6X3_M4
+T3B60 000:195.368       ChipInfo:
+T3B60 000:195.383         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\iMX6SX\iMX6SX_CortexM4.JLinkScript
+T3B60 000:195.397     Device entry modified: MCIMX6X4_A9
+T3B60 000:195.460       ChipInfo:
+T3B60 000:195.475         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\iMX6SX\iMX6SX_CortexA9.JLinkScript
+T3B60 000:195.488       FlashBankInfo:
+T3B60 000:195.500         Name:            QSPI Flash
+T3B60 000:195.513         BaseAddr:        0x70000000
+T3B60 000:195.620     Device entry modified: MCIMX6X4_M4
+T3B60 000:195.684       ChipInfo:
+T3B60 000:195.699         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\iMX6SX\iMX6SX_CortexM4.JLinkScript
+T3B60 000:195.713     Device entry modified: MCIMX6G0
+T3B60 000:195.776       ChipInfo:
+T3B60 000:195.790         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\iMX6UL\NXP_iMX6ULL.JLinkScript
+T3B60 000:195.804       FlashBankInfo:
+T3B60 000:195.816         Name:            QSPI flash
+T3B60 000:195.829         BaseAddr:        0x60000000
+T3B60 000:195.935     Device entry modified: MCIMX6G1
+T3B60 000:196.000       ChipInfo:
+T3B60 000:196.015         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\iMX6UL\NXP_iMX6ULL.JLinkScript
+T3B60 000:196.028       FlashBankInfo:
+T3B60 000:196.041         Name:            QSPI flash
+T3B60 000:196.053         BaseAddr:        0x60000000
+T3B60 000:196.161     Device entry modified: MCIMX6G2
+T3B60 000:196.224       ChipInfo:
+T3B60 000:196.239         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\iMX6UL\NXP_iMX6ULL.JLinkScript
+T3B60 000:196.252       FlashBankInfo:
+T3B60 000:196.265         Name:            QSPI flash
+T3B60 000:196.278         BaseAddr:        0x60000000
+T3B60 000:196.384     Device entry modified: MCIMX6G3
+T3B60 000:196.448       ChipInfo:
+T3B60 000:196.463         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\iMX6UL\NXP_iMX6ULL.JLinkScript
+T3B60 000:196.476       FlashBankInfo:
+T3B60 000:196.488         Name:            QSPI flash
+T3B60 000:196.500         BaseAddr:        0x60000000
+T3B60 000:196.606     Device entry modified: MCIMX6Y0
+T3B60 000:196.669       ChipInfo:
+T3B60 000:196.685         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\iMX6UL\NXP_iMX6ULL.JLinkScript
+T3B60 000:196.698       FlashBankInfo:
+T3B60 000:196.710         Name:            QSPI flash
+T3B60 000:196.723         BaseAddr:        0x60000000
+T3B60 000:196.829     Device entry modified: MCIMX6Y1
+T3B60 000:196.941       ChipInfo:
+T3B60 000:196.956         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\iMX6UL\NXP_iMX6ULL.JLinkScript
+T3B60 000:196.970       FlashBankInfo:
+T3B60 000:196.983         Name:            QSPI flash
+T3B60 000:197.008         BaseAddr:        0x60000000
+T3B60 000:197.116     Device entry modified: MCIMX6Y2
+T3B60 000:197.180       ChipInfo:
+T3B60 000:197.219         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\iMX6UL\NXP_iMX6ULL.JLinkScript
+T3B60 000:197.249       FlashBankInfo:
+T3B60 000:197.261         Name:            QSPI flash
+T3B60 000:197.274         BaseAddr:        0x60000000
+T3B60 000:197.382     Device entry modified: MCIMX6Y7
+T3B60 000:197.447       ChipInfo:
+T3B60 000:197.461         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\iMX6UL\NXP_iMX6ULL.JLinkScript
+T3B60 000:197.474       FlashBankInfo:
+T3B60 000:197.487         Name:            QSPI flash
+T3B60 000:197.499         BaseAddr:        0x60000000
+T3B60 000:197.605     Device entry modified: MCIMX7D3_A7_0
+T3B60 000:197.681       ChipInfo:
+T3B60 000:197.696         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\iMX7D\NXP_iMX7D_Connect_CortexA7_0.JLinkScript
+T3B60 000:197.709       FlashBankInfo:
+T3B60 000:197.722         Name:            QSPI flash
+T3B60 000:197.734         BaseAddr:        0x60000000
+T3B60 000:197.843     Device entry modified: MCIMX7D3_A7_1
+T3B60 000:197.907       ChipInfo:
+T3B60 000:197.922         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\iMX7D\NXP_iMX7D_Connect_CortexA7_1.JLinkScript
+T3B60 000:197.935       FlashBankInfo:
+T3B60 000:197.948         Name:            QSPI flash
+T3B60 000:197.961         BaseAddr:        0x60000000
+T3B60 000:198.068     Device entry modified: MCIMX7D3_M4
+T3B60 000:198.080       ChipInfo:
+T3B60 000:198.092         WorkRAMAddr:     0x00900000
+T3B60 000:198.104         WorkRAMSize:     0x00020000
+T3B60 000:198.195         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\iMX7D\NXP_iMX7D_Connect_CortexM4.JLinkScript
+T3B60 000:198.211       FlashBankInfo:
+T3B60 000:198.237         Name:            QSPI flash
+T3B60 000:198.249         BaseAddr:        0x60000000
+T3B60 000:198.357     Device entry modified: MCIMX7D5_A7_0
+T3B60 000:198.422       ChipInfo:
+T3B60 000:198.437         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\iMX7D\NXP_iMX7D_Connect_CortexA7_0.JLinkScript
+T3B60 000:198.450       FlashBankInfo:
+T3B60 000:198.462         Name:            QSPI flash
+T3B60 000:198.475         BaseAddr:        0x60000000
+T3B60 000:198.582     Device entry modified: MCIMX7D5_A7_1
+T3B60 000:198.647       ChipInfo:
+T3B60 000:198.662         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\iMX7D\NXP_iMX7D_Connect_CortexA7_1.JLinkScript
+T3B60 000:198.675       FlashBankInfo:
+T3B60 000:198.687         Name:            QSPI flash
+T3B60 000:198.700         BaseAddr:        0x60000000
+T3B60 000:198.808     Device entry modified: MCIMX7D5_M4
+T3B60 000:198.819       ChipInfo:
+T3B60 000:198.832         WorkRAMAddr:     0x00900000
+T3B60 000:198.844         WorkRAMSize:     0x00020000
+T3B60 000:198.912         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\iMX7D\NXP_iMX7D_Connect_CortexM4.JLinkScript
+T3B60 000:198.927       FlashBankInfo:
+T3B60 000:198.940         Name:            QSPI flash
+T3B60 000:198.952         BaseAddr:        0x60000000
+T3B60 000:199.060     Device entry modified: MCIMX7D7_A7_0
+T3B60 000:199.124       ChipInfo:
+T3B60 000:199.139         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\iMX7D\NXP_iMX7D_Connect_CortexA7_0.JLinkScript
+T3B60 000:199.153       FlashBankInfo:
+T3B60 000:199.165         Name:            QSPI flash
+T3B60 000:199.178         BaseAddr:        0x60000000
+T3B60 000:199.286     Device entry modified: MCIMX7D7_A7_1
+T3B60 000:199.350       ChipInfo:
+T3B60 000:199.365         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\iMX7D\NXP_iMX7D_Connect_CortexA7_1.JLinkScript
+T3B60 000:199.379       FlashBankInfo:
+T3B60 000:199.391         Name:            QSPI flash
+T3B60 000:199.404         BaseAddr:        0x60000000
+T3B60 000:199.511     Device entry modified: MCIMX7D7_M4
+T3B60 000:199.524       ChipInfo:
+T3B60 000:199.537         WorkRAMAddr:     0x00900000
+T3B60 000:199.550         WorkRAMSize:     0x00020000
+T3B60 000:199.618         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\iMX7D\NXP_iMX7D_Connect_CortexM4.JLinkScript
+T3B60 000:199.634       FlashBankInfo:
+T3B60 000:199.646         Name:            QSPI flash
+T3B60 000:199.659         BaseAddr:        0x60000000
+T3B60 000:199.768     Device entry modified: MCIMX7U3_M4
+T3B60 000:199.834       ChipInfo:
+T3B60 000:199.849         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\iMX7ULP\NXP_iMX7ULP_CortexM4.JLinkScript
+T3B60 000:199.863       FlashBankInfo:
+T3B60 000:199.875         Name:            QSPI Flash
+T3B60 000:199.888         BaseAddr:        0x04000000
+T3B60 000:199.996     Device entry modified: MCIMX7U3_A7
+T3B60 000:200.059       ChipInfo:
+T3B60 000:200.074         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\iMX7ULP\NXP_iMX7ULP_CortexA7.JLinkScript
+T3B60 000:200.088       FlashBankInfo:
+T3B60 000:200.100         Name:            QSPI Flash
+T3B60 000:200.113         BaseAddr:        0xC0000000
+T3B60 000:200.259     Device entry modified: MCIMX7U5_M4
+T3B60 000:200.324       ChipInfo:
+T3B60 000:200.339         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\iMX7ULP\NXP_iMX7ULP_CortexM4.JLinkScript
+T3B60 000:200.352       FlashBankInfo:
+T3B60 000:200.365         Name:            QSPI Flash
+T3B60 000:200.377         BaseAddr:        0x04000000
+T3B60 000:200.484     Device entry modified: MCIMX7U5_A7
+T3B60 000:200.548       ChipInfo:
+T3B60 000:200.563         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\iMX7ULP\NXP_iMX7ULP_CortexA7.JLinkScript
+T3B60 000:200.576       FlashBankInfo:
+T3B60 000:200.589         Name:            QSPI Flash
+T3B60 000:200.602         BaseAddr:        0xC0000000
+T3B60 000:200.711     Device entry modified: MIMXRT1021xxx4A
+T3B60 000:200.730       FlashBankInfo:
+T3B60 000:200.743         Name:            QSPI Flash
+T3B60 000:200.755         BaseAddr:        0x60000000
+T3B60 000:200.866     Device entry modified: MIMXRT1021xxx4A
+T3B60 000:200.879       FlashBankInfo:
+T3B60 000:200.892         Name:            QSPI Flash
+T3B60 000:200.904         BaseAddr:        0x60000000
+T3B60 000:201.012     Device entry modified: MIMXRT1021xxx4A
+T3B60 000:201.025       FlashBankInfo:
+T3B60 000:201.038         Name:            QSPI Flash
+T3B60 000:201.050         BaseAddr:        0x60000000
+T3B60 000:201.158     Device entry modified: MIMXRT1021xxx5A
+T3B60 000:201.172       FlashBankInfo:
+T3B60 000:201.185         Name:            QSPI Flash
+T3B60 000:201.197         BaseAddr:        0x60000000
+T3B60 000:201.304     Device entry modified: MIMXRT1021xxx5A
+T3B60 000:201.317       FlashBankInfo:
+T3B60 000:201.330         Name:            QSPI Flash
+T3B60 000:201.342         BaseAddr:        0x60000000
+T3B60 000:201.449     Device entry modified: MIMXRT1021xxx5A
+T3B60 000:201.462       FlashBankInfo:
+T3B60 000:201.475         Name:            QSPI Flash
+T3B60 000:201.487         BaseAddr:        0x60000000
+T3B60 000:201.594     Device entry modified: MIMXRT1051xxxxA
+T3B60 000:201.607       FlashBankInfo:
+T3B60 000:201.620         Name:            HyperFlash
+T3B60 000:201.632         BaseAddr:        0x60000000
+T3B60 000:201.741     Device entry modified: MIMXRT1051xxxxA
+T3B60 000:201.755       FlashBankInfo:
+T3B60 000:201.768         Name:            HyperFlash
+T3B60 000:201.780         BaseAddr:        0x60000000
+T3B60 000:201.889     Alias entry created:
+T3B60 000:201.900       ChipInfo:
+T3B60 000:201.913         Alias of:        MIMXRT1051xxxxA
+T3B60 000:201.926         Name:            MIMXRT1051xxx5A
+T3B60 000:201.958     Alias entry created:
+T3B60 000:201.968       ChipInfo:
+T3B60 000:201.981         Alias of:        MIMXRT1051xxxxA
+T3B60 000:201.993         Name:            MIMXRT1051CVL5A
+T3B60 000:202.045     Alias entry created:
+T3B60 000:202.054       ChipInfo:
+T3B60 000:202.066         Alias of:        MIMXRT1051xxxxA
+T3B60 000:202.079         Name:            MIMXRT1051xxx6A
+T3B60 000:202.095     Alias entry created:
+T3B60 000:202.104       ChipInfo:
+T3B60 000:202.116         Alias of:        MIMXRT1051xxxxA
+T3B60 000:202.128         Name:            MIMXRT1051DVL6A
+T3B60 000:202.152     Device entry modified: MIMXRT1051xxxxB
+T3B60 000:202.168       FlashBankInfo:
+T3B60 000:202.205         Name:            HyperFlash
+T3B60 000:202.218         BaseAddr:        0x60000000
+T3B60 000:202.354     Alias entry created:
+T3B60 000:202.366       ChipInfo:
+T3B60 000:202.379         Alias of:        MIMXRT1051xxxxB
+T3B60 000:202.391         Name:            MIMXRT1051xxx5B
+T3B60 000:202.407     Alias entry created:
+T3B60 000:202.416       ChipInfo:
+T3B60 000:202.429         Alias of:        MIMXRT1051xxxxB
+T3B60 000:202.441         Name:            MIMXRT1051CVL5B
+T3B60 000:202.464     Alias entry created:
+T3B60 000:202.473       ChipInfo:
+T3B60 000:202.485         Alias of:        MIMXRT1051xxxxB
+T3B60 000:202.498         Name:            MIMXRT1051xxx6B
+T3B60 000:202.514     Alias entry created:
+T3B60 000:202.522       ChipInfo:
+T3B60 000:202.535         Alias of:        MIMXRT1051xxxxB
+T3B60 000:202.547         Name:            MIMXRT1051DVL6B
+T3B60 000:202.570     Device entry modified: MIMXRT1052xxxxA
+T3B60 000:202.581       FlashBankInfo:
+T3B60 000:202.594         Name:            HyperFlash
+T3B60 000:202.607         BaseAddr:        0x60000000
+T3B60 000:202.720     Device entry modified: MIMXRT1052xxxxA
+T3B60 000:202.734       FlashBankInfo:
+T3B60 000:202.746         Name:            HyperFlash
+T3B60 000:202.758         BaseAddr:        0x60000000
+T3B60 000:202.872     Alias entry created:
+T3B60 000:202.884       ChipInfo:
+T3B60 000:202.896         Alias of:        MIMXRT1052xxxxA
+T3B60 000:202.909         Name:            MIMXRT1052xxx5A
+T3B60 000:202.926     Alias entry created:
+T3B60 000:202.935       ChipInfo:
+T3B60 000:202.948         Alias of:        MIMXRT1052xxxxA
+T3B60 000:202.960         Name:            MIMXRT1052CVL5A
+T3B60 000:202.983     Alias entry created:
+T3B60 000:202.992       ChipInfo:
+T3B60 000:203.004         Alias of:        MIMXRT1052xxxxA
+T3B60 000:203.017         Name:            MIMXRT1052xxx6A
+T3B60 000:203.033     Alias entry created:
+T3B60 000:203.041       ChipInfo:
+T3B60 000:203.054         Alias of:        MIMXRT1052xxxxA
+T3B60 000:203.066         Name:            MIMXRT1052DVL6A
+T3B60 000:203.088     Device entry modified: MIMXRT1052xxxxB
+T3B60 000:203.100       FlashBankInfo:
+T3B60 000:203.112         Name:            HyperFlash
+T3B60 000:203.125         BaseAddr:        0x60000000
+T3B60 000:203.241     Alias entry created:
+T3B60 000:203.252       ChipInfo:
+T3B60 000:203.264         Alias of:        MIMXRT1052xxxxB
+T3B60 000:203.277         Name:            MIMXRT1052xxx5B
+T3B60 000:203.293     Alias entry created:
+T3B60 000:203.301       ChipInfo:
+T3B60 000:203.314         Alias of:        MIMXRT1052xxxxB
+T3B60 000:203.326         Name:            MIMXRT1052CVL5B
+T3B60 000:203.349     Alias entry created:
+T3B60 000:203.358       ChipInfo:
+T3B60 000:203.370         Alias of:        MIMXRT1052xxxxB
+T3B60 000:203.383         Name:            MIMXRT1052xxx6B
+T3B60 000:203.398     Alias entry created:
+T3B60 000:203.407       ChipInfo:
+T3B60 000:203.419         Alias of:        MIMXRT1052xxxxB
+T3B60 000:203.432         Name:            MIMXRT1052DVL6B
+T3B60 000:203.455     Device entry modified: MIMXRT1061xxx5A
+T3B60 000:203.465       ChipInfo:
+T3B60 000:203.477         WorkRAMSize:     0x00080000
+T3B60 000:203.491       FlashBankInfo:
+T3B60 000:203.504         Name:            HyperFlash
+T3B60 000:203.517         BaseAddr:        0x60000000
+T3B60 000:203.630     Alias entry created:
+T3B60 000:203.641       ChipInfo:
+T3B60 000:203.654         Alias of:        MIMXRT1061xxx5A
+T3B60 000:203.666         Name:            MIMXRT1061CVL5A
+T3B60 000:203.686     Alias entry created:
+T3B60 000:203.695       ChipInfo:
+T3B60 000:203.707         Alias of:        MIMXRT1061xxx5A
+T3B60 000:203.720         Name:            MIMXRT1061CVJ5A
+T3B60 000:203.743     Device entry modified: MIMXRT1061xxx6A
+T3B60 000:203.752       ChipInfo:
+T3B60 000:203.765         WorkRAMSize:     0x00080000
+T3B60 000:203.779       FlashBankInfo:
+T3B60 000:203.791         Name:            HyperFlash
+T3B60 000:203.804         BaseAddr:        0x60000000
+T3B60 000:203.917     Alias entry created:
+T3B60 000:203.928       ChipInfo:
+T3B60 000:203.941         Alias of:        MIMXRT1061xxx6A
+T3B60 000:203.953         Name:            MIMXRT1061DVL6A
+T3B60 000:203.970     Device entry modified: MIMXRT1062xxx5A
+T3B60 000:203.979       ChipInfo:
+T3B60 000:203.991         WorkRAMSize:     0x00080000
+T3B60 000:204.006       FlashBankInfo:
+T3B60 000:204.018         Name:            HyperFlash
+T3B60 000:204.031         BaseAddr:        0x60000000
+T3B60 000:204.143     Alias entry created:
+T3B60 000:204.154       ChipInfo:
+T3B60 000:204.168         Alias of:        MIMXRT1062xxx5A
+T3B60 000:204.180         Name:            MIMXRT1062CVL5A
+T3B60 000:204.218     Alias entry created:
+T3B60 000:204.240       ChipInfo:
+T3B60 000:204.253         Alias of:        MIMXRT1062xxx5A
+T3B60 000:204.265         Name:            MIMXRT1062CVJ5A
+T3B60 000:204.288     Device entry modified: MIMXRT1062xxx6A
+T3B60 000:204.297       ChipInfo:
+T3B60 000:204.310         WorkRAMSize:     0x00080000
+T3B60 000:204.324       FlashBankInfo:
+T3B60 000:204.337         Name:            HyperFlash
+T3B60 000:204.349         BaseAddr:        0x60000000
+T3B60 000:204.461     Alias entry created:
+T3B60 000:204.472       ChipInfo:
+T3B60 000:204.485         Alias of:        MIMXRT1062xxx6A
+T3B60 000:204.497         Name:            MIMXRT1062DVL6A
+T3B60 000:204.514     Device entry modified: LPC51U68
+T3B60 000:204.590       ChipInfo:
+T3B60 000:204.605         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\LPC51U68\NXP_LPC51U68.pex
+T3B60 000:204.620     Device entry modified: LPC54005
+T3B60 000:204.691       ChipInfo:
+T3B60 000:204.706         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\LPC540xx\NXP_LPC540xx.pex
+T3B60 000:204.720     Device entry modified: LPC54016
+T3B60 000:204.783       ChipInfo:
+T3B60 000:204.798         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\LPC540xx\NXP_LPC540xx.pex
+T3B60 000:204.812     Device entry modified: LPC54018
+T3B60 000:204.875       ChipInfo:
+T3B60 000:204.889         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\LPC540xx\NXP_LPC540xx.pex
+T3B60 000:204.904     Device entry modified: LPC54S005
+T3B60 000:204.966       ChipInfo:
+T3B60 000:204.981         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\LPC540xx\NXP_LPC540xx.pex
+T3B60 000:204.995     Device entry modified: LPC54S016
+T3B60 000:205.057       ChipInfo:
+T3B60 000:205.072         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\LPC540xx\NXP_LPC540xx.pex
+T3B60 000:205.086     Device entry modified: LPC54S018
+T3B60 000:205.150       ChipInfo:
+T3B60 000:205.166         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\LPC540xx\NXP_LPC540xx.pex
+T3B60 000:205.180     Device entry modified: LPC54101J256_M0
+T3B60 000:205.286       ChipInfo:
+T3B60 000:205.302         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\LPC5411x\LPC5411x_M0.JLinkScript
+T3B60 000:205.317     Device entry modified: LPC54101J512_M0
+T3B60 000:205.380       ChipInfo:
+T3B60 000:205.395         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\LPC5411x\LPC5411x_M0.JLinkScript
+T3B60 000:205.410     Device entry modified: LPC54102J256_M0
+T3B60 000:205.474       ChipInfo:
+T3B60 000:205.491         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\LPC5411x\LPC5411x_M0.JLinkScript
+T3B60 000:205.506     Device entry modified: LPC54102J512_M0
+T3B60 000:205.568       ChipInfo:
+T3B60 000:205.583         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\LPC5411x\LPC5411x_M0.JLinkScript
+T3B60 000:205.598     Device entry modified: LPC54111J128_M0
+T3B60 000:205.659       ChipInfo:
+T3B60 000:205.675         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\LPC5411x\LPC5411x_M0.JLinkScript
+T3B60 000:205.689     Device entry modified: LPC54111J256_M0
+T3B60 000:205.751       ChipInfo:
+T3B60 000:205.766         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\LPC5411x\LPC5411x_M0.JLinkScript
+T3B60 000:205.781     Device entry modified: LPC54112J256_M0
+T3B60 000:205.843       ChipInfo:
+T3B60 000:205.857         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\LPC5411x\LPC5411x_M0.JLinkScript
+T3B60 000:205.872     Device entry modified: LPC54113J128_M0
+T3B60 000:205.934       ChipInfo:
+T3B60 000:205.949         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\LPC5411x\LPC5411x_M0.JLinkScript
+T3B60 000:205.964     Device entry modified: LPC54113J256_M0
+T3B60 000:206.025       ChipInfo:
+T3B60 000:206.040         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\LPC5411x\LPC5411x_M0.JLinkScript
+T3B60 000:206.054     Device entry modified: LPC54114J256_M0
+T3B60 000:206.116       ChipInfo:
+T3B60 000:206.131         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\LPC5411x\LPC5411x_M0.JLinkScript
+T3B60 000:206.145     Device entry modified: LPC54608J512
+T3B60 000:206.214       ChipInfo:
+T3B60 000:206.229         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\LPC5460x\NXP_LPC5460x.pex
+T3B60 000:206.244     Device entry modified: LPC54608J512 (allow ECRP)
+T3B60 000:206.313       ChipInfo:
+T3B60 000:206.328         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\LPC5460x\NXP_LPC5460x.pex
+T3B60 000:206.343     Device entry modified: S32V232_A53_A0
+T3B60 000:206.406       ChipInfo:
+T3B60 000:206.421         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\S32V\NXP_S32V234_A53_0.pex
+T3B60 000:206.435     Device entry modified: S32V232_A53_B0
+T3B60 000:206.497       ChipInfo:
+T3B60 000:206.512         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\S32V\NXP_S32V234_A53_2.pex
+T3B60 000:206.526     Device entry modified: S32V234_A53_A0
+T3B60 000:206.587       ChipInfo:
+T3B60 000:206.602         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\S32V\NXP_S32V234_A53_0.pex
+T3B60 000:206.617     Device entry modified: S32V234_A53_A1
+T3B60 000:206.678       ChipInfo:
+T3B60 000:206.693         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\S32V\NXP_S32V234_A53_1.pex
+T3B60 000:206.707     Device entry modified: S32V234_A53_B0
+T3B60 000:206.769       ChipInfo:
+T3B60 000:206.784         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\S32V\NXP_S32V234_A53_2.pex
+T3B60 000:206.798     Device entry modified: S32V234_A53_B1
+T3B60 000:206.860       ChipInfo:
+T3B60 000:206.875         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\NXP\S32V\NXP_S32V234_A53_3.pex
+T3B60 000:206.889     Device entry modified: R9A06G032
+T3B60 000:206.959       ChipInfo:
+T3B60 000:206.974         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Renesas\RZN1\Renesas_RZN1_Cortex-A7_CPU0.pex
+T3B60 000:206.989     Device entry modified: R9A06G032_A7CPU0
+T3B60 000:207.052       ChipInfo:
+T3B60 000:207.069         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Renesas\RZN1\Renesas_RZN1_Cortex-A7_CPU0.pex
+T3B60 000:207.084     Device entry modified: R9A06G032_A7CPU1
+T3B60 000:207.148       ChipInfo:
+T3B60 000:207.163         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Renesas\RZN1\Renesas_RZN1_Cortex-A7_CPU1.pex
+T3B60 000:207.177     Device entry modified: R9A06G032_M3
+T3B60 000:207.239       ChipInfo:
+T3B60 000:207.254         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Renesas\RZN1\Renesas_RZN1_Cortex-M3.pex
+T3B60 000:207.268     Device entry modified: R9A06G033
+T3B60 000:207.338       ChipInfo:
+T3B60 000:207.353         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Renesas\RZN1\Renesas_RZN1_Cortex-A7_CPU0.pex
+T3B60 000:207.368     Device entry modified: R9A06G033_A7
+T3B60 000:207.430       ChipInfo:
+T3B60 000:207.445         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Renesas\RZN1\Renesas_RZN1_Cortex-A7_CPU0.pex
+T3B60 000:207.459     Device entry modified: R9A06G033_M3
+T3B60 000:207.521       ChipInfo:
+T3B60 000:207.536         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Renesas\RZN1\Renesas_RZN1_Cortex-M3.pex
+T3B60 000:207.550     Device entry modified: R9A06G034
+T3B60 000:207.612       ChipInfo:
+T3B60 000:207.627         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Renesas\RZN1\Renesas_RZN1_Cortex-M3.pex
+T3B60 000:207.642     Device entry modified: R7S921040VCBG
+T3B60 000:207.657       FlashBankInfo:
+T3B60 000:207.671         Name:            HyperFlash
+T3B60 000:207.683         BaseAddr:        0x30000000
+T3B60 000:207.800     Device entry modified: R7S921041VCBG
+T3B60 000:207.813       FlashBankInfo:
+T3B60 000:207.826         Name:            HyperFlash
+T3B60 000:207.838         BaseAddr:        0x30000000
+T3B60 000:207.947     Device entry modified: R7S921042VCBG
+T3B60 000:207.960       FlashBankInfo:
+T3B60 000:207.973         Name:            HyperFlash
+T3B60 000:207.985         BaseAddr:        0x30000000
+T3B60 000:208.094     Device entry modified: R7S921043VCBG
+T3B60 000:208.106       FlashBankInfo:
+T3B60 000:208.119         Name:            HyperFlash
+T3B60 000:208.131         BaseAddr:        0x30000000
+T3B60 000:208.241     Device entry modified: R7S921051VCBG
+T3B60 000:208.254       FlashBankInfo:
+T3B60 000:208.266         Name:            HyperFlash
+T3B60 000:208.279         BaseAddr:        0x30000000
+T3B60 000:208.387     Device entry modified: R7S921052VCBG
+T3B60 000:208.400       FlashBankInfo:
+T3B60 000:208.412         Name:            HyperFlash
+T3B60 000:208.425         BaseAddr:        0x30000000
+T3B60 000:208.532     Device entry modified: R7S921053VCBG
+T3B60 000:208.545       FlashBankInfo:
+T3B60 000:208.558         Name:            HyperFlash
+T3B60 000:208.570         BaseAddr:        0x30000000
+T3B60 000:208.678     Device entry modified: CC3200
+T3B60 000:208.751       ChipInfo:
+T3B60 000:208.766         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\TI\TI_CC3200.JLinkScript
+T3B60 000:208.781     Device entry modified: CC3220R
+T3B60 000:208.845       ChipInfo:
+T3B60 000:208.859         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\TI\TI_CC322x.pex
+T3B60 000:208.873         WorkRAMSize:     0x00010000
+T3B60 000:208.887     Device entry modified: CC3220S
+T3B60 000:208.950       ChipInfo:
+T3B60 000:208.965         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\TI\TI_CC322x.pex
+T3B60 000:208.979         WorkRAMSize:     0x00010000
+T3B60 000:208.992     Device entry modified: CC3220SF
+T3B60 000:209.056       ChipInfo:
+T3B60 000:209.070         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\TI\TI_CC322x.pex
+T3B60 000:209.085         WorkRAMSize:     0x00010000
+T3B60 000:209.100     Device entry modified: DM3730
+T3B60 000:209.164       ChipInfo:
+T3B60 000:209.179         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\TI\DM3730\TI_DM3730.pex
+T3B60 000:209.192     Device entry modified: TLE9842
+T3B60 000:209.211       FlashBankInfo:
+T3B60 000:209.225         Name:            NACNAD
+T3B60 000:209.238         BaseAddr:        0x10FFFFFC
+T3B60 000:209.356         AlwaysPresent:   1
+T3B60 000:209.372       FlashBankInfo:
+T3B60 000:209.384         Name:            Code Flash
+T3B60 000:209.396         BaseAddr:        0x11000000
+T3B60 000:209.503         AlwaysPresent:   1
+T3B60 000:209.518       FlashBankInfo:
+T3B60 000:209.531         Name:            Data Flash
+T3B60 000:209.543         BaseAddr:        0x11008000
+T3B60 000:209.649         AlwaysPresent:   1
+T3B60 000:209.667     Device entry modified: TLE9842-2
+T3B60 000:209.677       FlashBankInfo:
+T3B60 000:209.689         Name:            NACNAD
+T3B60 000:209.702         BaseAddr:        0x10FFFFFC
+T3B60 000:209.807         AlwaysPresent:   1
+T3B60 000:209.823       FlashBankInfo:
+T3B60 000:209.835         Name:            Code Flash
+T3B60 000:209.848         BaseAddr:        0x11000000
+T3B60 000:209.953         AlwaysPresent:   1
+T3B60 000:209.969       FlashBankInfo:
+T3B60 000:209.981         Name:            Data Flash
+T3B60 000:209.994         BaseAddr:        0x11009000
+T3B60 000:210.100         AlwaysPresent:   1
+T3B60 000:210.117     Device entry modified: TLE9843
+T3B60 000:210.127       FlashBankInfo:
+T3B60 000:210.139         Name:            NACNAD
+T3B60 000:210.153         BaseAddr:        0x10FFFFFC
+T3B60 000:210.302         AlwaysPresent:   1
+T3B60 000:210.317       FlashBankInfo:
+T3B60 000:210.330         Name:            Code Flash
+T3B60 000:210.343         BaseAddr:        0x11000000
+T3B60 000:210.448         AlwaysPresent:   1
+T3B60 000:210.463       FlashBankInfo:
+T3B60 000:210.475         Name:            Data Flash
+T3B60 000:210.488         BaseAddr:        0x1100B000
+T3B60 000:210.593         AlwaysPresent:   1
+T3B60 000:210.610     Device entry modified: TLE9843-2
+T3B60 000:210.621       FlashBankInfo:
+T3B60 000:210.633         Name:            NACNAD
+T3B60 000:210.645         BaseAddr:        0x10FFFFFC
+T3B60 000:210.750         AlwaysPresent:   1
+T3B60 000:210.766       FlashBankInfo:
+T3B60 000:210.779         Name:            Code Flash
+T3B60 000:210.791         BaseAddr:        0x11000000
+T3B60 000:210.896         AlwaysPresent:   1
+T3B60 000:210.911       FlashBankInfo:
+T3B60 000:210.924         Name:            Data Flash
+T3B60 000:210.937         BaseAddr:        0x1100C000
+T3B60 000:211.042         AlwaysPresent:   1
+T3B60 000:211.059     Device entry modified: TLE9844
+T3B60 000:211.069       FlashBankInfo:
+T3B60 000:211.081         Name:            NACNAD
+T3B60 000:211.094         BaseAddr:        0x10FFFFFC
+T3B60 000:211.201         AlwaysPresent:   1
+T3B60 000:211.216       FlashBankInfo:
+T3B60 000:211.230         Name:            Code Flash
+T3B60 000:211.243         BaseAddr:        0x11000000
+T3B60 000:211.349         AlwaysPresent:   1
+T3B60 000:211.365       FlashBankInfo:
+T3B60 000:211.377         Name:            Data Flash
+T3B60 000:211.390         BaseAddr:        0x1100F000
+T3B60 000:211.495         AlwaysPresent:   1
+T3B60 000:211.512     Device entry modified: TLE9844
+T3B60 000:211.522       FlashBankInfo:
+T3B60 000:211.534         Name:            NACNAD
+T3B60 000:211.547         BaseAddr:        0x10FFFFFC
+T3B60 000:211.652         AlwaysPresent:   1
+T3B60 000:211.667       FlashBankInfo:
+T3B60 000:211.680         Name:            Code Flash
+T3B60 000:211.692         BaseAddr:        0x11000000
+T3B60 000:211.797         AlwaysPresent:   1
+T3B60 000:211.812       FlashBankInfo:
+T3B60 000:211.825         Name:            Data Flash
+T3B60 000:211.837         BaseAddr:        0x1100F000
+T3B60 000:211.942         AlwaysPresent:   1
+T3B60 000:211.961     Device entry modified: TLE9845
+T3B60 000:211.971       FlashBankInfo:
+T3B60 000:211.984         Name:            NACNAD
+T3B60 000:211.996         BaseAddr:        0x10FFFFFC
+T3B60 000:212.103         AlwaysPresent:   1
+T3B60 000:212.118       FlashBankInfo:
+T3B60 000:212.130         Name:            Code Flash
+T3B60 000:212.143         BaseAddr:        0x11000000
+T3B60 000:212.251         AlwaysPresent:   1
+T3B60 000:212.267       FlashBankInfo:
+T3B60 000:212.279         Name:            Data Flash
+T3B60 000:212.292         BaseAddr:        0x1100B000
+T3B60 000:212.396         AlwaysPresent:   1
+T3B60 000:212.413     Device entry modified: TLE9861
+T3B60 000:212.427       ChipInfo:
+T3B60 000:212.440         WorkRAMAddr:     0x18000000
+T3B60 000:212.453         WorkRAMSize:     0x00000C00
+T3B60 000:212.466         Core:            JLINK_CORE_CORTEX_M3_R2P0
+T3B60 000:212.479       FlashBankInfo:
+T3B60 000:212.491         Name:            Code Flash
+T3B60 000:212.504         BaseAddr:        0x11000000
+T3B60 000:212.613         AlwaysPresent:   1
+T3B60 000:212.628       FlashBankInfo:
+T3B60 000:212.641         Name:            Data Flash
+T3B60 000:212.654         BaseAddr:        0x11008000
+T3B60 000:212.759         AlwaysPresent:   1
+T3B60 000:212.776     Device entry modified: TLE9863
+T3B60 000:212.785       ChipInfo:
+T3B60 000:212.798         WorkRAMAddr:     0x18000000
+T3B60 000:212.810         WorkRAMSize:     0x00000C00
+T3B60 000:212.823       FlashBankInfo:
+T3B60 000:212.836         Name:            Code Flash
+T3B60 000:212.848         BaseAddr:        0x11000000
+T3B60 000:212.954         AlwaysPresent:   1
+T3B60 000:212.969       FlashBankInfo:
+T3B60 000:212.982         Name:            Data Flash
+T3B60 000:212.995         BaseAddr:        0x1100B000
+T3B60 000:213.100         AlwaysPresent:   1
+T3B60 000:213.117     Device entry modified: TLE9867
+T3B60 000:213.126       ChipInfo:
+T3B60 000:213.138         WorkRAMAddr:     0x18000000
+T3B60 000:213.152         WorkRAMSize:     0x00001800
+T3B60 000:213.165       FlashBankInfo:
+T3B60 000:213.178         Name:            Code Flash
+T3B60 000:213.190         BaseAddr:        0x11000000
+T3B60 000:213.296         AlwaysPresent:   1
+T3B60 000:213.311       FlashBankInfo:
+T3B60 000:213.324         Name:            Data Flash
+T3B60 000:213.337         BaseAddr:        0x1100F000
+T3B60 000:213.443         AlwaysPresent:   1
+T3B60 000:213.459     Device entry modified: TLE9867
+T3B60 000:213.469       FlashBankInfo:
+T3B60 000:213.482         Name:            Code Flash
+T3B60 000:213.494         BaseAddr:        0x11000000
+T3B60 000:213.600         AlwaysPresent:   1
+T3B60 000:213.616       FlashBankInfo:
+T3B60 000:213.628         Name:            Data Flash
+T3B60 000:213.641         BaseAddr:        0x1100F000
+T3B60 000:213.746         AlwaysPresent:   1
+T3B60 000:213.762     Device entry modified: TLE9867
+T3B60 000:213.772       FlashBankInfo:
+T3B60 000:213.784         Name:            Code Flash
+T3B60 000:213.797         BaseAddr:        0x11000000
+T3B60 000:213.902         AlwaysPresent:   1
+T3B60 000:213.917       FlashBankInfo:
+T3B60 000:213.930         Name:            Data Flash
+T3B60 000:213.942         BaseAddr:        0x1100F000
+T3B60 000:214.046         AlwaysPresent:   1
+T3B60 000:214.062     Device entry modified: TLE9868
+T3B60 000:214.072       ChipInfo:
+T3B60 000:214.085         WorkRAMAddr:     0x18000000
+T3B60 000:214.097         WorkRAMSize:     0x00001000
+T3B60 000:214.111       FlashBankInfo:
+T3B60 000:214.124         Name:            Code Flash
+T3B60 000:214.136         BaseAddr:        0x11000000
+T3B60 000:214.241         AlwaysPresent:   1
+T3B60 000:214.257       FlashBankInfo:
+T3B60 000:214.269         Name:            Data Flash
+T3B60 000:214.282         BaseAddr:        0x1101F000
+T3B60 000:214.387         AlwaysPresent:   1
+T3B60 000:214.403     Device entry modified: TLE9869
+T3B60 000:214.412       ChipInfo:
+T3B60 000:214.425         WorkRAMAddr:     0x18000000
+T3B60 000:214.440         WorkRAMSize:     0x00001800
+T3B60 000:214.454       FlashBankInfo:
+T3B60 000:214.466         Name:            Code Flash
+T3B60 000:214.478         BaseAddr:        0x11000000
+T3B60 000:214.586         AlwaysPresent:   1
+T3B60 000:214.602       FlashBankInfo:
+T3B60 000:214.614         Name:            Data Flash
+T3B60 000:214.627         BaseAddr:        0x1101F000
+T3B60 000:214.732         AlwaysPresent:   1
+T3B60 000:214.748     Device entry modified: TLE9869
+T3B60 000:214.758       FlashBankInfo:
+T3B60 000:214.771         Name:            Code Flash
+T3B60 000:214.783         BaseAddr:        0x11000000
+T3B60 000:214.888         AlwaysPresent:   1
+T3B60 000:214.903       FlashBankInfo:
+T3B60 000:214.916         Name:            Data Flash
+T3B60 000:214.928         BaseAddr:        0x1101F000
+T3B60 000:215.032         AlwaysPresent:   1
+T3B60 000:215.049     Device entry modified: TLE9871
+T3B60 000:215.058       ChipInfo:
+T3B60 000:215.071         WorkRAMAddr:     0x18000000
+T3B60 000:215.084         WorkRAMSize:     0x00000C00
+T3B60 000:215.096         Core:            JLINK_CORE_CORTEX_M3_R2P0
+T3B60 000:215.109       FlashBankInfo:
+T3B60 000:215.121         Name:            Code Flash
+T3B60 000:215.135         BaseAddr:        0x11000000
+T3B60 000:215.240         AlwaysPresent:   1
+T3B60 000:215.255       FlashBankInfo:
+T3B60 000:215.268         Name:            Data Flash
+T3B60 000:215.280         BaseAddr:        0x11008000
+T3B60 000:215.385         AlwaysPresent:   1
+T3B60 000:215.401     Device entry modified: TLE9873
+T3B60 000:215.410       ChipInfo:
+T3B60 000:215.423         WorkRAMAddr:     0x18000000
+T3B60 000:215.436         WorkRAMSize:     0x00000C00
+T3B60 000:215.449       FlashBankInfo:
+T3B60 000:215.461         Name:            Code Flash
+T3B60 000:215.474         BaseAddr:        0x11000000
+T3B60 000:215.579         AlwaysPresent:   1
+T3B60 000:215.595       FlashBankInfo:
+T3B60 000:215.607         Name:            Data Flash
+T3B60 000:215.620         BaseAddr:        0x1100B000
+T3B60 000:215.724         AlwaysPresent:   1
+T3B60 000:215.740     Device entry modified: TLE9873
+T3B60 000:215.750       FlashBankInfo:
+T3B60 000:215.763         Name:            Code Flash
+T3B60 000:215.775         BaseAddr:        0x11000000
+T3B60 000:215.879         AlwaysPresent:   1
+T3B60 000:215.895       FlashBankInfo:
+T3B60 000:215.907         Name:            Data Flash
+T3B60 000:215.920         BaseAddr:        0x1100B000
+T3B60 000:216.023         AlwaysPresent:   1
+T3B60 000:216.040     Device entry modified: TLE9877
+T3B60 000:216.049       ChipInfo:
+T3B60 000:216.062         WorkRAMAddr:     0x18000000
+T3B60 000:216.074         WorkRAMSize:     0x00001800
+T3B60 000:216.087       FlashBankInfo:
+T3B60 000:216.100         Name:            Code Flash
+T3B60 000:216.112         BaseAddr:        0x11000000
+T3B60 000:216.218         AlwaysPresent:   1
+T3B60 000:216.233       FlashBankInfo:
+T3B60 000:216.246         Name:            Data Flash
+T3B60 000:216.258         BaseAddr:        0x1100F000
+T3B60 000:216.362         AlwaysPresent:   1
+T3B60 000:216.379     Device entry modified: TLE9877
+T3B60 000:216.388       FlashBankInfo:
+T3B60 000:216.401         Name:            Code Flash
+T3B60 000:216.414         BaseAddr:        0x11000000
+T3B60 000:216.517         AlwaysPresent:   1
+T3B60 000:216.533       FlashBankInfo:
+T3B60 000:216.545         Name:            Data Flash
+T3B60 000:216.558         BaseAddr:        0x1100F000
+T3B60 000:216.662         AlwaysPresent:   1
+T3B60 000:216.678     Device entry modified: TLE9877
+T3B60 000:216.688       FlashBankInfo:
+T3B60 000:216.700         Name:            Code Flash
+T3B60 000:216.713         BaseAddr:        0x11000000
+T3B60 000:216.817         AlwaysPresent:   1
+T3B60 000:216.833       FlashBankInfo:
+T3B60 000:216.845         Name:            Data Flash
+T3B60 000:216.858         BaseAddr:        0x1100F000
+T3B60 000:216.962         AlwaysPresent:   1
+T3B60 000:216.978     Device entry modified: TLE9877
+T3B60 000:216.990       FlashBankInfo:
+T3B60 000:217.002         Name:            Code Flash
+T3B60 000:217.015         BaseAddr:        0x11000000
+T3B60 000:217.120         AlwaysPresent:   1
+T3B60 000:217.136       FlashBankInfo:
+T3B60 000:217.149         Name:            Data Flash
+T3B60 000:217.161         BaseAddr:        0x1100F000
+T3B60 000:217.265         AlwaysPresent:   1
+T3B60 000:217.282     Device entry modified: TLE9879
+T3B60 000:217.291       ChipInfo:
+T3B60 000:217.303         WorkRAMAddr:     0x18000000
+T3B60 000:217.316         WorkRAMSize:     0x00001800
+T3B60 000:217.329       FlashBankInfo:
+T3B60 000:217.341         Name:            Code Flash
+T3B60 000:217.353         BaseAddr:        0x11000000
+T3B60 000:217.458         AlwaysPresent:   1
+T3B60 000:217.473       FlashBankInfo:
+T3B60 000:217.485         Name:            Data Flash
+T3B60 000:217.498         BaseAddr:        0x1101F000
+T3B60 000:217.602         AlwaysPresent:   1
+T3B60 000:217.619     Device entry modified: TLE9879
+T3B60 000:217.628       FlashBankInfo:
+T3B60 000:217.641         Name:            Code Flash
+T3B60 000:217.653         BaseAddr:        0x11000000
+T3B60 000:217.757         AlwaysPresent:   1
+T3B60 000:217.772       FlashBankInfo:
+T3B60 000:217.785         Name:            Data Flash
+T3B60 000:217.798         BaseAddr:        0x1101F000
+T3B60 000:217.901         AlwaysPresent:   1
+T3B60 000:217.917     Device entry modified: TLE9879
+T3B60 000:217.927       FlashBankInfo:
+T3B60 000:217.939         Name:            Code Flash
+T3B60 000:217.952         BaseAddr:        0x11000000
+T3B60 000:218.055         AlwaysPresent:   1
+T3B60 000:218.071       FlashBankInfo:
+T3B60 000:218.083         Name:            Data Flash
+T3B60 000:218.096         BaseAddr:        0x1101F000
+T3B60 000:218.271         AlwaysPresent:   1
+T3B60 000:218.302     Device entry modified: TLE9879
+T3B60 000:218.311       FlashBankInfo:
+T3B60 000:218.324         Name:            Code Flash
+T3B60 000:218.337         BaseAddr:        0x11000000
+T3B60 000:218.572         AlwaysPresent:   1
+T3B60 000:218.601       FlashBankInfo:
+T3B60 000:218.614         Name:            Data Flash
+T3B60 000:218.627         BaseAddr:        0x1101F000
+T3B60 000:218.731         AlwaysPresent:   1
+T3B60 000:218.747     Device entry modified: TLE9879
+T3B60 000:218.757       FlashBankInfo:
+T3B60 000:218.769         Name:            Code Flash
+T3B60 000:218.782         BaseAddr:        0x11000000
+T3B60 000:218.888         AlwaysPresent:   1
+T3B60 000:218.904       FlashBankInfo:
+T3B60 000:218.916         Name:            Data Flash
+T3B60 000:218.929         BaseAddr:        0x1101F000
+T3B60 000:219.033         AlwaysPresent:   1
+T3B60 000:219.049     Device entry modified: TLE9851QXW
+T3B60 000:219.113       ChipInfo:
+T3B60 000:219.128         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Infineon\TLE985x\Infineon_TLExxx.pex
+T3B60 000:219.142       FlashBankInfo:
+T3B60 000:219.154         Name:            NACNAD
+T3B60 000:219.167         BaseAddr:        0x10FFFFFC
+T3B60 000:219.272         AlwaysPresent:   1
+T3B60 000:219.287       FlashBankInfo:
+T3B60 000:219.300         Name:            Code Flash
+T3B60 000:219.312         BaseAddr:        0x11000000
+T3B60 000:219.416         AlwaysPresent:   1
+T3B60 000:219.431       FlashBankInfo:
+T3B60 000:219.444         Name:            Data Flash
+T3B60 000:219.457         BaseAddr:        0x1100F000
+T3B60 000:219.561         AlwaysPresent:   1
+T3B60 000:219.578     Device entry modified: TLE9853QX
+T3B60 000:219.640       ChipInfo:
+T3B60 000:219.655         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Infineon\TLE985x\Infineon_TLExxx.pex
+T3B60 000:219.668       FlashBankInfo:
+T3B60 000:219.680         Name:            NACNAD
+T3B60 000:219.693         BaseAddr:        0x10FFFFFC
+T3B60 000:219.798         AlwaysPresent:   1
+T3B60 000:219.814       FlashBankInfo:
+T3B60 000:219.826         Name:            Code Flash
+T3B60 000:219.904         BaseAddr:        0x11000000
+T3B60 000:220.062         AlwaysPresent:   1
+T3B60 000:220.079       FlashBankInfo:
+T3B60 000:220.092         Name:            Data Flash
+T3B60 000:220.105         BaseAddr:        0x1100B000
+T3B60 000:220.215         AlwaysPresent:   1
+T3B60 000:220.232     Device entry modified: TLE9854QX
+T3B60 000:220.298       ChipInfo:
+T3B60 000:220.313         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Infineon\TLE985x\Infineon_TLExxx.pex
+T3B60 000:220.327       FlashBankInfo:
+T3B60 000:220.340         Name:            NACNAD
+T3B60 000:220.353         BaseAddr:        0x10FFFFFC
+T3B60 000:220.461         AlwaysPresent:   1
+T3B60 000:220.477       FlashBankInfo:
+T3B60 000:220.490         Name:            Code Flash
+T3B60 000:220.503         BaseAddr:        0x11000000
+T3B60 000:220.610         AlwaysPresent:   1
+T3B60 000:220.626       FlashBankInfo:
+T3B60 000:220.639         Name:            Data Flash
+T3B60 000:220.652         BaseAddr:        0x1100F000
+T3B60 000:220.759         AlwaysPresent:   1
+T3B60 000:220.776     Device entry modified: TLE9855QX
+T3B60 000:220.841       ChipInfo:
+T3B60 000:220.856         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Infineon\TLE985x\Infineon_TLExxx.pex
+T3B60 000:220.870       FlashBankInfo:
+T3B60 000:220.883         Name:            NACNAD
+T3B60 000:220.896         BaseAddr:        0x10FFFFFC
+T3B60 000:221.004         AlwaysPresent:   1
+T3B60 000:221.020       FlashBankInfo:
+T3B60 000:221.033         Name:            Code Flash
+T3B60 000:221.046         BaseAddr:        0x11000000
+T3B60 000:221.158         AlwaysPresent:   1
+T3B60 000:221.175       FlashBankInfo:
+T3B60 000:221.187         Name:            Data Flash
+T3B60 000:221.200         BaseAddr:        0x11017000
+T3B60 000:221.320         AlwaysPresent:   1
+T3B60 000:221.337     Device entry modified: GP570NKDx
+T3B60 000:221.403       ChipInfo:
+T3B60 000:221.417         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Qorvo\GPxxx\GPxxx.pex
+T3B60 000:221.432     Device entry modified: GP570NMDx
+T3B60 000:221.495       ChipInfo:
+T3B60 000:221.512         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Qorvo\GPxxx\GPxxx.pex
+T3B60 000:221.526     Device entry modified: GP570NMEx
+T3B60 000:221.589       ChipInfo:
+T3B60 000:221.604         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Qorvo\GPxxx\GPxxx.pex
+T3B60 000:221.618     Device entry modified: GP870NKCG
+T3B60 000:221.680       ChipInfo:
+T3B60 000:221.695         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Qorvo\GPxxx\GPxxx.pex
+T3B60 000:221.710     Device entry modified: GP870NMDG
+T3B60 000:221.772       ChipInfo:
+T3B60 000:221.787         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Qorvo\GPxxx\GPxxx.pex
+T3B60 000:221.801     Device entry modified: GP870NMEG
+T3B60 000:221.863       ChipInfo:
+T3B60 000:221.878         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Qorvo\GPxxx\GPxxx.pex
+T3B60 000:221.893     Device entry modified: UE878NHCG
+T3B60 000:221.956       ChipInfo:
+T3B60 000:221.971         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Qorvo\GPxxx\GPxxx.pex
+T3B60 000:221.985     Device entry modified: UE878NKDx
+T3B60 000:222.049       ChipInfo:
+T3B60 000:222.064         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Qorvo\GPxxx\GPxxx.pex
+T3B60 000:222.078     Device entry modified: UE878NKEx
+T3B60 000:222.173       ChipInfo:
+T3B60 000:222.188         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Qorvo\GPxxx\GPxxx.pex
+T3B60 000:222.202     Device entry modified: UE878NMDx
+T3B60 000:222.264       ChipInfo:
+T3B60 000:222.279         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Qorvo\GPxxx\GPxxx.pex
+T3B60 000:222.313     Device entry modified: UE878NMEx
+T3B60 000:222.390       ChipInfo:
+T3B60 000:222.405         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Qorvo\GPxxx\GPxxx.pex
+T3B60 000:222.420     Device entry modified: QPG6095x
+T3B60 000:222.482       ChipInfo:
+T3B60 000:222.497         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Qorvo\GPxxx\GPxxx.pex
+T3B60 000:222.512     Device entry modified: CY8C6xx6_CM0p
+T3B60 000:222.584       ChipInfo:
+T3B60 000:222.600         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Cypress\PSoC6\CY8C6xxx_CM0p.JLinkScript
+T3B60 000:222.614         WorkRAMSize:     0x00040000
+T3B60 000:222.627       FlashBankInfo:
+T3B60 000:222.639         Name:            FLASH  (Main)
+T3B60 000:222.652         BaseAddr:        0x10000000
+T3B60 000:222.761         AlwaysPresent:   1
+T3B60 000:222.777       FlashBankInfo:
+T3B60 000:222.789         Name:            WFLASH (Work)
+T3B60 000:222.802         BaseAddr:        0x14000000
+T3B60 000:222.909         AlwaysPresent:   1
+T3B60 000:222.924       FlashBankInfo:
+T3B60 000:222.937         Name:            SFLASH: User Data
+T3B60 000:222.950         BaseAddr:        0x16000800
+T3B60 000:223.057         AlwaysPresent:   1
+T3B60 000:223.072       FlashBankInfo:
+T3B60 000:223.086         Name:            SFLASH: NAR
+T3B60 000:223.114         BaseAddr:        0x16001A00
+T3B60 000:223.236         AlwaysPresent:   1
+T3B60 000:223.252       FlashBankInfo:
+T3B60 000:223.265         Name:            SFLASH: Public Key
+T3B60 000:223.278         BaseAddr:        0x16005A00
+T3B60 000:223.384         AlwaysPresent:   1
+T3B60 000:223.400       FlashBankInfo:
+T3B60 000:223.412         Name:            SFLASH: TOC2
+T3B60 000:223.425         BaseAddr:        0x16007C00
+T3B60 000:223.532         AlwaysPresent:   1
+T3B60 000:223.547       FlashBankInfo:
+T3B60 000:223.560         Name:            SMIF
+T3B60 000:223.573         BaseAddr:        0x18000000
+T3B60 000:223.682     Device entry modified: CY8C6xx6_CM0p_sect256KB
+T3B60 000:223.746       ChipInfo:
+T3B60 000:223.761         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Cypress\PSoC6\CY8C6xxx_CM0p.JLinkScript
+T3B60 000:223.774         WorkRAMSize:     0x00040000
+T3B60 000:223.787       FlashBankInfo:
+T3B60 000:223.800         Name:            FLASH  (Main)
+T3B60 000:223.812         BaseAddr:        0x10000000
+T3B60 000:223.919         AlwaysPresent:   1
+T3B60 000:223.935       FlashBankInfo:
+T3B60 000:223.948         Name:            WFLASH (Work)
+T3B60 000:223.960         BaseAddr:        0x14000000
+T3B60 000:224.065         AlwaysPresent:   1
+T3B60 000:224.081       FlashBankInfo:
+T3B60 000:224.110         Name:            SFLASH: User Data
+T3B60 000:224.123         BaseAddr:        0x16000800
+T3B60 000:224.243         AlwaysPresent:   1
+T3B60 000:224.258       FlashBankInfo:
+T3B60 000:224.271         Name:            SFLASH: NAR
+T3B60 000:224.283         BaseAddr:        0x16001A00
+T3B60 000:224.389         AlwaysPresent:   1
+T3B60 000:224.405       FlashBankInfo:
+T3B60 000:224.417         Name:            SFLASH: Public Key
+T3B60 000:224.430         BaseAddr:        0x16005A00
+T3B60 000:224.537         AlwaysPresent:   1
+T3B60 000:224.552       FlashBankInfo:
+T3B60 000:224.565         Name:            SFLASH: TOC2
+T3B60 000:224.594         BaseAddr:        0x16007C00
+T3B60 000:224.715         AlwaysPresent:   1
+T3B60 000:224.730       FlashBankInfo:
+T3B60 000:224.743         Name:            SMIF
+T3B60 000:224.756         BaseAddr:        0x18000000
+T3B60 000:224.864     Device entry modified: CY8C6xx6_CM0p_tm
+T3B60 000:224.928       ChipInfo:
+T3B60 000:224.943         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Cypress\PSoC6\CY8C6xxx_CM0p_tm_xA.JLinkScript
+T3B60 000:224.959         WorkRAMSize:     0x00040000
+T3B60 000:224.972       FlashBankInfo:
+T3B60 000:224.985         Name:            FLASH  (Main)
+T3B60 000:224.998         BaseAddr:        0x10000000
+T3B60 000:225.122         AlwaysPresent:   1
+T3B60 000:225.138       FlashBankInfo:
+T3B60 000:225.179         Name:            WFLASH (Work)
+T3B60 000:225.206         BaseAddr:        0x14000000
+T3B60 000:225.310         AlwaysPresent:   1
+T3B60 000:225.325       FlashBankInfo:
+T3B60 000:225.338         Name:            SFLASH: User Data
+T3B60 000:225.350         BaseAddr:        0x16000800
+T3B60 000:225.455         AlwaysPresent:   1
+T3B60 000:225.470       FlashBankInfo:
+T3B60 000:225.483         Name:            SFLASH: NAR
+T3B60 000:225.495         BaseAddr:        0x16001A00
+T3B60 000:225.601         AlwaysPresent:   1
+T3B60 000:225.616       FlashBankInfo:
+T3B60 000:225.628         Name:            SFLASH: Public Key
+T3B60 000:225.641         BaseAddr:        0x16005A00
+T3B60 000:225.747         AlwaysPresent:   1
+T3B60 000:225.763       FlashBankInfo:
+T3B60 000:225.775         Name:            SFLASH: TOC2
+T3B60 000:225.788         BaseAddr:        0x16007C00
+T3B60 000:225.892         AlwaysPresent:   1
+T3B60 000:225.908       FlashBankInfo:
+T3B60 000:225.921         Name:            SMIF
+T3B60 000:225.933         BaseAddr:        0x18000000
+T3B60 000:226.041     Device entry modified: CY8C6xx6_CM0p_sect256KB_tm
+T3B60 000:226.130       ChipInfo:
+T3B60 000:226.159         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Cypress\PSoC6\CY8C6xxx_CM0p_tm_xA.JLinkScript
+T3B60 000:226.172         WorkRAMSize:     0x00040000
+T3B60 000:226.185       FlashBankInfo:
+T3B60 000:226.198         Name:            FLASH  (Main)
+T3B60 000:226.210         BaseAddr:        0x10000000
+T3B60 000:226.316         AlwaysPresent:   1
+T3B60 000:226.331       FlashBankInfo:
+T3B60 000:226.344         Name:            WFLASH (Work)
+T3B60 000:226.357         BaseAddr:        0x14000000
+T3B60 000:226.461         AlwaysPresent:   1
+T3B60 000:226.477       FlashBankInfo:
+T3B60 000:226.489         Name:            SFLASH: User Data
+T3B60 000:226.502         BaseAddr:        0x16000800
+T3B60 000:226.607         AlwaysPresent:   1
+T3B60 000:226.622       FlashBankInfo:
+T3B60 000:226.635         Name:            SFLASH: NAR
+T3B60 000:226.648         BaseAddr:        0x16001A00
+T3B60 000:226.752         AlwaysPresent:   1
+T3B60 000:226.768       FlashBankInfo:
+T3B60 000:226.780         Name:            SFLASH: Public Key
+T3B60 000:226.793         BaseAddr:        0x16005A00
+T3B60 000:226.897         AlwaysPresent:   1
+T3B60 000:226.913       FlashBankInfo:
+T3B60 000:226.926         Name:            SFLASH: TOC2
+T3B60 000:226.939         BaseAddr:        0x16007C00
+T3B60 000:227.044         AlwaysPresent:   1
+T3B60 000:227.059       FlashBankInfo:
+T3B60 000:227.072         Name:            SMIF
+T3B60 000:227.086         BaseAddr:        0x18000000
+T3B60 000:227.192     Device entry modified: CY8C6xx6_CM4
+T3B60 000:227.255       ChipInfo:
+T3B60 000:227.270         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Cypress\PSoC6\CY8C6xxx_CM4.JLinkScript
+T3B60 000:227.298         WorkRAMSize:     0x00040000
+T3B60 000:227.313       FlashBankInfo:
+T3B60 000:227.325         Name:            FLASH  (Main)
+T3B60 000:227.338         BaseAddr:        0x10000000
+T3B60 000:227.447         AlwaysPresent:   1
+T3B60 000:227.463       FlashBankInfo:
+T3B60 000:227.475         Name:            WFLASH (Work)
+T3B60 000:227.488         BaseAddr:        0x14000000
+T3B60 000:227.595         AlwaysPresent:   1
+T3B60 000:227.611       FlashBankInfo:
+T3B60 000:227.624         Name:            SFLASH: User Data
+T3B60 000:227.637         BaseAddr:        0x16000800
+T3B60 000:227.744         AlwaysPresent:   1
+T3B60 000:227.759       FlashBankInfo:
+T3B60 000:227.773         Name:            SFLASH: NAR
+T3B60 000:227.785         BaseAddr:        0x16001A00
+T3B60 000:227.896         AlwaysPresent:   1
+T3B60 000:227.919       FlashBankInfo:
+T3B60 000:227.932         Name:            SFLASH: Public Key
+T3B60 000:227.945         BaseAddr:        0x16005A00
+T3B60 000:228.053         AlwaysPresent:   1
+T3B60 000:228.069       FlashBankInfo:
+T3B60 000:228.082         Name:            SFLASH: TOC2
+T3B60 000:228.096         BaseAddr:        0x16007C00
+T3B60 000:228.204         AlwaysPresent:   1
+T3B60 000:228.220       FlashBankInfo:
+T3B60 000:228.232         Name:            SMIF
+T3B60 000:228.246         BaseAddr:        0x18000000
+T3B60 000:228.356     Device entry modified: CY8C6xx6_CM4_sect256KB
+T3B60 000:228.421       ChipInfo:
+T3B60 000:228.437         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Cypress\PSoC6\CY8C6xxx_CM4.JLinkScript
+T3B60 000:228.450         WorkRAMSize:     0x00040000
+T3B60 000:228.466       FlashBankInfo:
+T3B60 000:228.479         Name:            FLASH  (Main)
+T3B60 000:228.492         BaseAddr:        0x10000000
+T3B60 000:228.600         AlwaysPresent:   1
+T3B60 000:228.616       FlashBankInfo:
+T3B60 000:228.629         Name:            WFLASH (Work)
+T3B60 000:228.642         BaseAddr:        0x14000000
+T3B60 000:228.748         AlwaysPresent:   1
+T3B60 000:228.764       FlashBankInfo:
+T3B60 000:228.778         Name:            SFLASH: User Data
+T3B60 000:228.790         BaseAddr:        0x16000800
+T3B60 000:228.898         AlwaysPresent:   1
+T3B60 000:228.913       FlashBankInfo:
+T3B60 000:228.926         Name:            SFLASH: NAR
+T3B60 000:228.939         BaseAddr:        0x16001A00
+T3B60 000:229.046         AlwaysPresent:   1
+T3B60 000:229.062       FlashBankInfo:
+T3B60 000:229.076         Name:            SFLASH: Public Key
+T3B60 000:229.090         BaseAddr:        0x16005A00
+T3B60 000:229.197         AlwaysPresent:   1
+T3B60 000:229.213       FlashBankInfo:
+T3B60 000:229.226         Name:            SFLASH: TOC2
+T3B60 000:229.239         BaseAddr:        0x16007C00
+T3B60 000:229.347         AlwaysPresent:   1
+T3B60 000:229.362       FlashBankInfo:
+T3B60 000:229.375         Name:            SMIF
+T3B60 000:229.388         BaseAddr:        0x18000000
+T3B60 000:229.499     Device entry modified: CY8C6xx7_CM0p
+T3B60 000:229.563       ChipInfo:
+T3B60 000:229.579         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Cypress\PSoC6\CY8C6xxx_CM0p.JLinkScript
+T3B60 000:229.592         WorkRAMSize:     0x00040000
+T3B60 000:229.606       FlashBankInfo:
+T3B60 000:229.619         Name:            FLASH  (Main)
+T3B60 000:229.632         BaseAddr:        0x10000000
+T3B60 000:229.739         AlwaysPresent:   1
+T3B60 000:229.755       FlashBankInfo:
+T3B60 000:229.768         Name:            WFLASH (Work)
+T3B60 000:229.781         BaseAddr:        0x14000000
+T3B60 000:229.887         AlwaysPresent:   1
+T3B60 000:229.903       FlashBankInfo:
+T3B60 000:229.916         Name:            SFLASH: User Data
+T3B60 000:229.929         BaseAddr:        0x16000800
+T3B60 000:230.036         AlwaysPresent:   1
+T3B60 000:230.052       FlashBankInfo:
+T3B60 000:230.065         Name:            SFLASH: NAR
+T3B60 000:230.078         BaseAddr:        0x16001A00
+T3B60 000:230.186         AlwaysPresent:   1
+T3B60 000:230.202       FlashBankInfo:
+T3B60 000:230.215         Name:            SFLASH: Public Key
+T3B60 000:230.227         BaseAddr:        0x16005A00
+T3B60 000:230.334         AlwaysPresent:   1
+T3B60 000:230.350       FlashBankInfo:
+T3B60 000:230.363         Name:            SFLASH: TOC2
+T3B60 000:230.376         BaseAddr:        0x16007C00
+T3B60 000:230.483         AlwaysPresent:   1
+T3B60 000:230.499       FlashBankInfo:
+T3B60 000:230.512         Name:            SMIF
+T3B60 000:230.525         BaseAddr:        0x18000000
+T3B60 000:230.635     Device entry modified: CY8C6xx7_CM0p_sect256KB
+T3B60 000:230.710       ChipInfo:
+T3B60 000:230.725         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Cypress\PSoC6\CY8C6xxx_CM0p.JLinkScript
+T3B60 000:230.742         WorkRAMSize:     0x00040000
+T3B60 000:230.756       FlashBankInfo:
+T3B60 000:230.768         Name:            FLASH  (Main)
+T3B60 000:230.781         BaseAddr:        0x10000000
+T3B60 000:230.891         AlwaysPresent:   1
+T3B60 000:230.907       FlashBankInfo:
+T3B60 000:230.919         Name:            WFLASH (Work)
+T3B60 000:230.932         BaseAddr:        0x14000000
+T3B60 000:231.039         AlwaysPresent:   1
+T3B60 000:231.055       FlashBankInfo:
+T3B60 000:231.068         Name:            SFLASH: User Data
+T3B60 000:231.081         BaseAddr:        0x16000800
+T3B60 000:231.188         AlwaysPresent:   1
+T3B60 000:231.204       FlashBankInfo:
+T3B60 000:231.217         Name:            SFLASH: NAR
+T3B60 000:231.230         BaseAddr:        0x16001A00
+T3B60 000:231.338         AlwaysPresent:   1
+T3B60 000:231.354       FlashBankInfo:
+T3B60 000:231.367         Name:            SFLASH: Public Key
+T3B60 000:231.380         BaseAddr:        0x16005A00
+T3B60 000:231.488         AlwaysPresent:   1
+T3B60 000:231.504       FlashBankInfo:
+T3B60 000:231.518         Name:            SFLASH: TOC2
+T3B60 000:231.531         BaseAddr:        0x16007C00
+T3B60 000:231.639         AlwaysPresent:   1
+T3B60 000:231.655       FlashBankInfo:
+T3B60 000:231.668         Name:            SMIF
+T3B60 000:231.680         BaseAddr:        0x18000000
+T3B60 000:231.789     Device entry modified: CY8C6xx7_CM0p_tm
+T3B60 000:231.854       ChipInfo:
+T3B60 000:231.870         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Cypress\PSoC6\CY8C6xxx_CM0p_tm_xA.JLinkScript
+T3B60 000:231.883         WorkRAMSize:     0x00040000
+T3B60 000:231.897       FlashBankInfo:
+T3B60 000:231.910         Name:            FLASH  (Main)
+T3B60 000:231.923         BaseAddr:        0x10000000
+T3B60 000:232.030         AlwaysPresent:   1
+T3B60 000:232.046       FlashBankInfo:
+T3B60 000:232.059         Name:            WFLASH (Work)
+T3B60 000:232.072         BaseAddr:        0x14000000
+T3B60 000:232.180         AlwaysPresent:   1
+T3B60 000:232.196       FlashBankInfo:
+T3B60 000:232.209         Name:            SFLASH: User Data
+T3B60 000:232.222         BaseAddr:        0x16000800
+T3B60 000:232.330         AlwaysPresent:   1
+T3B60 000:232.346       FlashBankInfo:
+T3B60 000:232.358         Name:            SFLASH: NAR
+T3B60 000:232.371         BaseAddr:        0x16001A00
+T3B60 000:232.479         AlwaysPresent:   1
+T3B60 000:232.495       FlashBankInfo:
+T3B60 000:232.508         Name:            SFLASH: Public Key
+T3B60 000:232.521         BaseAddr:        0x16005A00
+T3B60 000:232.629         AlwaysPresent:   1
+T3B60 000:232.644       FlashBankInfo:
+T3B60 000:232.657         Name:            SFLASH: TOC2
+T3B60 000:232.670         BaseAddr:        0x16007C00
+T3B60 000:232.777         AlwaysPresent:   1
+T3B60 000:232.793       FlashBankInfo:
+T3B60 000:232.806         Name:            SMIF
+T3B60 000:232.819         BaseAddr:        0x18000000
+T3B60 000:232.928     Device entry modified: CY8C6xx7_CM0p_sect256KB_tm
+T3B60 000:232.995       ChipInfo:
+T3B60 000:233.010         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Cypress\PSoC6\CY8C6xxx_CM0p_tm_xA.JLinkScript
+T3B60 000:233.024         WorkRAMSize:     0x00040000
+T3B60 000:233.038       FlashBankInfo:
+T3B60 000:233.050         Name:            FLASH  (Main)
+T3B60 000:233.063         BaseAddr:        0x10000000
+T3B60 000:233.173         AlwaysPresent:   1
+T3B60 000:233.189       FlashBankInfo:
+T3B60 000:233.201         Name:            WFLASH (Work)
+T3B60 000:233.214         BaseAddr:        0x14000000
+T3B60 000:233.321         AlwaysPresent:   1
+T3B60 000:233.337       FlashBankInfo:
+T3B60 000:233.350         Name:            SFLASH: User Data
+T3B60 000:233.363         BaseAddr:        0x16000800
+T3B60 000:233.471         AlwaysPresent:   1
+T3B60 000:233.486       FlashBankInfo:
+T3B60 000:233.500         Name:            SFLASH: NAR
+T3B60 000:233.515         BaseAddr:        0x16001A00
+T3B60 000:233.624         AlwaysPresent:   1
+T3B60 000:233.640       FlashBankInfo:
+T3B60 000:233.653         Name:            SFLASH: Public Key
+T3B60 000:233.666         BaseAddr:        0x16005A00
+T3B60 000:233.774         AlwaysPresent:   1
+T3B60 000:233.791       FlashBankInfo:
+T3B60 000:233.803         Name:            SFLASH: TOC2
+T3B60 000:233.816         BaseAddr:        0x16007C00
+T3B60 000:233.925         AlwaysPresent:   1
+T3B60 000:233.941       FlashBankInfo:
+T3B60 000:233.954         Name:            SMIF
+T3B60 000:233.966         BaseAddr:        0x18000000
+T3B60 000:234.081     Device entry modified: CY8C6xx7_CM4
+T3B60 000:234.154       ChipInfo:
+T3B60 000:234.170         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Cypress\PSoC6\CY8C6xxx_CM4.JLinkScript
+T3B60 000:234.183         WorkRAMSize:     0x00040000
+T3B60 000:234.198       FlashBankInfo:
+T3B60 000:234.211         Name:            FLASH  (Main)
+T3B60 000:234.224         BaseAddr:        0x10000000
+T3B60 000:234.332         AlwaysPresent:   1
+T3B60 000:234.348       FlashBankInfo:
+T3B60 000:234.361         Name:            WFLASH (Work)
+T3B60 000:234.374         BaseAddr:        0x14000000
+T3B60 000:234.481         AlwaysPresent:   1
+T3B60 000:234.497       FlashBankInfo:
+T3B60 000:234.510         Name:            SFLASH: User Data
+T3B60 000:234.523         BaseAddr:        0x16000800
+T3B60 000:234.630         AlwaysPresent:   1
+T3B60 000:234.646       FlashBankInfo:
+T3B60 000:234.659         Name:            SFLASH: NAR
+T3B60 000:234.672         BaseAddr:        0x16001A00
+T3B60 000:234.779         AlwaysPresent:   1
+T3B60 000:234.795       FlashBankInfo:
+T3B60 000:234.808         Name:            SFLASH: Public Key
+T3B60 000:234.820         BaseAddr:        0x16005A00
+T3B60 000:234.927         AlwaysPresent:   1
+T3B60 000:234.943       FlashBankInfo:
+T3B60 000:234.956         Name:            SFLASH: TOC2
+T3B60 000:234.969         BaseAddr:        0x16007C00
+T3B60 000:235.077         AlwaysPresent:   1
+T3B60 000:235.093       FlashBankInfo:
+T3B60 000:235.106         Name:            SMIF
+T3B60 000:235.119         BaseAddr:        0x18000000
+T3B60 000:235.230     Device entry modified: CY8C6xx7_CM4_sect256KB
+T3B60 000:235.295       ChipInfo:
+T3B60 000:235.310         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Cypress\PSoC6\CY8C6xxx_CM4.JLinkScript
+T3B60 000:235.324         WorkRAMSize:     0x00040000
+T3B60 000:235.339       FlashBankInfo:
+T3B60 000:235.351         Name:            FLASH  (Main)
+T3B60 000:235.364         BaseAddr:        0x10000000
+T3B60 000:235.472         AlwaysPresent:   1
+T3B60 000:235.488       FlashBankInfo:
+T3B60 000:235.501         Name:            WFLASH (Work)
+T3B60 000:235.514         BaseAddr:        0x14000000
+T3B60 000:235.621         AlwaysPresent:   1
+T3B60 000:235.637       FlashBankInfo:
+T3B60 000:235.649         Name:            SFLASH: User Data
+T3B60 000:235.662         BaseAddr:        0x16000800
+T3B60 000:235.769         AlwaysPresent:   1
+T3B60 000:235.784       FlashBankInfo:
+T3B60 000:235.797         Name:            SFLASH: NAR
+T3B60 000:235.810         BaseAddr:        0x16001A00
+T3B60 000:235.917         AlwaysPresent:   1
+T3B60 000:235.932       FlashBankInfo:
+T3B60 000:235.945         Name:            SFLASH: Public Key
+T3B60 000:235.958         BaseAddr:        0x16005A00
+T3B60 000:236.067         AlwaysPresent:   1
+T3B60 000:236.084       FlashBankInfo:
+T3B60 000:236.097         Name:            SFLASH: TOC2
+T3B60 000:236.110         BaseAddr:        0x16007C00
+T3B60 000:236.218         AlwaysPresent:   1
+T3B60 000:236.233       FlashBankInfo:
+T3B60 000:236.246         Name:            SMIF
+T3B60 000:236.259         BaseAddr:        0x18000000
+T3B60 000:236.368     Device entry modified: RSL10
+T3B60 000:236.387       ChipInfo:
+T3B60 000:236.401         Core:            JLINK_CORE_CORTEX_M3_R2P1
+T3B60 000:236.474         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ONSemiconductor\RSL10\ONSemiconductor_RSL10.JLinkScript
+T3B60 000:236.490       FlashBankInfo:
+T3B60 000:236.503         Name:            Main Flash
+T3B60 000:236.515         BaseAddr:        0x00100000
+T3B60 000:236.631         AlwaysPresent:   1
+T3B60 000:236.646       FlashBankInfo:
+T3B60 000:236.659         Name:            NVR Flash
+T3B60 000:236.672         BaseAddr:        0x00080000
+T3B60 000:236.785     Device entry modified: E31ARTY
+T3B60 000:236.799       FlashBankInfo:
+T3B60 000:236.813         Name:            QSPI Flash
+T3B60 000:236.826         BaseAddr:        0x40000000
+T3B60 000:236.935     Device entry modified: STM32F412CE
+T3B60 000:236.958       FlashBankInfo:
+T3B60 000:236.972         Name:            QSPI Flash
+T3B60 000:236.985         BaseAddr:        0x90000000
+T3B60 000:237.099     Device entry modified: STM32F412RE
+T3B60 000:237.113       FlashBankInfo:
+T3B60 000:237.126         Name:            QSPI Flash
+T3B60 000:237.139         BaseAddr:        0x90000000
+T3B60 000:237.250     Device entry modified: STM32F412ZG
+T3B60 000:237.264       FlashBankInfo:
+T3B60 000:237.276         Name:            QSPI Flash
+T3B60 000:237.289         BaseAddr:        0x90000000
+T3B60 000:237.400     Device entry modified: STM32F412RG
+T3B60 000:237.413       FlashBankInfo:
+T3B60 000:237.426         Name:            QSPI Flash
+T3B60 000:237.439         BaseAddr:        0x90000000
+T3B60 000:237.549     Device entry modified: STM32F412VE
+T3B60 000:237.562       FlashBankInfo:
+T3B60 000:237.575         Name:            QSPI Flash
+T3B60 000:237.588         BaseAddr:        0x90000000
+T3B60 000:237.697     Device entry modified: STM32F412VG
+T3B60 000:237.710       FlashBankInfo:
+T3B60 000:237.723         Name:            QSPI Flash
+T3B60 000:237.736         BaseAddr:        0x90000000
+T3B60 000:237.845     Device entry modified: STM32F412CG
+T3B60 000:237.859       FlashBankInfo:
+T3B60 000:237.872         Name:            QSPI Flash
+T3B60 000:237.885         BaseAddr:        0x90000000
+T3B60 000:237.994     Device entry modified: STM32F412ZE
+T3B60 000:238.007       FlashBankInfo:
+T3B60 000:238.020         Name:            QSPI Flash
+T3B60 000:238.033         BaseAddr:        0x90000000
+T3B60 000:238.145     Device entry modified: STM32F469AE
+T3B60 000:238.160       FlashBankInfo:
+T3B60 000:238.173         Name:            QSPI Flash
+T3B60 000:238.186         BaseAddr:        0x90000000
+T3B60 000:238.295     Device entry modified: STM32F469AG
+T3B60 000:238.308       FlashBankInfo:
+T3B60 000:238.321         Name:            QSPI Flash
+T3B60 000:238.334         BaseAddr:        0x90000000
+T3B60 000:238.443     Device entry modified: STM32F469AI
+T3B60 000:238.456       FlashBankInfo:
+T3B60 000:238.470         Name:            QSPI Flash
+T3B60 000:238.483         BaseAddr:        0x90000000
+T3B60 000:238.592     Device entry modified: STM32F469BE
+T3B60 000:238.605       FlashBankInfo:
+T3B60 000:238.618         Name:            QSPI Flash
+T3B60 000:238.631         BaseAddr:        0x90000000
+T3B60 000:238.740     Device entry modified: STM32F469BG
+T3B60 000:238.753       FlashBankInfo:
+T3B60 000:238.766         Name:            QSPI Flash
+T3B60 000:238.779         BaseAddr:        0x90000000
+T3B60 000:238.889     Device entry modified: STM32F469BI
+T3B60 000:238.902       FlashBankInfo:
+T3B60 000:238.915         Name:            QSPI Flash
+T3B60 000:238.928         BaseAddr:        0x90000000
+T3B60 000:239.037     Device entry modified: STM32F469IE
+T3B60 000:239.051       FlashBankInfo:
+T3B60 000:239.064         Name:            QSPI Flash
+T3B60 000:239.076         BaseAddr:        0x90000000
+T3B60 000:239.186     Device entry modified: STM32F469IG
+T3B60 000:239.199       FlashBankInfo:
+T3B60 000:239.212         Name:            QSPI Flash
+T3B60 000:239.225         BaseAddr:        0x90000000
+T3B60 000:239.334     Device entry modified: STM32F469II
+T3B60 000:239.349       FlashBankInfo:
+T3B60 000:239.363         Name:            QSPI Flash
+T3B60 000:239.376         BaseAddr:        0x90000000
+T3B60 000:239.486     Device entry modified: STM32F469NE
+T3B60 000:239.499       FlashBankInfo:
+T3B60 000:239.512         Name:            QSPI Flash
+T3B60 000:239.525         BaseAddr:        0x90000000
+T3B60 000:239.635     Device entry modified: STM32F469NG
+T3B60 000:239.648       FlashBankInfo:
+T3B60 000:239.661         Name:            QSPI Flash
+T3B60 000:239.674         BaseAddr:        0x90000000
+T3B60 000:239.783     Device entry modified: STM32F469NI
+T3B60 000:239.797       FlashBankInfo:
+T3B60 000:239.810         Name:            QSPI Flash
+T3B60 000:239.822         BaseAddr:        0x90000000
+T3B60 000:239.931     Device entry modified: STM32F469VE
+T3B60 000:239.944       FlashBankInfo:
+T3B60 000:239.958         Name:            QSPI Flash
+T3B60 000:239.970         BaseAddr:        0x90000000
+T3B60 000:240.080     Device entry modified: STM32F469VG
+T3B60 000:240.093       FlashBankInfo:
+T3B60 000:240.105         Name:            QSPI Flash
+T3B60 000:240.118         BaseAddr:        0x90000000
+T3B60 000:240.227     Device entry modified: STM32F469VI
+T3B60 000:240.240       FlashBankInfo:
+T3B60 000:240.253         Name:            QSPI Flash
+T3B60 000:240.266         BaseAddr:        0x90000000
+T3B60 000:240.375     Device entry modified: STM32F469ZE
+T3B60 000:240.388       FlashBankInfo:
+T3B60 000:240.402         Name:            QSPI Flash
+T3B60 000:240.414         BaseAddr:        0x90000000
+T3B60 000:240.523     Device entry modified: STM32F469ZG
+T3B60 000:240.536       FlashBankInfo:
+T3B60 000:240.549         Name:            QSPI Flash
+T3B60 000:240.562         BaseAddr:        0x90000000
+T3B60 000:240.672     Device entry modified: STM32F469ZI
+T3B60 000:240.685       FlashBankInfo:
+T3B60 000:240.698         Name:            QSPI Flash
+T3B60 000:240.711         BaseAddr:        0x90000000
+T3B60 000:240.820     Device entry modified: STM32F723IC
+T3B60 000:240.838       FlashBankInfo:
+T3B60 000:240.852         Name:            QSPI Flash
+T3B60 000:240.865         BaseAddr:        0x90000000
+T3B60 000:240.977     Device entry modified: STM32F723IE
+T3B60 000:240.991       FlashBankInfo:
+T3B60 000:241.004         Name:            QSPI Flash
+T3B60 000:241.017         BaseAddr:        0x90000000
+T3B60 000:241.127     Device entry modified: STM32F723VE
+T3B60 000:241.140       FlashBankInfo:
+T3B60 000:241.153         Name:            QSPI Flash
+T3B60 000:241.166         BaseAddr:        0x90000000
+T3B60 000:241.275     Device entry modified: STM32F723ZC
+T3B60 000:241.288       FlashBankInfo:
+T3B60 000:241.301         Name:            QSPI Flash
+T3B60 000:241.314         BaseAddr:        0x90000000
+T3B60 000:241.424     Device entry modified: STM32F723ZE
+T3B60 000:241.437       FlashBankInfo:
+T3B60 000:241.450         Name:            QSPI Flash
+T3B60 000:241.463         BaseAddr:        0x90000000
+T3B60 000:241.573     Device entry modified: STM32F745IE
+T3B60 000:241.587       FlashBankInfo:
+T3B60 000:241.600         Name:            QSPI Flash
+T3B60 000:241.613         BaseAddr:        0x90000000
+T3B60 000:241.723     Device entry modified: STM32F745IG
+T3B60 000:241.736       FlashBankInfo:
+T3B60 000:241.749         Name:            QSPI Flash
+T3B60 000:241.762         BaseAddr:        0x90000000
+T3B60 000:241.871     Device entry modified: STM32F745VE
+T3B60 000:241.884       FlashBankInfo:
+T3B60 000:241.897         Name:            QSPI Flash
+T3B60 000:241.910         BaseAddr:        0x90000000
+T3B60 000:242.019     Device entry modified: STM32F745VG
+T3B60 000:242.032       FlashBankInfo:
+T3B60 000:242.045         Name:            QSPI Flash
+T3B60 000:242.058         BaseAddr:        0x90000000
+T3B60 000:242.174     Device entry modified: STM32F745ZE
+T3B60 000:242.188       FlashBankInfo:
+T3B60 000:242.201         Name:            QSPI Flash
+T3B60 000:242.214         BaseAddr:        0x90000000
+T3B60 000:242.327     Device entry modified: STM32F745ZG
+T3B60 000:242.340       FlashBankInfo:
+T3B60 000:242.353         Name:            QSPI Flash
+T3B60 000:242.366         BaseAddr:        0x90000000
+T3B60 000:242.476     Device entry modified: STM32F746BE
+T3B60 000:242.490       FlashBankInfo:
+T3B60 000:242.503         Name:            QSPI Flash
+T3B60 000:242.516         BaseAddr:        0x90000000
+T3B60 000:242.625     Device entry modified: STM32F746BG
+T3B60 000:242.638       FlashBankInfo:
+T3B60 000:242.651         Name:            QSPI Flash
+T3B60 000:242.664         BaseAddr:        0x90000000
+T3B60 000:242.773     Device entry modified: STM32F746IE
+T3B60 000:242.787       FlashBankInfo:
+T3B60 000:242.800         Name:            QSPI Flash
+T3B60 000:242.813         BaseAddr:        0x90000000
+T3B60 000:242.922     Device entry modified: STM32F746IG
+T3B60 000:242.936       FlashBankInfo:
+T3B60 000:242.949         Name:            QSPI Flash
+T3B60 000:242.962         BaseAddr:        0x90000000
+T3B60 000:243.072     Device entry modified: STM32F746NE
+T3B60 000:243.086       FlashBankInfo:
+T3B60 000:243.099         Name:            QSPI Flash
+T3B60 000:243.112         BaseAddr:        0x90000000
+T3B60 000:243.220     Device entry modified: STM32F746NG
+T3B60 000:243.233       FlashBankInfo:
+T3B60 000:243.246         Name:            QSPI Flash
+T3B60 000:243.260         BaseAddr:        0x90000000
+T3B60 000:243.369     Device entry modified: STM32F746VE
+T3B60 000:243.383       FlashBankInfo:
+T3B60 000:243.395         Name:            QSPI Flash
+T3B60 000:243.408         BaseAddr:        0x90000000
+T3B60 000:243.517     Device entry modified: STM32F746VG
+T3B60 000:243.530       FlashBankInfo:
+T3B60 000:243.543         Name:            QSPI Flash
+T3B60 000:243.556         BaseAddr:        0x90000000
+T3B60 000:243.665     Device entry modified: STM32F746ZE
+T3B60 000:243.679       FlashBankInfo:
+T3B60 000:243.691         Name:            QSPI Flash
+T3B60 000:243.704         BaseAddr:        0x90000000
+T3B60 000:243.813     Device entry modified: STM32F746ZG
+T3B60 000:243.827       FlashBankInfo:
+T3B60 000:243.840         Name:            QSPI Flash
+T3B60 000:243.852         BaseAddr:        0x90000000
+T3B60 000:243.963     Device entry modified: STM32F756BE
+T3B60 000:243.976       FlashBankInfo:
+T3B60 000:243.989         Name:            QSPI Flash
+T3B60 000:244.002         BaseAddr:        0x90000000
+T3B60 000:244.114     Device entry modified: STM32F756BG
+T3B60 000:244.127       FlashBankInfo:
+T3B60 000:244.140         Name:            QSPI Flash
+T3B60 000:244.153         BaseAddr:        0x90000000
+T3B60 000:244.263     Device entry modified: STM32F756IE
+T3B60 000:244.276       FlashBankInfo:
+T3B60 000:244.289         Name:            QSPI Flash
+T3B60 000:244.302         BaseAddr:        0x90000000
+T3B60 000:244.411     Device entry modified: STM32F756IG
+T3B60 000:244.424       FlashBankInfo:
+T3B60 000:244.437         Name:            QSPI Flash
+T3B60 000:244.450         BaseAddr:        0x90000000
+T3B60 000:244.559     Device entry modified: STM32F756NE
+T3B60 000:244.572       FlashBankInfo:
+T3B60 000:244.585         Name:            QSPI Flash
+T3B60 000:244.598         BaseAddr:        0x90000000
+T3B60 000:244.708     Device entry modified: STM32F756NG
+T3B60 000:244.720       FlashBankInfo:
+T3B60 000:244.734         Name:            QSPI Flash
+T3B60 000:244.746         BaseAddr:        0x90000000
+T3B60 000:244.856     Device entry modified: STM32F756VE
+T3B60 000:244.869       FlashBankInfo:
+T3B60 000:244.882         Name:            QSPI Flash
+T3B60 000:244.895         BaseAddr:        0x90000000
+T3B60 000:245.004     Device entry modified: STM32F756VG
+T3B60 000:245.017       FlashBankInfo:
+T3B60 000:245.030         Name:            QSPI Flash
+T3B60 000:245.042         BaseAddr:        0x90000000
+T3B60 000:245.153     Device entry modified: STM32F756ZE
+T3B60 000:245.166       FlashBankInfo:
+T3B60 000:245.179         Name:            QSPI Flash
+T3B60 000:245.192         BaseAddr:        0x90000000
+T3B60 000:245.305     Device entry modified: STM32F756ZG
+T3B60 000:245.319       FlashBankInfo:
+T3B60 000:245.331         Name:            QSPI Flash
+T3B60 000:245.345         BaseAddr:        0x90000000
+T3B60 000:245.455     Device entry modified: STM32F765BG
+T3B60 000:245.468       FlashBankInfo:
+T3B60 000:245.481         Name:            QSPI Flash
+T3B60 000:245.494         BaseAddr:        0x90000000
+T3B60 000:245.603     Device entry modified: STM32F765BI
+T3B60 000:245.617       FlashBankInfo:
+T3B60 000:245.630         Name:            QSPI Flash
+T3B60 000:245.642         BaseAddr:        0x90000000
+T3B60 000:245.752     Device entry modified: STM32F765IG
+T3B60 000:245.765       FlashBankInfo:
+T3B60 000:245.778         Name:            QSPI Flash
+T3B60 000:245.791         BaseAddr:        0x90000000
+T3B60 000:245.900     Device entry modified: STM32F765II
+T3B60 000:245.913       FlashBankInfo:
+T3B60 000:245.926         Name:            QSPI Flash
+T3B60 000:245.939         BaseAddr:        0x90000000
+T3B60 000:246.047     Device entry modified: STM32F765NG
+T3B60 000:246.061       FlashBankInfo:
+T3B60 000:246.075         Name:            QSPI Flash
+T3B60 000:246.087         BaseAddr:        0x90000000
+T3B60 000:246.196     Device entry modified: STM32F765NI
+T3B60 000:246.209       FlashBankInfo:
+T3B60 000:246.222         Name:            QSPI Flash
+T3B60 000:246.235         BaseAddr:        0x90000000
+T3B60 000:246.343     Device entry modified: STM32F765VG
+T3B60 000:246.356       FlashBankInfo:
+T3B60 000:246.369         Name:            QSPI Flash
+T3B60 000:246.382         BaseAddr:        0x90000000
+T3B60 000:246.491     Device entry modified: STM32F765VI
+T3B60 000:246.504       FlashBankInfo:
+T3B60 000:246.517         Name:            QSPI Flash
+T3B60 000:246.530         BaseAddr:        0x90000000
+T3B60 000:246.639     Device entry modified: STM32F765ZG
+T3B60 000:246.652       FlashBankInfo:
+T3B60 000:246.665         Name:            QSPI Flash
+T3B60 000:246.678         BaseAddr:        0x90000000
+T3B60 000:246.787     Device entry modified: STM32F765ZI
+T3B60 000:246.800       FlashBankInfo:
+T3B60 000:246.813         Name:            QSPI Flash
+T3B60 000:246.826         BaseAddr:        0x90000000
+T3B60 000:246.935     Device entry modified: STM32F767BG
+T3B60 000:246.948       FlashBankInfo:
+T3B60 000:246.961         Name:            QSPI Flash
+T3B60 000:246.974         BaseAddr:        0x90000000
+T3B60 000:247.084     Device entry modified: STM32F767BI
+T3B60 000:247.097       FlashBankInfo:
+T3B60 000:247.110         Name:            QSPI Flash
+T3B60 000:247.123         BaseAddr:        0x90000000
+T3B60 000:247.232     Device entry modified: STM32F767IG
+T3B60 000:247.245       FlashBankInfo:
+T3B60 000:247.258         Name:            QSPI Flash
+T3B60 000:247.271         BaseAddr:        0x90000000
+T3B60 000:247.380     Device entry modified: STM32F767II
+T3B60 000:247.393       FlashBankInfo:
+T3B60 000:247.406         Name:            QSPI Flash
+T3B60 000:247.419         BaseAddr:        0x90000000
+T3B60 000:247.528     Device entry modified: STM32F767NG
+T3B60 000:247.541       FlashBankInfo:
+T3B60 000:247.554         Name:            QSPI Flash
+T3B60 000:247.567         BaseAddr:        0x90000000
+T3B60 000:247.676     Device entry modified: STM32F767NI
+T3B60 000:247.689       FlashBankInfo:
+T3B60 000:247.702         Name:            QSPI Flash
+T3B60 000:247.715         BaseAddr:        0x90000000
+T3B60 000:247.824     Device entry modified: STM32F767VG
+T3B60 000:247.837       FlashBankInfo:
+T3B60 000:247.850         Name:            QSPI Flash
+T3B60 000:247.863         BaseAddr:        0x90000000
+T3B60 000:247.972     Device entry modified: STM32F767VI
+T3B60 000:247.985       FlashBankInfo:
+T3B60 000:247.998         Name:            QSPI Flash
+T3B60 000:248.011         BaseAddr:        0x90000000
+T3B60 000:248.122     Device entry modified: STM32F767ZG
+T3B60 000:248.135       FlashBankInfo:
+T3B60 000:248.148         Name:            QSPI Flash
+T3B60 000:248.163         BaseAddr:        0x90000000
+T3B60 000:248.273     Device entry modified: STM32F767ZI
+T3B60 000:248.287       FlashBankInfo:
+T3B60 000:248.300         Name:            QSPI Flash
+T3B60 000:248.313         BaseAddr:        0x90000000
+T3B60 000:248.422     Device entry modified: STM32F768AI
+T3B60 000:248.435       FlashBankInfo:
+T3B60 000:248.448         Name:            QSPI Flash
+T3B60 000:248.461         BaseAddr:        0x90000000
+T3B60 000:248.570     Device entry modified: STM32F769AG
+T3B60 000:248.583       FlashBankInfo:
+T3B60 000:248.596         Name:            QSPI Flash
+T3B60 000:248.609         BaseAddr:        0x90000000
+T3B60 000:248.718     Device entry modified: STM32F769AI
+T3B60 000:248.731       FlashBankInfo:
+T3B60 000:248.744         Name:            QSPI Flash
+T3B60 000:248.757         BaseAddr:        0x90000000
+T3B60 000:248.866     Device entry modified: STM32F769BG
+T3B60 000:248.879       FlashBankInfo:
+T3B60 000:248.892         Name:            QSPI Flash
+T3B60 000:248.905         BaseAddr:        0x90000000
+T3B60 000:249.014     Device entry modified: STM32F769BI
+T3B60 000:249.027       FlashBankInfo:
+T3B60 000:249.040         Name:            QSPI Flash
+T3B60 000:249.054         BaseAddr:        0x90000000
+T3B60 000:249.163     Device entry modified: STM32F769IG
+T3B60 000:249.176       FlashBankInfo:
+T3B60 000:249.189         Name:            QSPI Flash
+T3B60 000:249.202         BaseAddr:        0x90000000
+T3B60 000:249.311     Device entry modified: STM32F769II
+T3B60 000:249.324       FlashBankInfo:
+T3B60 000:249.337         Name:            QSPI Flash
+T3B60 000:249.349         BaseAddr:        0x90000000
+T3B60 000:249.458     Device entry modified: STM32F769NG
+T3B60 000:249.471       FlashBankInfo:
+T3B60 000:249.484         Name:            QSPI Flash
+T3B60 000:249.497         BaseAddr:        0x90000000
+T3B60 000:249.606     Device entry modified: STM32F769NI
+T3B60 000:249.619       FlashBankInfo:
+T3B60 000:249.632         Name:            QSPI Flash
+T3B60 000:249.645         BaseAddr:        0x90000000
+T3B60 000:249.754     Device entry modified: STM32F777BI
+T3B60 000:249.766       FlashBankInfo:
+T3B60 000:249.780         Name:            QSPI Flash
+T3B60 000:249.793         BaseAddr:        0x90000000
+T3B60 000:249.901     Device entry modified: STM32F777II
+T3B60 000:249.914       FlashBankInfo:
+T3B60 000:249.927         Name:            QSPI Flash
+T3B60 000:249.940         BaseAddr:        0x90000000
+T3B60 000:250.050     Device entry modified: STM32F777NI
+T3B60 000:250.067       FlashBankInfo:
+T3B60 000:250.085         Name:            QSPI Flash
+T3B60 000:250.100         BaseAddr:        0x90000000
+T3B60 000:250.214     Device entry modified: STM32F777VI
+T3B60 000:250.227       FlashBankInfo:
+T3B60 000:250.240         Name:            QSPI Flash
+T3B60 000:250.253         BaseAddr:        0x90000000
+T3B60 000:250.366     Device entry modified: STM32F777ZI
+T3B60 000:250.379       FlashBankInfo:
+T3B60 000:250.393         Name:            QSPI Flash
+T3B60 000:250.406         BaseAddr:        0x90000000
+T3B60 000:250.519     Device entry modified: STM32F778AI
+T3B60 000:250.532       FlashBankInfo:
+T3B60 000:250.545         Name:            QSPI Flash
+T3B60 000:250.558         BaseAddr:        0x90000000
+T3B60 000:250.670     Device entry modified: STM32F779AI
+T3B60 000:250.683       FlashBankInfo:
+T3B60 000:250.696         Name:            QSPI Flash
+T3B60 000:250.709         BaseAddr:        0x90000000
+T3B60 000:250.821     Device entry modified: STM32F779BI
+T3B60 000:250.835       FlashBankInfo:
+T3B60 000:250.847         Name:            QSPI Flash
+T3B60 000:250.860         BaseAddr:        0x90000000
+T3B60 000:250.973     Device entry modified: STM32F779II
+T3B60 000:250.986       FlashBankInfo:
+T3B60 000:250.999         Name:            QSPI Flash
+T3B60 000:251.013         BaseAddr:        0x90000000
+T3B60 000:251.137     Device entry modified: STM32F779NI
+T3B60 000:251.150       FlashBankInfo:
+T3B60 000:251.166         Name:            QSPI Flash
+T3B60 000:251.179         BaseAddr:        0x90000000
+T3B60 000:251.290     Device entry modified: STM32H743BI
+T3B60 000:251.366       ChipInfo:
+T3B60 000:251.382         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ST\STM32H7\ST_STM32H7xx.pex
+T3B60 000:251.397     Device entry modified: STM32H743II
+T3B60 000:251.461       ChipInfo:
+T3B60 000:251.476         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ST\STM32H7\ST_STM32H7xx.pex
+T3B60 000:251.491     Device entry modified: STM32H743VI
+T3B60 000:251.555       ChipInfo:
+T3B60 000:251.570         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ST\STM32H7\ST_STM32H7xx.pex
+T3B60 000:251.584     Device entry modified: STM32H743XI
+T3B60 000:251.648       ChipInfo:
+T3B60 000:251.663         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ST\STM32H7\ST_STM32H7xx.pex
+T3B60 000:251.678     Device entry modified: STM32H743ZI
+T3B60 000:251.742       ChipInfo:
+T3B60 000:251.757         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ST\STM32H7\ST_STM32H7xx.pex
+T3B60 000:251.771     Device entry modified: STM32H753BI
+T3B60 000:251.837       ChipInfo:
+T3B60 000:251.852         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ST\STM32H7\ST_STM32H7xx.pex
+T3B60 000:251.867     Device entry modified: STM32H753II
+T3B60 000:251.930       ChipInfo:
+T3B60 000:251.945         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ST\STM32H7\ST_STM32H7xx.pex
+T3B60 000:251.960     Device entry modified: STM32H753VI
+T3B60 000:252.023       ChipInfo:
+T3B60 000:252.039         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ST\STM32H7\ST_STM32H7xx.pex
+T3B60 000:252.054     Device entry modified: STM32H753XI
+T3B60 000:252.117       ChipInfo:
+T3B60 000:252.133         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ST\STM32H7\ST_STM32H7xx.pex
+T3B60 000:252.147     Device entry modified: STM32H753ZI
+T3B60 000:252.211       ChipInfo:
+T3B60 000:252.226         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ST\STM32H7\ST_STM32H7xx.pex
+T3B60 000:252.240     Device entry modified: Z32F0642
+T3B60 000:252.251       FlashBankInfo:
+T3B60 000:252.264         Name:            Internal Flash
+T3B60 000:252.375         AlwaysPresent:   1
+T3B60 000:252.393     Device entry modified: CM40z_128_512
+T3B60 000:252.455       ChipInfo:
+T3B60 000:252.471         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\AnalogDevices\ADSP-CM40\Analog_CM40x.pex
+T3B60 000:252.486     Device entry modified: CM40z_128_256
+T3B60 000:252.551       ChipInfo:
+T3B60 000:252.566         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\AnalogDevices\ADSP-CM40\Analog_CM40x.pex
+T3B60 000:252.582     Device entry modified: CM40z_384_2048
+T3B60 000:252.645       ChipInfo:
+T3B60 000:252.660         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\AnalogDevices\ADSP-CM40\Analog_CM40x.pex
+T3B60 000:252.675     Device entry modified: CM40z_128_512
+T3B60 000:252.740     Device entry modified: CM40z_128_256
+T3B60 000:252.806     Device entry modified: CM40z_384_2048
+T3B60 000:252.873     Device entry modified: CM40z_384_2048
+T3B60 000:252.939     Device entry modified: CM40z_128_1024
+T3B60 000:253.002       ChipInfo:
+T3B60 000:253.019         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\AnalogDevices\ADSP-CM40\Analog_CM40x.pex
+T3B60 000:253.033     Device entry modified: CM40z_384_2048
+T3B60 000:253.098     Device entry modified: CM40z_384_2048
+T3B60 000:253.164     Device entry modified: CM40z_384_2048
+T3B60 000:253.230     Device entry modified: CM40z_384_2048
+T3B60 000:253.299     Device entry modified: ADSP-CM416CSWZ-BF_M0
+T3B60 000:253.365       ChipInfo:
+T3B60 000:253.381         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\AnalogDevices\ADSP-CM41\Analog_CM41x_M0.pex
+T3B60 000:253.396     Device entry modified: ADSP-CM416CSWZ-CF_M0
+T3B60 000:253.460       ChipInfo:
+T3B60 000:253.475         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\AnalogDevices\ADSP-CM41\Analog_CM41x_M0.pex
+T3B60 000:253.490     Device entry modified: ADSP-CM417CSWZ-CF_M0
+T3B60 000:253.553       ChipInfo:
+T3B60 000:253.569         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\AnalogDevices\ADSP-CM41\Analog_CM41x_M0.pex
+T3B60 000:253.584     Device entry modified: ADSP-CM417CSWZ-DF_M0
+T3B60 000:253.646       ChipInfo:
+T3B60 000:253.662         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\AnalogDevices\ADSP-CM41\Analog_CM41x_M0.pex
+T3B60 000:253.677     Device entry modified: ADSP-CM418CBCZ-BF_M0
+T3B60 000:253.740       ChipInfo:
+T3B60 000:253.755         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\AnalogDevices\ADSP-CM41\Analog_CM41x_M0.pex
+T3B60 000:253.771     Device entry modified: ADSP-CM418CBCZ-CF_M0
+T3B60 000:253.833       ChipInfo:
+T3B60 000:253.849         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\AnalogDevices\ADSP-CM41\Analog_CM41x_M0.pex
+T3B60 000:253.864     Device entry modified: ADSP-CM419CBCZ-CF_M0
+T3B60 000:253.928       ChipInfo:
+T3B60 000:253.943         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\AnalogDevices\ADSP-CM41\Analog_CM41x_M0.pex
+T3B60 000:253.958     Device entry modified: ADSP-CM419CBCZ-DF_M0
+T3B60 000:254.022       ChipInfo:
+T3B60 000:254.037         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\AnalogDevices\ADSP-CM41\Analog_CM41x_M0.pex
+T3B60 000:254.053     Device entry modified: ADSP-CM411CBCZ-AF_M4
+T3B60 000:254.115       ChipInfo:
+T3B60 000:254.131         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\AnalogDevices\ADSP-CM41\Analog_CM41x_M4.pex
+T3B60 000:254.146       FlashBankInfo:
+T3B60 000:254.159         Name:            Flash Block A
+T3B60 000:254.172         BaseAddr:        0x11000000
+T3B60 000:254.285         AlwaysPresent:   1
+T3B60 000:254.301       FlashBankInfo:
+T3B60 000:254.314         Name:            Flash Block B
+T3B60 000:254.326         BaseAddr:        0x11080000
+T3B60 000:254.436         AlwaysPresent:   1
+T3B60 000:254.453     Device entry modified: ADSP-CM411CBCZ-BF_M4
+T3B60 000:254.517       ChipInfo:
+T3B60 000:254.532         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\AnalogDevices\ADSP-CM41\Analog_CM41x_M4.pex
+T3B60 000:254.547       FlashBankInfo:
+T3B60 000:254.560         Name:            Flash Block A
+T3B60 000:254.573         BaseAddr:        0x11000000
+T3B60 000:254.682         AlwaysPresent:   1
+T3B60 000:254.698       FlashBankInfo:
+T3B60 000:254.711         Name:            Flash Block B
+T3B60 000:254.724         BaseAddr:        0x11080000
+T3B60 000:254.832         AlwaysPresent:   1
+T3B60 000:254.850     Device entry modified: ADSP-CM412CSWZ-AF_M4
+T3B60 000:254.912       ChipInfo:
+T3B60 000:254.928         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\AnalogDevices\ADSP-CM41\Analog_CM41x_M4.pex
+T3B60 000:254.943       FlashBankInfo:
+T3B60 000:254.955         Name:            Flash Block A
+T3B60 000:254.969         BaseAddr:        0x11000000
+T3B60 000:255.079         AlwaysPresent:   1
+T3B60 000:255.095       FlashBankInfo:
+T3B60 000:255.107         Name:            Flash Block B
+T3B60 000:255.121         BaseAddr:        0x11080000
+T3B60 000:255.228         AlwaysPresent:   1
+T3B60 000:255.246     Device entry modified: ADSP-CM412CBCZ-BF_M4
+T3B60 000:255.309       ChipInfo:
+T3B60 000:255.327         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\AnalogDevices\ADSP-CM41\Analog_CM41x_M4.pex
+T3B60 000:255.342       FlashBankInfo:
+T3B60 000:255.355         Name:            Flash Block A
+T3B60 000:255.368         BaseAddr:        0x11000000
+T3B60 000:255.477         AlwaysPresent:   1
+T3B60 000:255.494       FlashBankInfo:
+T3B60 000:255.506         Name:            Flash Block B
+T3B60 000:255.519         BaseAddr:        0x11080000
+T3B60 000:255.628         AlwaysPresent:   1
+T3B60 000:255.646     Device entry modified: ADSP-CM413CSWZ-BF_M4
+T3B60 000:255.709       ChipInfo:
+T3B60 000:255.724         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\AnalogDevices\ADSP-CM41\Analog_CM41x_M4.pex
+T3B60 000:255.739       FlashBankInfo:
+T3B60 000:255.752         Name:            Flash Block A
+T3B60 000:255.765         BaseAddr:        0x11000000
+T3B60 000:255.873         AlwaysPresent:   1
+T3B60 000:255.889       FlashBankInfo:
+T3B60 000:255.902         Name:            Flash Block B
+T3B60 000:255.915         BaseAddr:        0x11080000
+T3B60 000:256.024         AlwaysPresent:   1
+T3B60 000:256.042     Device entry modified: ADSP-CM413CSWZ-CF_M4
+T3B60 000:256.105       ChipInfo:
+T3B60 000:256.121         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\AnalogDevices\ADSP-CM41\Analog_CM41x_M4.pex
+T3B60 000:256.136       FlashBankInfo:
+T3B60 000:256.149         Name:            Flash Block A
+T3B60 000:256.161         BaseAddr:        0x11000000
+T3B60 000:256.269         AlwaysPresent:   1
+T3B60 000:256.285       FlashBankInfo:
+T3B60 000:256.298         Name:            Flash Block B
+T3B60 000:256.311         BaseAddr:        0x11080000
+T3B60 000:256.419         AlwaysPresent:   1
+T3B60 000:256.437     Device entry modified: ADSP-CM416CSWZ-BF_M4
+T3B60 000:256.500       ChipInfo:
+T3B60 000:256.515         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\AnalogDevices\ADSP-CM41\Analog_CM41x_M4.pex
+T3B60 000:256.531       FlashBankInfo:
+T3B60 000:256.543         Name:            Flash Block A
+T3B60 000:256.556         BaseAddr:        0x11000000
+T3B60 000:256.665         AlwaysPresent:   1
+T3B60 000:256.681       FlashBankInfo:
+T3B60 000:256.693         Name:            Flash Block B
+T3B60 000:256.706         BaseAddr:        0x11080000
+T3B60 000:256.814         AlwaysPresent:   1
+T3B60 000:256.831     Device entry modified: ADSP-CM416CSWZ-CF_M4
+T3B60 000:256.895       ChipInfo:
+T3B60 000:256.911         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\AnalogDevices\ADSP-CM41\Analog_CM41x_M4.pex
+T3B60 000:256.926       FlashBankInfo:
+T3B60 000:256.938         Name:            Flash Block A
+T3B60 000:256.951         BaseAddr:        0x11000000
+T3B60 000:257.059         AlwaysPresent:   1
+T3B60 000:257.076       FlashBankInfo:
+T3B60 000:257.089         Name:            Flash Block B
+T3B60 000:257.102         BaseAddr:        0x11080000
+T3B60 000:257.211         AlwaysPresent:   1
+T3B60 000:257.228     Device entry modified: ADSP-CM417CSWZ-CF_M4
+T3B60 000:257.292       ChipInfo:
+T3B60 000:257.307         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\AnalogDevices\ADSP-CM41\Analog_CM41x_M4.pex
+T3B60 000:257.332       FlashBankInfo:
+T3B60 000:257.346         Name:            Flash Block A
+T3B60 000:257.358         BaseAddr:        0x11000000
+T3B60 000:257.468         AlwaysPresent:   1
+T3B60 000:257.484       FlashBankInfo:
+T3B60 000:257.496         Name:            Flash Block B
+T3B60 000:257.510         BaseAddr:        0x11080000
+T3B60 000:257.618         AlwaysPresent:   1
+T3B60 000:257.635     Device entry modified: ADSP-CM417CSWZ-DF_M4
+T3B60 000:257.698       ChipInfo:
+T3B60 000:257.714         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\AnalogDevices\ADSP-CM41\Analog_CM41x_M4.pex
+T3B60 000:257.729       FlashBankInfo:
+T3B60 000:257.744         Name:            Flash Block A
+T3B60 000:257.757         BaseAddr:        0x11000000
+T3B60 000:257.867         AlwaysPresent:   1
+T3B60 000:257.883       FlashBankInfo:
+T3B60 000:257.896         Name:            Flash Block B
+T3B60 000:257.909         BaseAddr:        0x11080000
+T3B60 000:258.018         AlwaysPresent:   1
+T3B60 000:258.037     Device entry modified: ADSP-CM418CBCZ-BF_M4
+T3B60 000:258.101       ChipInfo:
+T3B60 000:258.116         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\AnalogDevices\ADSP-CM41\Analog_CM41x_M4.pex
+T3B60 000:258.131       FlashBankInfo:
+T3B60 000:258.143         Name:            Flash Block A
+T3B60 000:258.156         BaseAddr:        0x11000000
+T3B60 000:258.265         AlwaysPresent:   1
+T3B60 000:258.280       FlashBankInfo:
+T3B60 000:258.293         Name:            Flash Block B
+T3B60 000:258.306         BaseAddr:        0x11080000
+T3B60 000:258.414         AlwaysPresent:   1
+T3B60 000:258.432     Device entry modified: ADSP-CM418CBCZ-CF_M4
+T3B60 000:258.496       ChipInfo:
+T3B60 000:258.512         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\AnalogDevices\ADSP-CM41\Analog_CM41x_M4.pex
+T3B60 000:258.527       FlashBankInfo:
+T3B60 000:258.540         Name:            Flash Block A
+T3B60 000:258.553         BaseAddr:        0x11000000
+T3B60 000:258.662         AlwaysPresent:   1
+T3B60 000:258.678       FlashBankInfo:
+T3B60 000:258.691         Name:            Flash Block B
+T3B60 000:258.704         BaseAddr:        0x11080000
+T3B60 000:258.814         AlwaysPresent:   1
+T3B60 000:258.832     Device entry modified: ADSP-CM419CBCZ-CF_M4
+T3B60 000:258.895       ChipInfo:
+T3B60 000:258.911         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\AnalogDevices\ADSP-CM41\Analog_CM41x_M4.pex
+T3B60 000:258.926       FlashBankInfo:
+T3B60 000:258.938         Name:            Flash Block A
+T3B60 000:258.952         BaseAddr:        0x11000000
+T3B60 000:259.062         AlwaysPresent:   1
+T3B60 000:259.078       FlashBankInfo:
+T3B60 000:259.091         Name:            Flash Block B
+T3B60 000:259.104         BaseAddr:        0x11080000
+T3B60 000:259.212         AlwaysPresent:   1
+T3B60 000:259.230     Device entry modified: ADSP-CM419CBCZ-DF_M4
+T3B60 000:259.293       ChipInfo:
+T3B60 000:259.308         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\AnalogDevices\ADSP-CM41\Analog_CM41x_M4.pex
+T3B60 000:259.323       FlashBankInfo:
+T3B60 000:259.337         Name:            Flash Block A
+T3B60 000:259.350         BaseAddr:        0x11000000
+T3B60 000:259.459         AlwaysPresent:   1
+T3B60 000:259.475       FlashBankInfo:
+T3B60 000:259.487         Name:            Flash Block B
+T3B60 000:259.500         BaseAddr:        0x11080000
+T3B60 000:259.608         AlwaysPresent:   1
+T3B60 000:259.626     Device entry modified: ADuCM4050
+T3B60 000:259.637       FlashBankInfo:
+T3B60 000:259.650         Name:            Flash Block
+T3B60 000:259.759         AlwaysPresent:   1
+T3B60 000:259.777     Device entry modified: MAX32600
+T3B60 000:259.788       FlashBankInfo:
+T3B60 000:259.801         Name:            Internal Flash
+T3B60 000:259.909         AlwaysPresent:   1
+T3B60 000:259.927     Device entry modified: ATSAML10D14A
+T3B60 000:259.993       ChipInfo:
+T3B60 000:260.008         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\SAML1x\Atmel_SAML1x.pex
+T3B60 000:260.024     Device entry modified: ATSAML10D15A
+T3B60 000:260.087       ChipInfo:
+T3B60 000:260.103         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\SAML1x\Atmel_SAML1x.pex
+T3B60 000:260.117     Device entry modified: ATSAML10D16A
+T3B60 000:260.180       ChipInfo:
+T3B60 000:260.195         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\SAML1x\Atmel_SAML1x.pex
+T3B60 000:260.209     Device entry modified: ATSAML10E14A
+T3B60 000:260.276       ChipInfo:
+T3B60 000:260.291         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\SAML1x\Atmel_SAML1x.pex
+T3B60 000:260.305     Device entry modified: ATSAML10E15A
+T3B60 000:260.368       ChipInfo:
+T3B60 000:260.383         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\SAML1x\Atmel_SAML1x.pex
+T3B60 000:260.398     Device entry modified: ATSAML10E16A
+T3B60 000:260.461       ChipInfo:
+T3B60 000:260.476         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\SAML1x\Atmel_SAML1x.pex
+T3B60 000:260.491     Device entry modified: ATSAML11D14A
+T3B60 000:260.554       ChipInfo:
+T3B60 000:260.569         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\SAML1x\Atmel_SAML1x.pex
+T3B60 000:260.583     Device entry modified: ATSAML11D15A
+T3B60 000:260.646       ChipInfo:
+T3B60 000:260.661         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\SAML1x\Atmel_SAML1x.pex
+T3B60 000:260.675     Device entry modified: ATSAML11D16A
+T3B60 000:260.738       ChipInfo:
+T3B60 000:260.753         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\SAML1x\Atmel_SAML1x.pex
+T3B60 000:260.768     Device entry modified: ATSAML11E14A
+T3B60 000:260.830       ChipInfo:
+T3B60 000:260.846         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\SAML1x\Atmel_SAML1x.pex
+T3B60 000:260.860     Device entry modified: ATSAML11E15A
+T3B60 000:260.923       ChipInfo:
+T3B60 000:260.938         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\SAML1x\Atmel_SAML1x.pex
+T3B60 000:260.953     Device entry modified: ATSAML11E16A
+T3B60 000:261.020       ChipInfo:
+T3B60 000:261.035         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\ATMEL\SAML1x\Atmel_SAML1x.pex
+T3B60 000:261.051     Device entry modified: ARTIK05X
+T3B60 000:261.115       ChipInfo:
+T3B60 000:261.130         Script:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\Samsung\ARTIK05X.JLinkScript
+T3B60 000:261.145     Device entry created:  HC32L176
+T3B60 000:261.154       ChipInfo:
+T3B60 000:261.166         Vendor:          HDSC
+T3B60 000:261.179         Name:            HC32L176
+T3B60 000:261.192         WorkRAMAddr:     0x20000000
+T3B60 000:261.206         WorkRAMSize:     0x00002000
+T3B60 000:261.219         Core:            JLINK_CORE_CORTEX_M0
+T3B60 000:261.232       FlashBankInfo:
+T3B60 000:261.245         Name:            Flash_128K
+T3B60 000:261.375         AlwaysPresent:   1
+T3B60 000:261.391         LoaderInfo:
+T3B60 000:261.403           Name:            Flash_128K
+T3B60 000:261.416           MaxSize:         0x00020000
+T3B60 000:261.429           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\FlashHC32L17X_128K.FLM
+T3B60 000:261.442           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:261.462     Device entry created:  HC32L136
+T3B60 000:261.471       ChipInfo:
+T3B60 000:261.484         Vendor:          HDSC
+T3B60 000:261.497         Name:            HC32L136
+T3B60 000:261.510         WorkRAMAddr:     0x20000000
+T3B60 000:261.522         WorkRAMSize:     0x00002000
+T3B60 000:261.536         Core:            JLINK_CORE_CORTEX_M0
+T3B60 000:261.549       FlashBankInfo:
+T3B60 000:261.561         Name:            Flash_64K
+T3B60 000:261.687         AlwaysPresent:   1
+T3B60 000:261.702         LoaderInfo:
+T3B60 000:261.716           Name:            Flash_64K
+T3B60 000:261.728           MaxSize:         0x00010000
+T3B60 000:261.741           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\FlashHC32L13X_64K.FLM
+T3B60 000:261.754           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:261.771     Device entry created:  HC32L130
+T3B60 000:261.817       ChipInfo:
+T3B60 000:261.832         Vendor:          HDSC
+T3B60 000:261.845         Name:            HC32L130
+T3B60 000:261.858         WorkRAMAddr:     0x20000000
+T3B60 000:261.871         WorkRAMSize:     0x00002000
+T3B60 000:261.909         Core:            JLINK_CORE_CORTEX_M0
+T3B60 000:261.923       FlashBankInfo:
+T3B60 000:261.935         Name:            Flash_64K
+T3B60 000:262.065         AlwaysPresent:   1
+T3B60 000:262.081         LoaderInfo:
+T3B60 000:262.094           Name:            Flash_64K
+T3B60 000:262.106           MaxSize:         0x00010000
+T3B60 000:262.119           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\FlashHC32L13X_64K.FLM
+T3B60 000:262.132           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:262.149     Device entry created:  HC32F030
+T3B60 000:262.158       ChipInfo:
+T3B60 000:262.171         Vendor:          HDSC
+T3B60 000:262.184         Name:            HC32F030
+T3B60 000:262.197         WorkRAMAddr:     0x20000000
+T3B60 000:262.210         WorkRAMSize:     0x00002000
+T3B60 000:262.223         Core:            JLINK_CORE_CORTEX_M0
+T3B60 000:262.236       FlashBankInfo:
+T3B60 000:262.249         Name:            Flash_64K
+T3B60 000:262.375         AlwaysPresent:   1
+T3B60 000:262.391         LoaderInfo:
+T3B60 000:262.403           Name:            Flash_64K
+T3B60 000:262.417           MaxSize:         0x00010000
+T3B60 000:262.430           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\FlashHC32F030_64K.FLM
+T3B60 000:262.442           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:262.460     Device entry created:  HC32L110x4
+T3B60 000:262.469       ChipInfo:
+T3B60 000:262.482         Vendor:          HDSC
+T3B60 000:262.495         Name:            HC32L110x4
+T3B60 000:262.508         WorkRAMAddr:     0x20000000
+T3B60 000:262.521         WorkRAMSize:     0x00000800
+T3B60 000:262.534         Core:            JLINK_CORE_CORTEX_M0
+T3B60 000:262.547       FlashBankInfo:
+T3B60 000:262.560         Name:            Flash_16K
+T3B60 000:262.683         AlwaysPresent:   1
+T3B60 000:262.699         LoaderInfo:
+T3B60 000:262.711           Name:            Flash_16K
+T3B60 000:262.724           MaxSize:         0x00004000
+T3B60 000:262.737           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\FlashHC32L110_16K.FLM
+T3B60 000:262.750           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:262.765     Device entry created:  HC32L110x6
+T3B60 000:262.775       ChipInfo:
+T3B60 000:262.787         Vendor:          HDSC
+T3B60 000:262.800         Name:            HC32L110x6
+T3B60 000:262.813         WorkRAMAddr:     0x20000000
+T3B60 000:262.826         WorkRAMSize:     0x00001000
+T3B60 000:262.839         Core:            JLINK_CORE_CORTEX_M0
+T3B60 000:262.852       FlashBankInfo:
+T3B60 000:262.865         Name:            Flash_32K
+T3B60 000:262.988         AlwaysPresent:   1
+T3B60 000:263.004         LoaderInfo:
+T3B60 000:263.017           Name:            Flash_32K
+T3B60 000:263.030           MaxSize:         0x00008000
+T3B60 000:263.043           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\FlashHC32L110_32K.FLM
+T3B60 000:263.056           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:263.071     Device entry created:  HC32F002
+T3B60 000:263.080       ChipInfo:
+T3B60 000:263.093         Vendor:          HDSC
+T3B60 000:263.105         Name:            HC32F002
+T3B60 000:263.119         WorkRAMAddr:     0x20000000
+T3B60 000:263.132         WorkRAMSize:     0x00000800
+T3B60 000:263.146         Core:            JLINK_CORE_CORTEX_M0
+T3B60 000:263.159       FlashBankInfo:
+T3B60 000:263.172         Name:            Flash_18K
+T3B60 000:263.295         AlwaysPresent:   1
+T3B60 000:263.310         LoaderInfo:
+T3B60 000:263.323           Name:            Flash_18K
+T3B60 000:263.336           MaxSize:         0x00004800
+T3B60 000:263.349           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\FlashHC32F002_18K.FLM
+T3B60 000:263.367           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:263.383     Device entry created:  HC32F003
+T3B60 000:263.393       ChipInfo:
+T3B60 000:263.406         Vendor:          HDSC
+T3B60 000:263.418         Name:            HC32F003
+T3B60 000:263.432         WorkRAMAddr:     0x20000000
+T3B60 000:263.445         WorkRAMSize:     0x00000800
+T3B60 000:263.458         Core:            JLINK_CORE_CORTEX_M0
+T3B60 000:263.471       FlashBankInfo:
+T3B60 000:263.484         Name:            Flash_16K
+T3B60 000:263.607         AlwaysPresent:   1
+T3B60 000:263.622         LoaderInfo:
+T3B60 000:263.635           Name:            Flash_16K
+T3B60 000:263.648           MaxSize:         0x00004000
+T3B60 000:263.661           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\FlashHC32F003_16K.FLM
+T3B60 000:263.674           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:263.689     Device entry created:  HC32F005
+T3B60 000:263.698       ChipInfo:
+T3B60 000:263.711         Vendor:          HDSC
+T3B60 000:263.723         Name:            HC32F005
+T3B60 000:263.736         WorkRAMAddr:     0x20000000
+T3B60 000:263.749         WorkRAMSize:     0x00001000
+T3B60 000:263.762         Core:            JLINK_CORE_CORTEX_M0
+T3B60 000:263.775       FlashBankInfo:
+T3B60 000:263.788         Name:            Flash_32K
+T3B60 000:263.911         AlwaysPresent:   1
+T3B60 000:263.926         LoaderInfo:
+T3B60 000:263.939           Name:            Flash_32K
+T3B60 000:263.952           MaxSize:         0x00008000
+T3B60 000:263.965           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\FlashHC32F005_32K.FLM
+T3B60 000:263.978           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:263.994     Device entry created:  HC32L15
+T3B60 000:264.003       ChipInfo:
+T3B60 000:264.015         Vendor:          HDSC
+T3B60 000:264.028         Name:            HC32L15
+T3B60 000:264.041         WorkRAMAddr:     0x20000000
+T3B60 000:264.054         WorkRAMSize:     0x00001800
+T3B60 000:264.067         Core:            JLINK_CORE_CORTEX_M0
+T3B60 000:264.080       FlashBankInfo:
+T3B60 000:264.093         Name:            Flash_128K
+T3B60 000:264.235         AlwaysPresent:   1
+T3B60 000:264.252         LoaderInfo:
+T3B60 000:264.264           Name:            Flash_128K
+T3B60 000:264.277           MaxSize:         0x00020000
+T3B60 000:264.290           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\HC32L15.FLM
+T3B60 000:264.303           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:264.320     Device entry created:  HC32F_M14
+T3B60 000:264.329       ChipInfo:
+T3B60 000:264.341         Vendor:          HDSC
+T3B60 000:264.355         Name:            HC32F_M14
+T3B60 000:264.367         WorkRAMAddr:     0x20000000
+T3B60 000:264.381         WorkRAMSize:     0x00002000
+T3B60 000:264.394         Core:            JLINK_CORE_CORTEX_M0
+T3B60 000:264.406       FlashBankInfo:
+T3B60 000:264.419         Name:            Flash_128K
+T3B60 000:264.546         AlwaysPresent:   1
+T3B60 000:264.562         LoaderInfo:
+T3B60 000:264.575           Name:            Flash_128K
+T3B60 000:264.588           MaxSize:         0x00020000
+T3B60 000:264.601           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\HC32F_M14.FLM
+T3B60 000:264.614           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:264.633     Device entry created:  HC32L19x
+T3B60 000:264.642       ChipInfo:
+T3B60 000:264.655         Vendor:          HDSC
+T3B60 000:264.667         Name:            HC32L19x
+T3B60 000:264.681         WorkRAMAddr:     0x20000000
+T3B60 000:264.693         WorkRAMSize:     0x00008000
+T3B60 000:264.707         Core:            JLINK_CORE_CORTEX_M0
+T3B60 000:264.719       FlashBankInfo:
+T3B60 000:264.732         Name:            Flash_256K
+T3B60 000:264.860         AlwaysPresent:   1
+T3B60 000:264.878         LoaderInfo:
+T3B60 000:264.891           Name:            Flash_256K
+T3B60 000:264.904           MaxSize:         0x00040000
+T3B60 000:264.917           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\FlashHC32L19X_256K.FLM
+T3B60 000:264.930           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:264.945     Device entry created:  HC32F19x
+T3B60 000:264.955       ChipInfo:
+T3B60 000:264.968         Vendor:          HDSC
+T3B60 000:264.982         Name:            HC32F19x
+T3B60 000:264.996         WorkRAMAddr:     0x20000000
+T3B60 000:265.010         WorkRAMSize:     0x00008000
+T3B60 000:265.023         Core:            JLINK_CORE_CORTEX_M0
+T3B60 000:265.037       FlashBankInfo:
+T3B60 000:265.051         Name:            Flash_256K
+T3B60 000:265.177         AlwaysPresent:   1
+T3B60 000:265.192         LoaderInfo:
+T3B60 000:265.205           Name:            Flash_256K
+T3B60 000:265.218           MaxSize:         0x00040000
+T3B60 000:265.231           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\FlashHC32F19X_256K.FLM
+T3B60 000:265.244           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:265.261     Device entry created:  HC32F17x
+T3B60 000:265.271       ChipInfo:
+T3B60 000:265.283         Vendor:          HDSC
+T3B60 000:265.296         Name:            HC32F17x
+T3B60 000:265.309         WorkRAMAddr:     0x20000000
+T3B60 000:265.322         WorkRAMSize:     0x00004000
+T3B60 000:265.335         Core:            JLINK_CORE_CORTEX_M0
+T3B60 000:265.348       FlashBankInfo:
+T3B60 000:265.360         Name:            Flash_128K
+T3B60 000:265.484         AlwaysPresent:   1
+T3B60 000:265.499         LoaderInfo:
+T3B60 000:265.513           Name:            Flash_128K
+T3B60 000:265.525           MaxSize:         0x00020000
+T3B60 000:265.538           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\FlashHC32F17X_128K.FLM
+T3B60 000:265.551           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:265.568     Device entry created:  HC32L17x
+T3B60 000:265.577       ChipInfo:
+T3B60 000:265.590         Vendor:          HDSC
+T3B60 000:265.602         Name:            HC32L17x
+T3B60 000:265.616         WorkRAMAddr:     0x20000000
+T3B60 000:265.629         WorkRAMSize:     0x00004000
+T3B60 000:265.642         Core:            JLINK_CORE_CORTEX_M0
+T3B60 000:265.655       FlashBankInfo:
+T3B60 000:265.667         Name:            Flash_128K
+T3B60 000:265.790         AlwaysPresent:   1
+T3B60 000:265.805         LoaderInfo:
+T3B60 000:265.818           Name:            Flash_128K
+T3B60 000:265.831           MaxSize:         0x00020000
+T3B60 000:265.844           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\FlashHC32L17X_128K.FLM
+T3B60 000:265.857           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:265.872     Device entry created:  HC32F072
+T3B60 000:265.882       ChipInfo:
+T3B60 000:265.896         Vendor:          HDSC
+T3B60 000:265.911         Name:            HC32F072
+T3B60 000:265.924         WorkRAMAddr:     0x20000000
+T3B60 000:265.936         WorkRAMSize:     0x00004000
+T3B60 000:265.950         Core:            JLINK_CORE_CORTEX_M0
+T3B60 000:265.963       FlashBankInfo:
+T3B60 000:265.975         Name:            Flash_128K
+T3B60 000:266.113         AlwaysPresent:   1
+T3B60 000:266.128         LoaderInfo:
+T3B60 000:266.150           Name:            Flash_128K
+T3B60 000:266.171           MaxSize:         0x00020000
+T3B60 000:266.200           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\FlashHC32F072_128K.FLM
+T3B60 000:266.219           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:266.237     Device entry created:  HC32L07X
+T3B60 000:266.246       ChipInfo:
+T3B60 000:266.259         Vendor:          HDSC
+T3B60 000:266.271         Name:            HC32L07X
+T3B60 000:266.287         WorkRAMAddr:     0x20000000
+T3B60 000:266.302         WorkRAMSize:     0x00004000
+T3B60 000:266.315         Core:            JLINK_CORE_CORTEX_M0
+T3B60 000:266.329       FlashBankInfo:
+T3B60 000:266.341         Name:            Flash_128K
+T3B60 000:266.466         AlwaysPresent:   1
+T3B60 000:266.481         LoaderInfo:
+T3B60 000:266.494           Name:            Flash_128K
+T3B60 000:266.507           MaxSize:         0x00020000
+T3B60 000:266.520           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\FlashHC32L07X_128K.FLM
+T3B60 000:266.534           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:266.549     Device entry created:  HC32F115x8
+T3B60 000:266.558       ChipInfo:
+T3B60 000:266.570         Vendor:          HDSC
+T3B60 000:266.583         Name:            HC32F115x8
+T3B60 000:266.596         WorkRAMAddr:     0x20000000
+T3B60 000:266.609         WorkRAMSize:     0x00001000
+T3B60 000:266.622         Core:            JLINK_CORE_CORTEX_M0
+T3B60 000:266.635       FlashBankInfo:
+T3B60 000:266.647         Name:            Flash_64K
+T3B60 000:266.772         AlwaysPresent:   1
+T3B60 000:266.788         LoaderInfo:
+T3B60 000:266.800           Name:            Flash_64K
+T3B60 000:266.813           MaxSize:         0x00010000
+T3B60 000:266.826           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\HC32F115_64K.FLM
+T3B60 000:266.839           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:266.857     Device entry created:  HC32F120x6
+T3B60 000:266.866       ChipInfo:
+T3B60 000:266.878         Vendor:          HDSC
+T3B60 000:266.891         Name:            HC32F120x6
+T3B60 000:266.904         WorkRAMAddr:     0x20000000
+T3B60 000:266.917         WorkRAMSize:     0x00001000
+T3B60 000:266.930         Core:            JLINK_CORE_CORTEX_M0
+T3B60 000:266.943       FlashBankInfo:
+T3B60 000:266.956         Name:            Flash_32K
+T3B60 000:267.083         AlwaysPresent:   1
+T3B60 000:267.098         LoaderInfo:
+T3B60 000:267.111           Name:            Flash_32K
+T3B60 000:267.124           MaxSize:         0x00008000
+T3B60 000:267.137           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\HC32F120_32K.FLM
+T3B60 000:267.149           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:267.165     Device entry created:  HC32F120x8
+T3B60 000:267.174       ChipInfo:
+T3B60 000:267.186         Vendor:          HDSC
+T3B60 000:267.199         Name:            HC32F120x8
+T3B60 000:267.212         WorkRAMAddr:     0x20000000
+T3B60 000:267.225         WorkRAMSize:     0x00001000
+T3B60 000:267.238         Core:            JLINK_CORE_CORTEX_M0
+T3B60 000:267.251       FlashBankInfo:
+T3B60 000:267.264         Name:            Flash_64K
+T3B60 000:267.386         AlwaysPresent:   1
+T3B60 000:267.402         LoaderInfo:
+T3B60 000:267.415           Name:            Flash_64K
+T3B60 000:267.427           MaxSize:         0x00010000
+T3B60 000:267.440           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\HC32F120_64K.FLM
+T3B60 000:267.453           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:267.469     Device entry created:  HC32F155xA
+T3B60 000:267.478       ChipInfo:
+T3B60 000:267.491         Vendor:          HDSC
+T3B60 000:267.503         Name:            HC32F155xA
+T3B60 000:267.517         WorkRAMAddr:     0x20000000
+T3B60 000:267.529         WorkRAMSize:     0x00008000
+T3B60 000:267.543         Core:            JLINK_CORE_CORTEX_M0
+T3B60 000:267.556       FlashBankInfo:
+T3B60 000:267.568         Name:            Flash_128K
+T3B60 000:267.691         AlwaysPresent:   1
+T3B60 000:267.706         LoaderInfo:
+T3B60 000:267.719           Name:            Flash_128K
+T3B60 000:267.731           MaxSize:         0x00020000
+T3B60 000:267.744           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\HC32F155_128K.FLM
+T3B60 000:267.757           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:267.770       FlashBankInfo:
+T3B60 000:267.786         Name:            Flash_1K
+T3B60 000:267.798         BaseAddr:        0x01000800
+T3B60 000:267.921         AlwaysPresent:   1
+T3B60 000:267.936         LoaderInfo:
+T3B60 000:267.949           Name:            Flash_1K
+T3B60 000:267.962           MaxSize:         0x00000400
+T3B60 000:267.974           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\HC32F155_1K.FLM
+T3B60 000:267.987           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:268.003     Device entry created:  HC32F155xC
+T3B60 000:268.012       ChipInfo:
+T3B60 000:268.024         Vendor:          HDSC
+T3B60 000:268.037         Name:            HC32F155xC
+T3B60 000:268.050         WorkRAMAddr:     0x20000000
+T3B60 000:268.063         WorkRAMSize:     0x00008000
+T3B60 000:268.076         Core:            JLINK_CORE_CORTEX_M0
+T3B60 000:268.089       FlashBankInfo:
+T3B60 000:268.101         Name:            Flash_256K
+T3B60 000:268.226         AlwaysPresent:   1
+T3B60 000:268.241         LoaderInfo:
+T3B60 000:268.254           Name:            Flash_256K
+T3B60 000:268.267           MaxSize:         0x00040000
+T3B60 000:268.280           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\HC32F155_256K.FLM
+T3B60 000:268.293           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:268.306       FlashBankInfo:
+T3B60 000:268.319         Name:            Flash_1K
+T3B60 000:268.332         BaseAddr:        0x01000800
+T3B60 000:268.453         AlwaysPresent:   1
+T3B60 000:268.468         LoaderInfo:
+T3B60 000:268.481           Name:            Flash_1K
+T3B60 000:268.493           MaxSize:         0x00000400
+T3B60 000:268.506           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\HC32F155_1K.FLM
+T3B60 000:268.518           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:268.534     Device entry created:  HC32F334x8
+T3B60 000:268.543       ChipInfo:
+T3B60 000:268.556         Vendor:          HDSC
+T3B60 000:268.568         Name:            HC32F334x8
+T3B60 000:268.581         WorkRAMAddr:     0x1FFFC000
+T3B60 000:268.594         WorkRAMSize:     0x00008000
+T3B60 000:268.608         Core:            JLINK_CORE_CORTEX_M4
+T3B60 000:268.621       FlashBankInfo:
+T3B60 000:268.634         Name:            Flash_64K
+T3B60 000:268.756         AlwaysPresent:   1
+T3B60 000:268.771         LoaderInfo:
+T3B60 000:268.784           Name:            Flash_64K
+T3B60 000:268.797           MaxSize:         0x00010000
+T3B60 000:268.809           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\HC32F334_64K.FLM
+T3B60 000:268.823           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:268.838     Device entry created:  HC32F334xA
+T3B60 000:268.847       ChipInfo:
+T3B60 000:268.860         Vendor:          HDSC
+T3B60 000:268.872         Name:            HC32F334xA
+T3B60 000:268.885         WorkRAMAddr:     0x1FFFC000
+T3B60 000:268.898         WorkRAMSize:     0x00008000
+T3B60 000:268.912         Core:            JLINK_CORE_CORTEX_M4
+T3B60 000:268.925       FlashBankInfo:
+T3B60 000:268.938         Name:            Flash_128K
+T3B60 000:269.061         AlwaysPresent:   1
+T3B60 000:269.077         LoaderInfo:
+T3B60 000:269.090           Name:            Flash_128K
+T3B60 000:269.103           MaxSize:         0x00020000
+T3B60 000:269.116           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\HC32F334_128K.FLM
+T3B60 000:269.128           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:269.144     Device entry created:  HC32F448xA
+T3B60 000:269.153       ChipInfo:
+T3B60 000:269.165         Vendor:          HDSC
+T3B60 000:269.178         Name:            HC32F448xA
+T3B60 000:269.191         WorkRAMAddr:     0x1FFF8000
+T3B60 000:269.204         WorkRAMSize:     0x00010000
+T3B60 000:269.218         Core:            JLINK_CORE_CORTEX_M4
+T3B60 000:269.231       FlashBankInfo:
+T3B60 000:269.244         Name:            Flash_128K
+T3B60 000:269.370         AlwaysPresent:   1
+T3B60 000:269.386         LoaderInfo:
+T3B60 000:269.398           Name:            Flash_128K
+T3B60 000:269.411           MaxSize:         0x00020000
+T3B60 000:269.424           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\HC32F448_128K.FLM
+T3B60 000:269.437           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:269.453     Device entry created:  HC32F448xC
+T3B60 000:269.461       ChipInfo:
+T3B60 000:269.474         Vendor:          HDSC
+T3B60 000:269.487         Name:            HC32F448xC
+T3B60 000:269.500         WorkRAMAddr:     0x1FFF8000
+T3B60 000:269.513         WorkRAMSize:     0x00010000
+T3B60 000:269.527         Core:            JLINK_CORE_CORTEX_M4
+T3B60 000:269.540       FlashBankInfo:
+T3B60 000:269.552         Name:            Flash_256K
+T3B60 000:269.674         AlwaysPresent:   1
+T3B60 000:269.690         LoaderInfo:
+T3B60 000:269.703           Name:            Flash_256K
+T3B60 000:269.716           MaxSize:         0x00040000
+T3B60 000:269.729           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\HC32F448_256K.FLM
+T3B60 000:269.742           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:269.757     Device entry created:  HC32M441xA
+T3B60 000:269.766       ChipInfo:
+T3B60 000:269.779         Vendor:          HDSC
+T3B60 000:269.792         Name:            HC32M441xA
+T3B60 000:269.806         WorkRAMAddr:     0x1FFFC000
+T3B60 000:269.819         WorkRAMSize:     0x00008000
+T3B60 000:269.833         Core:            JLINK_CORE_CORTEX_M4
+T3B60 000:269.846       FlashBankInfo:
+T3B60 000:269.858         Name:            Flash_128K
+T3B60 000:269.983         AlwaysPresent:   1
+T3B60 000:269.998         LoaderInfo:
+T3B60 000:270.011           Name:            Flash_128K
+T3B60 000:270.024           MaxSize:         0x00020000
+T3B60 000:270.037           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\HC32M441_128K.FLM
+T3B60 000:270.050           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:270.065     Device entry created:  HC32M441xC
+T3B60 000:270.074       ChipInfo:
+T3B60 000:270.087         Vendor:          HDSC
+T3B60 000:270.099         Name:            HC32M441xC
+T3B60 000:270.112         WorkRAMAddr:     0x1FFFC000
+T3B60 000:270.125         WorkRAMSize:     0x00008000
+T3B60 000:270.139         Core:            JLINK_CORE_CORTEX_M4
+T3B60 000:270.152       FlashBankInfo:
+T3B60 000:270.165         Name:            Flash_256K
+T3B60 000:270.287         AlwaysPresent:   1
+T3B60 000:270.302         LoaderInfo:
+T3B60 000:270.315           Name:            Flash_256K
+T3B60 000:270.328           MaxSize:         0x00040000
+T3B60 000:270.341           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\HC32M441_256K.FLM
+T3B60 000:270.354           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:270.369     Device entry created:  HC32F451xE
+T3B60 000:270.378       ChipInfo:
+T3B60 000:270.391         Vendor:          HDSC
+T3B60 000:270.404         Name:            HC32F451xE
+T3B60 000:270.417         WorkRAMAddr:     0x1FFF8000
+T3B60 000:270.430         WorkRAMSize:     0x0002F000
+T3B60 000:270.444         Core:            JLINK_CORE_CORTEX_M4
+T3B60 000:270.457       FlashBankInfo:
+T3B60 000:270.470         Name:            Flash_512K
+T3B60 000:270.591         AlwaysPresent:   1
+T3B60 000:270.607         LoaderInfo:
+T3B60 000:270.619           Name:            Flash_512K
+T3B60 000:270.632           MaxSize:         0x00080000
+T3B60 000:270.645           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\HC32F451_512K.FLM
+T3B60 000:270.658           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:270.675     Device entry created:  HC32F452xE
+T3B60 000:270.684       ChipInfo:
+T3B60 000:270.697         Vendor:          HDSC
+T3B60 000:270.709         Name:            HC32F452xE
+T3B60 000:270.724         WorkRAMAddr:     0x1FFF8000
+T3B60 000:270.738         WorkRAMSize:     0x0002F000
+T3B60 000:270.752         Core:            JLINK_CORE_CORTEX_M4
+T3B60 000:270.764       FlashBankInfo:
+T3B60 000:270.777         Name:            Flash_512K
+T3B60 000:270.900         AlwaysPresent:   1
+T3B60 000:270.916         LoaderInfo:
+T3B60 000:270.929           Name:            Flash_512K
+T3B60 000:270.942           MaxSize:         0x00080000
+T3B60 000:270.955           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\HC32F452_512K.FLM
+T3B60 000:270.967           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:270.984     Device entry modified: HC32F460xC
+T3B60 000:271.001       ChipInfo:
+T3B60 000:271.015         WorkRAMAddr:     0x1FFF8000
+T3B60 000:271.028         WorkRAMSize:     0x0002F000
+T3B60 000:271.042       FlashBankInfo:
+T3B60 000:271.055         Name:            Flash_256K
+T3B60 000:271.179         AlwaysPresent:   1
+T3B60 000:271.195         LoaderInfo:
+T3B60 000:271.208           Name:            Flash_256K
+T3B60 000:271.220           MaxSize:         0x00040000
+T3B60 000:271.233           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\HC32F460_256K.FLM
+T3B60 000:271.246           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:271.261     Device entry modified: HC32F460xE
+T3B60 000:271.270       ChipInfo:
+T3B60 000:271.283         WorkRAMAddr:     0x1FFF8000
+T3B60 000:271.296         WorkRAMSize:     0x0002F000
+T3B60 000:271.310       FlashBankInfo:
+T3B60 000:271.323         Name:            Flash_512K
+T3B60 000:271.444         AlwaysPresent:   1
+T3B60 000:271.460         LoaderInfo:
+T3B60 000:271.473           Name:            Flash_512K
+T3B60 000:271.486           MaxSize:         0x00080000
+T3B60 000:271.499           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\HC32F460_512K.FLM
+T3B60 000:271.512           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:271.527     Device entry created:  HC32F467xG
+T3B60 000:271.536       ChipInfo:
+T3B60 000:271.548         Vendor:          HDSC
+T3B60 000:271.561         Name:            HC32F467xG
+T3B60 000:271.574         WorkRAMAddr:     0x1FFE0000
+T3B60 000:271.587         WorkRAMSize:     0x00080000
+T3B60 000:271.601         Core:            JLINK_CORE_CORTEX_M4
+T3B60 000:271.614       FlashBankInfo:
+T3B60 000:271.627         Name:            Flash_1M
+T3B60 000:271.749         AlwaysPresent:   1
+T3B60 000:271.765         LoaderInfo:
+T3B60 000:271.777           Name:            Flash_1M
+T3B60 000:271.790           MaxSize:         0x00100000
+T3B60 000:271.803           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\HC32F467_1M.FLM
+T3B60 000:271.816           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:271.831     Device entry created:  HC32F472xC
+T3B60 000:271.840       ChipInfo:
+T3B60 000:271.853         Vendor:          HDSC
+T3B60 000:271.865         Name:            HC32F472xC
+T3B60 000:271.878         WorkRAMAddr:     0x1FFF8000
+T3B60 000:271.891         WorkRAMSize:     0x00010000
+T3B60 000:271.906         Core:            JLINK_CORE_CORTEX_M4
+T3B60 000:271.919       FlashBankInfo:
+T3B60 000:271.931         Name:            Flash_256K
+T3B60 000:272.056         AlwaysPresent:   1
+T3B60 000:272.071         LoaderInfo:
+T3B60 000:272.084           Name:            Flash_256K
+T3B60 000:272.097           MaxSize:         0x00040000
+T3B60 000:272.110           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\HC32F472_256K.FLM
+T3B60 000:272.122           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:272.138     Device entry created:  HC32F472xE
+T3B60 000:272.146       ChipInfo:
+T3B60 000:272.159         Vendor:          HDSC
+T3B60 000:272.172         Name:            HC32F472xE
+T3B60 000:272.185         WorkRAMAddr:     0x1FFF8000
+T3B60 000:272.198         WorkRAMSize:     0x00010000
+T3B60 000:272.214         Core:            JLINK_CORE_CORTEX_M4
+T3B60 000:272.227       FlashBankInfo:
+T3B60 000:272.240         Name:            Flash_512K
+T3B60 000:272.362         AlwaysPresent:   1
+T3B60 000:272.378         LoaderInfo:
+T3B60 000:272.390           Name:            Flash_512K
+T3B60 000:272.403           MaxSize:         0x00080000
+T3B60 000:272.416           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\HC32F472_512K.FLM
+T3B60 000:272.429           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:272.444     Device entry created:  HC32F4A0xG
+T3B60 000:272.453       ChipInfo:
+T3B60 000:272.465         Vendor:          HDSC
+T3B60 000:272.478         Name:            HC32F4A0xG
+T3B60 000:272.491         WorkRAMAddr:     0x1FFE0000
+T3B60 000:272.504         WorkRAMSize:     0x00080000
+T3B60 000:272.518         Core:            JLINK_CORE_CORTEX_M4
+T3B60 000:272.531       FlashBankInfo:
+T3B60 000:272.544         Name:            Flash_1M
+T3B60 000:272.666         AlwaysPresent:   1
+T3B60 000:272.681         LoaderInfo:
+T3B60 000:272.694           Name:            Flash_1M
+T3B60 000:272.707           MaxSize:         0x00100000
+T3B60 000:272.720           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\HC32F4A0_1M.FLM
+T3B60 000:272.732           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:272.747     Device entry created:  HC32F4A0xI
+T3B60 000:272.756       ChipInfo:
+T3B60 000:272.769         Vendor:          HDSC
+T3B60 000:272.782         Name:            HC32F4A0xI
+T3B60 000:272.795         WorkRAMAddr:     0x1FFE0000
+T3B60 000:272.808         WorkRAMSize:     0x00080000
+T3B60 000:272.822         Core:            JLINK_CORE_CORTEX_M4
+T3B60 000:272.835       FlashBankInfo:
+T3B60 000:272.847         Name:            Flash_2M
+T3B60 000:272.970         AlwaysPresent:   1
+T3B60 000:272.986         LoaderInfo:
+T3B60 000:272.999           Name:            Flash_2M
+T3B60 000:273.012           MaxSize:         0x00200000
+T3B60 000:273.025           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\HC32F4A0_2M.FLM
+T3B60 000:273.038           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:273.052     Device entry created:  HC32F4A2xI
+T3B60 000:273.062       ChipInfo:
+T3B60 000:273.074         Vendor:          HDSC
+T3B60 000:273.087         Name:            HC32F4A2xI
+T3B60 000:273.100         WorkRAMAddr:     0x1FFE0000
+T3B60 000:273.113         WorkRAMSize:     0x00080000
+T3B60 000:273.127         Core:            JLINK_CORE_CORTEX_M4
+T3B60 000:273.140       FlashBankInfo:
+T3B60 000:273.153         Name:            Flash_2M
+T3B60 000:273.275         AlwaysPresent:   1
+T3B60 000:273.290         LoaderInfo:
+T3B60 000:273.303           Name:            Flash_2M
+T3B60 000:273.315           MaxSize:         0x00200000
+T3B60 000:273.328           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\HC32F4A2_2M.FLM
+T3B60 000:273.341           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:273.356     Device entry created:  HC32F4A8
+T3B60 000:273.365       ChipInfo:
+T3B60 000:273.378         Vendor:          HDSC
+T3B60 000:273.390         Name:            HC32F4A8
+T3B60 000:273.403         WorkRAMAddr:     0x1FFE0000
+T3B60 000:273.416         WorkRAMSize:     0x00080000
+T3B60 000:273.430         Core:            JLINK_CORE_CORTEX_M4
+T3B60 000:273.443       FlashBankInfo:
+T3B60 000:273.455         Name:            Flash_2M
+T3B60 000:273.578         AlwaysPresent:   1
+T3B60 000:273.593         LoaderInfo:
+T3B60 000:273.606           Name:            Flash_2M
+T3B60 000:273.619           MaxSize:         0x00200000
+T3B60 000:273.631           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\HC32F4A8_2M.FLM
+T3B60 000:273.644           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:273.659     Device entry created:  HC32F4A8xG
+T3B60 000:273.668       ChipInfo:
+T3B60 000:273.683         Vendor:          HDSC
+T3B60 000:273.696         Name:            HC32F4A8xG
+T3B60 000:273.709         WorkRAMAddr:     0x1FFE0000
+T3B60 000:273.722         WorkRAMSize:     0x00080000
+T3B60 000:273.736         Core:            JLINK_CORE_CORTEX_M4
+T3B60 000:273.773       FlashBankInfo:
+T3B60 000:273.786         Name:            Flash_1M
+T3B60 000:273.908         AlwaysPresent:   1
+T3B60 000:273.923         LoaderInfo:
+T3B60 000:273.936           Name:            Flash_1M
+T3B60 000:273.949           MaxSize:         0x00100000
+T3B60 000:273.962           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\HC32F4A8_1M.FLM
+T3B60 000:273.975           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:273.991     Device entry created:  HC32F4A8xI
+T3B60 000:274.000       ChipInfo:
+T3B60 000:274.013         Vendor:          HDSC
+T3B60 000:274.026         Name:            HC32F4A8xI
+T3B60 000:274.039         WorkRAMAddr:     0x1FFE0000
+T3B60 000:274.052         WorkRAMSize:     0x00080000
+T3B60 000:274.066         Core:            JLINK_CORE_CORTEX_M4
+T3B60 000:274.079       FlashBankInfo:
+T3B60 000:274.091         Name:            Flash_2M
+T3B60 000:274.212         AlwaysPresent:   1
+T3B60 000:274.228         LoaderInfo:
+T3B60 000:274.241           Name:            Flash_2M
+T3B60 000:274.253           MaxSize:         0x00200000
+T3B60 000:274.266           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\HC32F4A8_2M.FLM
+T3B60 000:274.279           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:274.294     Device entry created:  HC32A4A8
+T3B60 000:274.303       ChipInfo:
+T3B60 000:274.315         Vendor:          HDSC
+T3B60 000:274.328         Name:            HC32A4A8
+T3B60 000:274.341         WorkRAMAddr:     0x1FFE0000
+T3B60 000:274.354         WorkRAMSize:     0x00080000
+T3B60 000:274.368         Core:            JLINK_CORE_CORTEX_M4
+T3B60 000:274.381       FlashBankInfo:
+T3B60 000:274.394         Name:            Flash_2M
+T3B60 000:274.517         AlwaysPresent:   1
+T3B60 000:274.532         LoaderInfo:
+T3B60 000:274.545           Name:            Flash_2M
+T3B60 000:274.558           MaxSize:         0x00200000
+T3B60 000:274.571           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\HC32A4A8_2M.FLM
+T3B60 000:274.584           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:274.601     Device entry created:  HC32M120x6
+T3B60 000:274.609       ChipInfo:
+T3B60 000:274.622         Vendor:          HDSC
+T3B60 000:274.635         Name:            HC32M120x6
+T3B60 000:274.648         WorkRAMAddr:     0x20000000
+T3B60 000:274.661         WorkRAMSize:     0x00001000
+T3B60 000:274.674         Core:            JLINK_CORE_CORTEX_M0
+T3B60 000:274.688       FlashBankInfo:
+T3B60 000:274.701         Name:            Flash_32K
+T3B60 000:274.824         AlwaysPresent:   1
+T3B60 000:274.839         LoaderInfo:
+T3B60 000:274.852           Name:            Flash_32K
+T3B60 000:274.865           MaxSize:         0x00008000
+T3B60 000:274.878           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\HC32M120_32K.FLM
+T3B60 000:274.890           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:274.907     Device entry created:  HC32L16xC
+T3B60 000:274.916       ChipInfo:
+T3B60 000:274.928         Vendor:          HDSC
+T3B60 000:274.941         Name:            HC32L16xC
+T3B60 000:274.955         WorkRAMAddr:     0x20000000
+T3B60 000:274.968         WorkRAMSize:     0x00008000
+T3B60 000:274.981         Core:            JLINK_CORE_CORTEX_M0
+T3B60 000:274.994       FlashBankInfo:
+T3B60 000:275.007         Name:            Flash_256K
+T3B60 000:275.132         AlwaysPresent:   1
+T3B60 000:275.148         LoaderInfo:
+T3B60 000:275.160           Name:            Flash_256K
+T3B60 000:275.173           MaxSize:         0x00040000
+T3B60 000:275.186           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\HC32L16x_256KB.FLM
+T3B60 000:275.201           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:275.219     Device entry created:  HC32L16xA
+T3B60 000:275.228       ChipInfo:
+T3B60 000:275.241         Vendor:          HDSC
+T3B60 000:275.254         Name:            HC32L16xA
+T3B60 000:275.267         WorkRAMAddr:     0x20000000
+T3B60 000:275.279         WorkRAMSize:     0x00004000
+T3B60 000:275.293         Core:            JLINK_CORE_CORTEX_M0
+T3B60 000:275.305       FlashBankInfo:
+T3B60 000:275.318         Name:            Flash_128K
+T3B60 000:275.442         AlwaysPresent:   1
+T3B60 000:275.457         LoaderInfo:
+T3B60 000:275.470           Name:            Flash_128K
+T3B60 000:275.482           MaxSize:         0x00020000
+T3B60 000:275.496           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\HC32L16x_128KB.FLM
+T3B60 000:275.508           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:275.526     Device entry created:  HC32L18xC
+T3B60 000:275.535       ChipInfo:
+T3B60 000:275.548         Vendor:          HDSC
+T3B60 000:275.561         Name:            HC32L18xC
+T3B60 000:275.574         WorkRAMAddr:     0x20000000
+T3B60 000:275.587         WorkRAMSize:     0x00008000
+T3B60 000:275.600         Core:            JLINK_CORE_CORTEX_M0
+T3B60 000:275.613       FlashBankInfo:
+T3B60 000:275.625         Name:            Flash_256K
+T3B60 000:275.747         AlwaysPresent:   1
+T3B60 000:275.763         LoaderInfo:
+T3B60 000:275.776           Name:            Flash_256K
+T3B60 000:275.788           MaxSize:         0x00040000
+T3B60 000:275.801           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\HC32L18x_256KB.FLM
+T3B60 000:275.814           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:275.829     Device entry created:  HC32L18xA
+T3B60 000:275.838       ChipInfo:
+T3B60 000:275.851         Vendor:          HDSC
+T3B60 000:275.864         Name:            HC32L18xA
+T3B60 000:275.877         WorkRAMAddr:     0x20000000
+T3B60 000:275.890         WorkRAMSize:     0x00008000
+T3B60 000:275.903         Core:            JLINK_CORE_CORTEX_M0
+T3B60 000:275.916       FlashBankInfo:
+T3B60 000:275.929         Name:            Flash_128K
+T3B60 000:276.053         AlwaysPresent:   1
+T3B60 000:276.068         LoaderInfo:
+T3B60 000:276.081           Name:            Flash_128K
+T3B60 000:276.094           MaxSize:         0x00020000
+T3B60 000:276.106           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\HC32L18x_128KB.FLM
+T3B60 000:276.120           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:276.137     Device entry created:  HC32F420xA
+T3B60 000:276.146       ChipInfo:
+T3B60 000:276.159         Vendor:          HDSC
+T3B60 000:276.172         Name:            HC32F420xA
+T3B60 000:276.185         WorkRAMAddr:     0x20000000
+T3B60 000:276.198         WorkRAMSize:     0x00006000
+T3B60 000:276.211         Core:            JLINK_CORE_CORTEX_M4
+T3B60 000:276.225       FlashBankInfo:
+T3B60 000:276.237         Name:            Flash_128K
+T3B60 000:276.360         AlwaysPresent:   1
+T3B60 000:276.376         LoaderInfo:
+T3B60 000:276.388           Name:            Flash_128K
+T3B60 000:276.401           MaxSize:         0x00020000
+T3B60 000:276.414           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\HC32F420_128KB.FLM
+T3B60 000:276.427           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:276.444     Device entry created:  HC32F052
+T3B60 000:276.453       ChipInfo:
+T3B60 000:276.466         Vendor:          HDSC
+T3B60 000:276.479         Name:            HC32F052
+T3B60 000:276.491         WorkRAMAddr:     0x20000000
+T3B60 000:276.505         WorkRAMSize:     0x00004000
+T3B60 000:276.518         Core:            JLINK_CORE_CORTEX_M0
+T3B60 000:276.530       FlashBankInfo:
+T3B60 000:276.544         Name:            Flash_128K
+T3B60 000:276.667         AlwaysPresent:   1
+T3B60 000:276.683         LoaderInfo:
+T3B60 000:276.698           Name:            Flash_128K
+T3B60 000:276.711           MaxSize:         0x00020000
+T3B60 000:276.724           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\HC32F052_128K.FLM
+T3B60 000:276.736           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:276.753     Device entry created:  HC32A052
+T3B60 000:276.763       ChipInfo:
+T3B60 000:276.775         Vendor:          HDSC
+T3B60 000:276.788         Name:            HC32A052
+T3B60 000:276.801         WorkRAMAddr:     0x20000000
+T3B60 000:276.813         WorkRAMSize:     0x00004000
+T3B60 000:276.827         Core:            JLINK_CORE_CORTEX_M0
+T3B60 000:276.840       FlashBankInfo:
+T3B60 000:276.852         Name:            Flash_128K
+T3B60 000:276.977         AlwaysPresent:   1
+T3B60 000:276.992         LoaderInfo:
+T3B60 000:277.005           Name:            Flash_128K
+T3B60 000:277.018           MaxSize:         0x00020000
+T3B60 000:277.031           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\HC32A052_128K.FLM
+T3B60 000:277.044           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:277.060     Device entry created:  HC32L021
+T3B60 000:277.070       ChipInfo:
+T3B60 000:277.082         Vendor:          HDSC
+T3B60 000:277.095         Name:            HC32L021
+T3B60 000:277.108         WorkRAMAddr:     0x20000000
+T3B60 000:277.121         WorkRAMSize:     0x00001800
+T3B60 000:277.134         Core:            JLINK_CORE_CORTEX_M0
+T3B60 000:277.147       FlashBankInfo:
+T3B60 000:277.160         Name:            Flash_64K
+T3B60 000:277.283         AlwaysPresent:   1
+T3B60 000:277.299         LoaderInfo:
+T3B60 000:277.312           Name:            Flash_64K
+T3B60 000:277.324           MaxSize:         0x00010000
+T3B60 000:277.337           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\HC32L021_64KB.FLM
+T3B60 000:277.350           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:277.366     Device entry created:  HC32L12xA
+T3B60 000:277.375       ChipInfo:
+T3B60 000:277.388         Vendor:          HDSC
+T3B60 000:277.401         Name:            HC32L12xA
+T3B60 000:277.414         WorkRAMAddr:     0x20000000
+T3B60 000:277.427         WorkRAMSize:     0x00004000
+T3B60 000:277.440         Core:            JLINK_CORE_CORTEX_M0
+T3B60 000:277.453       FlashBankInfo:
+T3B60 000:277.466         Name:            Flash_128K
+T3B60 000:277.588         AlwaysPresent:   1
+T3B60 000:277.603         LoaderInfo:
+T3B60 000:277.616           Name:            Flash_128K
+T3B60 000:277.629           MaxSize:         0x00020000
+T3B60 000:277.641           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\HC32L12X_128KB.FLM
+T3B60 000:277.654           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:277.669     Device entry created:  HC32L031
+T3B60 000:277.678       ChipInfo:
+T3B60 000:277.691         Vendor:          HDSC
+T3B60 000:277.704         Name:            HC32L031
+T3B60 000:277.716         WorkRAMAddr:     0x20000000
+T3B60 000:277.730         WorkRAMSize:     0x00002000
+T3B60 000:277.743         Core:            JLINK_CORE_CORTEX_M0
+T3B60 000:277.756       FlashBankInfo:
+T3B60 000:277.769         Name:            Flash_64K
+T3B60 000:277.892         AlwaysPresent:   1
+T3B60 000:277.907         LoaderInfo:
+T3B60 000:277.920           Name:            Flash_64K
+T3B60 000:277.933           MaxSize:         0x00010000
+T3B60 000:277.945           Loader:          C:\Users\Deng20250325\AppData\Roaming\SEGGER\JLinkDevices\Devices\HDSC\HC32L031_64KB.FLM
+T3B60 000:277.958           LoaderType:      FLASH_ALGO_TYPE_OPEN
+T3B60 000:278.096   Ref file found at: D:\Keil5_ARM\ARM\Segger\JLinkDevices.ref
+T3B60 000:278.194   REF file references invalid XML file: D:\SEGGER\JLink\JLinkDevices.xml
+T3B60 000:278.369   Device "ARM7" selected.
+T3B60 000:278.577 - 107.361ms returns 0x00
+T3B60 000:278.598 JLINK_ExecCommand("Device = HC32F334KATI", ...). 
+T3B60 000:278.804   Device "ARM7" selected.
+T3B60 000:278.994 - 0.391ms returns 0x00
+T3B60 000:279.010 JLINK_ExecCommand("DisableConnectionTimeout", ...). 
+T3B60 000:279.021 - 0.006ms returns 0x01
+T3B60 000:279.032 JLINK_GetHardwareVersion()
+T3B60 000:279.040 - 0.012ms returns 97000
+T3B60 000:279.053 JLINK_GetDLLVersion()
+T3B60 000:279.062 - 0.013ms returns 78200
+T3B60 000:279.072 JLINK_GetOEMString(...)
+T3B60 000:279.081 JLINK_GetFirmwareString(...)
+T3B60 000:279.090 - 0.012ms
+T3B60 000:279.102 JLINK_GetDLLVersion()
+T3B60 000:279.111 - 0.013ms returns 78200
+T3B60 000:279.120 JLINK_GetCompileDateTime()
+T3B60 000:279.129 - 0.012ms
+T3B60 000:279.194 JLINK_GetFirmwareString(...)
+T3B60 000:279.210 - 0.020ms
+T3B60 000:279.221 JLINK_GetHardwareVersion()
+T3B60 000:279.230 - 0.013ms returns 97000
+T3B60 000:279.241 JLINK_GetSN()
+T3B60 000:279.250 - 0.013ms returns 602713511
+T3B60 000:279.260 JLINK_GetOEMString(...)
+T3B60 000:279.271 JLINK_TIF_Select(JLINKARM_TIF_SWD)
+T3B60 000:280.023 - 0.763ms returns 0x00
+T3B60 000:280.042 JLINK_HasError()
+T3B60 000:280.074 JLINK_SetSpeed(1000)
+T3B60 000:280.216 - 0.152ms
+T3B60 000:280.503 JLINK_HasError()
+T3B60 000:280.518 JLINK_SetResetType(JLINKARM_RESET_TYPE_NORMAL)
+T3B60 000:280.527 - 0.013ms returns JLINKARM_RESET_TYPE_NORMAL
+T3B60 000:280.537 JLINK_Reset()
+T3B60 000:280.753   
+  ***** Error: 
+T3B60 000:280.772   ARM7 is not supported via SWD
+T3B60 000:280.788   Connect failed. Resetting via Reset pin and trying again.
+T3B60 000:342.300   
+  ***** Error: 
+T3B60 000:342.327   ARM7 is not supported via SWD
+T3B60 000:342.342 - 61.810ms
+T3B60 000:342.362 JLINK_GetId()
+T3B60 000:342.622   
+  ***** Error: 
+T3B60 000:342.645   ARM7 is not supported via SWD
+T3B60 000:342.662   Connect failed. Resetting via Reset pin and trying again.
+T3B60 000:404.504   
+  ***** Error: 
+T3B60 000:404.542   ARM7 is not supported via SWD
+T3B60 000:404.559 - 62.202ms returns 0x00000000
+T3B60 000:404.590 JLINK_GetId()
+T3B60 000:404.836   
+  ***** Error: 
+T3B60 000:404.861   ARM7 is not supported via SWD
+T3B60 000:404.880   Connect failed. Resetting via Reset pin and trying again.
+T3B60 000:466.707   
+  ***** Error: 
+T3B60 000:466.737   ARM7 is not supported via SWD
+T3B60 000:466.755 - 62.170ms returns 0x00000000
+T3B60 000:473.953 JLINK_GetFirmwareString(...)
+T3B60 000:473.971 - 0.022ms
+T3B60 003:212.651 JLINK_Close()
+T3B60 003:228.818 - 16.183ms
+T3B60 003:228.839   
+T3B60 003:228.849   Closed

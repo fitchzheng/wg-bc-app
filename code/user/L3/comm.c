@@ -1,0 +1,541 @@
+#include "comm.h"
+
+#include "section.h"
+#include <string.h>
+
+section_com_t *p_com_first = NULL;
+comm_route_t *p_comm_route_first = NULL;
+
+extern section_link_t *p_link_first;
+
+static section_com_t *s_com_tail = NULL;
+static comm_route_t *s_route_tail = NULL;
+
+static void comm_insert(section_com_t *com)
+{
+    if (com == NULL)
+    {
+        return;
+    }
+
+    com->p_next = NULL;
+    if (p_com_first == NULL)
+    {
+        p_com_first = com;
+        s_com_tail = com;
+    }
+    else
+    {
+        s_com_tail->p_next = com;
+        s_com_tail = com;
+    }
+}
+
+static void comm_route_insert(comm_route_t *route)
+{
+    if (route == NULL)
+    {
+        return;
+    }
+
+    route->p_next = NULL;
+    if (p_comm_route_first == NULL)
+    {
+        p_comm_route_first = route;
+        s_route_tail = route;
+    }
+    else
+    {
+        s_route_tail->p_next = route;
+        s_route_tail = route;
+    }
+}
+
+static void comm_init(void)
+{
+    p_com_first = NULL;
+    p_comm_route_first = NULL;
+    s_com_tail = NULL;
+    s_route_tail = NULL;
+
+    for (reg_section_t *p = (reg_section_t *)&SECTION_START;
+         p < (reg_section_t *)&SECTION_STOP;
+         ++p)
+    {
+        switch (p->section_type)
+        {
+        case SECTION_COMM:
+            comm_insert((section_com_t *)p->p_str);
+            break;
+        case SECTION_COMM_ROUTE:
+            comm_route_insert((comm_route_t *)p->p_str);
+            break;
+        default:
+            break;
+        }
+    }
+}
+
+REG_INIT(0, comm_init)
+
+static uint16_t crc16_table[256];
+static uint8_t s_crc16_table_ready = 0u;
+
+static void crc16_init_table(void)
+{
+    if (s_crc16_table_ready != 0u)
+    {
+        return;
+    }
+
+    for (uint32_t i = 0u; i < 256u; i++)
+    {
+        uint16_t crc = 0u;
+        uint16_t c = (uint16_t)(i << 8);
+
+        for (uint32_t j = 0u; j < 8u; j++)
+        {
+            if (((crc ^ c) & 0x8000u) != 0u)
+            {
+                crc = (uint16_t)((crc << 1) ^ CRC16_CCITT_POLY);
+            }
+            else
+            {
+                crc = (uint16_t)(crc << 1);
+            }
+            c = (uint16_t)(c << 1);
+        }
+        crc16_table[i] = crc;
+    }
+
+    s_crc16_table_ready = 1u;
+}
+
+REG_INIT(0, crc16_init_table)
+
+uint16_t crc16_init(void)
+{
+    return CRC16_CCITT_INIT;
+}
+
+uint16_t crc16_update(uint16_t crc, uint8_t data)
+{
+    const uint8_t table_index = (uint8_t)((crc >> 8) ^ data);
+    return (uint16_t)((crc << 8) ^ crc16_table[table_index]);
+}
+
+uint16_t crc16_final(uint16_t crc)
+{
+    return crc;
+}
+
+uint16_t section_crc16(uint8_t *p_data, uint32_t len)
+{
+    uint16_t crc = crc16_init();
+
+    for (uint32_t i = 0u; i < len; i++)
+    {
+        crc = crc16_update(crc, p_data[i]);
+    }
+
+    return crc16_final(crc);
+}
+
+uint16_t section_crc16_with_crc(uint8_t *p_data, uint32_t len, uint16_t crc_in)
+{
+    uint16_t crc = crc_in;
+
+    for (uint32_t i = 0u; i < len; i++)
+    {
+        crc = crc16_update(crc, p_data[i]);
+    }
+
+    return crc;
+}
+
+static void (*find_comm_func(uint8_t cmd_set, uint8_t cmd_word))(section_packform_t *p_pack, DEC_MY_PRINTF)
+{
+    section_com_t *p = p_com_first;
+    section_com_t *p_last = NULL;
+
+    while (p != NULL)
+    {
+        if ((p->cmd_set == cmd_set) && (p->cmd_word == cmd_word))
+        {
+            if (p_last != NULL)
+            {
+                p_last->p_next = p->p_next;
+                p->p_next = p_com_first;
+                p_com_first = p;
+            }
+            return p->func;
+        }
+        p_last = p;
+        p = p->p_next;
+    }
+
+    return NULL;
+}
+
+static section_link_t *find_link_by_id(uint8_t link_id)
+{
+    for (section_link_t *p = p_link_first; p != NULL; p = p->p_next)
+    {
+        if (p->link_id == link_id)
+        {
+            return p;
+        }
+    }
+
+    return NULL;
+}
+
+static void comm_route_run(comm_ctx_t *ctx)
+{
+    if (ctx == NULL)
+    {
+        return;
+    }
+
+    for (comm_route_t *r = p_comm_route_first; r != NULL; r = r->p_next)
+    {
+        if ((ctx->link_id == r->src_link_id) && (ctx->pack.dst == r->dst_addr))
+        {
+            section_link_t *dst_link = find_link_by_id(r->dst_link_id);
+            if (dst_link != NULL)
+            {
+                comm_send_data(&ctx->pack, dst_link->my_printf);
+            }
+            break;
+        }
+    }
+}
+
+#define COMM_SOP_BYTE 0xE8u
+#define COMM_VER_1 0x01u
+#define COMM_EOP_WORD 0x0A0Du
+
+static uint8_t is_addr_match(uint8_t addr, uint8_t local)
+{
+    return (uint8_t)((addr == 0x00u) || (addr == local));
+}
+
+static void comm_reset_ctx(comm_ctx_t *ctx)
+{
+    ctx->status = SECTION_PACKFORM_STA_SOP;
+    ctx->index = 0u;
+    ctx->len = 0u;
+    ctx->crc = 0u;
+    ctx->func = NULL;
+    ctx->src_flag = 0u;
+    ctx->dst_flag = 0u;
+    ctx->cmd_flag = 0u;
+    ctx->len_flag = 0u;
+    ctx->eop_flag = 0u;
+    ctx->is_route = 0u;
+}
+
+void comm_run(uint8_t data, DEC_MY_PRINTF, void *p)
+{
+    comm_ctx_t *ctx = (comm_ctx_t *)p;
+
+    if (ctx == NULL)
+    {
+        return;
+    }
+
+    switch (ctx->status)
+    {
+    case SECTION_PACKFORM_STA_SOP:
+        if (data != COMM_SOP_BYTE)
+        {
+            return;
+        }
+        ctx->crc = crc16_init();
+        ctx->crc = crc16_update(ctx->crc, data);
+        ctx->pack.sop = data;
+        ctx->pack.p_data = (uint8_t *)ctx->p_data_buffer;
+        ctx->index = 0u;
+        ctx->len = 0u;
+        ctx->func = NULL;
+        ctx->is_route = 0u;
+        ctx->src_flag = 0u;
+        ctx->dst_flag = 0u;
+        ctx->cmd_flag = 0u;
+        ctx->len_flag = 0u;
+        ctx->eop_flag = 0u;
+        ctx->status = SECTION_PACKFORM_STA_VER;
+        break;
+
+    case SECTION_PACKFORM_STA_VER:
+        ctx->pack.version = data;
+        ctx->crc = crc16_update(ctx->crc, data);
+        if (ctx->pack.version != COMM_VER_1)
+        {
+            comm_reset_ctx(ctx);
+            return;
+        }
+        ctx->status = SECTION_PACKFORM_STA_SRC;
+        ctx->src_flag = 0u;
+        break;
+
+    case SECTION_PACKFORM_STA_SRC:
+        if (ctx->src_flag == 0u)
+        {
+            ctx->pack.src = data;
+            ctx->crc = crc16_update(ctx->crc, data);
+            ctx->src_flag = 1u;
+        }
+        else
+        {
+            ctx->pack.d_src = data;
+            ctx->crc = crc16_update(ctx->crc, data);
+            ctx->dst_flag = 0u;
+            ctx->status = SECTION_PACKFORM_STA_DST;
+        }
+        break;
+
+    case SECTION_PACKFORM_STA_DST:
+        if (ctx->dst_flag == 0u)
+        {
+            ctx->pack.dst = data;
+            ctx->crc = crc16_update(ctx->crc, data);
+            ctx->is_route = (uint8_t)(!is_addr_match(ctx->pack.dst, ctx->src));
+            ctx->dst_flag = 1u;
+        }
+        else
+        {
+            ctx->pack.d_dst = data;
+            ctx->crc = crc16_update(ctx->crc, data);
+
+            if (is_addr_match(ctx->pack.d_dst, ctx->d_src) || (ctx->is_route == 1u))
+            {
+                ctx->cmd_flag = 0u;
+                ctx->status = SECTION_PACKFORM_STA_CMD;
+            }
+            else
+            {
+                comm_reset_ctx(ctx);
+                return;
+            }
+        }
+        break;
+
+    case SECTION_PACKFORM_STA_CMD:
+        if (ctx->cmd_flag == 0u)
+        {
+            ctx->pack.cmd_set = data;
+            ctx->crc = crc16_update(ctx->crc, data);
+            ctx->cmd_flag = 1u;
+        }
+        else
+        {
+            ctx->pack.cmd_word = data;
+            ctx->crc = crc16_update(ctx->crc, data);
+
+            if (ctx->is_route == 0u)
+            {
+                ctx->func = find_comm_func(ctx->pack.cmd_set, ctx->pack.cmd_word);
+                if (ctx->func == NULL)
+                {
+                    comm_reset_ctx(ctx);
+                    return;
+                }
+            }
+            ctx->status = SECTION_PACKFORM_STA_ACK;
+        }
+        break;
+
+    case SECTION_PACKFORM_STA_ACK:
+        ctx->pack.is_ack = data;
+        ctx->crc = crc16_update(ctx->crc, data);
+        ctx->pack.len = 0u;
+        ctx->len_flag = 0u;
+        ctx->status = SECTION_PACKFORM_STA_LEN;
+        break;
+
+    case SECTION_PACKFORM_STA_LEN:
+        if (ctx->len_flag == 0u)
+        {
+            ctx->pack.len = (uint16_t)(ctx->pack.len | (uint16_t)data);
+            ctx->crc = crc16_update(ctx->crc, data);
+            ctx->len_flag = 1u;
+        }
+        else
+        {
+            ctx->pack.len = (uint16_t)(ctx->pack.len | (uint16_t)(data << 8));
+            ctx->crc = crc16_update(ctx->crc, data);
+            ctx->len = ctx->pack.len;
+            ctx->index = 0u;
+            ctx->pack.p_data = ctx->p_data_buffer;
+            ctx->len_flag = 0u;
+
+            if (ctx->len > ctx->buffer_size)
+            {
+                comm_reset_ctx(ctx);
+                return;
+            }
+
+            ctx->status = SECTION_PACKFORM_STA_DATA;
+        }
+        break;
+
+    case SECTION_PACKFORM_STA_DATA:
+        if (ctx->len != 0u)
+        {
+            ctx->p_data_buffer[ctx->index++] = data;
+            ctx->crc = crc16_update(ctx->crc, data);
+            ctx->len--;
+        }
+        else
+        {
+            ctx->pack.crc = (uint16_t)data;
+            ctx->status = SECTION_PACKFORM_STA_CRC;
+        }
+        break;
+
+    case SECTION_PACKFORM_STA_CRC:
+        ctx->pack.crc = (uint16_t)(ctx->pack.crc | (uint16_t)(data << 8));
+        ctx->crc = crc16_final(ctx->crc);
+        if (ctx->crc != ctx->pack.crc)
+        {
+            comm_reset_ctx(ctx);
+            return;
+        }
+        ctx->pack.eop = 0u;
+        ctx->eop_flag = 0u;
+        ctx->status = SECTION_PACKFORM_STA_EOP;
+        break;
+
+    case SECTION_PACKFORM_STA_EOP:
+        if (ctx->eop_flag == 0u)
+        {
+            ctx->pack.eop = (uint16_t)(ctx->pack.eop | (uint16_t)data);
+            ctx->eop_flag = 1u;
+        }
+        else
+        {
+            ctx->pack.eop = (uint16_t)(ctx->pack.eop | (uint16_t)(data << 8));
+            if (ctx->pack.eop == COMM_EOP_WORD)
+            {
+                if (ctx->is_route == 1u)
+                {
+                    comm_route_run(ctx);
+                }
+                else if (ctx->func != NULL)
+                {
+                    ctx->func(&ctx->pack, my_printf);
+                }
+            }
+            comm_reset_ctx(ctx);
+        }
+        break;
+
+    case SECTION_PACKFORM_STA_ROUTE:
+    default:
+        comm_reset_ctx(ctx);
+        break;
+    }
+}
+
+static uint8_t tx_buffer[512];
+static uint16_t tx_len = 0u;
+
+static int tx_push(uint8_t b)
+{
+    if (tx_len >= (uint16_t)sizeof(tx_buffer))
+    {
+        return 0;
+    }
+    tx_buffer[tx_len++] = b;
+    return 1;
+}
+
+void comm_send_data(section_packform_t *p_pack, DEC_MY_PRINTF)
+{
+    if (p_pack == NULL)
+    {
+        return;
+    }
+
+    if ((15u + (uint32_t)p_pack->len) > sizeof(tx_buffer))
+    {
+        return;
+    }
+
+    tx_len = 0u;
+    p_pack->version = COMM_VER_1;
+    p_pack->crc = crc16_init();
+
+    if (!tx_push(COMM_SOP_BYTE))
+        return;
+    p_pack->crc = crc16_update(p_pack->crc, COMM_SOP_BYTE);
+
+    if (!tx_push(p_pack->version))
+        return;
+    p_pack->crc = crc16_update(p_pack->crc, p_pack->version);
+
+    if (!tx_push(p_pack->src))
+        return;
+    p_pack->crc = crc16_update(p_pack->crc, p_pack->src);
+
+    if (!tx_push(p_pack->d_src))
+        return;
+    p_pack->crc = crc16_update(p_pack->crc, p_pack->d_src);
+
+    if (!tx_push(p_pack->dst))
+        return;
+    p_pack->crc = crc16_update(p_pack->crc, p_pack->dst);
+
+    if (!tx_push(p_pack->d_dst))
+        return;
+    p_pack->crc = crc16_update(p_pack->crc, p_pack->d_dst);
+
+    if (!tx_push(p_pack->cmd_set))
+        return;
+    p_pack->crc = crc16_update(p_pack->crc, p_pack->cmd_set);
+
+    if (!tx_push(p_pack->cmd_word))
+        return;
+    p_pack->crc = crc16_update(p_pack->crc, p_pack->cmd_word);
+
+    if (!tx_push(p_pack->is_ack))
+        return;
+    p_pack->crc = crc16_update(p_pack->crc, p_pack->is_ack);
+
+    const uint8_t len_lo = (uint8_t)(p_pack->len & 0xFFu);
+    const uint8_t len_hi = (uint8_t)((p_pack->len >> 8) & 0xFFu);
+    if (!tx_push(len_lo))
+        return;
+    if (!tx_push(len_hi))
+        return;
+    p_pack->crc = crc16_update(p_pack->crc, len_lo);
+    p_pack->crc = crc16_update(p_pack->crc, len_hi);
+
+    if ((p_pack->p_data != NULL) && (p_pack->len != 0u))
+    {
+        for (uint32_t i = 0u; i < (uint32_t)p_pack->len; i++)
+        {
+            const uint8_t b = p_pack->p_data[i];
+            if (!tx_push(b))
+                return;
+            p_pack->crc = crc16_update(p_pack->crc, b);
+        }
+    }
+
+    const uint16_t crc = crc16_final(p_pack->crc);
+    if (!tx_push((uint8_t)(crc & 0xFFu)))
+        return;
+    if (!tx_push((uint8_t)((crc >> 8) & 0xFFu)))
+        return;
+
+    if (!tx_push(0x0Du))
+        return;
+    if (!tx_push(0x0Au))
+        return;
+
+    if ((my_printf != NULL) && (my_printf->tx_by_dma != NULL))
+    {
+        my_printf->tx_by_dma((char *)tx_buffer, (int)tx_len);
+    }
+}
