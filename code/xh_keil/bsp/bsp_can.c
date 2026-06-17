@@ -238,7 +238,7 @@ void bsp_can_init(void)
     McanInitConfig();
 //    McanIrqConfig();
     McanPinConfig();
-//    McanPhyEnable();  //测试完成需要屏蔽
+    McanPhyEnable();
     MCAN_Start(MCAN_UNIT);
 }
 
@@ -260,7 +260,7 @@ uint8_t bsp_rvc_can_tx(uint32_t id, const uint8_t *p_data, uint8_t len)
 {
     stc_mcan_tx_msg_t stcTxMsg = {
         .ID = id,
-        .IDE = 0U,//1U,
+        .IDE = 1U,
         .DLC = MCAN_DLC8,
         .u32TxBuffer = MCAN_TX_BUF0,
     };
@@ -277,16 +277,28 @@ uint8_t bsp_rvc_can_tx(uint32_t id, const uint8_t *p_data, uint8_t len)
 
 int bsp_can_rx(uint32_t *p_raw, uint8_t *p_data)
 {
-    stc_mcan_rx_msg_t stcRxMsg = {0}; // 接收数据结构体
-    if (bsp_can_rev_check())          // 是否有收到新数据
+    stc_mcan_rx_msg_t stcRxMsg = {0};
+    uint8_t scan_count = 0;
+
+    while (scan_count < 16U)
     {
-        if (bsp_can_get_msg(&stcRxMsg) == LL_OK) // 获取数据
+        scan_count++;
+        if (bsp_can_get_msg(&stcRxMsg) != LL_OK)
+        {
+            *p_raw = 0;
+            return -1;
+        }
+
+        if ((stcRxMsg.IDE == 1U) && (stcRxMsg.DLC == MCAN_DLC8))
         {
             *p_raw = stcRxMsg.ID;
             memcpy(p_data, &stcRxMsg.au8Data[0], 8);
             return 0;
         }
     }
+
+    *p_raw = 0;
+    memset(p_data, 0, 8);
     return -1;
 }
 
@@ -297,4 +309,3 @@ void bsp_can_deinit(void)
 
     FCG_Fcg1PeriphClockCmd(MCAN_PERIPH_CLK, DISABLE);
 }
-

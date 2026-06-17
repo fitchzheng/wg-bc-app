@@ -375,5 +375,6 @@ void BattChargingCurve(charge_state_data_t *bat_charge_data,uint8_t soft_flag);
 void bat_a_arguments_limi(void);
 void bat_b_arguments_limi(void);
 void init_mppt_mode_parameter(void);
+extern const BAT_MODE_CONFIG_T Bat_Sys_Volt_Config[eBAT_SYS_VOLT_MAX][eBAT_TYPE_MAX];
 #endif
 

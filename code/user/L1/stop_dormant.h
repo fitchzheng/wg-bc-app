@@ -87,5 +87,5 @@ typedef struct
 
 
 uint8_t bsp_pwc_stop_rum(void);
+void sleep_low_power_commit(void);
 #endif
-

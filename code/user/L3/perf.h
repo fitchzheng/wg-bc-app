@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+#include "app_features.h"
+
 typedef enum
 {
     SECTION_PERF_RECORD = 0,
@@ -31,6 +33,8 @@ typedef struct
 
 extern uint32_t *g_section_perf_cnt;
 
+#if (APP_DEBUG_FEATURES == 1)
+
 #define REG_PERF_BASE_CNT(timer_cnt)                \
     const section_perf_base_t section_perf_base_timer = { \
         .p_cnt = (timer_cnt),                       \
@@ -41,9 +45,17 @@ extern uint32_t *g_section_perf_cnt;
     };                                              \
     REG_SECTION_FUNC(SECTION_PERF, section_timer_cnt_perf)
 
-#define PERF_RECORD_ENABLE 1
+#else
 
-#if (PERF_RECORD_ENABLE == 1)
+#define REG_PERF_BASE_CNT(timer_cnt)
+
+#endif
+
+#ifndef PERF_RECORD_ENABLE
+#define PERF_RECORD_ENABLE APP_DEBUG_FEATURES
+#endif
+
+#if (APP_DEBUG_FEATURES == 1) && (PERF_RECORD_ENABLE == 1)
 
 #define PERF_START(name)                                                           \
     do                                                                             \

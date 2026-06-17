@@ -7,10 +7,10 @@
 #include "bsp_flash.h"
 #include "bsp_usart.h"
 
-#define APP_START_ADDR 0x00007000
-#define APP_END_ADDR 0x0001DFFF
-//#define APP_BACKUP_START_ADDR 0x0001F000
-//#define APP_BACKUP_END_ADDR 0x0001FFFF 
+#define APP_START_ADDR 0x00005000U
+#define APP_END_ADDR   0x0001EFFFU
+#define APP_MAX_SIZE   (APP_END_ADDR - APP_START_ADDR + 1U)
+#define IAP_META_ADDR  0x0001F000U
 
 #define YMODEM_SOH 0x01
 #define YMODEM_STX 0x02
@@ -47,6 +47,9 @@
 #define YMODEM_INFO_UPGRADE_MODE_IDX 27
 #define YMODEM_INFO_HW_VER_OFFSET 28
 #define YMODEM_INFO_HW_VER_LEN 4
+#define YMODEM_INFO_IMAGE_CRC32_OFFSET 0
+#define YMODEM_INFO_IMAGE_CRC32_LEN 4
+#define YMODEM_LINK_CAN_OTA 0xCAU
 
 #pragma pack(push, 1)
 
@@ -129,6 +132,7 @@ extern "C"
     void ymodem_task(void);
     void ymodem_recv_task(void);
     void ymodem_init(void);
+    uint8_t ymodem_request_can_ota(uint32_t image_size, uint32_t image_crc32);
 
 #ifdef __cplusplus
 }

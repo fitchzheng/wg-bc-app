@@ -22,6 +22,7 @@ enum
 
 extern flash_zone_t flash_zone[];
 
+int32_t flash_get_page_index(uint32_t zone_index, uint32_t offset);
 int32_t flash_erase(uint32_t zone_index, uint32_t offset);
 // 整页写入/读取：offset 必须为页对齐(2KB)，pdata 长度必须为 FLASH_LOGICAL_PAGE_SIZE/2(uint16_t)
 uint8_t flash_write(uint32_t zone_index, uint32_t offset, const uint16_t *pdata);

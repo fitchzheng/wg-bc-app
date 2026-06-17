@@ -74,7 +74,6 @@ typedef struct
     uint16_t SetChargMode;
     uint16_t InpBatyType;
     uint16_t OutBatyType;
-    
 } STATE_CONTROL_PARAMETER_T;
 
 typedef struct

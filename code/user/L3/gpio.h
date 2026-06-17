@@ -3,7 +3,7 @@
 
 #include "stdint.h"
 
-#define LED_ON_OFF      0
+#define LED_ON_OFF      1
 
 extern uint8_t mos_g150_flag;
 extern uint8_t mos_g300_flag;

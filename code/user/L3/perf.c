@@ -5,6 +5,8 @@
 
 #include <string.h>
 
+#if (APP_DEBUG_FEATURES == 1)
+
 section_perf_record_t *p_perf_record_first = NULL;
 uint32_t *g_section_perf_cnt = NULL;
 
@@ -160,3 +162,25 @@ static void perf_print_task(void)
 REG_INIT(0, perf_init)
 REG_TASK_MS(5, perf_print_task)
 REG_SHELL_CMD(perf_print_record, print_perf_record_start)
+
+#else
+
+section_perf_record_t *p_perf_record_first = NULL;
+uint32_t *g_section_perf_cnt = NULL;
+
+void print_perf_record(DEC_MY_PRINTF)
+{
+    (void)my_printf;
+}
+
+void print_perf_record_start(DEC_MY_PRINTF)
+{
+    (void)my_printf;
+}
+
+int print_perf_record_step(void)
+{
+    return 0;
+}
+
+#endif

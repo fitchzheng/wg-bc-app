@@ -56,6 +56,7 @@ typedef enum
     eBAT_LI_NMC,
     eBAT_DCDC,
     eSCAP,
+    eBAT_AUTOSYS,
     eBAT_MODE_TYPE_MAX,
 } BAT_TYPE_ENUM_E;
 
@@ -68,7 +69,7 @@ typedef enum
     eSYS_48V,
     eSYS_60V,
     eSYS_72V,
-    eSYS_10_50V,
+    eSYS_10_60V,
     eSYS_VOLT_MAX,
 } SYS_VOLT_STATE_E;
 
@@ -123,8 +124,8 @@ typedef struct
     uint16_t ZeroCurrCalibration; // 40A: 端零电流校准
     uint16_t ResetFactoryData;    // 40B: 恢复厂家数据
     uint16_t BatModeFR;           // 40C: 电池模式正反向切换
-    uint16_t MpptSwitch;          // 40D: MPPT开关
-    uint16_t SleepModeOnOff;
+    uint16_t MpptSwitch;          // 40D: MPPT mode switch
+    uint16_t SleepModeOnOff;      // 40E: sleep mode switch
 } com_ctrl_t;
 
 typedef struct
@@ -242,6 +243,7 @@ typedef struct
     uint16_t OutBatyType;        // 电池类型
     uint16_t fvs48_pwr_lmt;
     uint16_t rvs12_pwr_lmt;
+    uint16_t ActiveOnCurrStartTime;
     uint16_t SetCharState;       // 充电状态
     float SetInpCurr;            // 输入电流
     float SetOutVolt;            // 输出电压
@@ -275,9 +277,11 @@ extern state_control_data_t State_Control_Data;
 
 #pragma pack()
 uint8_t updated_parameter(void);
+void request_update_parameter(void);
+uint8_t consume_power_mode_changed_update(void);
+uint8_t consume_out_baty_type_changed_update(void);
 uint16_t Get_Charge_State(void);
 void set_charge_state_mode(BAT_CHARGE_MODE_E state);
 void get_wg_com_data_rum(void);
 uint8_t float_equal(float x, float y);
-void get_wg_com_data_rum(void);
 #endif

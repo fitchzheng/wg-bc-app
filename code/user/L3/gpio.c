@@ -86,23 +86,22 @@ void mos_on_off_G300(uint8_t model)
 
 
 
-static uint8_t key_state = 1;
+static uint8_t key_state = 0;
 void key_pg(void)
 {
-	static uint16_t key_up = 0;
-	static uint16_t key_du = 0;
+	static uint16_t key_cot = 0;
 	if(gpio_get_pg() == 1){
-		if(++key_up >= 30){
-            key_up = 0;
+		if(key_cot >= 30){
 			key_state = 1;
+		}else{
+			key_cot++;
 		}
-        key_du = 0;
 	}else{
-		if(++key_du >= 30){
-            key_du = 0;
+		if(key_cot > 0){
+			key_cot --;
+		}else{
 			key_state = 0;
 		}
-        key_up = 0;
 	}
 }
 

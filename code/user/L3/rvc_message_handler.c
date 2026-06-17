@@ -1,45 +1,91 @@
 /**
  * @file rvc_message_handler.c
- * @brief RV-C æ¶ˆæ¯å¤„ç†å®ç°
+ * @brief RV-C ÏûÏ¢´¦ÀíÊµÏÖ
  */
 #include "rvc_message_handler.h"
 #include "rvc_address.h"
 #include "bsp_can.h"
 #include "get_com_data.h"
 #include "wg_com_v2.h"
+#include "eeprom_cfg.h"
+#include "string.h"
 
 static uint8_t g_my_instance = 1;
 
-/* ========== å†…éƒ¨å˜é‡ ========== */
+/* ========== ÄÚ²¿±äÁ¿ ========== */
 
 static rvc_charger_command_callback_t g_charger_command_cb = NULL;
 static rvc_request_for_dgn_callback_t g_request_for_dgn_cb = NULL;
 
 
-static uint8_t g_dm_dsn = 0;  // è¯Šæ–­åºåˆ—å·
-static uint16_t g_current_spn = 0;  // å½“å‰æ•…éšœç 
+static uint8_t g_dm_dsn = 0;
+static uint16_t g_current_spn = 0;
 static uint8_t g_current_fmi = 0;
 static uint8_t g_occurrence_count = 0;
 
-/* ========== å†…éƒ¨å‡½æ•°å£°æ˜ ========== */
+/* ========== ÄÚ²¿º¯ÊıÉùÃ÷ ========== */
 
 static void handle_charger_command(uint32_t can_id, uint8_t *data, uint8_t len);
 static void handle_request_for_dgn(uint32_t can_id, uint8_t *data, uint8_t len);
 
 static uint32_t build_can_id(uint8_t priority, uint32_t dgn, uint8_t sa);
 
-/* ========== å…¬å…± API å®ç° ========== */
+static void rvc_put_u16_be(uint8_t *data, uint8_t offset, uint16_t value)
+{
+    data[offset] = (uint8_t)((value >> 8) & 0xFF);
+    data[offset + 1] = (uint8_t)(value & 0xFF);
+}
+
+/* ========== ¹«¹² API ÊµÏÖ ========== */
+
+#if (APP_DEBUG_EVENT_FEATURES == 1)
+#define RVC_APP_DEBUG_EVENT_REG_OFFSET       8U
+#define RVC_APP_DEBUG_EVENT_REGS_PER_PART    3U
+#define RVC_APP_DEBUG_EVENT_PART_COUNT       40U
+
+static void handle_app_debug_event_data(uint8_t *data, uint8_t len)
+{
+    uint8_t tx_data[8];
+    uint8_t part;
+    uint16_t reg_offset;
+    uint32_t tx_can_id;
+
+    if(len < 2)
+    {
+        return;
+    }
+
+    if((data[0] != 0xFF) && (data[0] != g_my_instance))
+    {
+        return;
+    }
+
+    part = data[1];
+    if(part >= RVC_APP_DEBUG_EVENT_PART_COUNT)
+    {
+        return;
+    }
+
+    memset(tx_data, 0x00, sizeof(tx_data));
+    tx_data[0] = data[0];
+    tx_data[1] = part;
+    reg_offset = (uint16_t)(RVC_APP_DEBUG_EVENT_REG_OFFSET +
+                            ((uint16_t)part * RVC_APP_DEBUG_EVENT_REGS_PER_PART));
+    app_debug_event_read_regs(reg_offset, RVC_APP_DEBUG_EVENT_REGS_PER_PART, &tx_data[2]);
+    tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_APP_DEBUG_EVENT_R, rvc_address_get_current());
+    bsp_rvc_can_tx(tx_can_id, tx_data, 8);
+}
+#endif
 
 uint8_t rvc_send_dm_rv(uint8_t instance, uint16_t spn, uint8_t fmi)
 {
     uint32_t can_id = build_can_id(6, RVC_DGN_DM_RV, 0xFF);
 
-    // æ›´æ–°æ•…éšœçŠ¶æ€
     if (spn != g_current_spn || fmi != g_current_fmi) {
         g_current_spn = spn;
         g_current_fmi = fmi;
         g_occurrence_count = (spn != 0) ? 1 : 0;
-        g_dm_dsn++;  // çŠ¶æ€æ”¹å˜ï¼Œåºåˆ—å·é€’å¢
+        g_dm_dsn++;  // ×´Ì¬¸Ä±ä£¬ĞòÁĞºÅµİÔö
     }
 
     uint8_t data[8];
@@ -48,7 +94,7 @@ uint8_t rvc_send_dm_rv(uint8_t instance, uint16_t spn, uint8_t fmi)
     data[2] = (spn >> 8) & 0xFF;
     data[3] = fmi;
     data[4] = g_occurrence_count;
-    data[5] = rvc_address_get_current();  // DSA = è‡ªå·±çš„åœ°å€
+    data[5] = rvc_address_get_current();  // DSA = ×Ô¼ºµÄµØÖ·
     data[6] = instance;
     data[7] = 0xFF;  // Reserved
 
@@ -60,8 +106,8 @@ void rvc_message_handler_init(void)
     g_charger_command_cb = NULL;
     g_request_for_dgn_cb = NULL;
 
-    // è¯»å–æœ¬æœº Instance
-    g_my_instance = 1;  // æˆ–ç›´æ¥ç”¨ RVC_CHARGER_INSTANCE
+    // ¶ÁÈ¡±¾»ú Instance
+    g_my_instance = 1;  // »òÖ±½ÓÓÃ RVC_CHARGER_INSTANCE
 }
 
 void rvc_register_charger_command_callback(rvc_charger_command_callback_t callback)
@@ -77,15 +123,15 @@ void rvc_register_request_for_dgn_callback(rvc_request_for_dgn_callback_t callba
 static void handle_manufacturer_data(uint32_t gdn, uint8_t *data, uint8_t len)
 {
     if (len < 7) {
-        return;  // æ•°æ®é•¿åº¦ä¸è¶³
+        return;  // Êı¾İ³¤¶È²»×ã
     }
 
-    // æ£€æŸ¥å®ä¾‹å·
+    // ¼ì²éÊµÀıºÅ
     if ((data[0] != 0xFF) && (data[0] != g_my_instance)) {
-        return;  // ä¸æ˜¯è¯·æ±‚æˆ‘çš„
+        return;  // ²»ÊÇÇëÇóÎÒµÄ
     }
 
-    // æå–å‘é€è€…åœ°å€
+    // ÌáÈ¡·¢ËÍÕßµØÖ·
     uint32_t tx_can_id = 0;//build_can_id(6, RVC_DGN_ACKNOWLEDGEMENT, rvc_address_get_current());
     uint8_t tx_data[8];
     uint16_t data_u16 = 0;
@@ -214,137 +260,148 @@ static void handle_manufacturer_data(uint32_t gdn, uint8_t *data, uint8_t len)
 static void handle_real_time_data(uint32_t gdn, uint8_t *data, uint8_t len)
 {
     if (len < 7) {
-        return;  // æ•°æ®é•¿åº¦ä¸è¶³
+        return;  // Êı¾İ³¤¶È²»×ã
     }
 
-    // æ£€æŸ¥å®ä¾‹å·
-    if ((data[0] != 0xFF) && (data[0] != g_my_instance)) {
-        return;  // ä¸æ˜¯è¯·æ±‚æˆ‘çš„
+    // ¼ì²éÊµÀıºÅ
+    if ((data[0] != 0xFF) && (data[0] != 0x00) && (data[0] != g_my_instance)) {
+        return;  // ²»ÊÇÇëÇóÎÒµÄ
     }
 
-    // æå–å‘é€è€…åœ°å€
+    // ÌáÈ¡·¢ËÍÕßµØÖ·
     uint32_t tx_can_id = 0;//build_can_id(6, RVC_DGN_ACKNOWLEDGEMENT, rvc_address_get_current());
     uint8_t tx_data[8];
+    uint16_t value = 0;
     memset(tx_data, 0xFF, sizeof(tx_data));
-    tx_data[0] = data[0];
+    tx_data[0] = (data[0] == 0x00) ? g_my_instance : data[0];
 
     switch(gdn){
         case RVC_DGN_PROPRIETARY_AVOLT_ACURR_APOWER_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_AVOLT_ACURR_APOWER_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_realtime_data.InpVolt>>8)&0xff);           // Aç«¯ç”µå‹
-            tx_data[2] = (wg_com_v2_realtime_data.InpVolt&0xff);                // Aç«¯ç”µå‹
-            tx_data[3] = ((wg_com_v2_realtime_data.InpCurr>>8)&0xff);           // Aç«¯ç”µæµ
-            tx_data[4] = (wg_com_v2_realtime_data.InpCurr&0xff);                // Aç«¯ç”µæµ
-            tx_data[5] = ((wg_com_v2_realtime_data.InpCurrPower>>8)&0xff);      // Aç«¯åŠŸç‡
-            tx_data[6] = (wg_com_v2_realtime_data.InpCurrPower&0xff);           // Aç«¯åŠŸç‡
+            tx_data[1] = ((wg_com_v2_realtime_data.InpVolt>>8)&0xff);
+            tx_data[2] = (wg_com_v2_realtime_data.InpVolt&0xff);
+            tx_data[3] = ((wg_com_v2_realtime_data.InpCurr>>8)&0xff);
+            tx_data[4] = (wg_com_v2_realtime_data.InpCurr&0xff);
+            tx_data[5] = ((wg_com_v2_realtime_data.InpCurrPower>>8)&0xff);
+            tx_data[6] = (wg_com_v2_realtime_data.InpCurrPower&0xff);
             break;
         case RVC_DGN_PROPRIETARY_BVOLT_BCURR_BPOWER_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_BVOLT_BCURR_BPOWER_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_realtime_data.OutVolt>>8)&0xff);           // Bç«¯ç”µå‹
-            tx_data[2] = (wg_com_v2_realtime_data.OutVolt&0xff);                // Bç«¯ç”µå‹
-            tx_data[3] = ((wg_com_v2_realtime_data.OutCurr>>8)&0xff);           // Bç«¯ç”µæµ
-            tx_data[4] = (wg_com_v2_realtime_data.OutCurr&0xff);                // Bç«¯ç”µæµ
-            tx_data[5] = ((wg_com_v2_realtime_data.OutCurrPower>>8)&0xff);      // Bç«¯åŠŸç‡
-            tx_data[6] = (wg_com_v2_realtime_data.OutCurrPower&0xff);           // Bç«¯åŠŸç‡
+            tx_data[1] = ((wg_com_v2_realtime_data.OutVolt>>8)&0xff);
+            tx_data[2] = (wg_com_v2_realtime_data.OutVolt&0xff);
+            tx_data[3] = ((wg_com_v2_realtime_data.OutCurr>>8)&0xff);
+            tx_data[4] = (wg_com_v2_realtime_data.OutCurr&0xff);
+            tx_data[5] = ((wg_com_v2_realtime_data.OutCurrPower>>8)&0xff);
+            tx_data[6] = (wg_com_v2_realtime_data.OutCurrPower&0xff);
             break;
         case RVC_DGN_PROPRIETARY_T1_T2_TA_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_T1_T2_TA_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_realtime_data.InsideTemp>>8)&0xff);        // T1æ¸©åº¦
-            tx_data[2] = (wg_com_v2_realtime_data.InsideTemp&0xff);             // T1æ¸©åº¦
-            tx_data[3] = ((wg_com_v2_realtime_data.OutsideTemp>>8)&0xff);       // T2æ¸©åº¦
-            tx_data[4] = (wg_com_v2_realtime_data.OutsideTemp&0xff);            // T2æ¸©åº¦
-            tx_data[5] = ((wg_com_v2_realtime_data.Temp2>>8)&0xff);             // Taæ¸©åº¦
-            tx_data[6] = (wg_com_v2_realtime_data.Temp2&0xff);                  // Taæ¸©åº¦
+            tx_data[1] = ((wg_com_v2_realtime_data.InsideTemp>>8)&0xff);        // T1ÎÂ¶È
+            tx_data[2] = (wg_com_v2_realtime_data.InsideTemp&0xff);             // T1ÎÂ¶È
+            tx_data[3] = ((wg_com_v2_realtime_data.OutsideTemp>>8)&0xff);       // T2ÎÂ¶È
+            tx_data[4] = (wg_com_v2_realtime_data.OutsideTemp&0xff);            // T2ÎÂ¶È
+            tx_data[5] = ((wg_com_v2_realtime_data.Temp2>>8)&0xff);             // TaÎÂ¶È
+            tx_data[6] = (wg_com_v2_realtime_data.Temp2&0xff);                  // TaÎÂ¶È
             break;
         case RVC_DGN_PROPRIETARY_POWER_CHARG_STATE_CHARGEE_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_POWER_CHARG_STATE_CHARGEE_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_realtime_data.PowerMode>>8)&0xff);         // ç”µæºæ¨¡å¼
-            tx_data[2] = (wg_com_v2_realtime_data.PowerMode&0xff);              // ç”µæºæ¨¡å¼
-            tx_data[3] = ((wg_com_v2_realtime_data.ChargMode>>8)&0xff);         // å……ç”µæ¨¡å¼
-            tx_data[4] = (wg_com_v2_realtime_data.ChargMode&0xff);              // å……ç”µæ¨¡å¼
-            tx_data[5] = ((wg_com_v2_realtime_data.StateCharge>>8)&0xff);       // å……ç”µçŠ¶æ€
-            tx_data[6] = (wg_com_v2_realtime_data.StateCharge&0xff);            // å……ç”µçŠ¶æ€
+            WG_COM_V2_GET_DATA_UINT(value, wg_com_v2_realtime_data.PowerMode);
+            rvc_put_u16_be(tx_data, 1, value);                                  // µçÔ´Ä£Ê½
+            WG_COM_V2_GET_DATA_UINT(value, wg_com_v2_realtime_data.ChargMode);
+            rvc_put_u16_be(tx_data, 3, value);                                  // ³äµçÄ£Ê½
+            WG_COM_V2_GET_DATA_UINT(value, wg_com_v2_realtime_data.StateCharge);
+            rvc_put_u16_be(tx_data, 5, value);
             break;
         case RVC_DGN_PROPRIETARY_FAULT_SIGN_ALARM_SIGN_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_FAULT_SIGN_ALARM_SIGN_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_realtime_data.FaultSign>>8)&0xff);         // æ•…éšœä¿¡å·
-            tx_data[2] = (wg_com_v2_realtime_data.FaultSign&0xff);              // æ•…éšœä¿¡å·
-            tx_data[3] = ((wg_com_v2_realtime_data.AlarmSign>>8)&0xff);         // å‘Šè­¦ä¿¡å·
-            tx_data[4] = (wg_com_v2_realtime_data.AlarmSign&0xff);              // å‘Šè­¦ä¿¡å·
+            WG_COM_V2_GET_DATA_UINT(value, wg_com_v2_realtime_data.FaultSign);
+            rvc_put_u16_be(tx_data, 1, value);                                  // ¹ÊÕÏĞÅºÅ
+            WG_COM_V2_GET_DATA_UINT(value, wg_com_v2_realtime_data.AlarmSign);
+            rvc_put_u16_be(tx_data, 3, value);                                  // ¸æ¾¯ĞÅºÅ
             break;
         case RVC_DGN_PROPRIETARY_VOLTA_VOLTB_ADDVOLT_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_VOLTA_VOLTB_ADDVOLT_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_realtime_data.CompensationVoltA>>8)&0xff); // Aç«¯è¡¥å¿
-            tx_data[2] = (wg_com_v2_realtime_data.CompensationVoltA&0xff);      // Aç«¯è¡¥å¿
-            tx_data[3] = ((wg_com_v2_realtime_data.CompensationVoltB>>8)&0xff); // Bç«¯è¡¥å¿
-            tx_data[4] = (wg_com_v2_realtime_data.CompensationVoltB&0xff);      // Bç«¯è¡¥å¿
-            tx_data[5] = ((wg_com_v2_realtime_data.ADDVolt>>8)&0xff);           // ADDè¾…æºç”µå‹
-            tx_data[6] = (wg_com_v2_realtime_data.ADDVolt&0xff);                // ADDè¾…æºç”µå‹
+            tx_data[1] = ((wg_com_v2_realtime_data.CompensationVoltA>>8)&0xff); // A¶Ë²¹³¥
+            tx_data[2] = (wg_com_v2_realtime_data.CompensationVoltA&0xff);      // A¶Ë²¹³¥
+            tx_data[3] = ((wg_com_v2_realtime_data.CompensationVoltB>>8)&0xff); // B¶Ë²¹³¥
+            tx_data[4] = (wg_com_v2_realtime_data.CompensationVoltB&0xff);      // B¶Ë²¹³¥
+            tx_data[5] = ((wg_com_v2_realtime_data.ADDVolt>>8)&0xff);           // ADD¸¨Ô´µçÑ¹
+            tx_data[6] = (wg_com_v2_realtime_data.ADDVolt&0xff);                // ADD¸¨Ô´µçÑ¹
             break;
         default:
             return;
     }
-    bsp_rvc_can_tx(tx_can_id, tx_data, 8);
+    if (tx_can_id != 0) {
+        bsp_rvc_can_tx(tx_can_id, tx_data, 8);
+    }
 }
 
 
 static void handle_control_settings(uint32_t gdn, uint8_t *data, uint8_t len)
 {
     if (len < 7) {
-        return;  // æ•°æ®é•¿åº¦ä¸è¶³
+        return;  // Êı¾İ³¤¶È²»×ã
     }
 
-    // æ£€æŸ¥å®ä¾‹å·
+    // ¼ì²éÊµÀıºÅ
     if ((data[0] != 0xFF) && (data[0] != g_my_instance)) {
-        return;  // ä¸æ˜¯è¯·æ±‚æˆ‘çš„
+        return;  // ²»ÊÇÇëÇóÎÒµÄ
     }
 
-    // æå–å‘é€è€…åœ°å€
+    // ÌáÈ¡·¢ËÍÕßµØÖ·
     uint32_t tx_can_id = 0;//build_can_id(6, RVC_DGN_ACKNOWLEDGEMENT, rvc_address_get_current());
     uint8_t tx_data[8];
+    uint16_t value = 0;
     memset(tx_data, 0xFF, sizeof(tx_data));
     tx_data[0] = data[0];
     switch(gdn){
         case RVC_DGN_PROPRIETARY_ON_Off_SETPOWER_SET_CHARG_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_ON_Off_SETPOWER_SET_CHARG_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_ctrl.PowerOnOff>>8)&0xff);                 // å¼€å…³æœºçŠ¶æ€
-            tx_data[2] = (wg_com_v2_ctrl.PowerOnOff&0xff);                      // å¼€å…³æœºçŠ¶æ€
-            tx_data[3] = ((wg_com_v2_ctrl.SetPowerMode>>8)&0xff);               // ç”µæºæ¨¡å¼
-            tx_data[4] = (wg_com_v2_ctrl.SetPowerMode&0xff);                    // ç”µæºæ¨¡å¼
-            tx_data[5] = ((wg_com_v2_ctrl.SetChargMode>>8)&0xff);               // å……ç”µæ¨¡å¼
-            tx_data[6] = (wg_com_v2_ctrl.SetChargMode&0xff);                    // å……ç”µæ¨¡å¼
+            WG_COM_V2_GET_DATA_UINT(value, wg_com_v2_ctrl.PowerOnOff);
+            rvc_put_u16_be(tx_data, 1, value);
+            WG_COM_V2_GET_DATA_UINT(value, wg_com_v2_ctrl.SetPowerMode);
+            rvc_put_u16_be(tx_data, 3, value);                                  // µçÔ´Ä£Ê½
+            WG_COM_V2_GET_DATA_UINT(value, wg_com_v2_ctrl.SetChargMode);
+            rvc_put_u16_be(tx_data, 5, value);                                  // ³äµçÄ£Ê½
             break;
         case RVC_DGN_PROPRIETARY_FACTORY_RESET_RESET_FACTORY_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_FACTORY_RESET_RESET_FACTORY_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_ctrl.FactoryReset>>8)&0xff);               // æ¢å¤å‡ºå‚è®¾ç½®
-            tx_data[2] = (wg_com_v2_ctrl.FactoryReset&0xff);                    // æ¢å¤å‡ºå‚è®¾ç½®
-            tx_data[3] = ((wg_com_v2_ctrl.ResetFactoryData>>8)&0xff);           // æ¢å¤å‚å®¶æ•°æ®
-            tx_data[4] = (wg_com_v2_ctrl.ResetFactoryData&0xff);                // æ¢å¤å‚å®¶æ•°æ®
+            WG_COM_V2_GET_DATA_UINT(value, wg_com_v2_ctrl.FactoryReset);
+            rvc_put_u16_be(tx_data, 1, value);                                  // »Ö¸´³ö³§ÉèÖÃ
+            WG_COM_V2_GET_DATA_UINT(value, wg_com_v2_ctrl.ResetFactoryData);
+            rvc_put_u16_be(tx_data, 3, value);                                  // ±£´æ³ö³§ÉèÖÃ
             break;
         case RVC_DGN_PROPRIETARY_BATY_TYPE_BOOT_CURR_STARTA_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_BATY_TYPE_BOOT_CURR_STARTA_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_ctrl.InpBatyType>>8)&0xff);                // Aç«¯ç”µæ± ç±»å‹(é«˜8ä½ç±»å‹,ä½8ä½ç”µå‹)
-            tx_data[2] = (wg_com_v2_ctrl.InpBatyType&0xff);                     // Aç«¯ç”µæ± ç±»å‹(é«˜8ä½ç±»å‹,ä½8ä½ç”µå‹)
-            tx_data[3] = ((wg_com_v2_ctrl.SetBootTimeA>>8)&0xff);               // Aç«¯å¼€æœºæ—¶é—´
-            tx_data[4] = (wg_com_v2_ctrl.SetBootTimeA&0xff);                    // Aç«¯å¼€æœºæ—¶é—´
-            tx_data[5] = ((wg_com_v2_ctrl.SetOnCurrStartTimeA>>8)&0xff);        // Aç«¯å¼€æœºç”µæµè½¯èµ·åŠ¨æ—¶é—´
-            tx_data[6] = (wg_com_v2_ctrl.SetOnCurrStartTimeA&0xff);             // Aç«¯å¼€æœºç”µæµè½¯èµ·åŠ¨æ—¶é—´
+            WG_COM_V2_GET_DATA_UINT(value, wg_com_v2_ctrl.InpBatyType);
+            rvc_put_u16_be(tx_data, 1, value);
+            WG_COM_V2_GET_DATA_UINT(value, wg_com_v2_ctrl.SetBootTimeA);
+            rvc_put_u16_be(tx_data, 3, value);
+            WG_COM_V2_GET_DATA_UINT(value, wg_com_v2_ctrl.SetOnCurrStartTimeA);
+            rvc_put_u16_be(tx_data, 5, value);                                  // A¶Ë¿ª»úµçÁ÷ÈíÆğ¶¯Ê±¼ä
             break;
         case RVC_DGN_PROPRIETARY_BATY_TYPE_BOOT_CURR_STARTB_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_BATY_TYPE_BOOT_CURR_STARTB_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_ctrl.OutBatyType>>8)&0xff);                // Bç«¯ç”µæ± ç±»å‹(é«˜8ä½ç±»å‹,ä½8ä½ç”µå‹)
-            tx_data[2] = (wg_com_v2_ctrl.OutBatyType&0xff);                     // Bç«¯ç”µæ± ç±»å‹(é«˜8ä½ç±»å‹,ä½8ä½ç”µå‹)
-            tx_data[3] = ((wg_com_v2_ctrl.SetBootTimeB>>8)&0xff);               // Bç«¯å¼€æœºæ—¶é—´
-            tx_data[4] = (wg_com_v2_ctrl.SetBootTimeB&0xff);                    // Bç«¯å¼€æœºæ—¶é—´
-            tx_data[5] = ((wg_com_v2_ctrl.SetOnCurrStartTimeB>>8)&0xff);        // Bç«¯å¼€æœºç”µæµè½¯èµ·åŠ¨æ—¶é—´
-            tx_data[6] = (wg_com_v2_ctrl.SetOnCurrStartTimeB&0xff);             // Bç«¯å¼€æœºç”µæµè½¯èµ·åŠ¨æ—¶é—´
+            WG_COM_V2_GET_DATA_UINT(value, wg_com_v2_ctrl.OutBatyType);
+            rvc_put_u16_be(tx_data, 1, value);
+            WG_COM_V2_GET_DATA_UINT(value, wg_com_v2_ctrl.SetBootTimeB);
+            rvc_put_u16_be(tx_data, 3, value);
+            WG_COM_V2_GET_DATA_UINT(value, wg_com_v2_ctrl.SetOnCurrStartTimeB);
+            rvc_put_u16_be(tx_data, 5, value);                                  // B¶Ë¿ª»úµçÁ÷ÈíÆğ¶¯Ê±¼ä
             break;
         case RVC_DGN_PROPRIETARY_ZERO_CURR_BAT_MODE_FR_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_ZERO_CURR_BAT_MODE_FR_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_ctrl.ZeroCurrCalibration>>8)&0xff);        // ç«¯é›¶ç”µæµæ ¡å‡†
-            tx_data[2] = (wg_com_v2_ctrl.ZeroCurrCalibration&0xff);             // ç«¯é›¶ç”µæµæ ¡å‡†
-            tx_data[3] = ((wg_com_v2_ctrl.BatModeFR>>8)&0xff);                  // ç”µæ± æ¨¡å¼æ­£åå‘åˆ‡æ¢
-            tx_data[4] = (wg_com_v2_ctrl.BatModeFR&0xff);                       // ç”µæ± æ¨¡å¼æ­£åå‘åˆ‡æ¢
+            WG_COM_V2_GET_DATA_UINT(value, wg_com_v2_ctrl.ZeroCurrCalibration);
+            rvc_put_u16_be(tx_data, 1, value);                                  // ¶ËÁãµçÁ÷Ğ£×¼
+            break;
+        case RVC_DGN_PROPRIETARY_STATUS_CONTROL_R:
+            tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_STATUS_CONTROL_R, rvc_address_get_current());
+            WG_COM_V2_GET_DATA_UINT(value, wg_com_v2_ctrl.BatModeFR);
+            rvc_put_u16_be(tx_data, 1, value);
+            WG_COM_V2_GET_DATA_UINT(value, wg_com_v2_ctrl.MpptSwitch);
+            rvc_put_u16_be(tx_data, 3, value);                                  // MPPTÄ£Ê½
+            WG_COM_V2_GET_DATA_UINT(value, wg_com_v2_ctrl.SleepModeOnOff);
+            rvc_put_u16_be(tx_data, 5, value);                                  // ĞİÃß¹¦ÄÜ
             break;
         default:
             return;
@@ -352,18 +409,40 @@ static void handle_control_settings(uint32_t gdn, uint8_t *data, uint8_t len)
     bsp_rvc_can_tx(tx_can_id, tx_data, 8);
 }
 
+static uint16_t rvc_get_write_u16(const uint8_t *data, uint8_t offset)
+{
+    return (uint16_t)(((uint16_t)data[offset + 1U] << 8) | data[offset]);
+}
+
+static uint8_t rvc_write_register_words(uint16_t addr, const uint16_t *values, uint16_t count)
+{
+    uint8_t reg_data[12];
+    uint16_t i = 0;
+
+    if(count > (sizeof(reg_data) / 2U))
+    {
+        return 0;
+    }
+
+    for(i = 0; i < count; i++)
+    {
+        set_uint16(&reg_data[i * 2U], values[i]);
+    }
+    return wg_com_v2_write_registers(addr, count, reg_data);
+}
+
 static void handle_set_parameter_area(uint32_t gdn, uint8_t *data, uint8_t len)
 {
     if (len < 7) {
-        return;  // æ•°æ®é•¿åº¦ä¸è¶³
+        return;  // Êı¾İ³¤¶È²»×ã
     }
 
-    // æ£€æŸ¥å®ä¾‹å·
+    // ¼ì²éÊµÀıºÅ
     if ((data[0] != 0xFF) && (data[0] != g_my_instance)) {
-        return;  // ä¸æ˜¯è¯·æ±‚æˆ‘çš„
+        return;  // ²»ÊÇÇëÇóÎÒµÄ
     }
 
-    // æå–å‘é€è€…åœ°å€
+    // ÌáÈ¡·¢ËÍÕßµØÖ·
     uint32_t tx_can_id = 0;//build_can_id(6, RVC_DGN_ACKNOWLEDGEMENT, rvc_address_get_current());
     uint8_t tx_data[8];
     memset(tx_data, 0xFF, sizeof(tx_data));
@@ -371,88 +450,88 @@ static void handle_set_parameter_area(uint32_t gdn, uint8_t *data, uint8_t len)
     switch(gdn){
         case RVC_DGN_PROPRIETARY_SET_AVOLT_ACURR_APOWER_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_SET_AVOLT_ACURR_APOWER_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_param.SetInpVolt>>8)&0xff);                // Aç«¯ç”µå‹
-            tx_data[2] = (wg_com_v2_param.SetInpVolt&0xff);                     // Aç«¯ç”µå‹
-            tx_data[3] = ((wg_com_v2_param.SetInpCurr>>8)&0xff);                // Aç«¯ç”µæµ
-            tx_data[4] = (wg_com_v2_param.SetInpCurr&0xff);                     // Aç«¯ç”µæµ
-            tx_data[5] = ((wg_com_v2_param.SetInpCurrPower>>8)&0xff);           // Aç«¯åŠŸç‡
-            tx_data[6] = (wg_com_v2_param.SetInpCurrPower&0xff);                // Aç«¯åŠŸç‡
+            tx_data[1] = ((wg_com_v2_param.SetInpVolt>>8)&0xff);
+            tx_data[2] = (wg_com_v2_param.SetInpVolt&0xff);
+            tx_data[3] = ((wg_com_v2_param.SetInpCurr>>8)&0xff);
+            tx_data[4] = (wg_com_v2_param.SetInpCurr&0xff);
+            tx_data[5] = ((wg_com_v2_param.SetInpCurrPower>>8)&0xff);
+            tx_data[6] = (wg_com_v2_param.SetInpCurrPower&0xff);
             break;
         case RVC_DGN_PROPRIETARY_SET_BVOLT_BCURR_BPOWER_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_SET_BVOLT_BCURR_BPOWER_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_param.SetOutVolt>>8)&0xff);                // Bç«¯ç”µå‹
-            tx_data[2] = (wg_com_v2_param.SetOutVolt&0xff);                     // Bç«¯ç”µå‹
-            tx_data[3] = ((wg_com_v2_param.SetOutCurr>>8)&0xff);                // Bç«¯ç”µæµ
-            tx_data[4] = (wg_com_v2_param.SetOutCurr&0xff);                     // Bç«¯ç”µæµ
-            tx_data[5] = ((wg_com_v2_param.SetOutCurrPower>>8)&0xff);           // Bç«¯åŠŸç‡
-            tx_data[6] = (wg_com_v2_param.SetOutCurrPower&0xff);                // Bç«¯åŠŸç‡
+            tx_data[1] = ((wg_com_v2_param.SetOutVolt>>8)&0xff);
+            tx_data[2] = (wg_com_v2_param.SetOutVolt&0xff);
+            tx_data[3] = ((wg_com_v2_param.SetOutCurr>>8)&0xff);
+            tx_data[4] = (wg_com_v2_param.SetOutCurr&0xff);
+            tx_data[5] = ((wg_com_v2_param.SetOutCurrPower>>8)&0xff);
+            tx_data[6] = (wg_com_v2_param.SetOutCurrPower&0xff);
             break;
         case RVC_DGN_PROPRIETARY_SET_AUVLO_AUVLO_RECOVER_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_SET_AUVLO_AUVLO_RECOVER_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_param.SetInpUvlo>>8)&0xff);                // Aç«¯æ¬ å‹ä¿æŠ¤
-            tx_data[2] = (wg_com_v2_param.SetInpUvlo&0xff);                     // Aç«¯æ¬ å‹ä¿æŠ¤
-            tx_data[3] = ((wg_com_v2_param.SetInpUvloRecover>>8)&0xff);         // Aç«¯æ¬ å‹ä¿æŠ¤æ¢å¤
-            tx_data[4] = (wg_com_v2_param.SetInpUvloRecover&0xff);              // Aç«¯æ¬ å‹ä¿æŠ¤æ¢å¤
+            tx_data[1] = ((wg_com_v2_param.SetInpUvlo>>8)&0xff);
+            tx_data[2] = (wg_com_v2_param.SetInpUvlo&0xff);
+            tx_data[3] = ((wg_com_v2_param.SetInpUvloRecover>>8)&0xff);
+            tx_data[4] = (wg_com_v2_param.SetInpUvloRecover&0xff);
             break;
         case RVC_DGN_PROPRIETARY_SET_AOVP_AUVLO_OVPRECOVER_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_SET_AOVP_AUVLO_OVPRECOVER_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_param.SetInpOVP>>8)&0xff);                 // Aç«¯è¿‡å‹ä¿æŠ¤
-            tx_data[2] = (wg_com_v2_param.SetInpOVP&0xff);                      // Aç«¯è¿‡å‹ä¿æŠ¤
-            tx_data[3] = ((wg_com_v2_param.SetInpOVPRecover>>8)&0xff);          // Aç«¯è¿‡å‹ä¿æŠ¤æ¢å¤
-            tx_data[4] = (wg_com_v2_param.SetInpOVPRecover&0xff);               // Aç«¯è¿‡å‹ä¿æŠ¤æ¢å¤
+            tx_data[1] = ((wg_com_v2_param.SetInpOVP>>8)&0xff);
+            tx_data[2] = (wg_com_v2_param.SetInpOVP&0xff);
+            tx_data[3] = ((wg_com_v2_param.SetInpOVPRecover>>8)&0xff);
+            tx_data[4] = (wg_com_v2_param.SetInpOVPRecover&0xff);
             break;
         case RVC_DGN_PROPRIETARY_SET_BUVLO_BUVLO_RECOVER_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_SET_BUVLO_BUVLO_RECOVER_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_param.SetOutUvlo>>8)&0xff);                 // Bç«¯æ¬ å‹ä¿æŠ¤
-            tx_data[2] = (wg_com_v2_param.SetOutUvlo&0xff);                      // Bç«¯æ¬ å‹ä¿æŠ¤
-            tx_data[3] = ((wg_com_v2_param.SetOutUvloRecover>>8)&0xff);          // Bç«¯æ¬ å‹ä¿æŠ¤æ¢å¤
-            tx_data[4] = (wg_com_v2_param.SetOutUvloRecover&0xff);               // Bç«¯æ¬ å‹ä¿æŠ¤æ¢å¤
+            tx_data[1] = ((wg_com_v2_param.SetOutUvlo>>8)&0xff);
+            tx_data[2] = (wg_com_v2_param.SetOutUvlo&0xff);
+            tx_data[3] = ((wg_com_v2_param.SetOutUvloRecover>>8)&0xff);
+            tx_data[4] = (wg_com_v2_param.SetOutUvloRecover&0xff);
             break;
         case RVC_DGN_PROPRIETARY_SET_BOVP_BUVLO_OVPRECOVER_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_SET_BOVP_BUVLO_OVPRECOVER_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_param.SetOutOVP>>8)&0xff);                  // Bç«¯è¿‡å‹ä¿æŠ¤
-            tx_data[2] = (wg_com_v2_param.SetOutOVP&0xff);                       // Bç«¯è¿‡å‹ä¿æŠ¤
-            tx_data[3] = ((wg_com_v2_param.SetOutOVPRecover>>8)&0xff);           // Bç«¯è¿‡å‹ä¿æŠ¤æ¢å¤
-            tx_data[4] = (wg_com_v2_param.SetOutOVPRecover&0xff);                // Bç«¯è¿‡å‹ä¿æŠ¤æ¢å¤
+            tx_data[1] = ((wg_com_v2_param.SetOutOVP>>8)&0xff);
+            tx_data[2] = (wg_com_v2_param.SetOutOVP&0xff);
+            tx_data[3] = ((wg_com_v2_param.SetOutOVPRecover>>8)&0xff);
+            tx_data[4] = (wg_com_v2_param.SetOutOVPRecover&0xff);
             break;
         case RVC_DGN_PROPRIETARY_SET_T1_T2_TA_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_SET_T1_T2_TA_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_param.SetInsideTemp>>8)&0xff);              // T1æ¸©åº¦
-            tx_data[2] = (wg_com_v2_param.SetInsideTemp&0xff);                   // T1æ¸©åº¦
-            tx_data[3] = ((wg_com_v2_param.SetOutsideTemp>>8)&0xff);             // T2æ¸©åº¦
-            tx_data[4] = (wg_com_v2_param.SetOutsideTemp&0xff);                  // T2æ¸©åº¦
-            tx_data[5] = ((wg_com_v2_param.SetTemp2>>8)&0xff);                   // Taæ¸©åº¦
-            tx_data[6] = (wg_com_v2_param.SetTemp2&0xff);                        // Taæ¸©åº¦
+            tx_data[1] = ((wg_com_v2_param.SetInsideTemp>>8)&0xff);              // T1ÎÂ¶È
+            tx_data[2] = (wg_com_v2_param.SetInsideTemp&0xff);                   // T1ÎÂ¶È
+            tx_data[3] = ((wg_com_v2_param.SetOutsideTemp>>8)&0xff);             // T2ÎÂ¶È
+            tx_data[4] = (wg_com_v2_param.SetOutsideTemp&0xff);                  // T2ÎÂ¶È
+            tx_data[5] = ((wg_com_v2_param.SetTemp2>>8)&0xff);                   // TaÎÂ¶È
+            tx_data[6] = (wg_com_v2_param.SetTemp2&0xff);                        // TaÎÂ¶È
             break;
         case RVC_DGN_PROPRIETARY_SET_ACHARG_AFULL_LED_CURR_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_SET_ACHARG_AFULL_LED_CURR_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_param.SetInpChargLedCurr>>8)&0xff);         // Aç«¯å……ç”µæŒ‡ç¤ºç¯ç”µæµ
-            tx_data[2] = (wg_com_v2_param.SetInpChargLedCurr&0xff);              // Aç«¯å……ç”µæŒ‡ç¤ºç¯ç”µæµ
-            tx_data[3] = ((wg_com_v2_param.SetInpFullLedCurr>>8)&0xff);          // Aç«¯å……æ»¡æŒ‡ç¤ºç¯ç”µæµ
-            tx_data[4] = (wg_com_v2_param.SetInpFullLedCurr&0xff);               // Aç«¯å……æ»¡æŒ‡ç¤ºç¯ç”µæµ
+            tx_data[1] = ((wg_com_v2_param.SetInpChargLedCurr>>8)&0xff);         // A¶Ë³äµçÖ¸Ê¾µÆµçÁ÷
+            tx_data[2] = (wg_com_v2_param.SetInpChargLedCurr&0xff);              // A¶Ë³äµçÖ¸Ê¾µÆµçÁ÷
+            tx_data[3] = ((wg_com_v2_param.SetInpFullLedCurr>>8)&0xff);          // A¶Ë³äÂúÖ¸Ê¾µÆµçÁ÷
+            tx_data[4] = (wg_com_v2_param.SetInpFullLedCurr&0xff);               // A¶Ë³äÂúÖ¸Ê¾µÆµçÁ÷
             break;
         case RVC_DGN_PROPRIETARY_SET_BCHARG_BFULL_LED_CURR_R:
-            tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_SET_ACHARG_AFULL_LED_CURR_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_param.SetOutChargLedCurr>>8)&0xff);         // Bç«¯å……ç”µæŒ‡ç¤ºç¯ç”µæµ
-            tx_data[2] = (wg_com_v2_param.SetOutChargLedCurr&0xff);              // Bç«¯å……ç”µæŒ‡ç¤ºç¯ç”µæµ
-            tx_data[3] = ((wg_com_v2_param.SetOutFullLedCurr>>8)&0xff);          // Bç«¯å……æ»¡æŒ‡ç¤ºç¯ç”µæµ
-            tx_data[4] = (wg_com_v2_param.SetOutFullLedCurr&0xff);               // Bç«¯å……æ»¡æŒ‡ç¤ºç¯ç”µæµ
+            tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_SET_BCHARG_BFULL_LED_CURR_R, rvc_address_get_current());
+            tx_data[1] = ((wg_com_v2_param.SetOutChargLedCurr>>8)&0xff);         // B¶Ë³äµçÖ¸Ê¾µÆµçÁ÷
+            tx_data[2] = (wg_com_v2_param.SetOutChargLedCurr&0xff);              // B¶Ë³äµçÖ¸Ê¾µÆµçÁ÷
+            tx_data[3] = ((wg_com_v2_param.SetOutFullLedCurr>>8)&0xff);          // B¶Ë³äÂúÖ¸Ê¾µÆµçÁ÷
+            tx_data[4] = (wg_com_v2_param.SetOutFullLedCurr&0xff);               // B¶Ë³äÂúÖ¸Ê¾µÆµçÁ÷
             break;
         case RVC_DGN_PROPRIETARY_AUOT_OPEN_VEER_SHUT_VOLT_A_R:
-            tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_SET_ACHARG_AFULL_LED_CURR_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_param.AuotForwardOpenVoltA>>8)&0xff);       // è‡ªåŠ¨æ¨¡å¼æ­£å‘Aç«¯å¼€å¯ç”µå‹
-            tx_data[2] = (wg_com_v2_param.AuotForwardOpenVoltA&0xff);            // è‡ªåŠ¨æ¨¡å¼æ­£å‘Aç«¯å¼€å¯ç”µå‹
-            tx_data[3] = ((wg_com_v2_param.AuotForwardVeerVoltA>>8)&0xff);       // è‡ªåŠ¨æ¨¡å¼æ­£å‘è½¬å‘Aç”µå‹
-            tx_data[4] = (wg_com_v2_param.AuotForwardVeerVoltA&0xff);            // è‡ªåŠ¨æ¨¡å¼æ­£å‘è½¬å‘Aç”µå‹
-            tx_data[5] = ((wg_com_v2_param.AuotForwardShutVoltA>>8)&0xff);       // è‡ªåŠ¨æ¨¡å¼æ­£å‘Aç«¯å…³é—­ç”µå‹
-            tx_data[6] = (wg_com_v2_param.AuotForwardShutVoltA&0xff);            // è‡ªåŠ¨æ¨¡å¼æ­£å‘Aç«¯å…³é—­ç”µå‹
+            tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_AUOT_OPEN_VEER_SHUT_VOLT_A_R, rvc_address_get_current());
+            tx_data[1] = ((wg_com_v2_param.AuotForwardOpenVoltA>>8)&0xff);
+            tx_data[2] = (wg_com_v2_param.AuotForwardOpenVoltA&0xff);
+            tx_data[3] = ((wg_com_v2_param.AuotForwardVeerVoltA>>8)&0xff);
+            tx_data[4] = (wg_com_v2_param.AuotForwardVeerVoltA&0xff);            // ×Ô¶¯Ä£Ê½ÕıÏò×ªÏòAµçÑ¹
+            tx_data[5] = ((wg_com_v2_param.AuotForwardShutVoltA>>8)&0xff);
+            tx_data[6] = (wg_com_v2_param.AuotForwardShutVoltA&0xff);
             break;
         case RVC_DGN_PROPRIETARY_AUOT_OPEN_SHUT_VOLT_B_R:
-            tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_SET_ACHARG_AFULL_LED_CURR_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_param.AuotReverseOpenVoltB>>8)&0xff);       // è‡ªåŠ¨æ¨¡å¼åå‘Bç«¯å¼€å¯ç”µå‹
-            tx_data[2] = (wg_com_v2_param.AuotReverseOpenVoltB&0xff);            // è‡ªåŠ¨æ¨¡å¼åå‘Bç«¯å¼€å¯ç”µå‹
-            tx_data[3] = ((wg_com_v2_param.AuotReverseShutVoltB>>8)&0xff);       // è‡ªåŠ¨æ¨¡å¼åå‘Bç«¯å…³é—­ç”µå‹
-            tx_data[4] = (wg_com_v2_param.AuotReverseShutVoltB&0xff);            // è‡ªåŠ¨æ¨¡å¼åå‘Bç«¯å…³é—­ç”µå‹
+            tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_AUOT_OPEN_SHUT_VOLT_B_R, rvc_address_get_current());
+            tx_data[1] = ((wg_com_v2_param.AuotReverseOpenVoltB>>8)&0xff);
+            tx_data[2] = (wg_com_v2_param.AuotReverseOpenVoltB&0xff);
+            tx_data[3] = ((wg_com_v2_param.AuotReverseShutVoltB>>8)&0xff);
+            tx_data[4] = (wg_com_v2_param.AuotReverseShutVoltB&0xff);
             break;
         default:
             return;
@@ -463,15 +542,15 @@ static void handle_set_parameter_area(uint32_t gdn, uint8_t *data, uint8_t len)
 static void handle_manufacturer_data_w(uint32_t gdn, uint8_t *data, uint8_t len)
 {
     if (len < 7) {
-        return;  // æ•°æ®é•¿åº¦ä¸è¶³
+        return;  // Êı¾İ³¤¶È²»×ã
     }
 
-    // æ£€æŸ¥å®ä¾‹å·
+    // ¼ì²éÊµÀıºÅ
     if ((data[0] != 0xFF) && (data[0] != g_my_instance)) {
-        return;  // ä¸æ˜¯è¯·æ±‚æˆ‘çš„
+        return;  // ²»ÊÇÇëÇóÎÒµÄ
     }
 
-    // æå–å‘é€è€…åœ°å€
+    // ÌáÈ¡·¢ËÍÕßµØÖ·
     //uint32_t tx_can_id = build_can_id(6, RVC_DGN_ACKNOWLEDGEMENT, rvc_address_get_current());
     //uint8_t tx_data[8];
     uint16_t data_u16 = 0;
@@ -508,8 +587,8 @@ static void handle_manufacturer_data_w(uint32_t gdn, uint8_t *data, uint8_t len)
                     WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_product_info.SnSerial[9]);
                     break;
                 default:
-                    // æœªçŸ¥ DGNï¼Œå¿½ç•¥
                     return;
+                    // Î´Öª DGN£¬ºöÂÔ
             }
             handle_manufacturer_data(RVC_DGN_PROPRIETARY_SN_SERIAL_R, data, 8);
             break;
@@ -545,8 +624,8 @@ static void handle_manufacturer_data_w(uint32_t gdn, uint8_t *data, uint8_t len)
                     WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_product_info.ProductName[9]);
                     break;
                 default:
-                    // æœªçŸ¥ DGNï¼Œå¿½ç•¥
                     return;
+                    // Î´Öª DGN£¬ºöÂÔ
             }
             handle_manufacturer_data(RVC_DGN_PROPRIETARY_PRODUCT_NAME_R, data, 8);
             break;
@@ -563,6 +642,7 @@ static void handle_manufacturer_data_w(uint32_t gdn, uint8_t *data, uint8_t len)
             data_u16 = (data[4]<<8)+data[3];
             WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_product_info.BtName);
             handle_manufacturer_data(RVC_DGN_PROPRIETARY_CUST_BT_NAME_R, data, 8);
+            break;
         case RVC_DGN_PROPRIETARY_MAC_ADDRESS_W:
             switch(data[1])
             {
@@ -595,78 +675,120 @@ static void handle_manufacturer_data_w(uint32_t gdn, uint8_t *data, uint8_t len)
                     WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_product_info.MacAddress[9]);
                     break;
                 default:
-                    // æœªçŸ¥ DGNï¼Œå¿½ç•¥
                     return;
+                    // Î´Öª DGN£¬ºöÂÔ
             }
             handle_manufacturer_data(RVC_DGN_PROPRIETARY_MAC_ADDRESS_R, data, 8);
             break;
         default:
-            // æœªçŸ¥ DGNï¼Œå¿½ç•¥
             break;
+            // Î´Öª DGN£¬ºöÂÔ
     }
 }
 
 static void handle_control_settings_w(uint32_t gdn, uint8_t *data, uint8_t len)
 {
     if (len < 7) {
-        return;  // æ•°æ®é•¿åº¦ä¸è¶³
+        return;  // Êı¾İ³¤¶È²»×ã
     }
 
-    // æ£€æŸ¥å®ä¾‹å·
+    // ¼ì²éÊµÀıºÅ
     if ((data[0] != 0xFF) && (data[0] != g_my_instance)) {
-        return;  // ä¸æ˜¯è¯·æ±‚æˆ‘çš„
+        return;  // ²»ÊÇÇëÇóÎÒµÄ
     }
 
-    // æå–å‘é€è€…åœ°å€
+    // ÌáÈ¡·¢ËÍÕßµØÖ·
     //uint32_t tx_can_id = 0;//build_can_id(6, RVC_DGN_ACKNOWLEDGEMENT, rvc_address_get_current());
     //uint8_t tx_data[8];
     uint32_t send_gnd = 0;
     uint16_t data_u16 = 0;
+    uint16_t values[6];
+    uint16_t mppt_switch = 0;
+    uint16_t sleep_on_off = 0;
+    uint16_t old_power_mode = 0;
+    uint16_t old_mppt_switch = 0;
     switch(gdn){
         case RVC_DGN_PROPRIETARY_ON_Off_SETPOWER_SET_CHARG_W:
-            data_u16 = (data[2]<<8)+data[1];
-            WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_ctrl.PowerOnOff);
-            data_u16 = (data[4]<<8)+data[3];
-            WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_ctrl.SetPowerMode);
-            data_u16 = (data[6]<<8)+data[5];
-            WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_ctrl.SetChargMode);
+            values[0] = rvc_get_write_u16(data, 1U);
+            values[1] = rvc_get_write_u16(data, 3U);
+            values[2] = rvc_get_write_u16(data, 5U);
+            if(rvc_write_register_words((uint16_t)(WG_COM_V2_CTRL_ADDR + 0x01U), values, 3U) == 0U)
+            {
+                return;
+            }
             send_gnd = RVC_DGN_PROPRIETARY_ON_Off_SETPOWER_SET_CHARG_R;
             break;
         case RVC_DGN_PROPRIETARY_FACTORY_RESET_RESET_FACTORY_W:
-            data_u16 = (data[2]<<8)+data[1];
+            data_u16 = rvc_get_write_u16(data, 1U);
             WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_ctrl.FactoryReset);
-            data_u16 = (data[4]<<8)+data[3];
+            data_u16 = rvc_get_write_u16(data, 3U);
             WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_ctrl.ResetFactoryData);
             send_gnd = RVC_DGN_PROPRIETARY_FACTORY_RESET_RESET_FACTORY_R;
             break;
         case RVC_DGN_PROPRIETARY_BATY_TYPE_BOOT_CURR_STARTA_W:
-            data_u16 = (data[2]<<8)+data[1];
-            WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_ctrl.InpBatyType);
-            data_u16 = (data[4]<<8)+data[3];
-            WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_ctrl.SetBootTimeA);
-            data_u16 = (data[6]<<8)+data[5];
-            WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_ctrl.SetOnCurrStartTimeA);
+            values[0] = rvc_get_write_u16(data, 1U);
+            WG_COM_V2_GET_DATA_UINT(values[1], wg_com_v2_ctrl.OutBatyType);
+            values[2] = rvc_get_write_u16(data, 3U);
+            WG_COM_V2_GET_DATA_UINT(values[3], wg_com_v2_ctrl.SetBootTimeB);
+            values[4] = rvc_get_write_u16(data, 5U);
+            if(rvc_write_register_words((uint16_t)(WG_COM_V2_CTRL_ADDR + 0x04U), values, 5U) == 0U)
+            {
+                return;
+            }
             send_gnd = RVC_DGN_PROPRIETARY_BATY_TYPE_BOOT_CURR_STARTA_R;
             break;
         case RVC_DGN_PROPRIETARY_BATY_TYPE_BOOT_CURR_STARTB_W:
-            data_u16 = (data[2]<<8)+data[1];
-            WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_ctrl.OutBatyType);
-            data_u16 = (data[4]<<8)+data[3];
-            WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_ctrl.SetBootTimeB);
-            data_u16 = (data[6]<<8)+data[5];
-            WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_ctrl.SetOnCurrStartTimeB);
+            values[0] = rvc_get_write_u16(data, 1U);
+            WG_COM_V2_GET_DATA_UINT(values[1], wg_com_v2_ctrl.SetBootTimeA);
+            values[2] = rvc_get_write_u16(data, 3U);
+            WG_COM_V2_GET_DATA_UINT(values[3], wg_com_v2_ctrl.SetOnCurrStartTimeA);
+            values[4] = rvc_get_write_u16(data, 5U);
+            if(rvc_write_register_words((uint16_t)(WG_COM_V2_CTRL_ADDR + 0x05U), values, 5U) == 0U)
+            {
+                return;
+            }
             send_gnd = RVC_DGN_PROPRIETARY_BATY_TYPE_BOOT_CURR_STARTB_R;
             break;
         case RVC_DGN_PROPRIETARY_ZERO_CURR_BAT_MODE_FR_W:
-            data_u16 = (data[2]<<8)+data[1];
-            WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_ctrl.ZeroCurrCalibration);
-            data_u16 = (data[4]<<8)+data[3];
-            WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_ctrl.BatModeFR);
+            values[0] = rvc_get_write_u16(data, 1U);
+            if(rvc_write_register_words((uint16_t)(WG_COM_V2_CTRL_ADDR + 0x0AU), values, 1U) == 0U)
+            {
+                return;
+            }
             send_gnd = RVC_DGN_PROPRIETARY_ZERO_CURR_BAT_MODE_FR_R;
             break;
-        default:
-            // æœªçŸ¥ DGNï¼Œå¿½ç•¥
+        case RVC_DGN_PROPRIETARY_STATUS_CONTROL_W:
+            WG_COM_V2_GET_DATA_UINT(old_power_mode, wg_com_v2_ctrl.SetPowerMode);
+            WG_COM_V2_GET_DATA_UINT(old_mppt_switch, wg_com_v2_ctrl.MpptSwitch);
+            data_u16 = rvc_get_write_u16(data, 1U);
+            mppt_switch = rvc_get_write_u16(data, 3U);
+            sleep_on_off = rvc_get_write_u16(data, 5U);
+            if(mppt_switch == 1)
+            {
+                data_u16 = 1;
+            }
+            if((mppt_switch == 0) && (old_power_mode == eSET_STANDARD_MODE))
+            {
+                data_u16 = 1;
+            }
+            if((mppt_switch != 0) ||
+               (old_power_mode != eSET_BAT_MODE) ||
+               ((old_mppt_switch == 1U) && (mppt_switch == 0U)))
+            {
+                sleep_on_off = 0;
+            }
+            values[0] = data_u16;
+            values[1] = mppt_switch;
+            values[2] = sleep_on_off;
+            if(rvc_write_register_words((uint16_t)(WG_COM_V2_CTRL_ADDR + 0x0CU), values, 3U) == 0U)
+            {
+                return;
+            }
+            send_gnd = RVC_DGN_PROPRIETARY_STATUS_CONTROL_R;
             break;
+        default:
+            return;
+            // Î´Öª DGN£¬ºöÂÔ
     }
     handle_control_settings(send_gnd, data, 8);
 }
@@ -674,103 +796,125 @@ static void handle_control_settings_w(uint32_t gdn, uint8_t *data, uint8_t len)
 static void handle_set_parameter_area_w(uint32_t gdn, uint8_t *data, uint8_t len)
 {
     if (len < 7) {
-        return;  // æ•°æ®é•¿åº¦ä¸è¶³
+        return;  // Êı¾İ³¤¶È²»×ã
     }
 
-    // æ£€æŸ¥å®ä¾‹å·
+    // ¼ì²éÊµÀıºÅ
     if ((data[0] != 0xFF) && (data[0] != g_my_instance)) {
-        return;  // ä¸æ˜¯è¯·æ±‚æˆ‘çš„
+        return;  // ²»ÊÇÇëÇóÎÒµÄ
     }
 
-    // æå–å‘é€è€…åœ°å€
+    // ÌáÈ¡·¢ËÍÕßµØÖ·
     //uint32_t tx_can_id = 0;//build_can_id(6, RVC_DGN_ACKNOWLEDGEMENT, rvc_address_get_current());
     //uint8_t tx_data[8];
     uint32_t send_gnd = 0;
-    uint16_t data_u16 = 0;
+    uint16_t values[3] = {0};
     switch(gdn){
         case RVC_DGN_PROPRIETARY_SET_AVOLT_ACURR_APOWER_W:
-            data_u16 = (data[2]<<8)+data[1];
-            WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_param.SetInpVolt);          // Aç«¯ç”µå‹
-            data_u16 = (data[4]<<8)+data[3];
-            WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_param.SetInpCurr);          // Aç«¯ç”µæµ
-            data_u16 = (data[6]<<8)+data[5];
-            WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_param.SetInpCurrPower);     // Aç«¯åŠŸç‡
+            values[0] = rvc_get_write_u16(data, 1U);
+            values[1] = rvc_get_write_u16(data, 3U);
+            values[2] = rvc_get_write_u16(data, 5U);
+            if(rvc_write_register_words((uint16_t)(WG_COM_V2_PARAM_ADDR + 0x1AU), values, 3U) == 0U)
+            {
+                return;
+            }
             send_gnd = RVC_DGN_PROPRIETARY_SET_AVOLT_ACURR_APOWER_R;
             break;
         case RVC_DGN_PROPRIETARY_SET_BVOLT_BCURR_BPOWER_W:
-            data_u16 = (data[2]<<8)+data[1];
-            WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_param.SetOutVolt);          // Bç«¯ç”µå‹
-            data_u16 = (data[4]<<8)+data[3];
-            WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_param.SetOutCurr);          // Bç«¯ç”µæµ
-            data_u16 = (data[6]<<8)+data[5];
-            WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_param.SetOutCurrPower);     // Bç«¯åŠŸç‡
+            values[0] = rvc_get_write_u16(data, 1U);
+            values[1] = rvc_get_write_u16(data, 3U);
+            values[2] = rvc_get_write_u16(data, 5U);
+            if(rvc_write_register_words((uint16_t)(WG_COM_V2_PARAM_ADDR + 0x1DU), values, 3U) == 0U)
+            {
+                return;
+            }
             send_gnd = RVC_DGN_PROPRIETARY_SET_BVOLT_BCURR_BPOWER_R;
             break;
         case RVC_DGN_PROPRIETARY_SET_AUVLO_AUVLO_RECOVER_W:
-            data_u16 = (data[2]<<8)+data[1];
-            WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_param.SetInpUvlo);          // Aç«¯æ¬ å‹ä¿æŠ¤
-            data_u16 = (data[4]<<8)+data[3];
-            WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_param.SetInpUvloRecover);   // Aç«¯æ¬ å‹ä¿æŠ¤æ¢å¤
+            values[0] = rvc_get_write_u16(data, 1U);
+            values[1] = rvc_get_write_u16(data, 3U);
+            if(rvc_write_register_words((uint16_t)(WG_COM_V2_PARAM_ADDR + 0x20U), values, 2U) == 0U)
+            {
+                return;
+            }
             send_gnd = RVC_DGN_PROPRIETARY_SET_AUVLO_AUVLO_RECOVER_R;
             break;
         case RVC_DGN_PROPRIETARY_SET_AOVP_AUVLO_OVPRECOVER_W:
-            data_u16 = (data[2]<<8)+data[1];
-            WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_param.SetInpOVP);           // Aç«¯è¿‡å‹ä¿æŠ¤
-            data_u16 = (data[4]<<8)+data[3];
-            WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_param.SetInpOVPRecover);    // Aç«¯è¿‡å‹ä¿æŠ¤æ¢å¤
+            values[0] = rvc_get_write_u16(data, 1U);
+            values[1] = rvc_get_write_u16(data, 3U);
+            if(rvc_write_register_words((uint16_t)(WG_COM_V2_PARAM_ADDR + 0x22U), values, 2U) == 0U)
+            {
+                return;
+            }
             send_gnd = RVC_DGN_PROPRIETARY_SET_AOVP_AUVLO_OVPRECOVER_R;
             break;
         case RVC_DGN_PROPRIETARY_SET_BUVLO_BUVLO_RECOVER_W:
-            data_u16 = (data[2]<<8)+data[1];
-            WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_param.SetOutUvlo);           // Bç«¯æ¬ å‹ä¿æŠ¤
-            data_u16 = (data[4]<<8)+data[3];
-            WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_param.SetOutUvloRecover);    // Bç«¯æ¬ å‹ä¿æŠ¤æ¢å¤
+            values[0] = rvc_get_write_u16(data, 1U);
+            values[1] = rvc_get_write_u16(data, 3U);
+            if(rvc_write_register_words((uint16_t)(WG_COM_V2_PARAM_ADDR + 0x24U), values, 2U) == 0U)
+            {
+                return;
+            }
             send_gnd = RVC_DGN_PROPRIETARY_SET_BUVLO_BUVLO_RECOVER_R;
             break;
         case RVC_DGN_PROPRIETARY_SET_BOVP_BUVLO_OVPRECOVER_W:
-            data_u16 = (data[2]<<8)+data[1];
-            WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_param.SetOutOVP);            // Bç«¯è¿‡å‹ä¿æŠ¤
-            data_u16 = (data[4]<<8)+data[3];
-            WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_param.SetOutOVPRecover);     // Bç«¯è¿‡å‹ä¿æŠ¤æ¢å¤
+            values[0] = rvc_get_write_u16(data, 1U);
+            values[1] = rvc_get_write_u16(data, 3U);
+            if(rvc_write_register_words((uint16_t)(WG_COM_V2_PARAM_ADDR + 0x26U), values, 2U) == 0U)
+            {
+                return;
+            }
             send_gnd = RVC_DGN_PROPRIETARY_SET_BOVP_BUVLO_OVPRECOVER_R;
             break;
         case RVC_DGN_PROPRIETARY_SET_T1_T2_TA_W:
-            data_u16 = (data[2]<<8)+data[1];
-            WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_param.SetInsideTemp);         // T1æ¸©åº¦
-            data_u16 = (data[4]<<8)+data[3];
-            WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_param.SetOutsideTemp);        // T2æ¸©åº¦
-            data_u16 = (data[6]<<8)+data[5];
-            WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_param.SetTemp2);              // Taæ¸©åº¦
+            values[0] = rvc_get_write_u16(data, 1U);
+            values[1] = rvc_get_write_u16(data, 3U);
+            if(rvc_write_register_words((uint16_t)(WG_COM_V2_PARAM_ADDR + 0x28U), values, 2U) == 0U)
+            {
+                return;
+            }
+            values[0] = rvc_get_write_u16(data, 5U);
+            if(rvc_write_register_words((uint16_t)(WG_COM_V2_PARAM_ADDR + 0x33U), values, 1U) == 0U)
+            {
+                return;
+            }
             send_gnd = RVC_DGN_PROPRIETARY_SET_T1_T2_TA_R;
             break;
         case RVC_DGN_PROPRIETARY_SET_ACHARG_AFULL_LED_CURR_W:
-            data_u16 = (data[2]<<8)+data[1];
-            WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_param.SetInpChargLedCurr);    // Aç«¯å……ç”µæŒ‡ç¤ºç¯ç”µæµ
-            data_u16 = (data[4]<<8)+data[3];
-            WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_param.SetInpFullLedCurr);     // Aç«¯å……æ»¡æŒ‡ç¤ºç¯ç”µæµ
+            values[0] = rvc_get_write_u16(data, 1U);
+            values[1] = rvc_get_write_u16(data, 3U);
+            if(rvc_write_register_words((uint16_t)(WG_COM_V2_PARAM_ADDR + 0x2AU), values, 2U) == 0U)
+            {
+                return;
+            }
             send_gnd = RVC_DGN_PROPRIETARY_SET_ACHARG_AFULL_LED_CURR_R;
             break;
         case RVC_DGN_PROPRIETARY_SET_BCHARG_BFULL_LED_CURR_W:
-            data_u16 = (data[2]<<8)+data[1];
-            WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_param.SetOutChargLedCurr);    // Bç«¯å……ç”µæŒ‡ç¤ºç¯ç”µæµ
-            data_u16 = (data[4]<<8)+data[3];
-            WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_param.SetOutFullLedCurr);     // Bç«¯å……æ»¡æŒ‡ç¤ºç¯ç”µæµ  
+            values[0] = rvc_get_write_u16(data, 1U);
+            values[1] = rvc_get_write_u16(data, 3U);
+            if(rvc_write_register_words((uint16_t)(WG_COM_V2_PARAM_ADDR + 0x2CU), values, 2U) == 0U)
+            {
+                return;
+            }
             send_gnd = RVC_DGN_PROPRIETARY_SET_BCHARG_BFULL_LED_CURR_R;
             break;
         case RVC_DGN_PROPRIETARY_AUOT_OPEN_VEER_SHUT_VOLT_A_W:
-            data_u16 = (data[2]<<8)+data[1];
-            WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_param.AuotForwardOpenVoltA);  // è‡ªåŠ¨æ¨¡å¼æ­£å‘Aç«¯å¼€å¯ç”µå‹
-            data_u16 = (data[4]<<8)+data[3];
-            WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_param.AuotForwardVeerVoltA);  // è‡ªåŠ¨æ¨¡å¼æ­£å‘è½¬å‘Aç”µå‹
-            data_u16 = (data[6]<<8)+data[5];
-            WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_param.AuotForwardShutVoltA);  // è‡ªåŠ¨æ¨¡å¼æ­£å‘Aç«¯å…³é—­ç”µå‹
+            values[0] = rvc_get_write_u16(data, 1U);
+            values[1] = rvc_get_write_u16(data, 3U);
+            values[2] = rvc_get_write_u16(data, 5U);
+            if(rvc_write_register_words((uint16_t)(WG_COM_V2_PARAM_ADDR + 0x2EU), values, 3U) == 0U)
+            {
+                return;
+            }
             send_gnd = RVC_DGN_PROPRIETARY_AUOT_OPEN_VEER_SHUT_VOLT_A_R;
             break;
         case RVC_DGN_PROPRIETARY_AUOT_OPEN_SHUT_VOLT_B_W:
-            data_u16 = (data[2]<<8)+data[1];
-            WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_param.AuotReverseOpenVoltB);  // è‡ªåŠ¨æ¨¡å¼åå‘Bç«¯å¼€å¯ç”µå‹
-            data_u16 = (data[4]<<8)+data[3];
-            WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_param.AuotReverseShutVoltB);  // è‡ªåŠ¨æ¨¡å¼åå‘Bç«¯å…³é—­ç”µå‹
+            values[0] = rvc_get_write_u16(data, 1U);
+            values[1] = rvc_get_write_u16(data, 3U);
+            if(rvc_write_register_words((uint16_t)(WG_COM_V2_PARAM_ADDR + 0x31U), values, 2U) == 0U)
+            {
+                return;
+            }
             send_gnd = RVC_DGN_PROPRIETARY_AUOT_OPEN_SHUT_VOLT_B_R;
             break;
         default:
@@ -782,10 +926,10 @@ static void handle_set_parameter_area_w(uint32_t gdn, uint8_t *data, uint8_t len
 
 void rvc_message_handler_process(uint32_t can_id, uint8_t *data, uint8_t len)
 {
-    // æå– DGN
+    // ÌáÈ¡ DGN
     uint32_t dgn = (can_id >> 8) & 0x1FFFF;
 
-    // æ ¹æ® DGN åˆ†å‘å¤„ç†
+    // ¸ù¾İ DGN ·Ö·¢´¦Àí
     switch (dgn) {
         case RVC_DGN_CHARGER_COMMAND:
             handle_charger_command(can_id, data, len);
@@ -796,7 +940,7 @@ void rvc_message_handler_process(uint32_t can_id, uint8_t *data, uint8_t len)
             break;
 
         case RVC_DGN_CHARGER_CONFIGURATION_COMMAND:
-            // TODO: å®ç°é…ç½®å‘½ä»¤å¤„ç†
+            // TODO: ÊµÏÖÅäÖÃÃüÁî´¦Àí
             break;
 
         case RVC_DGN_PROPRIETARY_PROTOCOL_VERSION_R:
@@ -825,8 +969,14 @@ void rvc_message_handler_process(uint32_t can_id, uint8_t *data, uint8_t len)
         case RVC_DGN_PROPRIETARY_BATY_TYPE_BOOT_CURR_STARTA_R:
         case RVC_DGN_PROPRIETARY_BATY_TYPE_BOOT_CURR_STARTB_R:
         case RVC_DGN_PROPRIETARY_ZERO_CURR_BAT_MODE_FR_R:
+        case RVC_DGN_PROPRIETARY_STATUS_CONTROL_R:
             handle_control_settings(dgn, data, len);
             break;
+#if (APP_DEBUG_EVENT_FEATURES == 1)
+        case RVC_DGN_PROPRIETARY_APP_DEBUG_EVENT_R:
+            handle_app_debug_event_data(data, len);
+            break;
+#endif
 
         case RVC_DGN_PROPRIETARY_SET_AVOLT_ACURR_APOWER_R:
         case RVC_DGN_PROPRIETARY_SET_BVOLT_BCURR_BPOWER_R:
@@ -855,6 +1005,7 @@ void rvc_message_handler_process(uint32_t can_id, uint8_t *data, uint8_t len)
         case RVC_DGN_PROPRIETARY_BATY_TYPE_BOOT_CURR_STARTA_W:
         case RVC_DGN_PROPRIETARY_BATY_TYPE_BOOT_CURR_STARTB_W:
         case RVC_DGN_PROPRIETARY_ZERO_CURR_BAT_MODE_FR_W:
+        case RVC_DGN_PROPRIETARY_STATUS_CONTROL_W:
             handle_control_settings_w(dgn, data, len);
             break;
 
@@ -873,8 +1024,8 @@ void rvc_message_handler_process(uint32_t can_id, uint8_t *data, uint8_t len)
             break;
 
         default:
-            // æœªçŸ¥ DGNï¼Œå¿½ç•¥
             break;
+            // Î´Öª DGN£¬ºöÂÔ
     }
 }
 
@@ -937,7 +1088,7 @@ uint8_t rvc_send_charger_status_2(uint8_t instance, float voltage, float current
     return bsp_rvc_can_tx(can_id, data, 8);
 }
 
-/* ========== å†…éƒ¨å‡½æ•°å®ç° ========== */
+/* ========== ÄÚ²¿º¯ÊıÊµÏÖ ========== */
 
 static uint32_t build_can_id(uint8_t priority, uint32_t dgn, uint8_t sa)
 {
@@ -953,56 +1104,55 @@ static uint32_t build_can_id(uint8_t priority, uint32_t dgn, uint8_t sa)
 static void handle_charger_command(uint32_t can_id, uint8_t *data, uint8_t len)
 {
     if (len < 7) {
-        return;  // æ•°æ®é•¿åº¦ä¸è¶³
+        return;  // Êı¾İ³¤¶È²»×ã
     }
 
-    // è§£æå‘½ä»¤
+    // ½âÎöÃüÁî
     rvc_charger_command_t cmd;
     cmd.instance = data[0];
     cmd.status = data[1];
     cmd.voltage = data[3] | (data[4] << 8);
     cmd.current = data[5] | (data[6] << 8);
 
-    // å¦‚æœä¸æ˜¯ 0 ä¹Ÿä¸æ˜¯ 1ï¼Œå°±æ‹’ç»
+    // Èç¹û²»ÊÇÈ«¾ÖÊµÀı£¬Ò²²»ÊÇ±¾»úÊµÀı£¬¾Í¾Ü¾ø
     if ((cmd.instance != 0) && (cmd.instance != g_my_instance)) {
         return;
     }
 
-    // æå–å‘é€è€…åœ°å€
-    uint8_t sender_sa = (can_id >> 8) & 0xFF;  // DGN-Low å°±æ˜¯å‘é€è€…åœ°å€
+    // ÌáÈ¡·¢ËÍÕßµØÖ·
+    uint8_t sender_sa = (can_id >> 8) & 0xFF;  // DGN-Low ¾ÍÊÇ·¢ËÍÕßµØÖ·
 
-    // è°ƒç”¨å›è°ƒå‡½æ•°
+    // µ÷ÓÃ»Øµ÷º¯Êı
     if (g_charger_command_cb != NULL) {
         g_charger_command_cb(&cmd);
     }
 
-    // å‘é€ ACK
+    // ·¢ËÍ ACK
     rvc_send_ack(0x00, cmd.instance, RVC_DGN_CHARGER_COMMAND, sender_sa);
 }
 
 static void handle_request_for_dgn(uint32_t can_id, uint8_t *data, uint8_t len)
 {
     if (len < 4) {
-        return;  // æ•°æ®é•¿åº¦ä¸è¶³
+        return;  // Êı¾İ³¤¶È²»×ã
     }
 
-    // è§£æè¯·æ±‚
+    // ½âÎöÇëÇó
     rvc_request_for_dgn_t req;
     req.requested_dgn = data[0] | (data[1] << 8) | ((data[2] & 0x01) << 16);
     req.instance = data[3];
     req.sender_sa = (can_id >> 8) & 0xFF;  // DGN-Low
 
-    // æ£€æŸ¥å®ä¾‹å·
+    // ¼ì²éÊµÀıºÅ
     if ((req.instance != 0xFF) && (req.instance != g_my_instance)) {
-        return;  // ä¸æ˜¯è¯·æ±‚æˆ‘çš„
+        return;  // ²»ÊÇÇëÇóÎÒµÄ
     }
 
-    // è°ƒç”¨å›è°ƒå‡½æ•°
+    // µ÷ÓÃ»Øµ÷º¯Êı
     if (g_request_for_dgn_cb != NULL) {
         g_request_for_dgn_cb(&req);
     }
 
-    // å¦‚æœè¯·æ±‚ ADDRESS_CLAIMï¼Œé‡æ–°å‘é€
     if (req.requested_dgn == 0xEE00) {
         uint32_t claim_can_id = build_can_id(6, 0xEE00, 0xFF);
         rvc_name_t name;
@@ -1013,15 +1163,16 @@ static void handle_request_for_dgn(uint32_t can_id, uint8_t *data, uint8_t len)
 
 
 
-/* ========== å……ç”µå™¨çŠ¶æ€å˜é‡ ========== */
+/* ========== å……ç”µå™¨çŠ¶æ€å˜é‡?========== */
 
+#if RVC_PERIODIC_BROADCAST_ENABLE
 typedef struct {
     uint8_t enabled;
     float target_voltage;
     float target_current;
     float actual_voltage;
     float actual_current;
-    uint8_t state;  // 0=ç¦ç”¨, 1=æœªå……ç”µ, 2=Bulk, 7=CC/CV
+    uint8_t state;  // 0=½ûÓÃ, 1=Î´³äµç, 2=Bulk, 7=CC/CV
 } charger_state_t;
 
 static charger_state_t g_charger_state = {
@@ -1032,55 +1183,116 @@ static charger_state_t g_charger_state = {
     .actual_current = 0.0f,
     .state = 0
 };
+#endif
 
 /**
- * @brief å¤„ç† CHARGER_COMMAND
+ * @brief ´¦Àí CHARGER_COMMAND
  */
 void on_charger_command(const rvc_charger_command_t *cmd)
 {
-    // æ‰§è¡Œå‘½ä»¤
+#if RVC_PERIODIC_BROADCAST_ENABLE
+    // Ö´ĞĞÃüÁî
     if (cmd->status == 1) {
-        // ä½¿èƒ½å……ç”µå™¨
+        // Ê¹ÄÜ³äµçÆ÷
         g_charger_state.enabled = 1;
         g_charger_state.target_voltage = cmd->voltage * 0.05f;
         g_charger_state.target_current = cmd->current * 0.05f;
-        g_charger_state.state = 7;  // CC/CV æ¨¡å¼
+        g_charger_state.state = 7;  // CC/CV Ä£Ê½
 
-        // TODO: å¯åŠ¨å®é™…çš„å……ç”µç¡¬ä»¶
+        // TODO: Æô¶¯Êµ¼ÊµÄ³äµçÓ²¼ş
         // charger_hardware_enable();
         // charger_hardware_set_voltage(g_charger_state.target_voltage);
         // charger_hardware_set_current(g_charger_state.target_current);
 
     } else {
-        // ç¦ç”¨å……ç”µå™¨
+        // ½ûÓÃ³äµçÆ÷
         g_charger_state.enabled = 0;
         g_charger_state.state = 0;
 
-        // TODO: å…³é—­å®é™…çš„å……ç”µç¡¬ä»¶
+        // TODO: ¹Ø±ÕÊµ¼ÊµÄ³äµçÓ²¼ş
         // charger_hardware_disable();
     }
+#else
+    (void)cmd;
+#endif
 }
 
 /**
- * @brief å¤„ç† REQUEST_FOR_DGN
+ * @brief ´¦Àí REQUEST_FOR_DGN
  */
 void on_request_for_dgn(const rvc_request_for_dgn_t *req)
 {
+    if (req == NULL) {
+        return;
+    }
 
+    uint8_t data[8] = {0};
+    data[0] = req->instance;
+
+    switch (req->requested_dgn) {
+        case RVC_DGN_PROPRIETARY_PROTOCOL_VERSION_R:
+        case RVC_DGN_PROPRIETARY_PRODUCT_TYPE_R:
+        case RVC_DGN_PROPRIETARY_HARDVER_VERSION_R:
+        case RVC_DGN_PROPRIETARY_SOFT_VERSION_R:
+        case RVC_DGN_PROPRIETARY_ADDRE_APPLI_R:
+        case RVC_DGN_PROPRIETARY_CUST_BT_NAME_R:
+            handle_manufacturer_data(req->requested_dgn, data, 8);
+            break;
+
+        case RVC_DGN_PROPRIETARY_AVOLT_ACURR_APOWER_R:
+        case RVC_DGN_PROPRIETARY_BVOLT_BCURR_BPOWER_R:
+        case RVC_DGN_PROPRIETARY_T1_T2_TA_R:
+        case RVC_DGN_PROPRIETARY_POWER_CHARG_STATE_CHARGEE_R:
+        case RVC_DGN_PROPRIETARY_FAULT_SIGN_ALARM_SIGN_R:
+        case RVC_DGN_PROPRIETARY_VOLTA_VOLTB_ADDVOLT_R:
+            handle_real_time_data(req->requested_dgn, data, 8);
+            break;
+
+        case RVC_DGN_PROPRIETARY_ON_Off_SETPOWER_SET_CHARG_R:
+        case RVC_DGN_PROPRIETARY_FACTORY_RESET_RESET_FACTORY_R:
+        case RVC_DGN_PROPRIETARY_BATY_TYPE_BOOT_CURR_STARTA_R:
+        case RVC_DGN_PROPRIETARY_BATY_TYPE_BOOT_CURR_STARTB_R:
+        case RVC_DGN_PROPRIETARY_ZERO_CURR_BAT_MODE_FR_R:
+        case RVC_DGN_PROPRIETARY_STATUS_CONTROL_R:
+            handle_control_settings(req->requested_dgn, data, 8);
+            break;
+#if (APP_DEBUG_EVENT_FEATURES == 1)
+        case RVC_DGN_PROPRIETARY_APP_DEBUG_EVENT_R:
+            handle_app_debug_event_data(data, 8);
+            break;
+#endif
+
+        case RVC_DGN_PROPRIETARY_SET_AVOLT_ACURR_APOWER_R:
+        case RVC_DGN_PROPRIETARY_SET_BVOLT_BCURR_BPOWER_R:
+        case RVC_DGN_PROPRIETARY_SET_AUVLO_AUVLO_RECOVER_R:
+        case RVC_DGN_PROPRIETARY_SET_AOVP_AUVLO_OVPRECOVER_R:
+        case RVC_DGN_PROPRIETARY_SET_BUVLO_BUVLO_RECOVER_R:
+        case RVC_DGN_PROPRIETARY_SET_BOVP_BUVLO_OVPRECOVER_R:
+        case RVC_DGN_PROPRIETARY_SET_T1_T2_TA_R:
+        case RVC_DGN_PROPRIETARY_SET_ACHARG_AFULL_LED_CURR_R:
+        case RVC_DGN_PROPRIETARY_SET_BCHARG_BFULL_LED_CURR_R:
+        case RVC_DGN_PROPRIETARY_AUOT_OPEN_VEER_SHUT_VOLT_A_R:
+        case RVC_DGN_PROPRIETARY_AUOT_OPEN_SHUT_VOLT_B_R:
+            handle_set_parameter_area(req->requested_dgn, data, 8);
+            break;
+
+        default:
+            break;
+    }
 }
 
 void message_init(void)
 {
-    /* åˆå§‹åŒ– RV-C åœ°å€ç®¡ç†å™¨ */
+    /* ³õÊ¼»¯ RV-C µØÖ·¹ÜÀíÆ÷ */
     rvc_address_init(RVC_ADDRESS_MODE_STATIC);
-    /* åˆå§‹åŒ–æ¶ˆæ¯å¤„ç†å™¨ */
+    /* ³õÊ¼»¯ÏûÏ¢´¦ÀíÆ÷ */
     rvc_message_handler_init();
 
-    /* æ³¨å†Œå›è°ƒå‡½æ•° */
+    /* ×¢²á»Øµ÷º¯Êı */
     rvc_register_charger_command_callback(on_charger_command);
     rvc_register_request_for_dgn_callback(on_request_for_dgn);
 
-    /* å¯åŠ¨åœ°å€å£°æ˜æµç¨‹ */
+    /* Æô¶¯µØÖ·ÉùÃ÷Á÷³Ì */
     if (!rvc_address_claim_start()) {
         //printf("Failed to start address claim!\r\n");
     }
@@ -1093,19 +1305,22 @@ REG_INIT_TP(message_init)
 extern uint32_t systemtime;
 void message_rum(void)
 {
+#if RVC_PERIODIC_BROADCAST_ENABLE
     static uint32_t last_status_time = 0;
     static uint32_t last_status2_time = 0;
     static uint32_t last_dm_rv_time = 0;
-    uint32_t now = systemtime;
+#endif
 
-    /* å‘¨æœŸè°ƒç”¨åœ°å€ç®¡ç†å™¨ */
+    /* ÖÜÆÚµ÷ÓÃµØÖ·¹ÜÀíÆ÷ */
     rvc_address_process();
 
-    /* æ£€æŸ¥åœ°å€çŠ¶æ€ */
+    /* ¼ì²éµØÖ·×´Ì¬ */
     if (rvc_address_is_claimed()) {
+#if RVC_PERIODIC_BROADCAST_ENABLE
+        uint32_t now = systemtime;
         uint8_t my_addr = rvc_address_get_current();
 
-        /* å‘¨æœŸå‘é€ CHARGER_STATUS */
+        /* ÖÜÆÚ·¢ËÍ CHARGER_STATUS */
         uint32_t status_interval = g_charger_state.enabled ? 500 : 5000;
         if (now - last_status_time >= status_interval) {
             last_status_time = now;
@@ -1117,15 +1332,15 @@ void message_rum(void)
                                    g_charger_state.state);
         }
 
-        /* å‘¨æœŸå‘é€ CHARGER_STATUS_2 (æ¯ 500ms) */
+        /* ÖÜÆÚ·¢ËÍ CHARGER_STATUS_2 (Ã¿ 500ms) */
         if (now - last_status2_time >= 500) {
             last_status2_time = now;
 
-            // TODO: è¯»å–å®é™…çš„ç”µå‹/ç”µæµ/æ¸©åº¦
+            // TODO: ¶ÁÈ¡Êµ¼ÊµÄµçÑ¹/µçÁ÷/ÎÂ¶È
             // g_charger_state.actual_voltage = charger_hardware_read_voltage();
             // g_charger_state.actual_current = charger_hardware_read_current();
 
-            // æ¨¡æ‹Ÿæ•°æ®
+            // Ä£ÄâÊı¾İ
             g_charger_state.actual_voltage = g_charger_state.target_voltage;
             g_charger_state.actual_current = g_charger_state.enabled ? 8.5f : 0.0f;
 
@@ -1135,32 +1350,31 @@ void message_rum(void)
                                      25);
         }
 
-        /* å‘¨æœŸå‘é€ DM_RVï¼ˆæ¯ 5000msï¼‰ */
+        /* ÖÜÆÚ·¢ËÍ DM_RV£¨Ã¿ 5000ms£© */
         if (now - last_dm_rv_time >= 5000) {
             last_dm_rv_time = now;
             
-            // æ£€æŸ¥æ˜¯å¦æœ‰æ•…éšœ
-            uint16_t spn = 0;  // 0 = æ— æ•…éšœ
+            // ¼ì²éÊÇ·ñÓĞ¹ÊÕÏ
+            uint16_t spn = 0;
             uint8_t fmi = 0;
             
-            // TODO: æ£€æŸ¥å®é™…æ•…éšœ
+            // TODO: ¼ì²éÊµ¼Ê¹ÊÕÏ
             // if (over_temperature) {
-            //     spn = 110;  // æ¸©åº¦è¿‡é«˜
-            //     fmi = 0;    // æ•°æ®æœ‰æ•ˆä½†è¶…å‡ºæ­£å¸¸èŒƒå›´
+            //     spn = 110;  // ÎÂ¶È¹ı¸ß
+            //     fmi = 0;    // Êı¾İÓĞĞ§µ«³¬³öÕı³£·¶Î§
             // }
             
             rvc_send_dm_rv(g_my_instance, spn, fmi);
         }
+#endif
     } else if (rvc_address_get_state() == RVC_ADDR_STATE_CANNOT_CLAIM) {
-        // åœ°å€å†²çªï¼Œæ— æ³•å£°æ˜åœ°å€
+        // µØÖ·³åÍ»£¬ÎŞ·¨ÉùÃ÷µØÖ·
 
 
-        // LED æŒ‡ç¤ºï¼šé”™è¯¯çŠ¶æ€ï¼ˆé—ªçƒï¼‰
-
+        // LED Ö¸Ê¾£º´íÎó×´Ì¬£¨ÉÁË¸£©
 
     } else {
-        // æ­£åœ¨å£°æ˜åœ°å€
-        // LED æŒ‡ç¤ºï¼šå¿«é€Ÿé—ªçƒ
+        // ÕıÔÚÉùÃ÷µØÖ·
     }
 
 }
@@ -1168,5 +1382,3 @@ void message_rum(void)
 #if(CAN_ON_OFF == 1)
 REG_TASK(10, message_rum)
 #endif
-
-

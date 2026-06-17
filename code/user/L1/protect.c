@@ -19,11 +19,13 @@ static float ila_val = 0.0f;
 static float ilb_val = 0.0f;
 static uint32_t il_ocp_cnt = 0;
 
+#if (APP_DEBUG_FEATURES == 1)
 static float ila_val_obs = 0.0f;
 static float ilb_val_obs = 0.0f;
 
 REG_SHELL_VAR(ila_val_obs, ila_val_obs, SHELL_FP32, 10000.0f, -10000.0f, NULL, SHELL_STA_NULL)
 REG_SHELL_VAR(ilb_val_obs, ilb_val_obs, SHELL_FP32, 10000.0f, -10000.0f, NULL, SHELL_STA_NULL)
+#endif
 
 extern void gpio_set_auxoff(uint8_t val);
 void protect_fast(void)
@@ -452,6 +454,8 @@ void protect_temp(void)
     }
 }
 
+extern uint8_t sleep_report_state_flag;
+
 void protect_slow(void)
 {
     protect_volt();
@@ -484,6 +488,10 @@ void protect_slow(void)
     uint16_t AlarmSign = fault_get_all_alarm() & 0xFFFF;
     AlarmSign |= (fault_get_alarm_bit(ALARM_A_INSIDE_REDUCE_PWR) || fault_get_alarm_bit(ALARM_A_OUTSIDE_REDUCE_PWR));
     AlarmSign |= (uint16_t)((fault_get_alarm_bit(ALARM_B_INSIDE_REDUCE_PWR) || fault_get_alarm_bit(ALARM_B_OUTSIDE_REDUCE_PWR))<<1);
+    if(sleep_report_state_flag == 1)
+    {
+        AlarmSign |= 0x0020U;
+    }
     WG_COM_V2_SET_DATA_UINT(AlarmSign, wg_com_v2_realtime_data.AlarmSign);
 }
 
@@ -493,6 +501,7 @@ static uint8_t chag_fault = 0;
 void short_circuit_protection(void)
 {
     float OutVolt = 0;
+    uint8_t out_baty_type = (uint8_t)((charge_state_data.OutBatyType >> 8) & 0xFF);
 
     if(charge_state_data.check_state == eADDRS_BACKWARD)
     {
@@ -501,7 +510,9 @@ void short_circuit_protection(void)
         OutVolt = get_wg_com_v2_data.com_realtime_data.OutVolt;
     }
 
-    if((charge_state_data.soft_start_flag == 1)
+    if((out_baty_type != eSCAP)
+    && (out_baty_type != eBAT_DCDC)
+    && (charge_state_data.soft_start_flag == 1)
     && (charge_state_data.get_is_run == 1)
     && (OutVolt < charge_state_data.SetOutVolt*0.5f)){
         chag_fault = 1;

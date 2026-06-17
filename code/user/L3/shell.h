@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#include "app_features.h"
 #include "section.h"
 
 #ifndef SHELL_ON_OFF
@@ -66,6 +67,8 @@ typedef struct section_shell_t
 #define SHELL_STATIC_ASSERT_NAME(name) SHELL_STATIC_ASSERT_NAME_(name)
 #define SHELL_STATIC_ASSERT_NAME_(name) shell_name_len_check_##name
 
+#if (APP_DEBUG_FEATURES == 1)
+
 /* Register a writable shell variable with typed limits. */
 #define REG_SHELL_VAR(_name, _var, _type, _max, _min, _func, _status)                                      \
     typedef char SHELL_STATIC_ASSERT_NAME(_name)[(sizeof(#_name) <= (SHELL_STR_SIZE_MAX + 1)) ? 1 : -1];   \
@@ -97,6 +100,13 @@ typedef struct section_shell_t
         .p_next = NULL,                                                                    \
     };                                                                                     \
     REG_SECTION_FUNC(SECTION_SHELL, section_shell_##_name)
+
+#else
+
+#define REG_SHELL_VAR(_name, _var, _type, _max, _min, _func, _status)
+#define REG_SHELL_CMD(_name, _func)
+
+#endif
 
 void shell_run(uint8_t data, DEC_MY_PRINTF, void *ctx);
 

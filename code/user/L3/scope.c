@@ -5,6 +5,8 @@
 #include <stddef.h>
 #include <string.h>
 
+#if (APP_DEBUG_FEATURES == 1)
+
 #define SCOPE_SERVICE_VAR_COUNT_MAX 10u
 #define SCOPE_SERVICE_NAME_SIZE_MAX 32u
 
@@ -711,4 +713,48 @@ static void scope_test_task(void)
 }
 
 REG_TASK_MS(1, scope_test_task)
+#endif
+
+#else
+
+void scope_run(scope_t *scope)
+{
+    (void)scope;
+}
+
+void scope_start(scope_t *scope)
+{
+    (void)scope;
+}
+
+void scope_stop(scope_t *scope)
+{
+    (void)scope;
+}
+
+void scope_trigger(scope_t *scope)
+{
+    (void)scope;
+}
+
+void scope_reset(scope_t *scope)
+{
+    (void)scope;
+}
+
+void scope_service_register(scope_service_obj_t *p_obj)
+{
+    (void)p_obj;
+}
+
+scope_service_obj_t *scope_service_first(void)
+{
+    return NULL;
+}
+
+uint8_t scope_service_count(void)
+{
+    return 0u;
+}
+
 #endif

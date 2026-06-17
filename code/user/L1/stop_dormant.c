@@ -16,6 +16,39 @@
 #include "get_com_data.h"
 #include "bat_charge_pattern.h"
 
+static uint8_t bat_sleep_battery_type_allowed(uint16_t bat_type)
+{
+    return ((bat_type == eBAT_LA_AGM)  ||
+            (bat_type == eBAT_LA_GEL)  ||
+            (bat_type == eBAT_LI_LFP)  ||
+            (bat_type == eBAT_LI_NMC)  ||
+            (bat_type == eBAT_AUTOSYS));
+}
+
+static uint8_t bat_sleep_charge_state_allowed(uint16_t bat_type)
+{
+    if((bat_type == eBAT_LI_LFP) || (bat_type == eBAT_LI_NMC))
+    {
+        return ((charge_state_data.SetCharState == eFLOAT_CHARGE) ||
+                (charge_state_data.SetCharState == eFULL_CHARGE)  ||
+                (charge_state_data.SetCharState == eSTOP_CHARGE));
+    }
+
+    return (charge_state_data.SetCharState == eFLOAT_CHARGE);
+}
+
+static uint8_t bat_sleep_condition_met(uint16_t PowerMode, uint16_t SleepModeOnOff, uint16_t bat_type)
+{
+    return ((PowerMode == eSET_BAT_MODE)                          &&
+            (fault_get_fault() == 0)                                    &&
+            (bat_sleep_charge_state_allowed(bat_type) == 1)             &&
+            (bat_sleep_battery_type_allowed(bat_type) == 1)             &&
+            (get_check_state_data() == ADDRS_BACKWARD)                  &&
+            (get_wg_com_v2_data.BatModeFRState == 0)                    &&
+            (SleepModeOnOff == 1)                                       &&
+            (ctrl_app_get_is_run() == 1));
+}
+
 const bsp_gpio_parm_pwc_t bsp_gpio_parm_pwc[] = {
     PWC_GPIO_REG_PARM(PWC_PC13,	GPIO_PORT_C	,	13	,	ANALOG_PD	, 	0),
 	PWC_GPIO_REG_PARM(PWC_PC14,	GPIO_PORT_C	,	14	,	ANALOG_PD	, 	0),
@@ -97,8 +130,41 @@ extern void ctrl_app_disable(void);
 extern void bsp_hrpwm_init_pwc(void);
 void bsp_adc_init_pwc(void);
 uint8_t stop_time_flag = 0;
+uint8_t sleep_report_state_flag = 0;
 static uint8_t stop = 0;
 static uint8_t InitFlag = 0;
+#define SLEEP_REPORT_DELAY_COUNT (4)
+
+typedef enum
+{
+    SLEEP_IDLE = 0,
+    SLEEP_REPORTING,
+    SLEEP_COMMITTED,
+    SLEEP_ENTERING,
+} sleep_state_t;
+
+static sleep_state_t sleep_state = SLEEP_IDLE;
+
+static void sleep_cancel(void)
+{
+    sleep_state = SLEEP_IDLE;
+    stop_time_flag = 0;
+    sleep_report_state_flag = 0;
+    stop = 0;
+}
+
+void sleep_low_power_commit(void)
+{
+    if(sleep_state == SLEEP_COMMITTED)
+    {
+        sleep_state = SLEEP_ENTERING;
+        stop_time_flag = 1;
+        sleep_report_state_flag = 1;
+        InitFlag = 0;
+        stop = 1;
+    }
+}
+
 uint8_t bsp_pwc_stop_rum(void)
 {
     float fvs48 = 0;
@@ -151,7 +217,7 @@ uint8_t bsp_pwc_stop_rum(void)
         TMR0_ClearStatus(TMR0_UNIT, TMR0_CH_FLAG);
         PWC_STOP_Enter(PWC_STOP_WFE_EVT);
         fwdgt_feed_task();
-        stop = 0;
+        sleep_cancel();
         re_state = 1;
     }
     else
@@ -222,31 +288,66 @@ void bat_stop_charge_flag(void)
     static uint16_t PowerMode = 0;
     static uint16_t ChargMode = 0;
     static uint16_t InpBatyType = 0;
+    static uint16_t SleepModeOnOff = 0;
+    static uint8_t sleep_report_count = 0;
     WG_COM_V2_GET_DATA_UINT(PowerMode, wg_com_v2_realtime_data.PowerMode);
     WG_COM_V2_GET_DATA_UINT(ChargMode, wg_com_v2_realtime_data.ChargMode);
     WG_COM_V2_GET_DATA_UINT(InpBatyType, wg_com_v2_ctrl.InpBatyType);
+    WG_COM_V2_GET_DATA_UINT(SleepModeOnOff, wg_com_v2_ctrl.SleepModeOnOff);
     static uint16_t delay = 0;
     uint16_t bat_type = Get_Charge_State();
-    if((PowerMode == eSET_BAT_MODE)                                 && 
-       (fault_get_fault() == 0)                                     &&
-       ((charge_state_data.SetCharState == eFLOAT_CHARGE)           &&
-       (get_wg_com_v2_data.com_ctrl.SleepModeOnOff == 1)            &&
-       ((bat_type == eBAT_LA_AGM)||(bat_type == eBAT_LA_GEL))       &&
-       (get_check_state_data() == ADDRS_BACKWARD)                   &&
-       (get_wg_com_v2_data.BatModeFRState == 0)                     &&
-       (ctrl_app_get_is_run() == 1)))
+
+    if(SleepModeOnOff == 0)
+    {
+        delay = 0;
+        sleep_report_count = 0;
+        sleep_cancel();
+        return;
+    }
+
+    if(sleep_state == SLEEP_COMMITTED || sleep_state == SLEEP_ENTERING)
+    {
+        return;
+    }
+
+    if(sleep_state == SLEEP_REPORTING)
+    {
+        WG_COM_V2_SET_DATA_UINT(eSTOP_CHARGE, wg_com_v2_realtime_data.StateCharge);
+        if(bat_sleep_condition_met(PowerMode, SleepModeOnOff, bat_type) == 1)
+        {
+            if(--sleep_report_count == 0)
+            {
+                sleep_state = SLEEP_COMMITTED;
+                stop_time_flag = 1;
+                InitFlag = 0;
+                sleep_report_state_flag = 1;
+            }
+        }
+        else
+        {
+            delay = 0;
+            sleep_report_count = 0;
+            sleep_cancel();
+        }
+        return;
+    }
+
+    if(bat_sleep_condition_met(PowerMode, SleepModeOnOff, bat_type) == 1)
     {
         if(++delay >= 20)
         {
             delay = 0;
-            stop_time_flag = 1;
-            InitFlag = 0;
-            stop = 1;
+            WG_COM_V2_SET_DATA_UINT(eSTOP_CHARGE, wg_com_v2_realtime_data.StateCharge);
+            sleep_state = SLEEP_REPORTING;
+            sleep_report_state_flag = 1;
+            sleep_report_count = SLEEP_REPORT_DELAY_COUNT;
         }
     }
     else
     {
         delay = 0;
+        sleep_report_count = 0;
+        sleep_cancel();
     }
 }
 

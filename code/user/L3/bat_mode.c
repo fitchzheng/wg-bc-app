@@ -4,6 +4,7 @@
 #include "soft_start.h"
 #include "adc.h"
 #include "rvc_message_handler.h"
+#include "eeprom_cfg.h"
 
 static uint32_t FloatChargingDelay = 0;
 static uint32_t PrechargeDelay = 0;
@@ -462,6 +463,10 @@ void bat_a_arguments_limi(void)
 {
     float verify_data = 0.00f;
     uint16_t BatTypeA = get_wg_com_v2_data.com_ctrl.InpBatyType;
+    if(((BatTypeA&0xff00)>>8) >= eBAT_TYPE_MAX)
+    {
+        BatTypeA = (eBAT_TYPE_LFP << 8) | (BatTypeA&0x00FF);
+    }
     if((BatTypeA&0x00FF) < eBAT_SYS_VOLT_MAX)
     {
         verify_data = get_wg_com_v2_data.com_param.SetInpVolt;
@@ -489,6 +494,10 @@ void bat_b_arguments_limi(void)
 {
     float verify_data = 0.00f;
     uint16_t BatTypeB = get_wg_com_v2_data.com_ctrl.OutBatyType;
+    if(((BatTypeB&0xff00)>>8) >= eBAT_TYPE_MAX)
+    {
+        BatTypeB = (eBAT_TYPE_LFP << 8) | (BatTypeB&0x00FF);
+    }
     if((BatTypeB&0x00FF) < eBAT_SYS_VOLT_MAX)
     {
         verify_data = get_wg_com_v2_data.com_param.SetOutVolt;
@@ -517,6 +526,8 @@ void bat_mode_run(void)
         init_bat_mode_parameter();
     }
 
+    eeprom_autosys_runtime_update();
+
     #if(CAN_ON_OFF != 2) 
     if((get_wg_com_v2_data.com_ctrl.SetChargMode != eSET_AUTO_MODE)   &&
        (get_wg_com_v2_data.com_ctrl.SetChargMode != eSET_MANUAL_MODE))
@@ -525,8 +536,6 @@ void bat_mode_run(void)
     }
     #endif
 
-    bat_a_arguments_limi();
-    bat_b_arguments_limi();
     BattChargingCurve(&charge_state_data,1);
 }
 
@@ -561,6 +570,20 @@ void init_bat_mode_parameter(void)
 
     uint16_t BatTypeA = get_wg_com_v2_data.com_ctrl.InpBatyType;
     uint16_t BatTypeB = get_wg_com_v2_data.com_ctrl.OutBatyType;
+
+    if(eeprom_apply_battery_mode_profiles())
+    {
+        return;
+    }
+
+    if(((BatTypeA&0xff00)>>8) >= eBAT_TYPE_MAX)
+    {
+        BatTypeA = (eBAT_TYPE_LFP << 8) | (BatTypeA&0x00FF);
+    }
+    if(((BatTypeB&0xff00)>>8) >= eBAT_TYPE_MAX)
+    {
+        BatTypeB = (eBAT_TYPE_LFP << 8) | (BatTypeB&0x00FF);
+    }
 
     if((BatTypeB&0x00FF) < eBAT_SYS_VOLT_MAX)
     {
@@ -649,14 +672,21 @@ void BattChargingCurve(charge_state_data_t *bat_charge_data,uint8_t soft_flag)
         bat_charge_data->rvs12_pwr_lmt = get_wg_com_v2_data.com_param.SetOutCurrPower;
         bat_charge_data->OutBatyType = get_wg_com_v2_data.com_ctrl.InpBatyType;
         bat_charge_data->rvs12_lmt = get_wg_com_v2_data.com_param.SetOutUvlo+0.5f;
-        bat_charge_data->fvs48_lmt = bat_charge_data->ActualOutVolt;//get_wg_com_v2_data.com_param.SetInpVolt;
-        bat_charge_data->Boot_Time_Delay.SetBootTime = get_wg_com_v2_data.com_ctrl.SetBootTimeA;
+        if(((bat_charge_data->OutBatyType&0xff00)>>8) == eBAT_DCDC)
+        {
+            bat_charge_data->fvs48_lmt = bat_charge_data->SetOutVolt;
+        }
+        else
+        {
+            bat_charge_data->fvs48_lmt = bat_charge_data->ActualOutVolt;//get_wg_com_v2_data.com_param.SetInpVolt;
+        }
+        bat_charge_data->Boot_Time_Delay.SetBootTime = get_wg_com_v2_data.com_ctrl.SetBootTimeB;
         bat_charge_data->ilv_lmt = bat_charge_data->SetInpCurr;
         if(bat_charge_data->get_is_run == 1)
         {
             if(soft_flag == 1)
             {
-                bat_charge_data->ihv_lmt = curr_soft_start(bat_charge_data->ihv_lmt,bat_charge_data->temp_derate_curr,(get_wg_com_v2_data.com_ctrl.SetOnCurrStartTimeA*100));
+                bat_charge_data->ihv_lmt = curr_soft_start(bat_charge_data->ihv_lmt,bat_charge_data->temp_derate_curr,(bat_charge_data->ActiveOnCurrStartTime*100));
             }else{
                 bat_charge_data->ihv_lmt = curr_soft_start(bat_charge_data->ihv_lmt,bat_charge_data->temp_derate_curr,0);
             }
@@ -679,15 +709,22 @@ void BattChargingCurve(charge_state_data_t *bat_charge_data,uint8_t soft_flag)
         bat_charge_data->fvs48_pwr_lmt = get_wg_com_v2_data.com_param.SetInpCurrPower;
         bat_charge_data->rvs12_pwr_lmt = get_wg_com_v2_data.com_param.SetOutCurrPower;
         bat_charge_data->OutBatyType = get_wg_com_v2_data.com_ctrl.OutBatyType;
-        bat_charge_data->rvs12_lmt = bat_charge_data->ActualOutVolt;//get_wg_com_v2_data.com_param.SetOutVolt;
+        if(((bat_charge_data->OutBatyType&0xff00)>>8) == eBAT_DCDC)
+        {
+            bat_charge_data->rvs12_lmt = bat_charge_data->SetOutVolt;
+        }
+        else
+        {
+            bat_charge_data->rvs12_lmt = bat_charge_data->ActualOutVolt;//get_wg_com_v2_data.com_param.SetOutVolt;
+        }
         bat_charge_data->fvs48_lmt = get_wg_com_v2_data.com_param.SetInpUvlo+0.5f;
-        bat_charge_data->Boot_Time_Delay.SetBootTime = get_wg_com_v2_data.com_ctrl.SetBootTimeB;
+        bat_charge_data->Boot_Time_Delay.SetBootTime = get_wg_com_v2_data.com_ctrl.SetBootTimeA;
         bat_charge_data->ihv_lmt = bat_charge_data->SetInpCurr;
         if(bat_charge_data->get_is_run == 1)
         {
             if(soft_flag == 1)
             {
-                bat_charge_data->ilv_lmt = curr_soft_start(bat_charge_data->ilv_lmt,bat_charge_data->temp_derate_curr,(get_wg_com_v2_data.com_ctrl.SetOnCurrStartTimeB*100));
+                bat_charge_data->ilv_lmt = curr_soft_start(bat_charge_data->ilv_lmt,bat_charge_data->temp_derate_curr,(bat_charge_data->ActiveOnCurrStartTime*100));
             }else{
                 bat_charge_data->ilv_lmt = curr_soft_start(bat_charge_data->ilv_lmt,bat_charge_data->temp_derate_curr,0);
             }
@@ -970,6 +1007,7 @@ void BattChargingCurve(charge_state_data_t *bat_charge_data,uint8_t soft_flag)
             bat_charge_data->ActualOutCurr = bat_charge_data->SetOutCurr;
             break;
 		case 4:  // DCDC
+            bat_charge_data->SetCharState = eCC_CHARGE;
             bat_charge_data->ActualOutVolt = bat_charge_data->SetOutVolt;
             bat_charge_data->ActualOutCurr = bat_charge_data->SetOutCurr;
             break;
@@ -1007,6 +1045,16 @@ void init_mppt_mode_parameter(void)
     float SetOutFullCurr  = 0.00f;
 
     uint16_t BatTypeB = get_wg_com_v2_data.com_ctrl.OutBatyType;
+
+    if(eeprom_apply_mppt_mode_profile())
+    {
+        return;
+    }
+
+    if(((BatTypeB&0xff00)>>8) >= eBAT_TYPE_MAX)
+    {
+        BatTypeB = (eBAT_TYPE_LFP << 8) | (BatTypeB&0x00FF);
+    }
 
     if((BatTypeB&0x00FF) < eBAT_SYS_VOLT_MAX)
     {

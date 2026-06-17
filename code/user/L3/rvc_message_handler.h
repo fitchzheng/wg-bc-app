@@ -10,7 +10,8 @@
 #include "my_math.h"
 
 
-#define CAN_ON_OFF                                         2
+#define CAN_ON_OFF                                         1
+#define RVC_PERIODIC_BROADCAST_ENABLE                      0
 /* ========== DGN 定义 ========== */
 #define RVC_DGN_DM_RV                                      0x1FECA
 
@@ -58,8 +59,8 @@
 #define RVC_DGN_PROPRIETARY_BATY_TYPE_BOOT_CURR_STARTA_W   0xEF23  // 私有 DGN A端电池类型/A端开机时间/A端开机电流软起动时间
 #define RVC_DGN_PROPRIETARY_BATY_TYPE_BOOT_CURR_STARTB_R   0xEF24  // 私有 DGN B端电池类型/B端开机时间/B端开机电流软起动时间
 #define RVC_DGN_PROPRIETARY_BATY_TYPE_BOOT_CURR_STARTB_W   0xEF25  // 私有 DGN B端电池类型/B端开机时间/B端开机电流软起动时间
-#define RVC_DGN_PROPRIETARY_ZERO_CURR_BAT_MODE_FR_R        0xEF26  // 私有 DGN 零电流校准/电池模式正反向切换
-#define RVC_DGN_PROPRIETARY_ZERO_CURR_BAT_MODE_FR_W        0xEF27  // 私有 DGN 零电流校准/电池模式正反向切换
+#define RVC_DGN_PROPRIETARY_ZERO_CURR_BAT_MODE_FR_R        0xEF26  // 私有 DGN 零电流校准
+#define RVC_DGN_PROPRIETARY_ZERO_CURR_BAT_MODE_FR_W        0xEF27  // 私有 DGN 零电流校准
 #define RVC_DGN_PROPRIETARY_SET_AVOLT_ACURR_APOWER_R       0xEF28  // 私有 DGN A端电压/A端电流/A端功率
 #define RVC_DGN_PROPRIETARY_SET_AVOLT_ACURR_APOWER_W       0xEF29  // 私有 DGN A端电压/A端电流/A端功率
 #define RVC_DGN_PROPRIETARY_SET_BVOLT_BCURR_BPOWER_R       0xEF2A  // 私有 DGN B端电压/B端电流/B端功率
@@ -82,6 +83,9 @@
 #define RVC_DGN_PROPRIETARY_AUOT_OPEN_VEER_SHUT_VOLT_A_W   0xEF3B  // 私有 DGN 自动模式正向A端开启电压/自动模式正向转向A电压/自动模式正向A端关闭电压
 #define RVC_DGN_PROPRIETARY_AUOT_OPEN_SHUT_VOLT_B_R        0xEF3C  // 私有 DGN 自动模式反向B端开启电压/自动模式反向B端关闭电压
 #define RVC_DGN_PROPRIETARY_AUOT_OPEN_SHUT_VOLT_B_W        0xEF3D  // 私有 DGN 自动模式反向B端开启电压/自动模式反向B端关闭电压
+#define RVC_DGN_PROPRIETARY_STATUS_CONTROL_R               0xEF3E  // 私有 DGN 状态控制: 电池方向/MPPT/休眠
+#define RVC_DGN_PROPRIETARY_STATUS_CONTROL_W               0xEF3F  // 私有 DGN 状态控制: 电池方向/MPPT/休眠
+#define RVC_DGN_PROPRIETARY_APP_DEBUG_EVENT_R              0xEF40  // APP debug event ring read
 
 /* ========== 数据结构 ========== */
 

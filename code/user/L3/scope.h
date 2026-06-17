@@ -1,8 +1,10 @@
 #ifndef __SCOPE_H__
 #define __SCOPE_H__
 
+#include "app_features.h"
 #include "my_math.h"
 #include "section.h"
+#include <stddef.h>
 #include "stdint.h"
 
 #ifndef SCOPE_ENABLE_PRINTF
@@ -192,6 +194,8 @@ typedef struct
 #define REG_SCOPE_DATA_STEP_CMD(name)
 #endif
 
+#if (APP_DEBUG_FEATURES == 1)
+
 #define REG_SCOPE_EX(name, buf_size, trig_post_cnt, _sample_period_us, ...)                                         \
     float scope_##name##_buffer[SCOPE_COUNT_ARGS(__VA_ARGS__)][buf_size];                                           \
     float __VA_ARGS__;                                                                                              \
@@ -234,6 +238,13 @@ typedef struct
 #define REG_SCOPE(name, buf_size, trig_post_cnt, ...) \
     REG_SCOPE_EX(name, buf_size, trig_post_cnt, (uint32_t)(CTRL_TS * 1000000.0f + 0.5f), __VA_ARGS__)
 
+#else
+
+#define REG_SCOPE_EX(name, buf_size, trig_post_cnt, _sample_period_us, ...)
+#define REG_SCOPE(name, buf_size, trig_post_cnt, ...)
+
+#endif
+
 void scope_run(scope_t *scope);
 void scope_start(scope_t *scope);
 void scope_stop(scope_t *scope);
@@ -243,6 +254,7 @@ void scope_service_register(scope_service_obj_t *p_obj);
 scope_service_obj_t *scope_service_first(void);
 uint8_t scope_service_count(void);
 
+#if (APP_DEBUG_FEATURES == 1)
 #define SCOPE_RUN(name) scope_run(&scope_##name)
 #define SCOPE(name) scope_run(&scope_##name)
 #define SCOPE_TRIGGER(name) scope_trigger(&scope_##name)
@@ -250,5 +262,14 @@ uint8_t scope_service_count(void);
 #define SCOPE_GET_BUFFER_SIZE(name) (scope_##name.buffer_size)
 #define SCOPE_GET_VAR_NUM(name) (scope_##name.var_count)
 #define SCOPE_GET_VAR_PTRS(name) (scope_##name.var_ptrs)
+#else
+#define SCOPE_RUN(name) ((void)0)
+#define SCOPE(name) ((void)0)
+#define SCOPE_TRIGGER(name) ((void)0)
+#define SCOPE_GET_BUFFER(name) NULL
+#define SCOPE_GET_BUFFER_SIZE(name) 0U
+#define SCOPE_GET_VAR_NUM(name) 0U
+#define SCOPE_GET_VAR_PTRS(name) NULL
+#endif
 
 #endif

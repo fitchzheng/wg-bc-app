@@ -6,6 +6,10 @@
 #include "stdio.h"
 #include <stdarg.h>
 #include "bsp_dma.h"
+#include "get_com_data.h"
+#include "eeprom_cfg.h"
+#include "fault.h"
+#include "bat_mode.h"
 
 extern uint32_t systemtime;
 
@@ -22,6 +26,21 @@ wg_com_v2_realtime_data_t wg_com_v2_realtime_data;
 wg_com_v2_ctrl_t wg_com_v2_ctrl;
 wg_com_v2_param_t wg_com_v2_param;
 usart_dma_bt_buf_t usart_dma_bt_buf;
+
+#define BT_DBG_STAGE_TRIGGER   1U
+#define BT_DBG_STAGE_QUERY_TX  2U
+#define BT_DBG_STAGE_QUERY_RX  3U
+#define BT_DBG_STAGE_NAME_TX   4U
+#define BT_DBG_STAGE_NAME_RX   5U
+#define BT_DBG_STAGE_ERROR     6U
+#define BT_DBG(stage, result, value) app_debug_event_push(APP_DBG_EVT_BT_NAME, APP_DBG_AREA_BT, (stage), usart_dma_bt_buf.rx_step, usart_dma_bt_buf.buffer_size, (result), (value))
+
+static uint8_t mppt_return_state_valid = 0;
+static uint16_t mppt_return_power_mode = eSET_BAT_MODE;
+static uint16_t mppt_return_bat_mode_fr = 0;
+static uint8_t bat_return_type_valid = 1;
+static uint16_t bat_return_type_a = (uint16_t)((eBAT_LA_AGM << 8) | eSYS_12V);
+static uint16_t bat_return_type_b = (uint16_t)((eBAT_LI_LFP << 8) | eSYS_24V);
 
 static const realtime_data_unit_map_t unit_map[] = {
     {&wg_com_v2_realtime_data.InpVolt, 0.01f},
@@ -90,7 +109,8 @@ static const wg_com_v2_data_lmt_map_t lmt_map[] = {
     {&wg_com_v2_ctrl.ResetFactoryData, 1, 0},
     {&wg_com_v2_ctrl.BatModeFR, 2, 0},
     {&wg_com_v2_ctrl.MpptSwitch, 1, 0},
-
+    {&wg_com_v2_ctrl.SleepModeOnOff, 1, 0},
+    
     {&wg_com_v2_param.InpVoltCalibrK, 1100, 900},
     {&wg_com_v2_param.InpVoltCalibrB, 1100, 900},
     {&wg_com_v2_param.InpCurrCalibrK, 1300, 700},
@@ -161,6 +181,163 @@ const wg_com_v2_data_lmt_map_t *get_lmt_for_addr(void *p)
             return &lmt_map[i];
     }
     return NULL;
+}
+
+void wg_com_v2_note_non_mppt_control_state(uint16_t power_mode, uint16_t bat_mode_fr)
+{
+    if((power_mode < eSET_MODE_MAX) && (power_mode != eMPPT_MODE))
+    {
+        mppt_return_power_mode = power_mode;
+        mppt_return_bat_mode_fr = bat_mode_fr;
+        mppt_return_state_valid = 1;
+    }
+}
+
+void wg_com_v2_enter_mppt_control_state(void)
+{
+    uint16_t power_mode = 0;
+    uint16_t bat_mode_fr = 0;
+
+    WG_COM_V2_GET_DATA_UINT(power_mode, wg_com_v2_ctrl.SetPowerMode);
+    WG_COM_V2_GET_DATA_UINT(bat_mode_fr, wg_com_v2_ctrl.BatModeFR);
+
+    if(power_mode != eMPPT_MODE)
+    {
+        wg_com_v2_note_non_mppt_control_state(power_mode, bat_mode_fr);
+    }
+    WG_COM_V2_SET_DATA_UINT(eMPPT_MODE, wg_com_v2_ctrl.SetPowerMode);
+    WG_COM_V2_SET_DATA_UINT(1, wg_com_v2_ctrl.MpptSwitch);
+    WG_COM_V2_SET_DATA_UINT(1, wg_com_v2_ctrl.BatModeFR);
+    WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SleepModeOnOff);
+    fault_clear_alarm(ALARM_AUTOSYS_NO_SYSTEM);
+}
+
+void wg_com_v2_exit_mppt_control_state(void)
+{
+    if(mppt_return_state_valid == 0)
+    {
+        mppt_return_power_mode = eSET_BAT_MODE;
+        mppt_return_bat_mode_fr = 0;
+    }
+    WG_COM_V2_SET_DATA_UINT(mppt_return_power_mode, wg_com_v2_ctrl.SetPowerMode);
+    WG_COM_V2_SET_DATA_UINT(mppt_return_bat_mode_fr, wg_com_v2_ctrl.BatModeFR);
+    WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.MpptSwitch);
+}
+
+static uint8_t normalize_mode_control_state(uint16_t addr,
+                                            uint16_t count,
+                                            uint16_t old_power_mode,
+                                            uint16_t old_mppt_switch,
+                                            uint16_t old_bat_mode_fr,
+                                            uint16_t old_sleep_mode,
+                                            uint16_t old_soft_start_a,
+                                            uint16_t old_soft_start_b)
+{
+    uint8_t changed = 0;
+    uint8_t writes_power_mode = (addr <= (WG_COM_V2_CTRL_ADDR + 0x02)) &&
+                                ((addr + count) > (WG_COM_V2_CTRL_ADDR + 0x02));
+    uint8_t writes_mppt_switch = (addr <= (WG_COM_V2_CTRL_ADDR + 0x0D)) &&
+                                 ((addr + count) > (WG_COM_V2_CTRL_ADDR + 0x0D));
+    uint16_t power_mode = 0;
+    uint16_t mppt_switch = 0;
+    uint16_t bat_mode_fr = 0;
+    uint16_t sleep_mode = 0;
+    uint16_t boot_time_b = 0;
+    uint16_t soft_start_a = 0;
+    uint16_t soft_start_b = 0;
+
+    (void)old_bat_mode_fr;
+    (void)old_sleep_mode;
+
+    WG_COM_V2_GET_DATA_UINT(power_mode, wg_com_v2_ctrl.SetPowerMode);
+    WG_COM_V2_GET_DATA_UINT(mppt_switch, wg_com_v2_ctrl.MpptSwitch);
+    WG_COM_V2_GET_DATA_UINT(bat_mode_fr, wg_com_v2_ctrl.BatModeFR);
+    WG_COM_V2_GET_DATA_UINT(sleep_mode, wg_com_v2_ctrl.SleepModeOnOff);
+    WG_COM_V2_GET_DATA_UINT(boot_time_b, wg_com_v2_ctrl.SetBootTimeB);
+    WG_COM_V2_GET_DATA_UINT(soft_start_a, wg_com_v2_ctrl.SetOnCurrStartTimeA);
+    WG_COM_V2_GET_DATA_UINT(soft_start_b, wg_com_v2_ctrl.SetOnCurrStartTimeB);
+
+    if(writes_mppt_switch != 0)
+    {
+        if(mppt_switch == 1)
+        {
+            wg_com_v2_enter_mppt_control_state();
+        }
+        else if((old_mppt_switch == 1) || (power_mode == eMPPT_MODE))
+        {
+            wg_com_v2_exit_mppt_control_state();
+        }
+    }
+    else if(writes_power_mode != 0)
+    {
+        if(power_mode == eMPPT_MODE)
+        {
+            WG_COM_V2_SET_DATA_UINT(1, wg_com_v2_ctrl.MpptSwitch);
+            wg_com_v2_enter_mppt_control_state();
+        }
+        else
+        {
+            uint16_t new_power_mode = power_mode;
+            if((old_mppt_switch == 1) || (old_power_mode == eMPPT_MODE))
+            {
+                wg_com_v2_exit_mppt_control_state();
+                WG_COM_V2_SET_DATA_UINT(new_power_mode, wg_com_v2_ctrl.SetPowerMode);
+            }
+            else
+            {
+                wg_com_v2_note_non_mppt_control_state(power_mode, bat_mode_fr);
+            }
+            WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.MpptSwitch);
+        }
+    }
+
+    WG_COM_V2_GET_DATA_UINT(power_mode, wg_com_v2_ctrl.SetPowerMode);
+    WG_COM_V2_GET_DATA_UINT(mppt_switch, wg_com_v2_ctrl.MpptSwitch);
+    WG_COM_V2_GET_DATA_UINT(bat_mode_fr, wg_com_v2_ctrl.BatModeFR);
+    WG_COM_V2_GET_DATA_UINT(sleep_mode, wg_com_v2_ctrl.SleepModeOnOff);
+    WG_COM_V2_GET_DATA_UINT(boot_time_b, wg_com_v2_ctrl.SetBootTimeB);
+    WG_COM_V2_GET_DATA_UINT(soft_start_a, wg_com_v2_ctrl.SetOnCurrStartTimeA);
+    WG_COM_V2_GET_DATA_UINT(soft_start_b, wg_com_v2_ctrl.SetOnCurrStartTimeB);
+
+    if(power_mode == eMPPT_MODE)
+    {
+        if(boot_time_b != 0)
+        {
+            WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetBootTimeB);
+            changed = 1;
+        }
+        if(soft_start_a != 0)
+        {
+            WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetOnCurrStartTimeA);
+            changed = 1;
+        }
+    }
+
+    if(power_mode == eSET_STANDARD_MODE)
+    {
+        WG_COM_V2_SET_DATA_UINT(1, wg_com_v2_ctrl.BatModeFR);
+        WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetOnCurrStartTimeA);
+        WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetOnCurrStartTimeB);
+    }
+
+    if(power_mode != eSET_BAT_MODE)
+    {
+        WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SleepModeOnOff);
+    }
+
+    WG_COM_V2_GET_DATA_UINT(power_mode, wg_com_v2_ctrl.SetPowerMode);
+    WG_COM_V2_GET_DATA_UINT(mppt_switch, wg_com_v2_ctrl.MpptSwitch);
+    WG_COM_V2_GET_DATA_UINT(soft_start_a, wg_com_v2_ctrl.SetOnCurrStartTimeA);
+    WG_COM_V2_GET_DATA_UINT(soft_start_b, wg_com_v2_ctrl.SetOnCurrStartTimeB);
+
+    if((old_power_mode != power_mode) ||
+       (old_mppt_switch != mppt_switch) ||
+       (old_soft_start_a != soft_start_a) ||
+       (old_soft_start_b != soft_start_b))
+    {
+        changed = 1;
+    }
+    return changed;
 }
 
 float wg_com_v2_get_data_uint(float user_data, void *wg_com_v2_data)
@@ -283,7 +460,7 @@ void set_int16(uint8_t *p_data, uint16_t data)
     p_data[1] = (uint8_t)(data & 0x00FF);
 }
 
-// 地址区域注册表
+// 地址区域注册�?
 static const addr_region_t addr_regions[] = {
     DEFINE_ADDR_REGION(WG_COM_V2_PRUCUCT_INFO_ADDR, wg_com_v2_product_info),
     DEFINE_ADDR_REGION(WG_COM_V2_REALTIME_DATA_ADDR, wg_com_v2_realtime_data),
@@ -307,6 +484,16 @@ static const addr_region_t *find_addr_region(uint16_t addr, uint16_t count)
 // 各区域的具体读写实现
 static uint8_t unified_read(uint16_t addr, uint16_t count, uint8_t *data)
 {
+#if (APP_DEBUG_EVENT_FEATURES == 1)
+    if((addr >= WG_COM_V2_APP_DEBUG_ADDR) &&
+       ((addr + count) <= (WG_COM_V2_APP_DEBUG_ADDR + WG_COM_V2_APP_DEBUG_REG_COUNT)))
+    {
+        app_debug_event_read_regs((uint16_t)(addr - WG_COM_V2_APP_DEBUG_ADDR), count, data);
+        return 1;
+    }
+
+#endif
+
     const addr_region_t *region = find_addr_region(addr, count);
     if (region == NULL)
         return 0;
@@ -322,9 +509,153 @@ static uint8_t unified_write(uint16_t addr, uint16_t count, const uint8_t *data)
     if (region == NULL)
         return 0;
 
+    uint16_t old_power_mode = 0;
+    uint16_t new_power_mode = 0;
+    uint16_t old_mppt_switch = 0;
+    uint16_t old_bat_mode_fr = 0;
+    uint16_t old_sleep_mode = 0;
+    uint16_t old_soft_start_a = 0;
+    uint16_t old_soft_start_b = 0;
+    uint16_t bat_type_a = 0;
+    uint16_t bat_type_b = 0;
+    uint16_t new_mppt_switch = 0;
+    uint8_t writes_power_mode = (addr <= (WG_COM_V2_CTRL_ADDR + 0x02)) &&
+                                ((addr + count) > (WG_COM_V2_CTRL_ADDR + 0x02));
+    uint8_t writes_mppt_switch = (addr <= (WG_COM_V2_CTRL_ADDR + 0x0D)) &&
+                                 ((addr + count) > (WG_COM_V2_CTRL_ADDR + 0x0D));
+    uint8_t writes_bat_type = (addr <= (WG_COM_V2_CTRL_ADDR + 0x05)) &&
+                              ((addr + count) > (WG_COM_V2_CTRL_ADDR + 0x04));
+    uint8_t writes_mppt_profile_select = ((writes_power_mode != 0) ||
+                                          (writes_mppt_switch != 0) ||
+                                          (writes_bat_type != 0));
+    uint8_t writes_mppt_timing = (addr <= (WG_COM_V2_CTRL_ADDR + 0x09)) &&
+                                 ((addr + count) > (WG_COM_V2_CTRL_ADDR + 0x06));
     uint16_t offset = addr - region->start_addr;
+
+    WG_COM_V2_GET_DATA_UINT(old_power_mode, wg_com_v2_ctrl.SetPowerMode);
+    WG_COM_V2_GET_DATA_UINT(old_mppt_switch, wg_com_v2_ctrl.MpptSwitch);
+    WG_COM_V2_GET_DATA_UINT(old_bat_mode_fr, wg_com_v2_ctrl.BatModeFR);
+    WG_COM_V2_GET_DATA_UINT(old_sleep_mode, wg_com_v2_ctrl.SleepModeOnOff);
+    WG_COM_V2_GET_DATA_UINT(old_soft_start_a, wg_com_v2_ctrl.SetOnCurrStartTimeA);
+    WG_COM_V2_GET_DATA_UINT(old_soft_start_b, wg_com_v2_ctrl.SetOnCurrStartTimeB);
+
+    if(((writes_power_mode != 0) || (writes_mppt_switch != 0)) && (old_power_mode == eSET_BAT_MODE))
+    {
+        WG_COM_V2_GET_DATA_UINT(bat_return_type_a, wg_com_v2_ctrl.InpBatyType);
+        WG_COM_V2_GET_DATA_UINT(bat_return_type_b, wg_com_v2_ctrl.OutBatyType);
+        bat_return_type_valid = 1U;
+        eeprom_request_current_profile_save();
+    }
+    else if(((writes_power_mode != 0) || (writes_mppt_switch != 0)) &&
+            ((old_power_mode == eMPPT_MODE) || (old_mppt_switch == 1U)))
+    {
+        (void)eeprom_save_current_mode_profile();
+    }
+
     memcpy((uint8_t *)region->data_ptr + offset * 2, data, count * 2);
+    WG_COM_V2_GET_DATA_UINT(new_power_mode, wg_com_v2_ctrl.SetPowerMode);
+    if((writes_power_mode != 0) &&
+       (old_power_mode != eSET_BAT_MODE) &&
+       (new_power_mode == eSET_BAT_MODE))
+    {
+        eeprom_note_battery_profile_reload_pending();
+    }
+    if((addr < (WG_COM_V2_PARAM_ADDR + (sizeof(wg_com_v2_param_t) / 2U))) &&
+       ((addr + count) > (WG_COM_V2_PARAM_ADDR + (EEPROM_PARAM_CAL_SIZE / 2U))))
+    {
+        eeprom_request_current_profile_save();
+    }
+    if((addr <= (WG_COM_V2_CTRL_ADDR + 0x05)) &&
+       ((addr + count) > (WG_COM_V2_CTRL_ADDR + 0x02)))
+    {
+        request_update_parameter();
+    }
+    if((addr <= (WG_COM_V2_CTRL_ADDR + 0x09)) &&
+       ((addr + count) > (WG_COM_V2_CTRL_ADDR + 0x08)))
+    {
+        request_update_parameter();
+    }
+    if(((addr <= (WG_COM_V2_CTRL_ADDR + 0x02)) &&
+        ((addr + count) > (WG_COM_V2_CTRL_ADDR + 0x02))) ||
+       ((addr <= (WG_COM_V2_CTRL_ADDR + 0x0E)) &&
+        ((addr + count) > (WG_COM_V2_CTRL_ADDR + 0x0C))) ||
+       ((addr <= (WG_COM_V2_CTRL_ADDR + 0x09)) &&
+        ((addr + count) > (WG_COM_V2_CTRL_ADDR + 0x08))))
+    {
+        if(normalize_mode_control_state(addr,
+                                        count,
+                                        old_power_mode,
+                                        old_mppt_switch,
+                                        old_bat_mode_fr,
+                                        old_sleep_mode,
+                                        old_soft_start_a,
+                                        old_soft_start_b) != 0)
+        {
+            request_update_parameter();
+        }
+    }
+    WG_COM_V2_GET_DATA_UINT(new_power_mode, wg_com_v2_ctrl.SetPowerMode);
+    WG_COM_V2_GET_DATA_UINT(new_mppt_switch, wg_com_v2_ctrl.MpptSwitch);
+    if((writes_mppt_timing != 0) &&
+       ((new_power_mode == eMPPT_MODE) || (new_mppt_switch == 1U)))
+    {
+        eeprom_request_current_profile_save();
+    }
+    if((writes_mppt_profile_select != 0) &&
+       ((new_power_mode == eMPPT_MODE) || (new_mppt_switch == 1U)))
+    {
+        uint16_t mppt_bat_type_a = 0;
+        uint16_t mppt_bat_type_b = 0;
+
+        WG_COM_V2_GET_DATA_UINT(mppt_bat_type_a, wg_com_v2_ctrl.InpBatyType);
+        WG_COM_V2_GET_DATA_UINT(mppt_bat_type_b, wg_com_v2_ctrl.OutBatyType);
+        get_wg_com_v2_data.com_ctrl.SetPowerMode = eMPPT_MODE;
+        get_wg_com_v2_data.com_ctrl.BatModeFR = 1U;
+        get_wg_com_v2_data.com_ctrl.MpptSwitch = 1U;
+        get_wg_com_v2_data.com_ctrl.SleepModeOnOff = 0U;
+        get_wg_com_v2_data.com_ctrl.InpBatyType = mppt_bat_type_a;
+        get_wg_com_v2_data.com_ctrl.OutBatyType = mppt_bat_type_b;
+        init_mppt_mode_parameter();
+        get_wg_com_data_rum();
+        request_update_parameter();
+        if(!eeprom_commit_current_pages_for_range((uint16_t)(WG_COM_V2_PARAM_ADDR + (EEPROM_PARAM_CAL_SIZE / 2U)),
+                                                  (uint16_t)(EEPROM_PARAM_USER_SIZE / 2U)))
+        {
+            return 0;
+        }
+    }
+    if((new_power_mode == eSET_BAT_MODE) &&
+       ((writes_power_mode != 0) || (writes_mppt_switch != 0) || (writes_bat_type != 0)))
+    {
+        eeprom_note_battery_profile_reload_pending();
+        if((bat_return_type_valid != 0U) &&
+           (writes_power_mode != 0) &&
+           (old_power_mode != eSET_BAT_MODE))
+        {
+            WG_COM_V2_GET_DATA_UINT(bat_type_a, wg_com_v2_ctrl.InpBatyType);
+            WG_COM_V2_GET_DATA_UINT(bat_type_b, wg_com_v2_ctrl.OutBatyType);
+            if(((bat_type_a & 0xFF00U) >> 8) == eBAT_DCDC)
+            {
+                WG_COM_V2_SET_DATA_UINT(bat_return_type_a, wg_com_v2_ctrl.InpBatyType);
+            }
+            if(((bat_type_b & 0xFF00U) >> 8) == eBAT_DCDC)
+            {
+                WG_COM_V2_SET_DATA_UINT(bat_return_type_b, wg_com_v2_ctrl.OutBatyType);
+            }
+        }
+        (void)eeprom_apply_battery_mode_profiles();
+        request_update_parameter();
+    }
+    if(!eeprom_commit_current_pages_for_range(addr, count))
+    {
+        return 0;
+    }
     return 1;
+}
+
+uint8_t wg_com_v2_write_registers(uint16_t addr, uint16_t count, const uint8_t *data)
+{
+    return unified_write(addr, count, data);
 }
 
 // 命令处理函数
@@ -334,11 +665,11 @@ static void handle_read_command(void)
     uint16_t reg_count = get_uint16(&wg_com_rx_buffer[4]);
 
     wg_com_tx_buffer[0] = wg_com_rx_buffer[0];          // 从机地址
-    wg_com_tx_buffer[1] = WG_COM_V2_CMD_READ; // 功能码
+    wg_com_tx_buffer[1] = WG_COM_V2_CMD_READ; // 功能�?
 
     if (unified_read(start_addr, reg_count, &wg_com_tx_buffer[3]))
     {
-        wg_com_tx_buffer[2] = reg_count * 2; // 字节数
+        wg_com_tx_buffer[2] = reg_count * 2; // 字节�?
         uint16_t crc = ModBusCRC16(wg_com_tx_buffer, 3 + reg_count * 2);
         set_uint16(&wg_com_tx_buffer[3 + reg_count * 2], crc);
         wg_com_tx_buffer_cnt = 5 + reg_count * 2;
@@ -389,7 +720,7 @@ static void handle_write_str_command(void)
     {
         wg_com_tx_buffer[0] = host_addr;
         wg_com_tx_buffer[1] = WG_COM_V2_CMD_WRITE_STR | 0x80;
-        wg_com_tx_buffer[2] = 0x03; // 非法数据值
+        wg_com_tx_buffer[2] = 0x03; // 非法数据�?
         uint16_t crc = ModBusCRC16(wg_com_tx_buffer, 3);
         set_uint16(&wg_com_tx_buffer[3], crc);
         wg_com_tx_buffer_cnt = 5;
@@ -486,7 +817,7 @@ void usart2_printf(const char *fmt, ...)
     va_end(args);
 }
 
-// 安全增加计数器（防止溢出）
+// 安全增加计数器（防止溢出�?
 static inline void safe_increment(uint32_t *counter, uint32_t max)
 {
     if (*counter < max)
@@ -552,7 +883,7 @@ void process_usart_dma_input(const usart_dma_port_t *port)
                     gpio_set_re(1);
                     for (uint32_t i = 0; i < wg_com_tx_buffer_cnt; i++)
                     {
-                        port->my_printf("%c", wg_com_tx_buffer[i]); // 按字节输出
+                        port->my_printf("%c", wg_com_tx_buffer[i]); // 按字节输�?
                     }
                     usart0_delay = 0;
                     while(USART_GetStatus(CM_USART1, USART_FLAG_TX_CPLT) == 0)
@@ -569,7 +900,7 @@ void process_usart_dma_input(const usart_dma_port_t *port)
                 {
                     for (uint32_t i = 0; i < wg_com_tx_buffer_cnt; i++)
                     {
-                        port->my_printf("%c", wg_com_tx_buffer[i]); // 按字节输出
+                        port->my_printf("%c", wg_com_tx_buffer[i]); // 按字节输�?
                     }
                 }
             }
@@ -591,16 +922,31 @@ void process_usart_dma_input(const usart_dma_port_t *port)
             usart_dma_bt_buf.buffer_size = 0;
             memset((uint8_t*)usart_dma_bt_buf.usart_buf, 0, sizeof(usart_dma_bt_buf.usart_buf));
             memset(&usart_dma_bt_buf.bt_name, 0, sizeof(usart_dma_bt_buf.bt_name));
-            port->my_printf("%s", "AT+NAME?"); // 按字节输出
+            BT_DBG(BT_DBG_STAGE_TRIGGER, APP_DBG_RESULT_START, 1U);
+            BT_DBG(BT_DBG_STAGE_QUERY_TX, APP_DBG_RESULT_START, '?');
+            port->my_printf("%s", "AT+NAME?");
         }
         if(usart_dma_bt_buf.rx_step == 2)
         {
-            char buf[22];
+            char buf[20];
+            uint16_t sn_word = 0;
+            uint8_t valid = 1;
             usart_dma_bt_buf.rx_step = 3;
             usart_dma_bt_buf.buffer_size = 0;
             memset((uint8_t*)usart_dma_bt_buf.usart_buf, 0, sizeof(usart_dma_bt_buf.usart_buf));
             memset(&buf, 0, sizeof(buf));
-            memcpy((char *)&buf, (char *)&usart_dma_bt_buf.bt_name[6], sizeof(buf));
+            for(uint16_t i = 0; i < 10U; i++)
+            {
+                sn_word = get_uint16((uint8_t *)&wg_com_v2_product_info.SnSerial[i]);
+                buf[i * 2U] = (char)((sn_word >> 8) & 0xFFU);
+                buf[(i * 2U) + 1U] = (char)(sn_word & 0xFFU);
+            }
+            if((buf[0] != 'W') || (buf[1] != 'G') || (buf[4] != '-') || (buf[13] != '-'))
+            {
+                valid = 0;
+            }
+            buf[2] = 'B';
+            buf[3] = 'T';
             usart_dma_bt_buf.bt_name[0] = 'A';
             usart_dma_bt_buf.bt_name[1] = 'T';
             usart_dma_bt_buf.bt_name[2] = '+';
@@ -609,22 +955,28 @@ void process_usart_dma_input(const usart_dma_port_t *port)
             usart_dma_bt_buf.bt_name[5] = 'M';
             usart_dma_bt_buf.bt_name[6] = 'E';
             usart_dma_bt_buf.bt_name[7] = '=';
-            for(uint16_t i = 0;i < sizeof(wg_com_v2_product_info.SnSerial);i=i+2)
+            for(uint16_t i = 0; i < sizeof(buf); i++)
             {
-                usart_dma_bt_buf.bt_name[i+8] = (wg_com_v2_product_info.SnSerial[i/2]&0x00ff);
-                usart_dma_bt_buf.bt_name[i+9] = ((wg_com_v2_product_info.SnSerial[i/2]&0xff00)>>8);
-            }
-            usart_dma_bt_buf.bt_name[10] = 'B';
-            usart_dma_bt_buf.bt_name[11] = 'T';
-            int result = strcmp(buf, (usart_dma_bt_buf.bt_name+8));
-            if(result != 0)
-            {
-                usart_dma_bt_buf.rx_step = 0;
-                usart_dma_bt_buf.rx_data_step = 0;
-                for (uint32_t i = 0; i < 28; i++)
+                usart_dma_bt_buf.bt_name[i+8] = buf[i];
+                if((buf[i] < 0x20) || (buf[i] > 0x7E))
                 {
-                    port->my_printf("%c", usart_dma_bt_buf.bt_name[i]); // 按字节输出
+                    valid = 0;
                 }
+            }
+            if(valid != 0U)
+            {
+                BT_DBG(BT_DBG_STAGE_NAME_TX, APP_DBG_RESULT_START, 28U);
+                usart_dma_bt_buf.rx_step = 3;
+                usart_dma_bt_buf.rx_data_step = 3;
+                for (uint32_t i = 0; i < 28U; i++)
+                {
+                    port->my_printf("%c", usart_dma_bt_buf.bt_name[i]);
+                }
+            }
+            else
+            {
+                BT_DBG(BT_DBG_STAGE_NAME_TX, APP_DBG_RESULT_FAIL, 0U);
+                usart_dma_bt_buf.rx_step = 0xff;
             }
         }
     }
@@ -692,6 +1044,9 @@ void get_bt_data_run(void)
             if(++get_data_delay >= 100)
             {
                 get_data_delay = 0;
+                BT_DBG(BT_DBG_STAGE_QUERY_RX,
+                       usart_dma_bt_buf.buffer_size == 0 ? APP_DBG_RESULT_FAIL : APP_DBG_RESULT_START,
+                       usart_dma_bt_buf.buffer_size == 0 ? 0U : usart_dma_bt_buf.usart_buf[0]);
                 token = strtok((char*)usart_dma_bt_buf.usart_buf, "\r\n");
                 usart_dma_bt_buf.rx_data_step = 0;
                 while(token != NULL) {
@@ -701,6 +1056,7 @@ void get_bt_data_run(void)
                             result = strcmp(token, "AT+NAME?");
                             if(result != 0)
                             {
+                                BT_DBG(BT_DBG_STAGE_ERROR, APP_DBG_RESULT_FAIL, usart_dma_bt_buf.rx_data_step);
                                 usart_dma_bt_buf.rx_step = 0xff;
                                 return;
                             }
@@ -709,6 +1065,7 @@ void get_bt_data_run(void)
                         case 1:
                             if(strlen(token) > 26)
                             {
+                                BT_DBG(BT_DBG_STAGE_ERROR, APP_DBG_RESULT_FAIL, usart_dma_bt_buf.rx_data_step);
                                 usart_dma_bt_buf.rx_step = 0xff;
                                 return;
                             }
@@ -722,6 +1079,7 @@ void get_bt_data_run(void)
                             result = strcmp(token, "OK");
                             if(result != 0)
                             {
+                                BT_DBG(BT_DBG_STAGE_ERROR, APP_DBG_RESULT_FAIL, usart_dma_bt_buf.rx_data_step);
                                 usart_dma_bt_buf.rx_step = 0xff;
                                 return;
                             }
@@ -735,10 +1093,12 @@ void get_bt_data_run(void)
                 }
                 if(usart_dma_bt_buf.rx_data_step == 3)
                 {
+                    BT_DBG(BT_DBG_STAGE_QUERY_RX, APP_DBG_RESULT_OK, usart_dma_bt_buf.buffer_size);
                     usart_dma_bt_buf.rx_step = 2;
                 }
                 else
                 {
+                    BT_DBG(BT_DBG_STAGE_QUERY_RX, APP_DBG_RESULT_FAIL, usart_dma_bt_buf.rx_data_step);
                     usart_dma_bt_buf.rx_step = 0;
                 }
             }
@@ -747,16 +1107,31 @@ void get_bt_data_run(void)
             if(++get_data_delay >= 100)
             {
                 get_data_delay = 0;
-                result = strcmp(token, "OK");
+                token = strtok((char*)usart_dma_bt_buf.usart_buf, "\r\n");
+                result = 1;
+                while(token != NULL)
+                {
+                    if(strstr(token, "OK") != NULL)
+                    {
+                        result = 0;
+                        break;
+                    }
+                    token = strtok(NULL, "\r\n");
+                }
                 if(result != 0)
                 {
+                    BT_DBG(BT_DBG_STAGE_NAME_RX, APP_DBG_RESULT_FAIL,
+                           usart_dma_bt_buf.buffer_size == 0 ? 0U : usart_dma_bt_buf.usart_buf[0]);
                     usart_dma_bt_buf.rx_step = 0xff;
                     return;
                 }
+                BT_DBG(BT_DBG_STAGE_NAME_RX, APP_DBG_RESULT_OK, usart_dma_bt_buf.buffer_size);
                 usart_dma_bt_buf.rx_data_step = 4;
+                usart_dma_bt_buf.rx_step = 0;
             }
             break;
         default:
+            BT_DBG(BT_DBG_STAGE_ERROR, APP_DBG_RESULT_FAIL, usart_dma_bt_buf.rx_step);
             get_data_delay = 0;
             usart_dma_bt_buf.buffer_size = 0;
             memset((uint8_t*)usart_dma_bt_buf.usart_buf, 0, sizeof(usart_dma_bt_buf.usart_buf));

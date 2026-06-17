@@ -514,7 +514,7 @@ void mppt_mode_run(void)
     }
 
     bat_b_arguments_limi();
-    BattChargingCurve(&charge_state_data,0);
+    BattChargingCurve(&charge_state_data,1);
 }
 
 

@@ -1925,7 +1925,7 @@
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
           <OutputDirectory>.\output\debug\</OutputDirectory>
-          <OutputName>WG-BC1500M_2026061601</OutputName>
+          <OutputName>HC32F334KATI</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
@@ -2835,7 +2835,7 @@
           <Cpu>IROM1(0x00000000,0x20000) IROM2(0x03000000,0x1800) IRAM1(0x1FFFC000,0x8000) IRAM2(0x200F0000,0x1000) CPUTYPE("Cortex-M4") FPU2 CLOCK(8000000) ESEL ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
           <StartupFile></StartupFile>
-          <FlashDriverDll>CMSIS_AGDI(-S0 -C0 -P00 -FO15 -FD1FFFC000 -FC4000 -FN2 -FF0HC32F334_128K -FS00 -FL0020000 -FP0($$Device:HC32F334PETB$FlashARM\HC32F334_128K.FLM) -FF1HC32F334_otp -FS13000000 -FL11800 -FP1($$Device:HC32F334KATI$FlashARM\HC32F334_otp.FLM))</FlashDriverDll>
+          <FlashDriverDll>CMSIS_AGDI(-S0 -C0 -P00 -FO15 -FD1FFFC000 -FC4000 -FN2 -FF0HC32F334_128K -FS05000 -FL001A000 -FP0($$Device:HC32F334PETB$FlashARM\HC32F334_128K.FLM) -FF1HC32F334_otp -FS13000000 -FL11800 -FP1($$Device:HC32F334KATI$FlashARM\HC32F334_otp.FLM))</FlashDriverDll>
           <DeviceId>0</DeviceId>
           <RegisterFile>$$Device:HC32F334KATI$Device\Include\HC32F334KATI.h</RegisterFile>
           <MemoryEnv></MemoryEnv>
@@ -2863,7 +2863,7 @@
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
           <OutputDirectory>.\output\debug\</OutputDirectory>
-          <OutputName>HC32F334KATI_IAP</OutputName>
+          <OutputName>WG-BC1500M_20260616</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
@@ -3091,7 +3091,7 @@
               <OCR_RVCT4>
                 <Type>1</Type>
                 <StartAddress>0x5000</StartAddress>
-                <Size>0x1b000</Size>
+                <Size>0x1a000</Size>
               </OCR_RVCT4>
               <OCR_RVCT5>
                 <Type>1</Type>

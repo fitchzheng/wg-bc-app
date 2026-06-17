@@ -308,12 +308,32 @@ void data_com_read_mode(void)
 }
 REG_TASK(20, data_com_read_mode)
 
+static float filter_show_value_adaptive(float old_value,
+                                        float new_value,
+                                        float snap_delta,
+                                        float fast_delta)
+{
+    float delta = fabsf(new_value - old_value);
+
+    if (delta >= snap_delta)
+    {
+        return new_value;
+    }
+
+    if (delta >= fast_delta)
+    {
+        return (0.5f * old_value) + (0.5f * new_value);
+    }
+
+    return (0.85f * old_value) + (0.15f * new_value);
+}
+
 void data_com_run(void)
 {
-    filter_show_data_value.fvs48_lmt = RATIO*filter_show_data_value.fvs48_lmt + (1-RATIO)*get_show_fvs48_show();
-    filter_show_data_value.ihv_lmt   = RATIO*filter_show_data_value.ihv_lmt   + (1-RATIO)*fabsf(get_show_ihv_show());
-    filter_show_data_value.rvs12_lmt = RATIO*filter_show_data_value.rvs12_lmt + (1-RATIO)*get_show_rvs12_show();
-    filter_show_data_value.ilv_lmt   = RATIO*filter_show_data_value.ilv_lmt   + (1-RATIO)*fabsf(get_show_ilv_show());
+    filter_show_data_value.fvs48_lmt = filter_show_value_adaptive(filter_show_data_value.fvs48_lmt, get_show_fvs48_show(), 1.0f, 0.2f);
+    filter_show_data_value.ihv_lmt   = filter_show_value_adaptive(filter_show_data_value.ihv_lmt, fabsf(get_show_ihv_show()), 1.0f, 0.1f);
+    filter_show_data_value.rvs12_lmt = filter_show_value_adaptive(filter_show_data_value.rvs12_lmt, get_show_rvs12_show(), 1.0f, 0.2f);
+    filter_show_data_value.ilv_lmt   = filter_show_value_adaptive(filter_show_data_value.ilv_lmt, fabsf(get_show_ilv_show()), 1.0f, 0.1f);
 
     //WG_COM_V2_GET_DATA(fvs48_lmt, wg_com_v2_param.SetInpVolt);
     //WG_COM_V2_GET_DATA(ihv_lmt, wg_com_v2_param.SetInpCurr);

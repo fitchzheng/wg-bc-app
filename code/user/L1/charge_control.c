@@ -12,12 +12,22 @@
 #include "mppt.h"
 void charge_control_run(void)
 {
+    uint16_t power_mode;
     get_wg_com_data_rum();
     charge_state_data.get_is_run = ctrl_app_get_is_run();
     charge_state_data.check_state = get_check_state_data();
     GetChargeState(get_wg_com_v2_data.com_ctrl.SetChargMode);
     get_temp_derate_curr();
-    switch(get_wg_com_v2_data.com_ctrl.SetPowerMode)
+    power_mode = get_wg_com_v2_data.com_ctrl.SetPowerMode;
+    if(get_wg_com_v2_data.com_ctrl.MpptSwitch == 1)
+    {
+        power_mode = eMPPT_MODE;
+    }
+    else if(power_mode == eMPPT_MODE)
+    {
+        power_mode = eSET_BAT_MODE;
+    }
+    switch(power_mode)
     {
         case eSET_STANDARD_MODE:
             #if (STANDARD_MODE_RUN_ON_OFF == 1)

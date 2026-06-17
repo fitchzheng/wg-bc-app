@@ -2,8 +2,11 @@
 #include "get_com_data.h"
 #include "wg_com_v2.h"
 #include "soft_start.h"
+#include "eeprom_cfg.h"
 
 standard_charge_status_t standard_charge_status;
+static uint8_t standard_profile_initialized = 0;
+static uint16_t standard_last_out_sys = eSTANDARD_SYS_VOLT_MAX;
 
 const STANDARD_MODE_CONFIG_T Bat_Standard_Sys_Volt_Config[eSTANDARD_SYS_VOLT_MAX] = {
     [eSTANDARD_SYS_12V] = {
@@ -98,6 +101,25 @@ const STANDARD_MODE_CONFIG_T Bat_Standard_Sys_Volt_Config[eSTANDARD_SYS_VOLT_MAX
     },
 };
 
+static void standard_apply_out_sys_defaults(uint16_t sys)
+{
+    if(sys >= eSTANDARD_SYS_VOLT_MAX)
+    {
+        sys = eSTANDARD_SYS_12V;
+    }
+
+    WG_COM_V2_SET_DATA_UINT(Bat_Standard_Sys_Volt_Config[sys].OutVoltDefault, wg_com_v2_param.SetOutVolt);
+    WG_COM_V2_SET_DATA_UINT(Bat_Standard_Sys_Volt_Config[sys].OutCurrDefault, wg_com_v2_param.SetOutCurr);
+    WG_COM_V2_SET_DATA_UINT(Bat_Standard_Sys_Volt_Config[sys].OutPowerDefault, wg_com_v2_param.SetOutCurrPower);
+    WG_COM_V2_SET_DATA_UINT(Bat_Standard_Sys_Volt_Config[sys].SetChargLedCurr, wg_com_v2_param.SetOutChargLedCurr);
+    WG_COM_V2_SET_DATA_UINT(Bat_Standard_Sys_Volt_Config[sys].SetFullLedCurr, wg_com_v2_param.SetOutFullLedCurr);
+    get_wg_com_v2_data.com_param.SetOutVolt = Bat_Standard_Sys_Volt_Config[sys].OutVoltDefault;
+    get_wg_com_v2_data.com_param.SetOutCurr = Bat_Standard_Sys_Volt_Config[sys].OutCurrDefault;
+    get_wg_com_v2_data.com_param.SetOutCurrPower = Bat_Standard_Sys_Volt_Config[sys].OutPowerDefault;
+    get_wg_com_v2_data.com_param.SetOutChargLedCurr = Bat_Standard_Sys_Volt_Config[sys].SetChargLedCurr;
+    get_wg_com_v2_data.com_param.SetOutFullLedCurr = Bat_Standard_Sys_Volt_Config[sys].SetFullLedCurr;
+}
+
 void standard_mode_run(charge_state_data_t *standard_charge_data)
 {
     float verify_data = 0.00f;
@@ -116,11 +138,11 @@ void standard_mode_run(charge_state_data_t *standard_charge_data)
     }
     
     if((get_wg_com_v2_data.com_ctrl.SetChargMode != eSET_FORWARD)                 ||
-       (get_wg_com_v2_data.com_ctrl.InpBatyType  != ((eBAT_DCDC<<8)+eSYS_10_50V)) ||
+       (get_wg_com_v2_data.com_ctrl.InpBatyType  != ((eBAT_DCDC<<8)+eSYS_10_60V)) ||
        (((BatTypeB&0xFF00)>>8) != eBAT_DCDC))
     {
         get_wg_com_v2_data.com_ctrl.SetChargMode = eSET_FORWARD;
-        get_wg_com_v2_data.com_ctrl.InpBatyType = ((eBAT_DCDC<<8)+eSYS_10_50V);
+        get_wg_com_v2_data.com_ctrl.InpBatyType = ((eBAT_DCDC<<8)+eSYS_10_60V);
         get_wg_com_v2_data.com_ctrl.OutBatyType = ((BatTypeB&0x00FF)+(eBAT_DCDC<<8));
         WG_COM_V2_SET_DATA_UINT(get_wg_com_v2_data.com_ctrl.SetChargMode, wg_com_v2_ctrl.SetChargMode);
         WG_COM_V2_SET_DATA_UINT(get_wg_com_v2_data.com_ctrl.InpBatyType,  wg_com_v2_ctrl.InpBatyType);
@@ -138,9 +160,9 @@ void standard_mode_run(charge_state_data_t *standard_charge_data)
         verify_data = get_wg_com_v2_data.com_param.SetOutCurr;
         LIMIT_MAX_MIN(Bat_Standard_Sys_Volt_Config[(BatTypeB&0x00FF)].OutCurrMax,Bat_Standard_Sys_Volt_Config[(BatTypeB&0x00FF)].OutCurrMin,Bat_Standard_Sys_Volt_Config[(BatTypeB&0x00FF)].OutCurrDefault,get_wg_com_v2_data.com_param.SetOutCurr);
         if(float_equal(verify_data,get_wg_com_v2_data.com_param.SetOutCurr) == 1){WG_COM_V2_SET_DATA_UINT(get_wg_com_v2_data.com_param.SetOutCurr, wg_com_v2_param.SetOutCurr);}
-        verify_data = get_wg_com_v2_data.com_param.SetOutCurrPower;
+        verify_data = (float)get_wg_com_v2_data.com_param.SetOutCurrPower;
         LIMIT_MAX_MIN(Bat_Standard_Sys_Volt_Config[(BatTypeB&0x00FF)].OutPowerMax,Bat_Standard_Sys_Volt_Config[(BatTypeB&0x00FF)].OutPowerMin,Bat_Standard_Sys_Volt_Config[(BatTypeB&0x00FF)].OutPowerDefault,get_wg_com_v2_data.com_param.SetOutCurrPower);
-        if(float_equal(verify_data,get_wg_com_v2_data.com_param.SetOutCurrPower) == 1){WG_COM_V2_SET_DATA_UINT(get_wg_com_v2_data.com_param.SetOutCurrPower, wg_com_v2_param.SetOutCurrPower);}
+        if(float_equal(verify_data,(float)get_wg_com_v2_data.com_param.SetOutCurrPower) == 1){WG_COM_V2_SET_DATA_UINT(get_wg_com_v2_data.com_param.SetOutCurrPower, wg_com_v2_param.SetOutCurrPower);}
     }
 
     if(standard_charge_data->check_state == eADDRS_BACKWARD)
@@ -153,6 +175,7 @@ void standard_mode_run(charge_state_data_t *standard_charge_data)
         standard_charge_data->OutBatyType = get_wg_com_v2_data.com_ctrl.InpBatyType;
         standard_charge_data->rvs12_lmt = get_wg_com_v2_data.com_param.SetOutUvlo+0.5f;
         standard_charge_data->fvs48_lmt = get_wg_com_v2_data.com_param.SetInpVolt;
+        standard_charge_data->Boot_Time_Delay.SetBootTime = get_wg_com_v2_data.com_ctrl.SetBootTimeB;
         standard_charge_data->ilv_lmt = standard_charge_data->SetInpCurr;
         if(standard_charge_data->get_is_run == 1)
         {
@@ -172,6 +195,7 @@ void standard_mode_run(charge_state_data_t *standard_charge_data)
         standard_charge_data->OutBatyType = get_wg_com_v2_data.com_ctrl.OutBatyType;
         standard_charge_data->rvs12_lmt = get_wg_com_v2_data.com_param.SetOutVolt;
         standard_charge_data->fvs48_lmt = get_wg_com_v2_data.com_param.SetInpUvlo+0.5f;
+        standard_charge_data->Boot_Time_Delay.SetBootTime = get_wg_com_v2_data.com_ctrl.SetBootTimeA;
         
         standard_charge_data->ihv_lmt = standard_charge_data->SetInpCurr;
         if(standard_charge_data->get_is_run == 1)
@@ -185,7 +209,6 @@ void standard_mode_run(charge_state_data_t *standard_charge_data)
     standard_charge_data->ActualOutCurr = standard_charge_data->SetOutCurr;
     standard_charge_data->ActualOutVolt = standard_charge_data->SetOutVolt;
     standard_charge_data->set_out_lmt_curr = (standard_charge_data->SetOutCurr * 0.1f);
-    standard_charge_data->Boot_Time_Delay.SetBootTime = 0;
 
     standard_charge_data->bat_state.sucCurrentReached90Percent = 0;
     standard_charge_data->bat_state.sucPowerReached90Percent = 0;
@@ -217,20 +240,47 @@ void init_standard_mode_parameter(void)
     float SetOutFullCurr  = 0.00f;
 
     uint16_t BatTypeB = get_wg_com_v2_data.com_ctrl.OutBatyType;
-    if((BatTypeB&0x00FF) >= eSTANDARD_SYS_VOLT_MAX){
+    uint8_t power_mode_changed = consume_power_mode_changed_update();
+    uint8_t out_baty_type_changed = consume_out_baty_type_changed_update();
+    uint16_t out_sys = (BatTypeB&0x00FF);
+
+    if(out_sys >= eSTANDARD_SYS_VOLT_MAX)
+    {
+        out_sys = eSTANDARD_SYS_12V;
         BatTypeB = (eBAT_DCDC<<8) + eSYS_12V;
     }
 
-    BatSetOutVolt      = Bat_Standard_Sys_Volt_Config[(BatTypeB&0x00FF)].OutVoltDefault;
-    BatSetOutCurr      = Bat_Standard_Sys_Volt_Config[(BatTypeB&0x00FF)].OutCurrDefault;
-    BatSetOutCurrPower = Bat_Standard_Sys_Volt_Config[(BatTypeB&0x00FF)].OutPowerDefault;
+    if((power_mode_changed == 0) &&
+       ((out_baty_type_changed != 0) ||
+        ((standard_profile_initialized != 0) && (standard_last_out_sys != out_sys))))
+    {
+        standard_apply_out_sys_defaults(out_sys);
+        standard_profile_initialized = 1;
+        standard_last_out_sys = out_sys;
+        (void)eeprom_commit_current_pages_for_range(WG_COM_V2_CTRL_ADDR,
+                                                    (uint16_t)(sizeof(wg_com_v2_ctrl_t) / 2U));
+        (void)eeprom_commit_current_pages_for_range((uint16_t)(WG_COM_V2_PARAM_ADDR + (EEPROM_PARAM_CAL_SIZE / 2U)),
+                                                    (uint16_t)(EEPROM_PARAM_USER_SIZE / 2U));
+        return;
+    }
+
+    if((power_mode_changed == 0) && eeprom_apply_standard_mode_profile())
+    {
+        standard_profile_initialized = 1;
+        standard_last_out_sys = out_sys;
+        return;
+    }
+
+    BatSetOutVolt      = Bat_Standard_Sys_Volt_Config[out_sys].OutVoltDefault;
+    BatSetOutCurr      = Bat_Standard_Sys_Volt_Config[out_sys].OutCurrDefault;
+    BatSetOutCurrPower = Bat_Standard_Sys_Volt_Config[out_sys].OutPowerDefault;
 
     SetUvloB           = STANDARD_BAT_SYS_SET_UVLO;
     SetUvloRecoverB    = STANDARD_BAT_SYS_SET_UVLORECOVER;
     SetOVPB            = STANDARD_BAT_SYS_SET_OVP;
     SetOVPRecoverB     = STANDARD_BAT_SYS_SET_OVPRECOVER;
-    SetOutChargCurr    = Bat_Standard_Sys_Volt_Config[(BatTypeB&0x00FF)].SetChargLedCurr;
-    SetOutFullCurr     = Bat_Standard_Sys_Volt_Config[(BatTypeB&0x00FF)].SetFullLedCurr;
+    SetOutChargCurr    = Bat_Standard_Sys_Volt_Config[out_sys].SetChargLedCurr;
+    SetOutFullCurr     = Bat_Standard_Sys_Volt_Config[out_sys].SetFullLedCurr;
 
     BatSetInpVolt      = Bat_Standard_Sys_Volt_Config[eSTANDARD_SYS_12V].OutVoltDefault;
     BatSetInpCurr      = 125.00f;
@@ -242,7 +292,7 @@ void init_standard_mode_parameter(void)
     SetInpChargCurr    = Bat_Standard_Sys_Volt_Config[eSTANDARD_SYS_12V].SetChargLedCurr;
     SetInpFullCurr     = Bat_Standard_Sys_Volt_Config[eSTANDARD_SYS_12V].SetFullLedCurr;
 
-    WG_COM_V2_SET_DATA_UINT(((eBAT_DCDC<<8) + eSYS_10_50V),  wg_com_v2_ctrl.InpBatyType);
+    WG_COM_V2_SET_DATA_UINT(((eBAT_DCDC<<8) + eSYS_10_60V),  wg_com_v2_ctrl.InpBatyType);
 
     WG_COM_V2_SET_DATA_UINT(SetUvloA, wg_com_v2_param.SetInpUvlo);
     WG_COM_V2_SET_DATA_UINT(SetUvloRecoverA, wg_com_v2_param.SetInpUvloRecover);
@@ -257,13 +307,19 @@ void init_standard_mode_parameter(void)
     WG_COM_V2_SET_DATA_UINT(SetInpFullCurr, wg_com_v2_param.SetInpFullLedCurr);
     WG_COM_V2_SET_DATA_UINT(SetOutChargCurr, wg_com_v2_param.SetOutChargLedCurr);
     WG_COM_V2_SET_DATA_UINT(SetOutFullCurr, wg_com_v2_param.SetOutFullLedCurr);
-
     WG_COM_V2_SET_DATA_UINT(BatSetOutVolt, wg_com_v2_param.SetOutVolt);
     WG_COM_V2_SET_DATA_UINT(BatSetOutCurr, wg_com_v2_param.SetOutCurr);
     WG_COM_V2_SET_DATA_UINT(BatSetOutCurrPower, wg_com_v2_param.SetOutCurrPower);
     WG_COM_V2_SET_DATA_UINT(BatSetInpVolt, wg_com_v2_param.SetInpVolt);
     WG_COM_V2_SET_DATA_UINT(BatSetInpCurr, wg_com_v2_param.SetInpCurr);
     WG_COM_V2_SET_DATA_UINT(BatSetInpCurrPower, wg_com_v2_param.SetInpCurrPower);
+
+    (void)eeprom_commit_current_pages_for_range(WG_COM_V2_CTRL_ADDR,
+                                                (uint16_t)(sizeof(wg_com_v2_ctrl_t) / 2U));
+    (void)eeprom_commit_current_pages_for_range((uint16_t)(WG_COM_V2_PARAM_ADDR + (EEPROM_PARAM_CAL_SIZE / 2U)),
+                                                (uint16_t)(EEPROM_PARAM_USER_SIZE / 2U));
+    standard_profile_initialized = 1;
+    standard_last_out_sys = out_sys;
 }
 
 

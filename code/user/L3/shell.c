@@ -9,6 +9,8 @@
 #include <stdlib.h>
 #include <ctype.h>
 
+#if (APP_DEBUG_FEATURES == 1)
+
 section_shell_t *p_shell_first;
 
 uint32_t shell_data_num = 0;
@@ -1255,4 +1257,17 @@ static void shell_wave_report_task(void)
 
 REG_TASK_MS(1, shell_wave_report_task)
 
+#else
+
+section_shell_t *p_shell_first = NULL;
+uint32_t shell_data_num = 0;
+
+void shell_run(uint8_t data, DEC_MY_PRINTF, void *p_ctx)
+{
+    (void)data;
+    (void)my_printf;
+    (void)p_ctx;
+}
+
+#endif
 

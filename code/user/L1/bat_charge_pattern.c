@@ -176,7 +176,7 @@ void get_protect_data(void)
     charge_state_data.protect_data.protect_item_rtm.recover = RTM_VEER_VOUL;
     charge_state_data.protect_data.protect_item_rtm.enable = (get_wg_com_v2_data.BatModeFRState == 0) ? ((get_check_state_data() == ADDRS_BACKWARD) ? 1 : 0) : 0;
 
-    switch(get_wg_com_v2_data.com_realtime_data.ChargMode)
+    switch(StateCharge)
     {
         case eFORWARD: // 正向
         case eMANUAL_FORWARD:

@@ -2,6 +2,7 @@
 #include "wg_com_v2.h"
 #include "get_com_data.h"
 #include "soft_start.h"
+#include "eeprom_cfg.h"
 
 const BASIC_MODE_CONFIG_T basic_Sys_Volt_Config[1] = {
     [eBASIC_SYS_12V] = {
@@ -73,17 +74,17 @@ void basic_mode_run(charge_state_data_t *basic_charge_data)
         basic_charge_data->OutBatyType = get_wg_com_v2_data.com_ctrl.InpBatyType;
         basic_charge_data->rvs12_lmt = get_wg_com_v2_data.com_param.SetOutUvlo+0.5f;
         basic_charge_data->fvs48_lmt = get_wg_com_v2_data.com_param.SetInpVolt;
-        basic_charge_data->Boot_Time_Delay.SetBootTime = get_wg_com_v2_data.com_ctrl.SetBootTimeA;
+        basic_charge_data->Boot_Time_Delay.SetBootTime = get_wg_com_v2_data.com_ctrl.SetBootTimeB;
         basic_charge_data->ilv_lmt = basic_charge_data->SetInpCurr;
         if(basic_charge_data->get_is_run == 1)
         {
-            if(get_wg_com_v2_data.com_ctrl.SetOnCurrStartTimeA == 0)
+            if(basic_charge_data->ActiveOnCurrStartTime == 0)
             {
                 basic_charge_data->ihv_lmt = curr_soft_start(basic_charge_data->ihv_lmt,basic_charge_data->temp_derate_curr,(10));
             }
             else
             {
-                basic_charge_data->ihv_lmt = curr_soft_start(basic_charge_data->ihv_lmt,basic_charge_data->temp_derate_curr,(get_wg_com_v2_data.com_ctrl.SetOnCurrStartTimeA*100));
+                basic_charge_data->ihv_lmt = curr_soft_start(basic_charge_data->ihv_lmt,basic_charge_data->temp_derate_curr,(basic_charge_data->ActiveOnCurrStartTime*100));
             }
         }else{
             basic_charge_data->ihv_lmt = 1.0f;
@@ -99,17 +100,17 @@ void basic_mode_run(charge_state_data_t *basic_charge_data)
         basic_charge_data->OutBatyType = get_wg_com_v2_data.com_ctrl.OutBatyType;
         basic_charge_data->rvs12_lmt = get_wg_com_v2_data.com_param.SetOutVolt;
         basic_charge_data->fvs48_lmt = get_wg_com_v2_data.com_param.SetInpUvlo+0.5f;
-        basic_charge_data->Boot_Time_Delay.SetBootTime = get_wg_com_v2_data.com_ctrl.SetBootTimeB;
+        basic_charge_data->Boot_Time_Delay.SetBootTime = get_wg_com_v2_data.com_ctrl.SetBootTimeA;
         basic_charge_data->ihv_lmt = basic_charge_data->SetInpCurr;
         if(basic_charge_data->get_is_run == 1)
         {
-            if(get_wg_com_v2_data.com_ctrl.SetOnCurrStartTimeB == 0)
+            if(basic_charge_data->ActiveOnCurrStartTime == 0)
             {
                 basic_charge_data->ilv_lmt = curr_soft_start(basic_charge_data->ilv_lmt,basic_charge_data->temp_derate_curr,(10));
             }
             else
             {
-                basic_charge_data->ilv_lmt = curr_soft_start(basic_charge_data->ilv_lmt,basic_charge_data->temp_derate_curr,(get_wg_com_v2_data.com_ctrl.SetOnCurrStartTimeB*100));
+                basic_charge_data->ilv_lmt = curr_soft_start(basic_charge_data->ilv_lmt,basic_charge_data->temp_derate_curr,(basic_charge_data->ActiveOnCurrStartTime*100));
             }
         }else{
             basic_charge_data->ilv_lmt = 1.0f;
@@ -162,8 +163,18 @@ void init_basic_mode_parameter(void)
     uint16_t BatTypeA;
     uint16_t BatTypeB;
 
-    BatTypeB = (eBAT_DCDC<<8) + eSYS_10_50V;
-    BatTypeA = (eBAT_DCDC<<8) + eSYS_10_50V;
+    if((consume_power_mode_changed_update() == 0) && eeprom_apply_basic_mode_profile())
+    {
+        return;
+    }
+
+    WG_COM_V2_GET_DATA_UINT(SetBootTimeA, wg_com_v2_ctrl.SetBootTimeA);
+    WG_COM_V2_GET_DATA_UINT(SetBootTimeB, wg_com_v2_ctrl.SetBootTimeB);
+    WG_COM_V2_GET_DATA_UINT(SetOnCurrStartTimeA, wg_com_v2_ctrl.SetOnCurrStartTimeA);
+    WG_COM_V2_GET_DATA_UINT(SetOnCurrStartTimeB, wg_com_v2_ctrl.SetOnCurrStartTimeB);
+
+    BatTypeB = (eBAT_DCDC<<8) + eSYS_10_60V;
+    BatTypeA = (eBAT_DCDC<<8) + eSYS_10_60V;
     if(get_wg_com_v2_data.com_realtime_data.PowerMode != State_Control_Data.SetPowerMode)
     {
         WG_COM_V2_SET_DATA_UINT(BatTypeA, wg_com_v2_ctrl.InpBatyType);
@@ -208,7 +219,6 @@ void init_basic_mode_parameter(void)
     WG_COM_V2_SET_DATA_UINT(SetInpFullCurr, wg_com_v2_param.SetInpFullLedCurr);
     WG_COM_V2_SET_DATA_UINT(SetOutChargCurr, wg_com_v2_param.SetOutChargLedCurr);
     WG_COM_V2_SET_DATA_UINT(SetOutFullCurr, wg_com_v2_param.SetOutFullLedCurr);
-
     WG_COM_V2_SET_DATA_UINT(BatSetOutVolt, wg_com_v2_param.SetOutVolt);
     WG_COM_V2_SET_DATA_UINT(BatSetOutCurr, wg_com_v2_param.SetOutCurr);
     WG_COM_V2_SET_DATA_UINT(BatSetOutCurrPower, wg_com_v2_param.SetOutCurrPower);
@@ -226,6 +236,11 @@ void init_basic_mode_parameter(void)
     WG_COM_V2_SET_DATA_UINT(SetBootTimeB, wg_com_v2_ctrl.SetBootTimeB);
     WG_COM_V2_SET_DATA_UINT(SetOnCurrStartTimeA, wg_com_v2_ctrl.SetOnCurrStartTimeA);
     WG_COM_V2_SET_DATA_UINT(SetOnCurrStartTimeB, wg_com_v2_ctrl.SetOnCurrStartTimeB);
+
+    (void)eeprom_commit_current_pages_for_range(WG_COM_V2_CTRL_ADDR,
+                                                (uint16_t)(sizeof(wg_com_v2_ctrl_t) / 2U));
+    (void)eeprom_commit_current_pages_for_range((uint16_t)(WG_COM_V2_PARAM_ADDR + (EEPROM_PARAM_CAL_SIZE / 2U)),
+                                                (uint16_t)(EEPROM_PARAM_USER_SIZE / 2U));
 }
 
 

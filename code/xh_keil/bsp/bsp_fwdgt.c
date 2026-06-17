@@ -24,5 +24,5 @@ void bsp_fwdgt_init(void)
 
 void bsp_fwdgt_feed(void)
 {
-    SWDT_FeedDog();//看门狗喂狗
+    //SWDT_FeedDog();//看门狗喂狗
 }

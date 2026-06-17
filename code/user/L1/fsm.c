@@ -15,7 +15,9 @@
 #include "get_com_data.h"
 #include "bat_charge_pattern.h"
 #include "protect.h"
+#include "stop_dormant.h"
 uint8_t force_ccm = 0;
+#define PG_ALARM_CONFIRM_TIME TIME_CNT_500MS_IN_1MS
 // 状态枚举
 typedef enum
 {
@@ -56,12 +58,14 @@ static float rvs12_lmt = 0;
 static float ihv_lmt = 0;
 static float ilv_lmt = 0;
 extern uint8_t stop_time_flag;
+extern uint8_t sleep_report_state_flag;
 uint8_t pwc_stop_flag = 0;
 static void init_in(void)
 {
     gpio_set_auxoff(0);
     pwc_stop_flag = 0;
     stop_time_flag = 0;
+    sleep_report_state_flag = 0;
     init_delay = 0;
     fault_clear_all_fault();
 }
@@ -161,6 +165,10 @@ static void idle_exe(void)
         set_charge_state_mode(eSTOP_CHARGE);
     }else{
         set_charge_state_mode(eIDIE_CHARGE);
+    }
+    if(sleep_report_state_flag == 1)
+    {
+        set_charge_state_mode(eSTOP_CHARGE);
     }
     charge_state_data.soft_close_flag = 0;
 }
@@ -385,11 +393,35 @@ static void run_in(void)
     control_parameter.OutBatyType  = get_wg_com_v2_data.com_ctrl.OutBatyType;
     control_parameter.SetChargMode = get_wg_com_v2_data.com_ctrl.SetChargMode;
     control_parameter.SetPowerMode = get_wg_com_v2_data.com_ctrl.SetPowerMode;
+
+    if (addrs_state_now == ADDRS_BACKWARD)
+    {
+        charge_state_data.ActiveOnCurrStartTime = get_wg_com_v2_data.com_ctrl.SetOnCurrStartTimeA;
+    }
+    else if (addrs_state_now == ADDRS_FORWARD)
+    {
+        charge_state_data.ActiveOnCurrStartTime = get_wg_com_v2_data.com_ctrl.SetOnCurrStartTimeB;
+    }
+    else
+    {
+        charge_state_data.ActiveOnCurrStartTime = 0;
+    }
 }
 
 static void run_exe(void)
 {
-    force_ccm = 0;
+    if((get_wg_com_v2_data.com_ctrl.SetPowerMode == eSET_BAT_MODE) &&
+       (((addrs_state_now == ADDRS_BACKWARD) &&
+         (((get_wg_com_v2_data.com_ctrl.InpBatyType & 0xff00) >> 8) == eBAT_DCDC)) ||
+        ((addrs_state_now == ADDRS_FORWARD) &&
+         (((get_wg_com_v2_data.com_ctrl.OutBatyType & 0xff00) >> 8) == eBAT_DCDC))))
+    {
+        force_ccm = 1;
+    }
+    else
+    {
+        force_ccm = 0;
+    }
     pwr_is_on = power_sw_get_power_is_on();
     BAT_CHARGE_MODE_E bat_charge_mode;
     if ((adc_check_get_addrs_state() == addrs_state_now)                            &&
@@ -408,9 +440,18 @@ static void run_exe(void)
     {
         (get_volt_low_fault() == 1) ? (bat_charge_mode = eFAULT_CHARGE) : (bat_charge_mode = (BAT_CHARGE_MODE_E)charge_state_data.SetCharState);
         set_charge_state_mode(bat_charge_mode);
+        if(sleep_report_state_flag == 1)
+        {
+            set_charge_state_mode(eSTOP_CHARGE);
+        }
     }
     else
     {
+        if(charge_state_data.bat_state.LithiumBatOnOff == 1)
+        {
+            charge_state_data.SetCharState = eSTOP_CHARGE;
+            set_charge_state_mode(eSTOP_CHARGE);
+        }
         fsm_ev = ev_stop;
     }
 
@@ -515,6 +556,7 @@ static void pwc_stop_exe(void)
         if (pwc_stop_delay >= TIME_CNT_1S_IN_1MS)
         {
             fsm_ev = ev_idle;
+            sleep_low_power_commit();
             pwc_stop_flag = 1;
         }
         else
@@ -568,8 +610,6 @@ static void fault_exe(void)
     {
         fault_clear_fault(FAULT_AUX_IS_ERR);
         fsm_ev = ev_idle;
-    }else{
-        fault_set_fault(FAULT_AUX_IS_ERR);
     }
 }
 
@@ -613,6 +653,7 @@ static uint16_t Get_soft_is_off_State(void)
 
 static void fsm_run(void)
 {
+    static uint32_t pg_alarm_low_cnt = 0;
     if (fault_get_fault())
     {
         fsm_ev = ev_fault;
@@ -629,10 +670,19 @@ static void fsm_run(void)
 
     if((get_key_pg_val() == 0)&&(get_wg_com_v2_data.com_ctrl.SetChargMode != eSET_PG_CUSTOM_MODE))
     {
-        fault_set_alarm(ALARM_PG_IS_OFF);
+        if(pg_alarm_low_cnt >= PG_ALARM_CONFIRM_TIME)
+        {
+            fault_set_alarm(ALARM_PG_IS_OFF);
+        }
+        else
+        {
+            pg_alarm_low_cnt++;
+            fault_clear_alarm(ALARM_PG_IS_OFF);
+        }
     }
     else
     {
+        pg_alarm_low_cnt = 0;
         fault_clear_alarm(ALARM_PG_IS_OFF);
     }
 }

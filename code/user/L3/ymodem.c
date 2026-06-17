@@ -55,6 +55,18 @@ static uint16_t reply_wait_ms[2];
 
 static uint8_t is_recv_cplt[2];
 
+#define IAP_META_MAGIC      0x4D504149UL
+#define IAP_META_PENDING    0x444E4550UL
+#define IAP_META_OFFSET     256U
+
+typedef struct
+{
+    uint32_t magic;
+    uint32_t status;
+    uint16_t header_crc;
+    uint16_t reserved;
+} iap_meta_t;
+
 //static uint32_t swap_endian_u32(uint32_t in)
 //{
 //    return ((in & 0xFF000000) >> 24) | // Move byte 3 to byte 0
@@ -133,6 +145,53 @@ static inline void ymodem_send_nak(uint8_t port_com)
 // ========== 补回缺失的静态全局变量与前置声明 ==========
 static uint8_t recv_buffer[2][YMODEM_BUFFER_SIZE];
 static uint16_t recv_index[2];
+static uint8_t  up_data = 0;
+
+static void ymodem_program_bytes(uint32_t base_addr, const uint8_t *data, uint32_t len)
+{
+    uint32_t offset = 0;
+
+    while (offset < len)
+    {
+        uint32_t word = 0xFFFFFFFFUL;
+        uint8_t *pword = (uint8_t *)&word;
+
+        for (uint32_t i = 0; (i < 4U) && ((offset + i) < len); i++)
+        {
+            pword[i] = data[offset + i];
+        }
+
+        EFM_ProgramWord(base_addr + offset, word);
+        offset += 4U;
+    }
+}
+
+static uint8_t ymodem_write_update_request(const iap_meta_t *meta)
+{
+    uint32_t update_page = IAP_META_ADDR / FLASH_LOGICAL_PAGE_SIZE;
+    const uint8_t *flash_data = (const uint8_t *)IAP_META_ADDR;
+
+    EFM_REG_Unlock();
+    EFM_FWMC_Cmd(ENABLE);
+    (void)EFM_SingleSectorOperateCmd(update_page, ENABLE);
+    EFM_SectorErase(IAP_META_ADDR);
+    ymodem_program_bytes(IAP_META_ADDR, (const uint8_t *)&ymodem_soh_first_parsed, sizeof(ymodem_soh_first_parsed));
+    ymodem_program_bytes(IAP_META_ADDR + IAP_META_OFFSET, (const uint8_t *)meta, sizeof(*meta));
+    (void)EFM_SingleSectorOperateCmd(update_page, DISABLE);
+    EFM_REG_Lock();
+
+    if (memcmp(flash_data, &ymodem_soh_first_parsed, sizeof(ymodem_soh_first_parsed)) != 0)
+    {
+        return 0;
+    }
+
+    if (memcmp(&flash_data[IAP_META_OFFSET], meta, sizeof(*meta)) != 0)
+    {
+        return 0;
+    }
+
+    return 1;
+}
 
 // === CRC16 Modbus 实现（高位在前） ===
 static uint16_t ymodem_crc16(const uint8_t *data, uint32_t len)
@@ -150,6 +209,55 @@ static uint16_t ymodem_crc16(const uint8_t *data, uint32_t len)
         }
     }
     return (uint16_t)((crc >> 8) | (crc << 8));
+}
+
+static uint32_t ymodem_swap_endian_u32(uint32_t in)
+{
+    return ((in & 0xFF000000UL) >> 24) |
+           ((in & 0x00FF0000UL) >> 8) |
+           ((in & 0x0000FF00UL) << 8) |
+           ((in & 0x000000FFUL) << 24);
+}
+
+uint8_t ymodem_request_can_ota(uint32_t image_size, uint32_t image_crc32)
+{
+    const char product[] = "WG-BC1500M";
+    iap_meta_t meta;
+    uint16_t crc_data;
+
+    if ((image_size == 0U) ||
+        (image_size > APP_MAX_SIZE) ||
+        (image_crc32 == 0U) ||
+        (image_crc32 == 0xFFFFFFFFUL))
+    {
+        return 0U;
+    }
+
+    memset(&ymodem_soh_first_parsed, 0, sizeof(ymodem_soh_first_parsed));
+    ymodem_soh_first_parsed.header = YMODEM_SOH;
+    ymodem_soh_first_parsed.pn = 0x00U;
+    ymodem_soh_first_parsed.xpn = 0xFFU;
+    memcpy(ymodem_soh_first_parsed.product_name, product, sizeof(product) - 1U);
+    ymodem_soh_first_parsed.file_size = ymodem_swap_endian_u32(image_size);
+    ymodem_soh_first_parsed.baud = 0xFFFFU;
+    ymodem_soh_first_parsed.passthrough = 0xFFU;
+    ymodem_soh_first_parsed.upgrade_mode = 0xFFU;
+    ymodem_soh_first_parsed.hw_ver = 0xFFFFFFFFUL;
+    ymodem_soh_first_parsed.link_id = YMODEM_LINK_CAN_OTA;
+    ymodem_soh_first_parsed.padding[YMODEM_INFO_IMAGE_CRC32_OFFSET + 0U] = (uint8_t)(image_crc32 & 0xFFU);
+    ymodem_soh_first_parsed.padding[YMODEM_INFO_IMAGE_CRC32_OFFSET + 1U] = (uint8_t)((image_crc32 >> 8) & 0xFFU);
+    ymodem_soh_first_parsed.padding[YMODEM_INFO_IMAGE_CRC32_OFFSET + 2U] = (uint8_t)((image_crc32 >> 16) & 0xFFU);
+    ymodem_soh_first_parsed.padding[YMODEM_INFO_IMAGE_CRC32_OFFSET + 3U] = (uint8_t)((image_crc32 >> 24) & 0xFFU);
+    crc_data = ymodem_crc16((const uint8_t *)&ymodem_soh_first_parsed, sizeof(ymodem_soh_first_parsed) - 2);
+    ymodem_soh_first_parsed.crc_high = (uint8_t)(crc_data >> 8);
+    ymodem_soh_first_parsed.crc_low = (uint8_t)crc_data;
+
+    meta.magic = IAP_META_MAGIC;
+    meta.status = IAP_META_PENDING;
+    meta.header_crc = crc_data;
+    meta.reserved = 0xFFFFU;
+    up_data = 1U;
+    return ymodem_write_update_request(&meta);
 }
 
 static inline void ymodem_reset_rx(uint8_t port_com)
@@ -258,20 +366,35 @@ void ymodem_recv_task(void)
 REG_TASK(1, ymodem_recv_task)
 
 static uint32_t Delay_Cot = 0;
-static uint8_t  up_data = 0;
 static void ymodem_chk_first(void)
 {
     uint16_t crc_data = ymodem_crc16((const uint8_t *)&ymodem_soh_first_parsed, sizeof(ymodem_soh_first_parsed) - 2);
     if (crc_data == ((uint16_t)ymodem_soh_first_parsed.crc_high << 8 | ymodem_soh_first_parsed.crc_low))
     {
+        iap_meta_t meta;
+        uint16_t stored_crc;
         ymodem_soh_first_parsed.link_id = usart_link;
+        stored_crc = ymodem_crc16((const uint8_t *)&ymodem_soh_first_parsed, sizeof(ymodem_soh_first_parsed) - 2);
+        ymodem_soh_first_parsed.crc_high = (uint8_t)(stored_crc >> 8);
+        ymodem_soh_first_parsed.crc_low = (uint8_t)stored_crc;
         while(Delay_Cot < 0xFFFF)
         {
             up_data = 1;
             safe_increment(&Delay_Cot, 0xFFFF);
         }
-        flash_write(FLASH_UPDATE, 0, (uint16_t *)&ymodem_soh_first_parsed);
-        ymodem_state = YMODEM_STA_RESET;
+        meta.magic = IAP_META_MAGIC;
+        meta.status = IAP_META_PENDING;
+        meta.header_crc = stored_crc;
+        meta.reserved = 0xFFFFU;
+        if (ymodem_write_update_request(&meta) != 0)
+        {
+            ymodem_state = YMODEM_STA_RESET;
+        }
+        else
+        {
+            ymodem_send_nak(usart_link);
+            ymodem_state = YMODEM_STA_WAIT_DATA;
+        }
     }
 }
 
@@ -291,7 +414,7 @@ uint8_t get_up_data_flag(void)
 
 static void ymodem_wait_data(void)
 {
-    uint8_t updating_flag = 0;
+    static uint8_t updating_flag = 0;
     // 等待数据状态
     for(uint16_t i = 0;i < 2;i++)
     {

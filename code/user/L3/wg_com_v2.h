@@ -57,6 +57,11 @@
 #define WG_COM_V2_CMD_WRITE_DATA 0x06
 #define WG_COM_V2_CMD_WRITE_STR 0x10
 
+#define WG_COM_V2_APP_DEBUG_ADDR 0x0F00
+#define WG_COM_V2_APP_DEBUG_EVENT_COUNT 32U
+#define WG_COM_V2_APP_DEBUG_EVENT_SIZE 8U
+#define WG_COM_V2_APP_DEBUG_REG_COUNT ((WG_COM_V2_APP_DEBUG_EVENT_COUNT * WG_COM_V2_APP_DEBUG_EVENT_SIZE) / 2U)
+
 #define MODBUS_MIN_FRAME_LEN 5 // 地址(1) + 功能码(1) + 起始寄存器(2) + CRC(2)
 
 #define USART0_DELAY_CONT   0xffff
@@ -144,8 +149,8 @@ typedef struct
     uint16_t ZeroCurrCalibration; // 40A: 端零电流校准
     uint16_t ResetFactoryData;    // 40B: 恢复厂家数据
     uint16_t BatModeFR;           // 40C: 电池模式正反向切换
-    uint16_t MpptSwitch;          // MPPT开关状态
-    uint16_t SleepModeOnOff;      // 休眠功能
+    uint16_t MpptSwitch;          // 40D: MPPT mode switch
+    uint16_t SleepModeOnOff;      // 40E: sleep mode switch
 } wg_com_v2_ctrl_t;
 
 #define WG_COM_V2_PARAM_ADDR 0x800
@@ -213,6 +218,10 @@ float wg_com_v2_get_data_uint(float user_data, void *wg_com_v2_data);
 float wg_com_v2_get_data_int(float user_data, void *wg_com_v2_data);
 void wg_com_v2_set_data_uint(float user_data, void *wg_com_v2_data);
 void wg_com_v2_set_data_int(float user_data, void *wg_com_v2_data);
+void wg_com_v2_note_non_mppt_control_state(uint16_t power_mode, uint16_t bat_mode_fr);
+void wg_com_v2_enter_mppt_control_state(void);
+void wg_com_v2_exit_mppt_control_state(void);
+uint8_t wg_com_v2_write_registers(uint16_t addr, uint16_t count, const uint8_t *data);
 
 uint16_t get_uint16(uint8_t *p_data);
 int16_t get_int16(uint8_t *p_data);
