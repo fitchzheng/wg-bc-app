@@ -1,0 +1,9 @@
+*** Using Compiler 'V5.06 update 7 (build 960)', folder: 'C:\Keil_v5_ARM\ARM\ARMCC\Bin'
+Build target 'HC32F334KATI_IAP'
+compiling wg_com_v2.c...
+linking...
+Program Size: Code=88704 RO-data=8576 RW-data=2744 ZI-data=9752  
+FromELF: creating hex file...
+After Build - User command #1: fromelf --bin --output="E:\Doc zhengch\bc1500m\WG-BC_CODE\wg-bc-app\code\xh_keil\output\debug\WG-BC1500M_20260617.bin" "E:\Doc zhengch\bc1500m\WG-BC_CODE\wg-bc-app\code\xh_keil\output\debug\WG-BC1500M_20260617.axf"
+".\output\debug\WG-BC1500M_20260617.axf" - 0 Error(s), 0 Warning(s).
+Build Time Elapsed:  00:00:07

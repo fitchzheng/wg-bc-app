@@ -490,7 +490,7 @@ void protect_slow(void)
     AlarmSign |= (uint16_t)((fault_get_alarm_bit(ALARM_B_INSIDE_REDUCE_PWR) || fault_get_alarm_bit(ALARM_B_OUTSIDE_REDUCE_PWR))<<1);
     if(sleep_report_state_flag == 1)
     {
-        AlarmSign |= 0x0020U;
+        AlarmSign |= 0x8000U;
     }
     WG_COM_V2_SET_DATA_UINT(AlarmSign, wg_com_v2_realtime_data.AlarmSign);
 }

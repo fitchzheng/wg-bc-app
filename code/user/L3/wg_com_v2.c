@@ -38,6 +38,7 @@ usart_dma_bt_buf_t usart_dma_bt_buf;
 static uint8_t mppt_return_state_valid = 0;
 static uint16_t mppt_return_power_mode = eSET_BAT_MODE;
 static uint16_t mppt_return_bat_mode_fr = 0;
+static uint16_t mppt_return_sleep_mode = 0;
 static uint8_t bat_return_type_valid = 1;
 static uint16_t bat_return_type_a = (uint16_t)((eBAT_LA_AGM << 8) | eSYS_12V);
 static uint16_t bat_return_type_b = (uint16_t)((eBAT_LI_LFP << 8) | eSYS_24V);
@@ -183,14 +184,23 @@ const wg_com_v2_data_lmt_map_t *get_lmt_for_addr(void *p)
     return NULL;
 }
 
-void wg_com_v2_note_non_mppt_control_state(uint16_t power_mode, uint16_t bat_mode_fr)
+static void wg_com_v2_note_non_mppt_control_state_with_sleep(uint16_t power_mode, uint16_t bat_mode_fr, uint16_t sleep_mode)
 {
     if((power_mode < eSET_MODE_MAX) && (power_mode != eMPPT_MODE))
     {
         mppt_return_power_mode = power_mode;
         mppt_return_bat_mode_fr = bat_mode_fr;
+        mppt_return_sleep_mode = (power_mode == eSET_BAT_MODE) ? sleep_mode : 0;
         mppt_return_state_valid = 1;
     }
+}
+
+void wg_com_v2_note_non_mppt_control_state(uint16_t power_mode, uint16_t bat_mode_fr)
+{
+    uint16_t sleep_mode = 0;
+
+    WG_COM_V2_GET_DATA_UINT(sleep_mode, wg_com_v2_ctrl.SleepModeOnOff);
+    wg_com_v2_note_non_mppt_control_state_with_sleep(power_mode, bat_mode_fr, sleep_mode);
 }
 
 void wg_com_v2_enter_mppt_control_state(void)
@@ -218,10 +228,13 @@ void wg_com_v2_exit_mppt_control_state(void)
     {
         mppt_return_power_mode = eSET_BAT_MODE;
         mppt_return_bat_mode_fr = 0;
+        mppt_return_sleep_mode = 0;
     }
     WG_COM_V2_SET_DATA_UINT(mppt_return_power_mode, wg_com_v2_ctrl.SetPowerMode);
     WG_COM_V2_SET_DATA_UINT(mppt_return_bat_mode_fr, wg_com_v2_ctrl.BatModeFR);
     WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.MpptSwitch);
+    WG_COM_V2_SET_DATA_UINT((mppt_return_power_mode == eSET_BAT_MODE) ? mppt_return_sleep_mode : 0,
+                            wg_com_v2_ctrl.SleepModeOnOff);
 }
 
 static uint8_t normalize_mode_control_state(uint16_t addr,
@@ -261,6 +274,7 @@ static uint8_t normalize_mode_control_state(uint16_t addr,
     {
         if(mppt_switch == 1)
         {
+            wg_com_v2_note_non_mppt_control_state_with_sleep(old_power_mode, old_bat_mode_fr, old_sleep_mode);
             wg_com_v2_enter_mppt_control_state();
         }
         else if((old_mppt_switch == 1) || (power_mode == eMPPT_MODE))
@@ -272,6 +286,7 @@ static uint8_t normalize_mode_control_state(uint16_t addr,
     {
         if(power_mode == eMPPT_MODE)
         {
+            wg_com_v2_note_non_mppt_control_state_with_sleep(old_power_mode, old_bat_mode_fr, old_sleep_mode);
             WG_COM_V2_SET_DATA_UINT(1, wg_com_v2_ctrl.MpptSwitch);
             wg_com_v2_enter_mppt_control_state();
         }
