@@ -1,0 +1,25 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/code/**",
+                "code/user/L1",
+                "code/user/L2",
+                "code/user/L3",
+                "code/user/L4/plecs",
+                "D:/Documents/Plexim/PLECS 4.7 (64 bit)/include/plecs",
+                "C:/Users/76475/AppData/Local/Keil_v5/ARM/ARMCLANG/include/"
+            ],
+            "defines": [
+                // "IS_PLECS",
+                "GD32F30X_HD"
+            ],
+            "windowsSdkVersion": "10.0.22621.0",
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "windows-gcc-x64"
+        }
+    ],
+    "version": 4
+}
