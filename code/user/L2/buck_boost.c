@@ -6,7 +6,6 @@
 #include "shell.h"
 #include "buck_boost_mode.h"
 #include "section.h"
-#include "can_wg.h"
 #include "pid.h"
 
 extern float Get_Set_Out_Curr_Value_Lmt(void);

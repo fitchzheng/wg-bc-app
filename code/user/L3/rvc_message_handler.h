@@ -10,7 +10,9 @@
 #include "my_math.h"
 
 
+#ifndef CAN_ON_OFF
 #define CAN_ON_OFF                                         1
+#endif
 #define RVC_PERIODIC_BROADCAST_ENABLE                      0
 /* ========== DGN 定义 ========== */
 #define RVC_DGN_DM_RV                                      0x1FECA

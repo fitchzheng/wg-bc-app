@@ -1,15 +1,23 @@
 #include "section.h"
 #include "can_packet.h"
-#include "can_rmp.h"
-#include "can_comm.h"
-#include "can_wg.h"
+
+#ifndef CAN_ON_OFF
+#define CAN_ON_OFF 1
+#endif
+
+#if(CAN_ON_OFF == 2)
+#include "client_can.h"
+#endif
+#if(CAN_ON_OFF == 1)
 #include "rvc_address.h"
 #include "rvc_message_handler.h"
-#include "client_can.h"
 #include "ymodem.h"
 #include "hc32_ll.h"
+#endif
 
 static can_packet_t can_rx_packet;
+
+#if(CAN_ON_OFF == 1)
 static uint32_t can_ota_pending_size = 0U;
 static uint8_t can_ota_start_seen = 0U;
 static uint16_t can_ota_reset_delay_ms = 0U;
@@ -97,22 +105,10 @@ static uint8_t can_ota_app_trigger_process(uint32_t can_id, uint8_t *data, uint8
 
     return 1U;
 }
+#endif
 
 void can_test_1ms_task(void)
 {
-    // 轮询接收CAN0
-    /*if (can_packet_receive(&can_rx_packet) == 0)
-    {
-        // 判断协议号
-        if (can_rx_packet.id.id.protno == PROTNO_RMP)
-        {
-            can_comm_rmp_dispatch(&can_rx_packet);
-        }
-        else if (can_rx_packet.id.id.protno == PROTNO_WG)
-        {
-            can_comm_wg_dispatch(&can_rx_packet);
-        }
-    }*/
     
     uint8_t rx_count = 0;
     while ((rx_count < 10U) && (can_packet_receive(&can_rx_packet) == 0))
@@ -124,19 +120,20 @@ void can_test_1ms_task(void)
             continue;
         }
 
-        // 1. 先交给地址管理器处理（处理 ADDRESS_CLAIM）
+        // 1. Address claim handler.
         rvc_address_can_rx_callback(can_rx_packet.id.raw, can_rx_packet.data.raw, 8);
         
-        // 2. 再交给消息处理器处理（处理其他 DGN）
+        // 2. RVC DGN handler.
         rvc_message_handler_process(can_rx_packet.id.raw, can_rx_packet.data.raw, 8);
 
-        // 3. Modbus 桥接处理（处理私有 DGN 0xEF00）
+        // 3. Optional Modbus bridge for private DGN 0xEF00.
         //rvc_modbus_bridge_process(can_rx_packet.id.raw, can_rx_packet.data.raw, 8);
         #elif(CAN_ON_OFF == 2) 
         Get_CAN_Communications_Content (can_rx_packet.id.raw, can_rx_packet.data.raw, 8);
         #endif
     }
 
+    #if(CAN_ON_OFF == 1)
     if (can_ota_reset_delay_ms > 0U)
     {
         can_ota_reset_delay_ms--;
@@ -145,6 +142,7 @@ void can_test_1ms_task(void)
             NVIC_SystemReset();
         }
     }
+    #endif
 
 }
 

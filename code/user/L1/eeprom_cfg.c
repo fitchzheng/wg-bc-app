@@ -1972,6 +1972,8 @@ uint8_t eeprom_apply_basic_mode_profile(void)
     return eeprom_current_param_valid;
 }
 
+static uint8_t eeprom_write_p03_user_current_page(void);
+
 uint8_t eeprom_save_current_mode_profile(void)
 {
     uint8_t type;
@@ -1995,7 +1997,7 @@ uint8_t eeprom_save_current_mode_profile(void)
 
         case eSET_STANDARD_MODE:
         case eSET_CUSTOM_MODE:
-            return 1;
+            return eeprom_write_p03_user_current_page();
 
         default:
             return 1;
@@ -2646,15 +2648,11 @@ static uint8_t eeprom_write_p03_cal_current(void)
     return eeprom_write_page_verify(P03_1_ADDR);
 }
 
-static uint8_t eeprom_write_p03_user_current(void)
+static uint8_t eeprom_write_p03_user_current_page(void)
 {
     memcpy(((uint8_t *)&eeprom_wg_com_v2_param.wg_com_v2_param) + EEPROM_PARAM_CAL_SIZE,
            ((uint8_t *)&wg_com_v2_param) + EEPROM_PARAM_CAL_SIZE,
            EEPROM_PARAM_USER_SIZE);
-    if(!eeprom_save_current_mode_profile())
-    {
-        return 0;
-    }
     eeprom_param_copy_user_to_page(&eeprom_wg_com_v2_param.wg_com_v2_param);
     if(eeprom_write_page_verify(P03_ADDR))
     {
@@ -2662,6 +2660,24 @@ static uint8_t eeprom_write_p03_user_current(void)
         return 1;
     }
     return 0;
+}
+
+static uint8_t eeprom_write_p03_user_current(void)
+{
+    uint16_t mode;
+
+    eeprom_refresh_control_cache();
+    mode = (uint16_t)get_wg_com_v2_data.com_ctrl.SetPowerMode;
+    if((mode == eSET_STANDARD_MODE) || (mode == eSET_CUSTOM_MODE))
+    {
+        return eeprom_save_current_mode_profile();
+    }
+
+    if(!eeprom_save_current_mode_profile())
+    {
+        return 0;
+    }
+    return eeprom_write_p03_user_current_page();
 }
 
 static uint8_t eeprom_write_all_current_pages(void)

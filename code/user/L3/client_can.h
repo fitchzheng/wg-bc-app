@@ -17,6 +17,9 @@
 #define B_BATTERY_TYPE              0x45
 #define BOOT_TIME_DELAY             0x46
 #define SOFT_START_TIME_DELAY       0x47
+#define FACTORY_SAVE                0x48
+#define ZERO_CURR_CALIBRATION       0x49
+#define MODE_CONTROL_STATE          0x4A
 #define TERMINAL_A_VOLTAGE          0x80
 #define TERMINAL_A_CURRENT          0x81
 #define TERMINAL_A_POWER            0x82

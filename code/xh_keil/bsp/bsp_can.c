@@ -1,5 +1,9 @@
 #include "bsp_can.h"
 
+#ifndef CAN_ON_OFF
+#define CAN_ON_OFF 1
+#endif
+
 
 
 void McanCommClockConfig(void);
@@ -289,7 +293,11 @@ int bsp_can_rx(uint32_t *p_raw, uint8_t *p_data)
             return -1;
         }
 
+#if(CAN_ON_OFF == 2)
+        if ((stcRxMsg.IDE == 0U) && (stcRxMsg.DLC == MCAN_DLC8))
+#else
         if ((stcRxMsg.IDE == 1U) && (stcRxMsg.DLC == MCAN_DLC8))
+#endif
         {
             *p_raw = stcRxMsg.ID;
             memcpy(p_data, &stcRxMsg.au8Data[0], 8);

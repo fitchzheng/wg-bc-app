@@ -9,6 +9,39 @@
 
 static float voltcomp_com = 0.0f;
 
+static uint16_t can_wg_get_u16_le(const uint8_t *p_data)
+{
+    return (uint16_t)(p_data[0] | ((uint16_t)p_data[1] << 8));
+}
+
+static void can_wg_put_u16_le(uint8_t *p_data, uint16_t data)
+{
+    p_data[0] = (uint8_t)(data & 0x00FFU);
+    p_data[1] = (uint8_t)((data >> 8) & 0x00FFU);
+}
+
+static void can_wg_put_reg_u16_le(uint8_t *p_data, const void *reg)
+{
+    can_wg_put_u16_le(p_data, get_uint16((uint8_t *)reg));
+}
+
+static uint8_t can_wg_write_registers_from_le(uint16_t addr, uint16_t count, const uint8_t *le_data)
+{
+    uint8_t reg_data[8] = {0};
+
+    if ((count == 0U) || (count > 4U))
+    {
+        return 0U;
+    }
+
+    for (uint16_t i = 0; i < count; i++)
+    {
+        set_uint16(&reg_data[i * 2U], can_wg_get_u16_le(&le_data[i * 2U]));
+    }
+
+    return wg_com_v2_write_registers(addr, count, reg_data);
+}
+
 #if (SHELL_ON_OFF == 1)
 static float voltcomp = 0.0f;
 REG_SHELL_VAR(voltcomp, voltcomp, SHELL_FP32, 10000.0f, -10000.0f, NULL, SHELL_STA_NULL)
@@ -176,13 +209,15 @@ void can_wg_handle_get_rtdata(const can_packet_t *packet)
 
 void can_wg_handle_set_param(const can_packet_t *packet)
 {
-    uint8_t *data = (uint8_t *)&wg_com_v2_param;
     can_wg_param_t *param_data = (can_wg_param_t *)&packet->data.raw[2];
+    uint16_t count = (uint16_t)param_data->data_num + 1U;
     if (param_data->data_num >= 2)
     {
         return; // 错误的参数个数
     }
-    memcpy(data + param_data->data_offset * 4, param_data->data, 2 + 2 * param_data->data_num);
+    (void)can_wg_write_registers_from_le((uint16_t)(WG_COM_V2_PARAM_ADDR + param_data->data_offset),
+                                         count,
+                                         param_data->data);
 }
 
 void can_wg_handle_get_param(const can_packet_t *packet)
@@ -197,10 +232,11 @@ void can_wg_handle_get_param(const can_packet_t *packet)
     can_wg_param_t *param_packet = (can_wg_param_t *)&packet->data.raw[2];
 
     uint8_t pack_num = (param_packet->data_num / 2) + (param_packet->data_num % 2);
-    uint8_t *p_data = (uint8_t *)((uint16_t *)&wg_com_v2_param + param_data->data_offset);
+    uint16_t *p_data = (uint16_t *)&wg_com_v2_param + param_data->data_offset;
     for (uint32_t i = 0; i < pack_num; i++)
     {
-        memcpy(param_data->data, p_data + i * 4, 4);
+        can_wg_put_reg_u16_le(&param_data->data[0], &p_data[i * 2U]);
+        can_wg_put_reg_u16_le(&param_data->data[2], &p_data[(i * 2U) + 1U]);
         can_packet_transmit_data(
             PROTNO_WG,
             packet->id.id.ptp,     // ptp
@@ -220,25 +256,25 @@ void can_wg_handle_set_ctrl(const can_packet_t *packet)
     uint8_t valuetype = packet->data.data.data_info.valueinfo.valuetype.byte2;
     uint8_t *p_data = (uint8_t *)&packet->data.data.data_info.valueinfo.value.bytes[0];
     can_wg_ctrl_common_t *common_ctrl = (can_wg_ctrl_common_t *)p_data;
+    uint8_t reg_data[8] = {0};
+
     switch (valuetype)
     {
     case CAN_WG_CTRL_VALUETYPE_COMMON:
-        wg_com_v2_ctrl.FactoryReset = common_ctrl->byte4.factory_reset ? 0x0100 : 0; // 恢复出厂设置
-        wg_com_v2_ctrl.PowerOnOff = common_ctrl->byte4.power_onoff ? 0x0100 : 0;     // 开关机状态
-        wg_com_v2_ctrl.SetPowerMode = common_ctrl->byte4.power_mode ? 0x0100 : 0;    // 电源模式
-        wg_com_v2_ctrl.SetChargMode = common_ctrl->byte4.charg_mode;                 // 充电模式
+        set_uint16(&reg_data[0], common_ctrl->byte4.factory_reset ? 1U : 0U);
+        set_uint16(&reg_data[2], common_ctrl->byte4.power_onoff ? 1U : 0U);
+        set_uint16(&reg_data[4], common_ctrl->byte4.power_mode ? 1U : 0U);
+        set_uint16(&reg_data[6], common_ctrl->byte4.charg_mode);
+        (void)wg_com_v2_write_registers(WG_COM_V2_CTRL_ADDR, 4U, reg_data);
         break;
     case CAN_WG_CTRL_VALUETYPE_BATTERY_TYPE:
-        memcpy((uint8_t *)&wg_com_v2_ctrl.InpBatyType, p_data, 2);     // A端电池类型
-        memcpy((uint8_t *)&wg_com_v2_ctrl.OutBatyType, p_data + 2, 2); // B端电池类型
+        (void)can_wg_write_registers_from_le((uint16_t)(WG_COM_V2_CTRL_ADDR + 4U), 2U, p_data);
         break;
     case CAN_WG_CTRL_VALUETYPE_BOOT_TIME:
-        memcpy((uint8_t *)&wg_com_v2_ctrl.SetBootTimeA, p_data, 2);     // A端开机时间
-        memcpy((uint8_t *)&wg_com_v2_ctrl.SetBootTimeB, p_data + 2, 2); // B端开机时间
+        (void)can_wg_write_registers_from_le((uint16_t)(WG_COM_V2_CTRL_ADDR + 6U), 2U, p_data);
         break;
     case CAN_WG_CTRL_VALUETYPE_SOFT_START:
-        memcpy((uint8_t *)&wg_com_v2_ctrl.SetOnCurrStartTimeA, p_data, 2);     // A端软起动时间
-        memcpy((uint8_t *)&wg_com_v2_ctrl.SetOnCurrStartTimeB, p_data + 2, 2); // B端软起动时间
+        (void)can_wg_write_registers_from_le((uint16_t)(WG_COM_V2_CTRL_ADDR + 8U), 2U, p_data);
         break;
     default:
         break;
@@ -250,31 +286,31 @@ void can_wg_handle_get_ctrl(const can_packet_t *packet)
     can_packet_data_u can_packet_data = {0};
     can_packet_data.data.err = 0;
     can_packet_data.data.msgtype = CAN_WG_MSGTYPE_GET_CTRL;
-    can_packet_data.data.errtype = ERRTYPE_OK; // 无错误
+    can_packet_data.data.errtype = ERRTYPE_OK;
 
     uint8_t valuetype = packet->data.data.data_info.valueinfo.valuetype.byte2;
     can_wg_ctrl_common_t common_ctrl;
     switch (valuetype)
     {
     case CAN_WG_CTRL_VALUETYPE_COMMON:
-        common_ctrl.byte4.factory_reset = wg_com_v2_ctrl.FactoryReset ? 1 : 0;
-        common_ctrl.byte4.power_onoff = wg_com_v2_ctrl.PowerOnOff ? 1 : 0;
-        common_ctrl.byte4.power_mode = wg_com_v2_ctrl.SetPowerMode ? 1 : 0;
-        common_ctrl.byte4.charg_mode = wg_com_v2_ctrl.SetChargMode >> 8;
+        common_ctrl.byte4.factory_reset = get_uint16((uint8_t *)&wg_com_v2_ctrl.FactoryReset) ? 1U : 0U;
+        common_ctrl.byte4.power_onoff = get_uint16((uint8_t *)&wg_com_v2_ctrl.PowerOnOff) ? 1U : 0U;
+        common_ctrl.byte4.power_mode = get_uint16((uint8_t *)&wg_com_v2_ctrl.SetPowerMode) ? 1U : 0U;
+        common_ctrl.byte4.charg_mode = (uint8_t)get_uint16((uint8_t *)&wg_com_v2_ctrl.SetChargMode);
         memset(common_ctrl.rsvd, 0, sizeof(common_ctrl.rsvd));
         memcpy(can_packet_data.data.data_info.valueinfo.value.bytes, &common_ctrl, sizeof(common_ctrl));
         break;
     case CAN_WG_CTRL_VALUETYPE_BATTERY_TYPE:
-        memcpy(can_packet_data.data.data_info.valueinfo.value.bytes, (uint8_t *)&wg_com_v2_ctrl.InpBatyType, 2);
-        memcpy(can_packet_data.data.data_info.valueinfo.value.bytes + 2, (uint8_t *)&wg_com_v2_ctrl.OutBatyType, 2);
+        can_wg_put_reg_u16_le(can_packet_data.data.data_info.valueinfo.value.bytes, &wg_com_v2_ctrl.InpBatyType);
+        can_wg_put_reg_u16_le(can_packet_data.data.data_info.valueinfo.value.bytes + 2, &wg_com_v2_ctrl.OutBatyType);
         break;
     case CAN_WG_CTRL_VALUETYPE_BOOT_TIME:
-        memcpy(can_packet_data.data.data_info.valueinfo.value.bytes, (uint8_t *)&wg_com_v2_ctrl.SetBootTimeA, 2);
-        memcpy(can_packet_data.data.data_info.valueinfo.value.bytes + 2, (uint8_t *)&wg_com_v2_ctrl.SetBootTimeB, 2);
+        can_wg_put_reg_u16_le(can_packet_data.data.data_info.valueinfo.value.bytes, &wg_com_v2_ctrl.SetBootTimeA);
+        can_wg_put_reg_u16_le(can_packet_data.data.data_info.valueinfo.value.bytes + 2, &wg_com_v2_ctrl.SetBootTimeB);
         break;
     case CAN_WG_CTRL_VALUETYPE_SOFT_START:
-        memcpy(can_packet_data.data.data_info.valueinfo.value.bytes, (uint8_t *)&wg_com_v2_ctrl.SetOnCurrStartTimeA, 2);
-        memcpy(can_packet_data.data.data_info.valueinfo.value.bytes + 2, (uint8_t *)&wg_com_v2_ctrl.SetOnCurrStartTimeB, 2);
+        can_wg_put_reg_u16_le(can_packet_data.data.data_info.valueinfo.value.bytes, &wg_com_v2_ctrl.SetOnCurrStartTimeA);
+        can_wg_put_reg_u16_le(can_packet_data.data.data_info.valueinfo.value.bytes + 2, &wg_com_v2_ctrl.SetOnCurrStartTimeB);
         break;
     default:
         return;
@@ -289,7 +325,6 @@ void can_wg_handle_get_ctrl(const can_packet_t *packet)
         0, 1, 1,
         can_packet_data.raw);
 }
-
 static uint32_t timeout = 0;
 
 void can_wg_get_master_voltcomp(const can_packet_t *packet)

@@ -10,9 +10,12 @@
 #include "stdint.h"
 #include "fault.h"
 #include "adc_check.h"
-#include "can_wg.h"
 #include "get_com_data.h"
 #include "mppt.h"
+
+#ifndef CAN_ON_OFF
+#define CAN_ON_OFF 1
+#endif
 
 static bsp_pwm_t bsp_pwm[BUCK_BOOST_L_LOOP_NUM];
 
@@ -166,8 +169,6 @@ void ctrl_app_init(CTRL_MODE_E mode)
     
     ihv_lmt = 1.0f;/*起始限幅电流*/
     ilv_lmt = 1.0f;/*起始限幅电流*/
-    can_wg_set_volt_comp(0.0f);
-
     fvs48_lmt = adc_get_fvs48();
     rvs12_lmt = adc_get_rvs12();
     mppt_init(mode);
@@ -454,7 +455,6 @@ void RAMFUNC ctrl_app_run(void)
 
         SCOPE_RUN(SOFT_STOP);
         
-   // can_wg_get_volt_comp(&buck_boost.input.volt_comp);
     
     if (ctrl_mode == CTRL_BACKWARD)
     {
@@ -548,8 +548,6 @@ void RAMFUNC ctrl_app_run(void)
 				bsp_pwm_change_full_freq_pwma();
 				bsp_pwm_change_full_freq_pwmb();
     }
-
-    //can_wg_set_volt_comp(buck_boost.inter.volt_comp_loop.output.output);
 
 //    buck_boost.inter.bb_mode_duty[0].output.is_half_freq
 //        ? bsp_pwm_change_half_freq_pwma()
