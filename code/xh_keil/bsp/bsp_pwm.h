@@ -196,5 +196,7 @@ void bsp_pwm_change_half_freq_pwmb(void);
 
 void bsp_hrpwm1_update_trig(void);
 void bsp_pwm_deinit(void);
+void bsp_pwm_set_tmr6(float duty,float freq);
+void bsp_pwm_set_tmr6_fan(float duty);
 #endif
 

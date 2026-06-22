@@ -6,6 +6,8 @@ uint32_t timer_pwmb_chctl2;
 // pwm输出端口使能
 void hrpwm_port_init(void)
 {
+    GPIO_SetFunc(GPIO_PORT_C, GPIO_PIN_06, GPIO_FUNC_14);
+    GPIO_SetFunc(GPIO_PORT_C, GPIO_PIN_07, GPIO_FUNC_14);
     GPIO_HrpwmPinCmd(HRPWM_HA1_PORT, ENABLE);
     GPIO_HrpwmPinCmd(HRPWM_LA1_PORT, ENABLE);
     GPIO_HrpwmPinCmd(HRPWM_LA2_PORT, ENABLE);
@@ -1274,10 +1276,12 @@ void bsp_pwm_deinit(void)
 
     FCG_Fcg2PeriphClockCmd(HRPWM_PWM_FCG, DISABLE);
 }
-
+void bsp_tmr6_pwm_init (void);
 void bsp_pwm_init(void)
 {
     FCG_Fcg2PeriphClockCmd(HRPWM_PWM_FCG, ENABLE);
+    FCG_Fcg2PeriphClockCmd(FCG2_PERIPH_TMR6_1, ENABLE);
+    FCG_Fcg2PeriphClockCmd(FCG2_PERIPH_TMR6_2, ENABLE);
     hrpwm_port_init();
     HRPWM_CommonDeInit();
     HRPWM_DeInit(CM_HRPWM1);
@@ -1285,6 +1289,8 @@ void bsp_pwm_init(void)
     HRPWM_DeInit(CM_HRPWM5);
     HRPWM_DeInit(CM_HRPWM3);
     HRPWM_DeInit(CM_HRPWM2);
+    TMR6_DeInit(CM_TMR6_1);
+    TMR6_DeInit(CM_TMR6_2);
 
     if (LL_OK != HRPWM_CALIB_ProcessSingle())
     {
@@ -1297,6 +1303,8 @@ void bsp_pwm_init(void)
     CM_HRPWM4->CR |= 1 << 3; /* 1：使能高精度HRPWM */
     CM_HRPWM5->CR |= 1 << 3; /* 1：使能高精度HRPWM */
 
+    CM_TMR6_1->PERAR   = 2400;
+    CM_TMR6_2->PERAR   = 600;
     CM_HRPWM1->HRPERAR = 0xFFFF * 64;
     CM_HRPWM1->HRGCMAR = (CTRL_PERIOD * 4 * 2) - 64;
     CM_HRPWM1->HCLRR2 |= 1 << 10;
@@ -1358,6 +1366,11 @@ void bsp_pwm_init(void)
     CM_HRPWM3->GCONR |= 1 << 2; /* 1：三角波模式 */
     CM_HRPWM4->GCONR |= 1 << 2; /* 1：三角波模式 */
     CM_HRPWM5->GCONR |= 1 << 2; /* 1：三角波模式 */
+
+    CM_TMR6_1->HSTAR |= 1 << 16;
+    CM_TMR6_2->HSTAR |= 1 << 16;
+
+    bsp_tmr6_pwm_init();
 
     CM_HRPWM2->BPCNAR1 = 0;
 
@@ -1527,7 +1540,8 @@ void bsp_pwm_init(void)
     bCM_HRPWM4->GCONR_b.START = 1;
     bCM_HRPWM5->GCONR_b.START = 1;
     bCM_HRPWM1->GCONR_b.START = 1;
-
+    CM_TMR6_2->GCONR |= (1<<0);
+    CM_TMR6_1->GCONR |= (1<<0);
     volatile uint32_t i = 1000;
     while (i--)
         ;
@@ -1538,3 +1552,208 @@ void bsp_pwm_init(void)
     bCM_HRPWM4->HCLRR1_b.CLES = 1;
     bCM_HRPWM5->HCLRR1_b.CLES = 1;
 }
+
+void bsp_pwm_set_tmr6(float duty,float freq);
+void bsp_tmr6_pwm_init (void)
+{
+    CM_TMR6_1->GCONR  = 0;
+    CM_TMR6_1->GCONR |= (0<<0) |        // 0：定时器关闭 1：定时器启动
+                        (1<<1) |        // 0：递减计数   1：递加计数
+                        (1<<2) |        // 0：锯齿波模式 1：三角波模式
+                        (0<<4) |        // 0000：PCLK0
+                                        // 0001：PCLK0/2
+                                        // 0010：PCLK0/4
+                                        // 0011：PCLK0/8
+                                        // 0100：PCLK0/16
+                                        // 0101：PCLK0/32
+                                        // 0110：PCLK0/64
+                                        // 0111：PCLK0/128
+                                        // 1000：PCLK0/256
+                                        // 1001：PCLK0/512
+                                        // 1010：PCLK0/1024
+                        (0<<8) |        // 0：计数器在计数上溢或下溢后，继续计数
+                                        // 1：计数器在计数上溢或下溢后，停止计数
+                        (0<<16)|        // 0：Z相输入时该单元作为公转定时器，在屏蔽周期期间内公转定时器计数功能正常动作
+                                        // 1：Z相输入时该单元作为公转定时器，在屏蔽周期期间内公转定时器计数功能被屏蔽
+                        (0<<17)|        // 0：Z相输入时该单元作为位置定时器，在屏蔽周期期间内位置定时器清零功能正常动作
+                                        // 1：Z相输入时该单元作为位置定时器，在屏蔽周期期间内位置定时器清零功能被屏蔽
+                        (0<<18)         // 00：Z相输入屏蔽功能无效
+                                        // 01：位置计数上溢后或下溢后的4个计数周期内的Z相输入被屏蔽
+                                        // 10：位置计数上溢后或下溢后的8个计数周期内的Z相输入被屏蔽
+                                        // 11：位置计数上溢后或下溢后的16个计数周期内的Z相输入被屏蔽
+    ;
+    
+    CM_TMR6_1->PCNAR  = 0;
+    CM_TMR6_1->PCNAR |= (0<<0) |        // 00：计数开始时，TMR6_<t>_PWMA端口输出设定为低电平
+                                        // 01：计数开始时，TMR6_<t>_PWMA端口输出设定为高电平
+                                        // 10：计数开始时，TMR6_<t>_PWMA端口输出保持先前状态
+                                        // 11：计数开始时，TMR6_<t>_PWMA端口输出保持先前状态
+                         (0<<2) |        // 00：计数停止时，TMR6_<t>_PWMA端口输出设定为低电平
+                                         // 01：计数停止时，TMR6_<t>_PWMA端口输出设定为高电平
+                                         // 10：计数停止时，TMR6_<t>_PWMA端口输出保持先前状态
+                                         // 11：计数停止时，TMR6_<t>_PWMA端口输出保持先前状态
+                         (2<<4) |        // 00：计数上溢时，TMR6_<t>_PWMA端口输出设定为低电平
+                                         // 01：计数上溢时，TMR6_<t>_PWMA端口输出设定为高电平
+                                         // 10：计数上溢时，TMR6_<t>_PWMA端口输出保持先前状态
+                                         // 11：计数上溢时，TMR6_<t>_PWMA端口输出设定为反转电平
+                         (2<<6) |        // 00：计数下溢时，TMR6_<t>_PWMA端口输出设定为低电平
+                                         // 01：计数下溢时，TMR6_<t>_PWMA端口输出设定为高电平
+                                         // 10：计数下溢时，TMR6_<t>_PWMA端口输出保持先前状态
+                                         // 11：计数下溢时，TMR6_<t>_PWMA端口输出设定为反转电平
+                         (0<<8) |        // 00 ：在向上计数期间，定时器计数值与 GCMAR 相等时，TMR6_<t>_PWMA端口输出设定为低电平
+                                         // 01 ：在向上计数期间，定时器计数值与 GCMAR 相等时，TMR6_<t>_PWMA端口输出设定为高电平
+                                         // 10 ：在向上计数期间，定时器计数值与 GCMAR 相等时，TMR6_<t>_PWMA端口输出保持先前状态
+                                         // 11 ：在向上计数期间，定时器计数值与 GCMAR 相等时，TMR6_<t>_PWMA端口输出设定为反转电平
+                         (1<<10) |       // 00 ：在向下计数期间，定时器计数值与 GCMAR 相等时，TMR6_<t>_PWMA端口输出设定为低电平
+                                         // 01 ：在向下计数期间，定时器计数值与 GCMAR 相等时，TMR6_<t>_PWMA端口输出设定为高电平
+                                         // 10 ：在向下计数期间，定时器计数值与 GCMAR 相等时，TMR6_<t>_PWMA端口输出保持先前状态
+                                         // 11 ：在向下计数期间，定时器计数值与 GCMAR 相等时，TMR6_<t>_PWMA端口输出设定为反转电平
+                         (0<<12) |       // 00 ：在向上计数期间，定时器计数值与 GCMBR 相等时，TMR6_<t>_PWMA端口输出设定为低电平
+                                         // 01 ：在向上计数期间，定时器计数值与 GCMBR 相等时，TMR6_<t>_PWMA端口输出设定为高电平
+                                         // 10 ：在向上计数期间，定时器计数值与 GCMBR 相等时，TMR6_<t>_PWMA端口输出保持先前状态
+                                         // 11 ：在向上计数期间，定时器计数值与 GCMBR 相等时，TMR6_<t>_PWMA端口输出设定为反转电平
+                         (1<<14) |       // 00 ：在向下计数期间，定时器计数值与 GCMBR 相等时，TMR6_<t>_PWMA端口输出设定为低电平
+                                         // 01 ：在向下计数期间，定时器计数值与 GCMBR 相等时，TMR6_<t>_PWMA端口输出设定为高电平
+                                         // 10 ：在向下计数期间，定时器计数值与 GCMBR 相等时，TMR6_<t>_PWMA端口输出保持先前状态
+                                         // 11 ：在向下计数期间，定时器计数值与 GCMBR 相等时，TMR6_<t>_PWMA端口输出设定为反转电平
+                         (0<<16) |       // 0x：设定无效定10：下周期开始，TMR6_<t>_PWMA端口输出设定为低电平
+                                         // 11：下周期开始，TMR6_<t>_PWMA端口输出设定为高电平
+                                         // 注1：下周期是指硬件计数模式或锯齿波计数到上溢点或下溢点、三角波计数到谷点
+                                         // 注2：该寄存器位可用于实现PWM输出占空比0%或100%的控制
+                         (0<<20) |       // 00：发生EMBSA[1:0]选择EMB控制事件时，TMR6_<t>_PWMA端口正常输出
+                                         // 01：发生EMBSA[1:0]选择EMB控制事件时，TMR6_<t>_PWMA端口输出高阻态
+                                         // 10：发生EMBSA[1:0]选择EMB控制事件时，TMR6_<t>_PWMA端口输出低电平
+                                         // 11：发生EMBSA[1:0]选择EMB控制事件时，TMR6_<t>_PWMA端口输出高电平
+                        (0<<22) |       // 00 ： EMBSA[1:0] 选择的 EMB 控 制 事件无效时 ，立即释放TMR6_<t>_PWMA端口（One Shot）
+                                        // 01：EMBSA[1:0]选择的EMB控制事件无效时，等到计数器计数到上溢时释放TMR6_<t>_PWMA端口（Cycle By Cycle 1）
+                                        // 10：EMBSA[1:0]选择的EMB控制事件无效时，等到计数器计数到下溢时释放TMR6_<t>_PWMA端口（Cycle By Cycle 2）
+                                        // 11：EMBSA[1:0]选择的EMB控制事件无效时，等到计数器计数到上溢或下溢时释放TMR6_<t>_PWMA端口（Cycle By Cycle 3）
+                        (0<<24) |       // 00：选择EMB的Group6控制事件有效
+                                        // 01：选择EMB的Group7控制事件有效
+                        (1<<28) |       // 0：Timer6功能时的TMR6_<t>_PWMA端口输出无效
+                                        // 1：Timer6功能时的TMR6_<t>_PWMA端口输出有效
+                        (0<<31)         // 0：比较输出功能
+                                        // 1：捕获输入功能
+    ;
+
+
+    CM_TMR6_1->BCONR = 0;
+    CM_TMR6_1->BCONR = (1<<0) | (1<<3)|(1<<8)|(1<<11);
+
+    CM_TMR6_2->GCONR  = 0;
+    CM_TMR6_2->GCONR |= (0<<0) |        // 0：定时器关闭 1：定时器启动
+                        (1<<1) |        // 0：递减计数   1：递加计数
+                        (1<<2) |        // 0：锯齿波模式 1：三角波模式
+                        (0<<4) |        // 0000：PCLK0
+                                        // 0001：PCLK0/2
+                                        // 0010：PCLK0/4
+                                        // 0011：PCLK0/8
+                                        // 0100：PCLK0/16
+                                        // 0101：PCLK0/32
+                                        // 0110：PCLK0/64
+                                        // 0111：PCLK0/128
+                                        // 1000：PCLK0/256
+                                        // 1001：PCLK0/512
+                                        // 1010：PCLK0/1024
+                        (0<<8) |        // 0：计数器在计数上溢或下溢后，继续计数
+                                        // 1：计数器在计数上溢或下溢后，停止计数
+                        (0<<16)|        // 0：Z相输入时该单元作为公转定时器，在屏蔽周期期间内公转定时器计数功能正常动作
+                                        // 1：Z相输入时该单元作为公转定时器，在屏蔽周期期间内公转定时器计数功能被屏蔽
+                        (0<<17)|        // 0：Z相输入时该单元作为位置定时器，在屏蔽周期期间内位置定时器清零功能正常动作
+                                        // 1：Z相输入时该单元作为位置定时器，在屏蔽周期期间内位置定时器清零功能被屏蔽
+                        (0<<18)         // 00：Z相输入屏蔽功能无效
+                                        // 01：位置计数上溢后或下溢后的4个计数周期内的Z相输入被屏蔽
+                                        // 10：位置计数上溢后或下溢后的8个计数周期内的Z相输入被屏蔽
+                                        // 11：位置计数上溢后或下溢后的16个计数周期内的Z相输入被屏蔽
+    ;
+    
+    CM_TMR6_2->PCNAR  = 0;
+    CM_TMR6_2->PCNAR |= (0<<0) |        // 00：计数开始时，TMR6_<t>_PWMA端口输出设定为低电平
+                                        // 01：计数开始时，TMR6_<t>_PWMA端口输出设定为高电平
+                                        // 10：计数开始时，TMR6_<t>_PWMA端口输出保持先前状态
+                                        // 11：计数开始时，TMR6_<t>_PWMA端口输出保持先前状态
+                         (0<<2) |        // 00：计数停止时，TMR6_<t>_PWMA端口输出设定为低电平
+                                         // 01：计数停止时，TMR6_<t>_PWMA端口输出设定为高电平
+                                         // 10：计数停止时，TMR6_<t>_PWMA端口输出保持先前状态
+                                         // 11：计数停止时，TMR6_<t>_PWMA端口输出保持先前状态
+                         (2<<4) |        // 00：计数上溢时，TMR6_<t>_PWMA端口输出设定为低电平
+                                         // 01：计数上溢时，TMR6_<t>_PWMA端口输出设定为高电平
+                                         // 10：计数上溢时，TMR6_<t>_PWMA端口输出保持先前状态
+                                         // 11：计数上溢时，TMR6_<t>_PWMA端口输出设定为反转电平
+                         (2<<6) |        // 00：计数下溢时，TMR6_<t>_PWMA端口输出设定为低电平
+                                         // 01：计数下溢时，TMR6_<t>_PWMA端口输出设定为高电平
+                                         // 10：计数下溢时，TMR6_<t>_PWMA端口输出保持先前状态
+                                         // 11：计数下溢时，TMR6_<t>_PWMA端口输出设定为反转电平
+                         (0<<8) |        // 00 ：在向上计数期间，定时器计数值与 GCMAR 相等时，TMR6_<t>_PWMA端口输出设定为低电平
+                                         // 01 ：在向上计数期间，定时器计数值与 GCMAR 相等时，TMR6_<t>_PWMA端口输出设定为高电平
+                                         // 10 ：在向上计数期间，定时器计数值与 GCMAR 相等时，TMR6_<t>_PWMA端口输出保持先前状态
+                                         // 11 ：在向上计数期间，定时器计数值与 GCMAR 相等时，TMR6_<t>_PWMA端口输出设定为反转电平
+                         (1<<10) |       // 00 ：在向下计数期间，定时器计数值与 GCMAR 相等时，TMR6_<t>_PWMA端口输出设定为低电平
+                                         // 01 ：在向下计数期间，定时器计数值与 GCMAR 相等时，TMR6_<t>_PWMA端口输出设定为高电平
+                                         // 10 ：在向下计数期间，定时器计数值与 GCMAR 相等时，TMR6_<t>_PWMA端口输出保持先前状态
+                                         // 11 ：在向下计数期间，定时器计数值与 GCMAR 相等时，TMR6_<t>_PWMA端口输出设定为反转电平
+                         (0<<12) |       // 00 ：在向上计数期间，定时器计数值与 GCMBR 相等时，TMR6_<t>_PWMA端口输出设定为低电平
+                                         // 01 ：在向上计数期间，定时器计数值与 GCMBR 相等时，TMR6_<t>_PWMA端口输出设定为高电平
+                                         // 10 ：在向上计数期间，定时器计数值与 GCMBR 相等时，TMR6_<t>_PWMA端口输出保持先前状态
+                                         // 11 ：在向上计数期间，定时器计数值与 GCMBR 相等时，TMR6_<t>_PWMA端口输出设定为反转电平
+                         (1<<14) |       // 00 ：在向下计数期间，定时器计数值与 GCMBR 相等时，TMR6_<t>_PWMA端口输出设定为低电平
+                                         // 01 ：在向下计数期间，定时器计数值与 GCMBR 相等时，TMR6_<t>_PWMA端口输出设定为高电平
+                                         // 10 ：在向下计数期间，定时器计数值与 GCMBR 相等时，TMR6_<t>_PWMA端口输出保持先前状态
+                                         // 11 ：在向下计数期间，定时器计数值与 GCMBR 相等时，TMR6_<t>_PWMA端口输出设定为反转电平
+                         (0<<16) |       // 0x：设定无效定10：下周期开始，TMR6_<t>_PWMA端口输出设定为低电平
+                                         // 11：下周期开始，TMR6_<t>_PWMA端口输出设定为高电平
+                                         // 注1：下周期是指硬件计数模式或锯齿波计数到上溢点或下溢点、三角波计数到谷点
+                                         // 注2：该寄存器位可用于实现PWM输出占空比0%或100%的控制
+                         (0<<20) |       // 00：发生EMBSA[1:0]选择EMB控制事件时，TMR6_<t>_PWMA端口正常输出
+                                         // 01：发生EMBSA[1:0]选择EMB控制事件时，TMR6_<t>_PWMA端口输出高阻态
+                                         // 10：发生EMBSA[1:0]选择EMB控制事件时，TMR6_<t>_PWMA端口输出低电平
+                                         // 11：发生EMBSA[1:0]选择EMB控制事件时，TMR6_<t>_PWMA端口输出高电平
+                        (0<<22) |       // 00 ： EMBSA[1:0] 选择的 EMB 控 制 事件无效时 ，立即释放TMR6_<t>_PWMA端口（One Shot）
+                                        // 01：EMBSA[1:0]选择的EMB控制事件无效时，等到计数器计数到上溢时释放TMR6_<t>_PWMA端口（Cycle By Cycle 1）
+                                        // 10：EMBSA[1:0]选择的EMB控制事件无效时，等到计数器计数到下溢时释放TMR6_<t>_PWMA端口（Cycle By Cycle 2）
+                                        // 11：EMBSA[1:0]选择的EMB控制事件无效时，等到计数器计数到上溢或下溢时释放TMR6_<t>_PWMA端口（Cycle By Cycle 3）
+                        (0<<24) |       // 00：选择EMB的Group6控制事件有效
+                                        // 01：选择EMB的Group7控制事件有效
+                        (1<<28) |       // 0：Timer6功能时的TMR6_<t>_PWMA端口输出无效
+                                        // 1：Timer6功能时的TMR6_<t>_PWMA端口输出有效
+                        (0<<31)         // 0：比较输出功能
+                                        // 1：捕获输入功能
+    ;
+
+    CM_TMR6_2->BCONR = 0;
+    CM_TMR6_2->BCONR = (1<<0) | (1<<3)|(1<<8)|(1<<11);
+
+    CM_TMR6_1->GCMAR = 2400;
+    CM_TMR6_2->GCMAR = 1200/4;
+	bsp_pwm_set_tmr6(0.6f,100000);
+    bsp_pwm_set_tmr6_fan(1);
+}
+
+void RAMFUNC bsp_pwm_set_tmr6(float duty,float freq)
+{
+	CM_TMR6_2->BCONR  = 0;
+	CM_TMR6_2->PERBR = 120000000/freq/2;
+	CM_TMR6_2->GCMCR = duty*CM_TMR6_2->PERBR;
+	CM_TMR6_2->BCONR = (1<<0) | (1<<3)|(1<<8)|(1<<11);
+}
+
+void bsp_pwm_set_tmr6_fan(float duty)
+{
+    if((duty <= 0)||(duty >= 1))
+    {
+        if(duty >= 1)
+        {
+            duty = 1;
+        }else{
+            duty = 0;
+        }
+        CM_TMR6_1->PCNAR = 0x100041A0;
+    }else{
+        CM_TMR6_1->PCNAR = 0x100044A0;
+    }
+	CM_TMR6_1->BCONR = 0;
+	CM_TMR6_1->PERBR = 120000000/25000/2;
+	CM_TMR6_1->GCMCR = duty*CM_TMR6_1->PERBR;
+	CM_TMR6_1->BCONR = (1<<0) | (1<<3)|(1<<8)|(1<<11);
+}
+

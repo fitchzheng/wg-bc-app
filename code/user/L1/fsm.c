@@ -87,6 +87,13 @@ static void init_exe(void)
             {
                 fault_set_fault(FAULT_FVS48_OVP);
             }
+            if(fvs48 < 7.5f){
+                gpio_set_dsg(0);
+                gpio_set_chg(0);
+            }else if(fvs48 > 8.0f){
+                gpio_set_dsg(1);
+                gpio_set_chg(1);  
+            }
         }else if(get_check_state_data() == ADDRS_BACKWARD){
             if(rvs12 < get_wg_com_v2_data.com_param.SetOutUvloRecover)
             {
@@ -95,6 +102,13 @@ static void init_exe(void)
             if(rvs12 > get_wg_com_v2_data.com_param.SetOutOVPRecover)
             {
                 fault_set_fault(FAULT_RVS12_OVP);
+            }
+            if(rvs12 < 7.5f){
+                gpio_set_dsg(0);
+                gpio_set_chg(0);
+            }else if(rvs12 > 8.0f){
+                gpio_set_dsg(1);
+                gpio_set_chg(1);  
             }
         }
     }

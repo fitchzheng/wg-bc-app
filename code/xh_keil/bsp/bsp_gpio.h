@@ -25,6 +25,8 @@
 
 typedef enum
 {
+  PIN_CHG,
+  PIN_DSG,
   PIN_TEMP3,
   PIN_ACCVS,
   PIN_ADDRS,
@@ -45,8 +47,6 @@ typedef enum
   PIN_BUCK_PWML_A,
   PIN_BOOST_PWML_A,
   PIN_BOOST_PWMH_A,
-  PIN_LED2,
-  PIN_LED3,
   PIN_LG,
   PIN_LR,
   PIN_BOOST_PWMH_B,
@@ -66,6 +66,7 @@ typedef enum
   PIN_USART0_RX,
   PIN_CAN0_RX,
   PIN_CAN0_TX,
+  PIN_TEXT,
 } bsp_gpio_table_e;
 
 typedef struct

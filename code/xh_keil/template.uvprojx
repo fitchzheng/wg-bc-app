@@ -1028,6 +1028,11 @@
               <FilePath>..\user\L3\rvc_message_handler.c</FilePath>
             </File>
             <File>
+              <FileName>fan_drive.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\2025\Interleaved-BiDC\code\user\L3\fan_drive.c</FilePath>
+            </File>
+            <File>
               <FileName>client_can.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\user\L3\client_can.c</FilePath>
@@ -2117,6 +2122,11 @@
               <FileName>rvc_message_handler.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\user\L3\rvc_message_handler.c</FilePath>
+            </File>
+            <File>
+              <FileName>fan_drive.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\2025\Interleaved-BiDC\code\user\L3\fan_drive.c</FilePath>
             </File>
             <File>
               <FileName>client_can.c</FileName>
@@ -3310,6 +3320,11 @@
                   </Cads>
                 </FileArmAds>
               </FileOption>
+            </File>
+            <File>
+              <FileName>fan_drive.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\2025\Interleaved-BiDC\code\user\L3\fan_drive.c</FilePath>
             </File>
             <File>
               <FileName>client_can.c</FileName>

@@ -2,6 +2,11 @@
 #include "bsp_gpio.h"
 #include "section.h"
 
+void gpio_set_text(uint8_t val)
+{
+    bsp_gpio_set_bit(PIN_TEXT, val);
+}
+
 void gpio_set_auxoff(uint8_t val)
 {
     bsp_gpio_set_bit(PIN_AUXOFF, val);
@@ -28,12 +33,22 @@ void gpio_set_led1_green(uint8_t val)
 
 void gpio_set_led2_red(uint8_t val)
 {
-    bsp_gpio_set_bit(PIN_LED2, val);
+    //bsp_gpio_set_bit(PIN_LED2, val);
 }
 
 void gpio_set_led3_green(uint8_t val)
 {
-    bsp_gpio_set_bit(PIN_LED3, val);
+    //bsp_gpio_set_bit(PIN_LED3, val);
+}
+
+void gpio_set_chg(uint8_t val)
+{
+    bsp_gpio_set_bit(PIN_CHG, val);
+}
+
+void gpio_set_dsg(uint8_t val)
+{
+    bsp_gpio_set_bit(PIN_DSG, val);
 }
 
 uint8_t gpio_get_pg(void)
@@ -86,22 +101,30 @@ void mos_on_off_G300(uint8_t model)
 
 
 
-static uint8_t key_state = 0;
+static uint8_t key_state = 1;
 void key_pg(void)
 {
-	static uint16_t key_cot = 0;
-	if(gpio_get_pg() == 1){
-		if(key_cot >= 30){
+	static uint16_t key_up = 0;
+	static uint16_t key_du = 0;
+    if(gpio_get_pg() == 1){
+		if(++key_up >= 30){
+            key_up = 0;
+            #if (AUTO_VOLT_RECOGNIZE == 1)
+            if((key_state == 0)&&(get_wg_com_v2_data.com_ctrl.SetPowerMode == eSET_BAT_MODE)){auto_Identify_voltage();}
+            #endif  
 			key_state = 1;
-		}else{
-			key_cot++;
+            key_state = 1;
+            key_state = 1;
 		}
+        key_du = 0;
 	}else{
-		if(key_cot > 0){
-			key_cot --;
-		}else{
+		if(++key_du >= 30){
+            key_du = 0;
 			key_state = 0;
+            key_state = 0;
+            key_state = 0;
 		}
+        key_up = 0;
 	}
 }
 

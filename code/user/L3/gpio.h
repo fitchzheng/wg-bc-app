@@ -32,6 +32,10 @@ void gpio_set_da1(uint8_t val);
 
 void gpio_set_re(uint8_t val);
 
+void gpio_set_chg(uint8_t val);
+
+void gpio_set_dsg(uint8_t val);
+
 uint8_t bsp_get_addrs(void);
 
 void mos_on_off_G150(uint8_t model);
