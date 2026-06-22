@@ -88,6 +88,8 @@
 #define RVC_DGN_PROPRIETARY_STATUS_CONTROL_R               0xEF3E  // 私有 DGN 状态控制: 电池方向/MPPT/休眠
 #define RVC_DGN_PROPRIETARY_STATUS_CONTROL_W               0xEF3F  // 私有 DGN 状态控制: 电池方向/MPPT/休眠
 #define RVC_DGN_PROPRIETARY_APP_DEBUG_EVENT_R              0xEF40  // APP debug event ring read
+#define RVC_DGN_PROPRIETARY_CALIBRATION_R                  0xEF42  // calibration readback
+#define RVC_DGN_PROPRIETARY_CALIBRATION_W                  0xEF43  // calibration read/write command
 
 /* ========== 数据结构 ========== */
 

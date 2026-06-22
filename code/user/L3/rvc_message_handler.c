@@ -431,6 +431,132 @@ static uint8_t rvc_write_register_words(uint16_t addr, const uint16_t *values, u
     return wg_com_v2_write_registers(addr, count, reg_data);
 }
 
+static uint8_t rvc_calibration_item_to_addr(uint8_t item, uint16_t *addr)
+{
+    if((addr == NULL) || (item > 11U))
+    {
+        return 0U;
+    }
+
+    *addr = (uint16_t)(WG_COM_V2_PARAM_ADDR + ((uint16_t)item * 2U));
+    return 1U;
+}
+
+static uint16_t rvc_read_calibration_word(uint16_t addr)
+{
+    uint16_t offset = (uint16_t)(addr - WG_COM_V2_PARAM_ADDR);
+
+    return get_uint16(((uint8_t *)&wg_com_v2_param) + ((uint32_t)offset * 2U));
+}
+
+static uint16_t rvc_get_calibration_current_value(uint8_t item)
+{
+    uint16_t value = 0U;
+
+    switch(item)
+    {
+        case 0U:
+            value = get_uint16((uint8_t *)&wg_com_v2_param.SetInpVolt);
+            break;
+        case 1U:
+            value = get_uint16((uint8_t *)&wg_com_v2_param.SetInpCurr);
+            break;
+        case 2U:
+            value = get_uint16((uint8_t *)&wg_com_v2_realtime_data.InpVolt);
+            break;
+        case 3U:
+            value = get_uint16((uint8_t *)&wg_com_v2_realtime_data.InpCurr);
+            break;
+        case 4U:
+            value = get_uint16((uint8_t *)&wg_com_v2_param.SetOutVolt);
+            break;
+        case 5U:
+            value = get_uint16((uint8_t *)&wg_com_v2_param.SetOutCurr);
+            break;
+        case 6U:
+            value = get_uint16((uint8_t *)&wg_com_v2_realtime_data.OutVolt);
+            break;
+        case 7U:
+            value = get_uint16((uint8_t *)&wg_com_v2_realtime_data.OutCurr);
+            break;
+        case 8U:
+            value = get_uint16((uint8_t *)&wg_com_v2_realtime_data.OutCurr);
+            break;
+        case 9U:
+            value = get_uint16((uint8_t *)&wg_com_v2_realtime_data.InpCurr);
+            break;
+        case 10U:
+            value = get_uint16((uint8_t *)&wg_com_v2_realtime_data.CompensationVoltA);
+            break;
+        case 11U:
+            value = get_uint16((uint8_t *)&wg_com_v2_realtime_data.CompensationVoltB);
+            break;
+        default:
+            value = 0xFFFFU;
+            break;
+    }
+
+    return value;
+}
+
+static void handle_calibration_command(uint8_t *data, uint8_t len)
+{
+    uint8_t tx_data[8];
+    uint32_t tx_can_id = 0U;
+    uint16_t addr = 0U;
+    uint16_t value = 0U;
+    uint16_t current_value = 0xFFFFU;
+    uint8_t status = 0U;
+    uint8_t op = 0U;
+    uint8_t item = 0U;
+
+    if(len < 5U)
+    {
+        return;
+    }
+
+    if((data[0] != 0xFFU) && (data[0] != g_my_instance))
+    {
+        return;
+    }
+
+    op = data[1];
+    item = data[2];
+    if(rvc_calibration_item_to_addr(item, &addr) == 0U)
+    {
+        status = 1U;
+    }
+    else if(op == 1U)
+    {
+        value = (uint16_t)(((uint16_t)data[3] << 8) | data[4]);
+        if(rvc_write_register_words(addr, &value, 1U) == 0U)
+        {
+            status = 2U;
+        }
+    }
+    else if(op != 0U)
+    {
+        status = 3U;
+    }
+
+    if(status == 0U)
+    {
+        value = rvc_read_calibration_word(addr);
+        current_value = rvc_get_calibration_current_value(item);
+    }
+
+    memset(tx_data, 0xFF, sizeof(tx_data));
+    tx_data[0] = data[0];
+    tx_data[1] = op;
+    tx_data[2] = item;
+    tx_data[3] = status;
+    tx_data[4] = (uint8_t)((value >> 8) & 0xFFU);
+    tx_data[5] = (uint8_t)(value & 0xFFU);
+    tx_data[6] = (uint8_t)((current_value >> 8) & 0xFFU);
+    tx_data[7] = (uint8_t)(current_value & 0xFFU);
+    tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_CALIBRATION_R, rvc_address_get_current());
+    bsp_rvc_can_tx(tx_can_id, tx_data, 8);
+}
 static void handle_set_parameter_area(uint32_t gdn, uint8_t *data, uint8_t len)
 {
     if (len < 7) {
@@ -1021,6 +1147,10 @@ void rvc_message_handler_process(uint32_t can_id, uint8_t *data, uint8_t len)
         case RVC_DGN_PROPRIETARY_AUOT_OPEN_VEER_SHUT_VOLT_A_W:
         case RVC_DGN_PROPRIETARY_AUOT_OPEN_SHUT_VOLT_B_W:
             handle_set_parameter_area_w(dgn, data, len);
+            break;
+
+        case RVC_DGN_PROPRIETARY_CALIBRATION_W:
+            handle_calibration_command(data, len);
             break;
 
         default:
