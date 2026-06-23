@@ -50,6 +50,12 @@ static uint8_t mppt_profile_type_valid = 0;
 static uint16_t mppt_profile_type_a = (uint16_t)((eBAT_DCDC << 8) | eSYS_10_60V);
 static uint16_t mppt_profile_type_b = (uint16_t)((eBAT_LI_LFP << 8) | eSYS_24V);
 
+#define RS485_REVERSE_LIMIT_SECONDS 300U
+static uint16_t rs485_reverse_limit_seconds = 0U;
+static uint8_t rs485_reverse_limit_active = 0U;
+static void rs485_reverse_limit_note_write(uint16_t addr, uint16_t count);
+static void rs485_reverse_limit_task(void);
+
 static const realtime_data_unit_map_t unit_map[] = {
     {&wg_com_v2_realtime_data.InpVolt, 0.01f},
     {&wg_com_v2_realtime_data.InpCurr, 0.01f},
@@ -814,6 +820,7 @@ static void handle_write_data_command(void)
 
     if (unified_write(reg_addr, 1, data))
     {
+        rs485_reverse_limit_note_write(reg_addr, 1U);
         uint16_t crc = ModBusCRC16(wg_com_tx_buffer, 6);
         set_uint16(&wg_com_tx_buffer[6], crc);
         wg_com_tx_buffer_cnt = 8;
@@ -849,6 +856,7 @@ static void handle_write_str_command(void)
 
     if (unified_write(start_addr, reg_count, &wg_com_rx_buffer[7]))
     {
+        rs485_reverse_limit_note_write(start_addr, reg_count);
         uint16_t crc = ModBusCRC16(wg_com_tx_buffer, 6);
         set_uint16(&wg_com_tx_buffer[6], crc);
         wg_com_tx_buffer_cnt = 8;
@@ -1146,6 +1154,69 @@ void wg_com_v2_run(void)
 }
 
 #endif
+
+static uint8_t rs485_write_touches_bat_mode_fr(uint16_t addr, uint16_t count)
+{
+    uint16_t bat_mode_fr_addr = (uint16_t)(WG_COM_V2_CTRL_ADDR + 0x0CU);
+
+    return ((addr <= bat_mode_fr_addr) && ((addr + count) > bat_mode_fr_addr)) ? 1U : 0U;
+}
+
+static void rs485_reverse_limit_note_write(uint16_t addr, uint16_t count)
+{
+    uint16_t bat_mode_fr = 0U;
+
+    if(rs485_write_touches_bat_mode_fr(addr, count) == 0U)
+    {
+        return;
+    }
+
+    WG_COM_V2_GET_DATA_UINT(bat_mode_fr, wg_com_v2_ctrl.BatModeFR);
+    if(bat_mode_fr == eADDRS_BACKWARD)
+    {
+        rs485_reverse_limit_active = 1U;
+        rs485_reverse_limit_seconds = RS485_REVERSE_LIMIT_SECONDS;
+    }
+    else
+    {
+        rs485_reverse_limit_active = 0U;
+        rs485_reverse_limit_seconds = 0U;
+    }
+}
+
+static void rs485_reverse_limit_task(void)
+{
+    uint16_t bat_mode_fr = 0U;
+
+    if(rs485_reverse_limit_active == 0U)
+    {
+        return;
+    }
+
+    WG_COM_V2_GET_DATA_UINT(bat_mode_fr, wg_com_v2_ctrl.BatModeFR);
+    if(bat_mode_fr != eADDRS_BACKWARD)
+    {
+        rs485_reverse_limit_active = 0U;
+        rs485_reverse_limit_seconds = 0U;
+        return;
+    }
+
+    if(rs485_reverse_limit_seconds > 0U)
+    {
+        rs485_reverse_limit_seconds--;
+    }
+
+    if(rs485_reverse_limit_seconds == 0U)
+    {
+        rs485_reverse_limit_active = 0U;
+        WG_COM_V2_SET_DATA_UINT(eADDRS_FORWARD, wg_com_v2_ctrl.BatModeFR);
+        get_wg_com_v2_data.com_ctrl.BatModeFR = eADDRS_FORWARD;
+        request_update_parameter();
+        (void)eeprom_commit_current_pages_for_range((uint16_t)(WG_COM_V2_CTRL_ADDR + 0x0CU), 1U);
+    }
+}
+
+REG_TASK(1000, rs485_reverse_limit_task)
 
 REG_TASK(1, wg_com_v2_run)
 
