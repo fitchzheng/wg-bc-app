@@ -1239,12 +1239,16 @@ static uint16_t eeprom_profile_addr_from_ctrl(uint8_t is_a_port, uint16_t bat_ty
     return (page == 0xFFFF) ? 0xFFFF : eeprom_profile_page_to_addr(page);
 }
 
-static uint8_t eeprom_profile_type_from_ctrl(uint16_t bat_type)
+static uint8_t eeprom_profile_type_from_ctrl(uint16_t bat_type, uint8_t is_a_port)
 {
     uint8_t type = (uint8_t)((bat_type & 0xff00) >> 8);
     if(type == eBAT_LA_GEL)
     {
         type = eBAT_TYPE_AGM;
+    }
+    if(type == eBAT_AUTOSYS)
+    {
+        type = is_a_port ? eBAT_TYPE_AGM : eBAT_TYPE_LFP;
     }
     if(type >= eBAT_TYPE_MAX)
     {
@@ -1269,15 +1273,15 @@ static uint8_t eeprom_profile_bat_sys_from_ctrl(uint16_t sys)
 static uint16_t eeprom_autosys_detect_a(void)
 {
     float a_volt = get_wg_com_v2_data.com_realtime_data.InpVolt;
-    if((a_volt >= 10.0f) && (a_volt <= 15.0f))
+    if((a_volt >= 10.0f) && (a_volt <= 17.0f))
     {
         return eSYS_12V;
     }
-    if((a_volt >= 20.0f) && (a_volt <= 30.0f))
+    if((a_volt >= 18.0f) && (a_volt <= 34.0f))
     {
         return eSYS_24V;
     }
-    if((a_volt >= 40.0f) && (a_volt <= 60.0f))
+    if((a_volt >= 36.0f) && (a_volt <= 63.0f))
     {
         return eSYS_48V;
     }
@@ -1340,7 +1344,7 @@ static void eeprom_profile_fill_default(eeprom_system_profile_t *profile, uint8_
 {
     uint8_t sys = eeprom_profile_bat_sys_from_ctrl(bat_type & 0x00FF);
     uint8_t raw_type = (uint8_t)((bat_type & 0xff00) >> 8);
-    uint8_t type = eeprom_profile_type_from_ctrl(bat_type);
+    uint8_t type = eeprom_profile_type_from_ctrl(bat_type, is_a_port);
     const BAT_MODE_CONFIG_T *cfg = NULL;
 
     memset((uint8_t *)profile, 0xFF, sizeof(*profile));
@@ -1373,6 +1377,25 @@ static void eeprom_profile_fill_default(eeprom_system_profile_t *profile, uint8_
     profile->AutoCloseVolt = eeprom_float_to_raw(is_a_port ? cfg->CloseVoltA : cfg->CloseVoltB, is_a_port ? (void *)&wg_com_v2_param.AuotForwardShutVoltA : (void *)&wg_com_v2_param.AuotReverseShutVoltB);
 }
 
+static uint8_t eeprom_profile_is_legacy_autosys_lfp_default(uint8_t is_a_port,
+                                                           uint16_t bat_type,
+                                                           const eeprom_system_profile_t *profile)
+{
+    uint8_t raw_type = (uint8_t)((bat_type & 0xff00) >> 8);
+    uint16_t sys = bat_type & 0x00FF;
+    uint16_t legacy_type = (uint16_t)((eBAT_LI_LFP << 8) | sys);
+    eeprom_system_profile_t legacy_default;
+
+    if((is_a_port == 0) || (raw_type != eBAT_AUTOSYS) || (profile == NULL))
+    {
+        return 0;
+    }
+
+    eeprom_profile_fill_default(&legacy_default, is_a_port, legacy_type);
+    return (memcmp((const uint8_t *)profile,
+                   (const uint8_t *)&legacy_default,
+                   sizeof(legacy_default)) == 0) ? 1 : 0;
+}
 static uint8_t eeprom_profile_sanitize(uint8_t is_a_port,
                                        uint16_t bat_type,
                                        eeprom_system_profile_t *profile,
@@ -1380,7 +1403,7 @@ static uint8_t eeprom_profile_sanitize(uint8_t is_a_port,
 {
     uint8_t sys = eeprom_profile_bat_sys_from_ctrl(bat_type & 0x00FF);
     uint8_t raw_type = (uint8_t)((bat_type & 0xff00) >> 8);
-    uint8_t type = eeprom_profile_type_from_ctrl(bat_type);
+    uint8_t type = eeprom_profile_type_from_ctrl(bat_type, is_a_port);
     const BAT_MODE_CONFIG_T *cfg = NULL;
     eeprom_system_profile_t default_profile;
     float volt_min;
@@ -1509,6 +1532,16 @@ static void eeprom_profile_read_or_init(uint8_t is_a_port, uint16_t bat_type, ee
     }
 
 
+    if(eeprom_profile_is_legacy_autosys_lfp_default(is_a_port, bat_type, profile))
+    {
+        eeprom_profile_fill_default(profile, is_a_port, bat_type);
+        (void)eeprom_profile_write_payload(addr, port, type, sys, (uint8_t *)profile, sizeof(*profile));
+        app_debug_event_push(APP_DBG_EVT_PROFILE_DEFAULT, app_debug_area_from_page(app_debug_page_from_addr(addr)),
+                             app_debug_page_from_addr(addr),
+                             (uint8_t)get_wg_com_v2_data.com_ctrl.SetPowerMode,
+                             type, APP_DBG_RESULT_RETRY, sys);
+        return;
+    }
     if((((bat_type & 0xff00) >> 8) != eBAT_DCDC) &&
        (((eeprom_profile_header_t *)eeprom_page_read_data)->reserved != EEPROM_PROFILE_RESERVED_USER))
     {
