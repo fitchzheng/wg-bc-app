@@ -30,6 +30,10 @@ typedef struct
 void GetChargeState(uint16_t ChargMode);
 uint16_t get_check_state_data(void);
 uint8_t gpio_get_pg_en(void);
+uint8_t bat_charge_acc_reverse_request_active(void);
+uint8_t bat_charge_consume_acc_reverse_enter_event(void);
+uint8_t bat_charge_reverse_timeout_lock_active(void);
+void bat_charge_set_reverse_timeout_lock(uint8_t lock);
 #endif
 
 

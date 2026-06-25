@@ -1,4 +1,6 @@
 #include "wg_com_v2.h"
+#include "bat_charge_pattern.h"
+#include "adc_check.h"
 #include "bsp_usart.h"
 #include "section.h"
 #include "stdint.h"
@@ -50,11 +52,29 @@ static uint8_t mppt_profile_type_valid = 0;
 static uint16_t mppt_profile_type_a = (uint16_t)((eBAT_DCDC << 8) | eSYS_10_60V);
 static uint16_t mppt_profile_type_b = (uint16_t)((eBAT_LI_LFP << 8) | eSYS_24V);
 
-#define RS485_REVERSE_LIMIT_SECONDS 300U
-static uint16_t rs485_reverse_limit_seconds = 0U;
-static uint8_t rs485_reverse_limit_active = 0U;
-static void rs485_reverse_limit_note_write(uint16_t addr, uint16_t count);
-static void rs485_reverse_limit_task(void);
+#define REVERSE_DIRECTION_LIMIT_SECONDS 1800U
+#define REVERSE_DIRECTION_EXIT_DELAY_SECONDS 10U
+#define REVERSE_DIRECTION_DEBUG_TICK_SECONDS 10U
+static uint16_t reverse_direction_limit_seconds = 0U;
+static uint8_t reverse_direction_limit_active = 0U;
+static uint8_t reverse_direction_debug_tick_seconds = 0U;
+static uint8_t reverse_timeout_lock_release_seconds = 0U;
+static void reverse_direction_limit_start(void);
+static void reverse_direction_apply_bat_mode_fr(uint16_t bat_mode_fr);
+static void reverse_direction_limit_note_write(uint16_t addr, uint16_t count);
+static void reverse_direction_limit_task(void);
+
+#define REVERSE_DBG_STAGE_WRITE_REVERSE  1U
+#define REVERSE_DBG_STAGE_START          2U
+#define REVERSE_DBG_STAGE_LOCKED         3U
+#define REVERSE_DBG_STAGE_EXIT_DELAY     4U
+#define REVERSE_DBG_STAGE_EXIT_DONE      5U
+#define REVERSE_DBG_STAGE_TIMEOUT        6U
+#define REVERSE_DBG_STAGE_LOCK_RELEASE   7U
+#define REVERSE_DBG_STAGE_TICK           12U
+#define REVERSE_DBG_SECONDS_HI() ((uint8_t)((reverse_direction_limit_seconds >> 8) & 0xFFU))
+#define REVERSE_DBG_SECONDS_LO() ((uint8_t)(reverse_direction_limit_seconds & 0xFFU))
+#define REVERSE_DBG(stage, result, value) app_debug_event_push(APP_DBG_EVT_REVERSE_TIMER, APP_DBG_AREA_P02, (stage), reverse_direction_limit_active, REVERSE_DBG_SECONDS_HI(), (result), REVERSE_DBG_SECONDS_LO())
 
 static const realtime_data_unit_map_t unit_map[] = {
     {&wg_com_v2_realtime_data.InpVolt, 0.01f},
@@ -774,6 +794,7 @@ static uint8_t unified_write(uint16_t addr, uint16_t count, const uint8_t *data)
     {
         return 0;
     }
+    reverse_direction_limit_note_write(addr, count);
     return 1;
 }
 
@@ -820,7 +841,6 @@ static void handle_write_data_command(void)
 
     if (unified_write(reg_addr, 1, data))
     {
-        rs485_reverse_limit_note_write(reg_addr, 1U);
         uint16_t crc = ModBusCRC16(wg_com_tx_buffer, 6);
         set_uint16(&wg_com_tx_buffer[6], crc);
         wg_com_tx_buffer_cnt = 8;
@@ -856,7 +876,6 @@ static void handle_write_str_command(void)
 
     if (unified_write(start_addr, reg_count, &wg_com_rx_buffer[7]))
     {
-        rs485_reverse_limit_note_write(start_addr, reg_count);
         uint16_t crc = ModBusCRC16(wg_com_tx_buffer, 6);
         set_uint16(&wg_com_tx_buffer[6], crc);
         wg_com_tx_buffer_cnt = 8;
@@ -1162,7 +1181,68 @@ static uint8_t rs485_write_touches_bat_mode_fr(uint16_t addr, uint16_t count)
     return ((addr <= bat_mode_fr_addr) && ((addr + count) > bat_mode_fr_addr)) ? 1U : 0U;
 }
 
-static void rs485_reverse_limit_note_write(uint16_t addr, uint16_t count)
+static void reverse_direction_limit_start(void)
+{
+    if(bat_charge_reverse_timeout_lock_active() != 0U)
+    {
+        REVERSE_DBG(REVERSE_DBG_STAGE_LOCKED, APP_DBG_RESULT_FAIL, 0U);
+        return;
+    }
+    reverse_direction_limit_active = 1U;
+    reverse_direction_limit_seconds = REVERSE_DIRECTION_LIMIT_SECONDS;
+        reverse_direction_debug_tick_seconds = REVERSE_DIRECTION_DEBUG_TICK_SECONDS;
+REVERSE_DBG(REVERSE_DBG_STAGE_START, APP_DBG_RESULT_START, REVERSE_DIRECTION_EXIT_DELAY_SECONDS);
+}
+
+static void reverse_direction_apply_bat_mode_fr(uint16_t bat_mode_fr)
+{
+    uint16_t old_bat_mode_fr = get_wg_com_v2_data.BatModeFRState;
+    uint8_t bat_mode_fr_changed = (old_bat_mode_fr != bat_mode_fr) ? 1U : 0U;
+
+    WG_COM_V2_SET_DATA_UINT(bat_mode_fr, wg_com_v2_ctrl.BatModeFR);
+    get_wg_com_v2_data.BatModeFRState = bat_mode_fr;
+    get_wg_com_v2_data.com_ctrl.BatModeFR = bat_mode_fr;
+    request_update_parameter();
+    if(bat_mode_fr_changed == 0U)
+    {
+        return;
+    }
+
+    if(bat_mode_fr == eADDRS_BACKWARD)
+    {
+        bat_charge_set_reverse_timeout_lock(0U);
+        reverse_timeout_lock_release_seconds = 0U;
+        REVERSE_DBG(REVERSE_DBG_STAGE_WRITE_REVERSE, APP_DBG_RESULT_START, 2U);
+        reverse_direction_limit_start();
+    }
+    else if(bat_mode_fr == eADDRS_FORWARD)
+    {
+        reverse_direction_limit_active = 0U;
+        reverse_direction_limit_seconds = 0U;
+        reverse_timeout_lock_release_seconds = 0U;
+        bat_charge_set_reverse_timeout_lock(0U);
+        REVERSE_DBG(REVERSE_DBG_STAGE_EXIT_DONE, APP_DBG_RESULT_OK, 1U);
+    }
+    else
+    {
+        reverse_direction_limit_active = 0U;
+        reverse_direction_limit_seconds = 0U;
+        reverse_timeout_lock_release_seconds = 0U;
+        bat_charge_set_reverse_timeout_lock(0U);
+        REVERSE_DBG(REVERSE_DBG_STAGE_EXIT_DONE, APP_DBG_RESULT_OK, 0U);
+    }
+}
+
+void wg_com_v2_set_bat_mode_fr_runtime(uint16_t bat_mode_fr)
+{
+    if(bat_mode_fr > eADDRS_BACKWARD)
+    {
+        return;
+    }
+    reverse_direction_apply_bat_mode_fr(bat_mode_fr);
+}
+
+static void reverse_direction_limit_note_write(uint16_t addr, uint16_t count)
 {
     uint16_t bat_mode_fr = 0U;
 
@@ -1172,51 +1252,89 @@ static void rs485_reverse_limit_note_write(uint16_t addr, uint16_t count)
     }
 
     WG_COM_V2_GET_DATA_UINT(bat_mode_fr, wg_com_v2_ctrl.BatModeFR);
-    if(bat_mode_fr == eADDRS_BACKWARD)
-    {
-        rs485_reverse_limit_active = 1U;
-        rs485_reverse_limit_seconds = RS485_REVERSE_LIMIT_SECONDS;
-    }
-    else
-    {
-        rs485_reverse_limit_active = 0U;
-        rs485_reverse_limit_seconds = 0U;
-    }
+    reverse_direction_apply_bat_mode_fr(bat_mode_fr);
 }
-
-static void rs485_reverse_limit_task(void)
+static void reverse_direction_limit_task(void)
 {
-    uint16_t bat_mode_fr = 0U;
+    uint8_t actual_reverse = (get_check_state_data() == ADDRS_BACKWARD) ? 1U : 0U;
 
-    if(rs485_reverse_limit_active == 0U)
+    if(bat_charge_reverse_timeout_lock_active() != 0U)
+    {
+        reverse_direction_limit_active = 0U;
+        reverse_direction_limit_seconds = 0U;
+        if(bat_charge_acc_reverse_request_active() == 0U)
+        {
+            if(reverse_timeout_lock_release_seconds == 0U)
+            {
+                reverse_timeout_lock_release_seconds = REVERSE_DIRECTION_EXIT_DELAY_SECONDS;
+            }
+            else
+            {
+                reverse_timeout_lock_release_seconds--;
+                if(reverse_timeout_lock_release_seconds == 0U)
+                {
+                    bat_charge_set_reverse_timeout_lock(0U);
+                    REVERSE_DBG(REVERSE_DBG_STAGE_LOCK_RELEASE, APP_DBG_RESULT_OK, 0U);
+                }
+            }
+        }
+        else
+        {
+            reverse_timeout_lock_release_seconds = 0U;
+        }
+        return;
+    }
+
+    reverse_timeout_lock_release_seconds = 0U;
+
+    if(bat_charge_consume_acc_reverse_enter_event() != 0U)
+    {
+        reverse_direction_limit_start();
+    }
+
+    if(reverse_direction_limit_active == 0U)
     {
         return;
     }
 
-    WG_COM_V2_GET_DATA_UINT(bat_mode_fr, wg_com_v2_ctrl.BatModeFR);
-    if(bat_mode_fr != eADDRS_BACKWARD)
+    if(actual_reverse == 0U)
     {
-        rs485_reverse_limit_active = 0U;
-        rs485_reverse_limit_seconds = 0U;
+        reverse_direction_limit_active = 0U;
+        reverse_direction_limit_seconds = 0U;
+        REVERSE_DBG(REVERSE_DBG_STAGE_EXIT_DONE, APP_DBG_RESULT_OK, 0U);
         return;
     }
 
-    if(rs485_reverse_limit_seconds > 0U)
+    if(reverse_direction_debug_tick_seconds > 0U)
     {
-        rs485_reverse_limit_seconds--;
+        reverse_direction_debug_tick_seconds--;
+    }
+    if(reverse_direction_debug_tick_seconds == 0U)
+    {
+        reverse_direction_debug_tick_seconds = REVERSE_DIRECTION_DEBUG_TICK_SECONDS;
+        REVERSE_DBG(REVERSE_DBG_STAGE_TICK, APP_DBG_RESULT_OK, actual_reverse);
     }
 
-    if(rs485_reverse_limit_seconds == 0U)
+    if(reverse_direction_limit_seconds > 0U)
     {
-        rs485_reverse_limit_active = 0U;
+        reverse_direction_limit_seconds--;
+    }
+
+    if(reverse_direction_limit_seconds == 0U)
+    {
+        reverse_direction_limit_active = 0U;
+        reverse_timeout_lock_release_seconds = 0U;
+        bat_charge_set_reverse_timeout_lock(1U);
+        REVERSE_DBG(REVERSE_DBG_STAGE_TIMEOUT, APP_DBG_RESULT_OK, eADDRS_FORWARD);
         WG_COM_V2_SET_DATA_UINT(eADDRS_FORWARD, wg_com_v2_ctrl.BatModeFR);
+        get_wg_com_v2_data.BatModeFRState = eADDRS_FORWARD;
         get_wg_com_v2_data.com_ctrl.BatModeFR = eADDRS_FORWARD;
         request_update_parameter();
         (void)eeprom_commit_current_pages_for_range((uint16_t)(WG_COM_V2_CTRL_ADDR + 0x0CU), 1U);
     }
 }
 
-REG_TASK(1000, rs485_reverse_limit_task)
+REG_TASK(1000, reverse_direction_limit_task)
 
 REG_TASK(1, wg_com_v2_run)
 

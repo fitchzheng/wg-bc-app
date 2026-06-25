@@ -221,6 +221,7 @@ void wg_com_v2_set_data_int(float user_data, void *wg_com_v2_data);
 void wg_com_v2_note_non_mppt_control_state(uint16_t power_mode, uint16_t bat_mode_fr);
 void wg_com_v2_enter_mppt_control_state(void);
 void wg_com_v2_exit_mppt_control_state(void);
+void wg_com_v2_set_bat_mode_fr_runtime(uint16_t bat_mode_fr);
 uint8_t wg_com_v2_write_registers(uint16_t addr, uint16_t count, const uint8_t *data);
 
 uint16_t get_uint16(uint8_t *p_data);

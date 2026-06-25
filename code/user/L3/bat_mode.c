@@ -853,7 +853,7 @@ void BattChargingCurve(charge_state_data_t *bat_charge_data,uint8_t soft_flag)
 					bat_charge_data->ActualOutCurr = bat_charge_data->SetOutCurr;
 					break;
 				case eFLOAT_CHARGE:
-					bat_charge_data->ActualOutVolt = bat_charge_data->SetOutVolt*0.92f;
+					bat_charge_data->ActualOutVolt = bat_charge_data->SetOutVolt*0.958f;
 					bat_charge_data->ActualOutCurr = bat_charge_data->SetOutCurr;
 					break;
 				default : 

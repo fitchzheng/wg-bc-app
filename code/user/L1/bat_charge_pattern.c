@@ -5,8 +5,38 @@
 #include "gpio.h"
 #include "bsp_gpio.h"
 #include "get_com_data.h"
+#include "eeprom_cfg.h"
 static ADC_CHECK_ADDRS_E check_state = ADDRS_IDLE;
 static uint16_t StateCharge = eFORWARD;
+static uint8_t reverse_timeout_lock = 0U;
+static uint8_t manual_direction_monitor_init = 0U;
+static uint16_t manual_last_bat_mode_fr = 0U;
+static uint8_t manual_last_acc_direction = 0U;
+static uint8_t manual_active_direction = 0U;
+static uint8_t manual_applied_direction = 0U;
+static uint8_t manual_last_report_direction = 0U;
+static uint8_t acc_reverse_enter_event = 0U;
+static uint8_t manual_reverse_exit_delay_seconds = 0U;
+static uint8_t manual_last_acc_reverse_request = 0U;
+
+#define MANUAL_REVERSE_EXIT_DELAY_SECONDS 10U
+
+#define DIR_MON_STAGE_INIT        8U
+#define DIR_MON_STAGE_ACC_CHANGE  9U
+#define DIR_MON_STAGE_40C_CHANGE  10U
+#define DIR_MON_STAGE_APPLY       11U
+#define DIR_MON_STAGE_EXIT_DELAY  13U
+#define DIR_MON_DBG(stage, mode, profile, result, value) app_debug_event_push(APP_DBG_EVT_REVERSE_TIMER, APP_DBG_AREA_P02, (stage), (mode), (profile), (result), (value))
+
+static void manual_sync_acc_direction_to_control(uint8_t acc_direction)
+{
+    if((acc_direction == eADDRS_FORWARD) || (acc_direction == eADDRS_BACKWARD))
+    {
+        wg_com_v2_set_bat_mode_fr_runtime(acc_direction);
+        manual_last_bat_mode_fr = acc_direction;
+    }
+}
+
 void auto_charge_mode(void)
 {
     static uint8_t StateModelFlag;
@@ -49,34 +79,207 @@ void backward_charg_mode(void)
     }
 }
 
-void manual_charg_mode(void)
+uint8_t bat_charge_acc_reverse_request_active(void)
 {
     float Rmt_Volt = adc_get_rmtvs();
     float Acc_Volt = adc_get_accvs();
-    
-    if(get_wg_com_v2_data.BatModeFRState == 1){
-        check_state = ADDRS_FORWARD;
-        StateCharge = eMANUAL_FORWARD;
-    }
-    else if(get_wg_com_v2_data.BatModeFRState == 2)
+
+    return ((Acc_Volt < ACC_EXIT_VEER_VOUL) && (Rmt_Volt > RTM_VEER_VOUL)) ? 1U : 0U;
+}
+
+static uint8_t bat_charge_get_acc_direction_request(void)
+{
+    float Rmt_Volt = adc_get_rmtvs();
+    float Acc_Volt = adc_get_accvs();
+
+    if(Acc_Volt > ACC_VEER_VOUL)
     {
-        check_state = ADDRS_BACKWARD;
-        StateCharge = eMANUAL_BACKWARD;
+        return eADDRS_FORWARD;
+    }
+    if((Acc_Volt < ACC_EXIT_VEER_VOUL) && (Rmt_Volt > RTM_VEER_VOUL))
+    {
+        return eADDRS_BACKWARD;
+    }
+    return 0U;
+}
+
+uint8_t bat_charge_consume_acc_reverse_enter_event(void)
+{
+    uint8_t event = acc_reverse_enter_event;
+    acc_reverse_enter_event = 0U;
+    return event;
+}
+
+uint8_t bat_charge_reverse_timeout_lock_active(void)
+{
+    return reverse_timeout_lock;
+}
+
+void bat_charge_set_reverse_timeout_lock(uint8_t lock)
+{
+    reverse_timeout_lock = (lock != 0U) ? 1U : 0U;
+}
+
+void manual_charg_mode(void)
+{
+    uint16_t bat_mode_fr = get_wg_com_v2_data.BatModeFRState;
+    uint8_t acc_direction = bat_charge_get_acc_direction_request();
+    uint8_t acc_reverse_request = bat_charge_acc_reverse_request_active();
+
+    if(manual_direction_monitor_init == 0U)
+    {
+        manual_direction_monitor_init = 1U;
+        manual_last_bat_mode_fr = bat_mode_fr;
+        manual_last_acc_direction = acc_direction;
+        manual_last_acc_reverse_request = acc_reverse_request;
+        if(acc_direction != 0U)
+        {
+            manual_sync_acc_direction_to_control(acc_direction);
+            bat_mode_fr = acc_direction;
+            manual_active_direction = acc_direction;
+            if(acc_direction == eADDRS_BACKWARD)
+            {
+                acc_reverse_enter_event = 1U;
+            }
+        }
+        else if((bat_mode_fr == eADDRS_FORWARD) || (bat_mode_fr == eADDRS_BACKWARD))
+        {
+            manual_active_direction = (uint8_t)bat_mode_fr;
+        }
+        else
+        {
+            manual_active_direction = eADDRS_FORWARD;
+        }
+        manual_applied_direction = manual_active_direction;
+        manual_last_report_direction = manual_active_direction;
+        DIR_MON_DBG(DIR_MON_STAGE_INIT, acc_direction, (uint8_t)bat_mode_fr, APP_DBG_RESULT_START, manual_active_direction);
     }
     else
     {
-        if(Acc_Volt > ACC_VEER_VOUL)
+        if(bat_mode_fr != manual_last_bat_mode_fr)
         {
-            check_state = ADDRS_FORWARD;
-            StateCharge = eMANUAL_FORWARD;
+            manual_last_bat_mode_fr = bat_mode_fr;
+            if((bat_mode_fr == eADDRS_FORWARD) || (bat_mode_fr == eADDRS_BACKWARD))
+            {
+                manual_active_direction = (uint8_t)bat_mode_fr;
+            }
+            else
+            {
+                manual_active_direction = (acc_direction != 0U) ? acc_direction : eADDRS_FORWARD;
+            }
+            DIR_MON_DBG(DIR_MON_STAGE_40C_CHANGE, acc_direction, (uint8_t)bat_mode_fr, APP_DBG_RESULT_START, manual_active_direction);
         }
-        else if((Acc_Volt < ACC_EXIT_VEER_VOUL)&&(Rmt_Volt > RTM_VEER_VOUL))
+
+        if(acc_direction != manual_last_acc_direction)
+        {
+            manual_last_acc_direction = acc_direction;
+            manual_last_acc_reverse_request = acc_reverse_request;
+            if(acc_direction != 0U)
+            {
+                manual_sync_acc_direction_to_control(acc_direction);
+                bat_mode_fr = acc_direction;
+                manual_active_direction = acc_direction;
+                if(acc_direction == eADDRS_BACKWARD)
+                {
+                    acc_reverse_enter_event = 1U;
+                }
+            }
+            else if(manual_active_direction == eADDRS_BACKWARD)
+            {
+                manual_sync_acc_direction_to_control(eADDRS_FORWARD);
+                bat_mode_fr = eADDRS_FORWARD;
+                manual_active_direction = eADDRS_FORWARD;
+            }
+            DIR_MON_DBG(DIR_MON_STAGE_ACC_CHANGE, acc_direction, (uint8_t)bat_mode_fr, APP_DBG_RESULT_START, manual_active_direction);
+        }
+        else if(acc_reverse_request != manual_last_acc_reverse_request)
+        {
+            manual_last_acc_reverse_request = acc_reverse_request;
+            if(acc_reverse_request != 0U)
+            {
+                manual_sync_acc_direction_to_control(eADDRS_BACKWARD);
+                bat_mode_fr = eADDRS_BACKWARD;
+                manual_active_direction = eADDRS_BACKWARD;
+                acc_reverse_enter_event = 1U;
+            }
+            else if(manual_active_direction == eADDRS_BACKWARD)
+            {
+                manual_sync_acc_direction_to_control(eADDRS_FORWARD);
+                bat_mode_fr = eADDRS_FORWARD;
+                manual_active_direction = eADDRS_FORWARD;
+            }
+            DIR_MON_DBG(DIR_MON_STAGE_ACC_CHANGE, acc_direction, (uint8_t)bat_mode_fr, APP_DBG_RESULT_START, manual_active_direction);
+        }
+    }
+
+    if((reverse_timeout_lock != 0U) && (bat_charge_acc_reverse_request_active() != 0U))
+    {
+        manual_applied_direction = eADDRS_FORWARD;
+        manual_reverse_exit_delay_seconds = 0U;
+        check_state = ADDRS_FORWARD;
+        StateCharge = eMANUAL_FORWARD;
+    }
+    else
+    {
+        if(manual_active_direction == eADDRS_BACKWARD)
+        {
+            manual_applied_direction = eADDRS_BACKWARD;
+            manual_reverse_exit_delay_seconds = 0U;
+        }
+        else if(manual_applied_direction != eADDRS_BACKWARD)
+        {
+            manual_applied_direction = eADDRS_FORWARD;
+        }
+
+        if(manual_applied_direction == eADDRS_BACKWARD)
         {
             check_state = ADDRS_BACKWARD;
             StateCharge = eMANUAL_BACKWARD;
         }
+        else
+        {
+            check_state = ADDRS_FORWARD;
+            StateCharge = eMANUAL_FORWARD;
+        }
+    }
+
+    if(manual_last_report_direction != manual_active_direction)
+    {
+        manual_last_report_direction = manual_active_direction;
+        DIR_MON_DBG(DIR_MON_STAGE_APPLY, manual_last_acc_direction, (uint8_t)bat_mode_fr, APP_DBG_RESULT_OK, manual_active_direction);
     }
 }
+
+static void manual_reverse_exit_delay_task(void)
+{
+    if(manual_applied_direction != eADDRS_BACKWARD)
+    {
+        manual_reverse_exit_delay_seconds = 0U;
+        return;
+    }
+
+    if(manual_active_direction == eADDRS_BACKWARD)
+    {
+        manual_reverse_exit_delay_seconds = 0U;
+        return;
+    }
+
+    if(manual_reverse_exit_delay_seconds == 0U)
+    {
+        manual_reverse_exit_delay_seconds = MANUAL_REVERSE_EXIT_DELAY_SECONDS;
+        DIR_MON_DBG(DIR_MON_STAGE_EXIT_DELAY, manual_last_acc_direction, manual_active_direction, APP_DBG_RESULT_START, manual_reverse_exit_delay_seconds);
+        return;
+    }
+
+    manual_reverse_exit_delay_seconds--;
+    if(manual_reverse_exit_delay_seconds == 0U)
+    {
+        manual_applied_direction = eADDRS_FORWARD;
+        DIR_MON_DBG(DIR_MON_STAGE_EXIT_DELAY, manual_last_acc_direction, manual_active_direction, APP_DBG_RESULT_OK, 0U);
+    }
+}
+
+REG_TASK(1000, manual_reverse_exit_delay_task)
 
 void get_protect_data(void);
 void GetChargeState(uint16_t ChargMode)

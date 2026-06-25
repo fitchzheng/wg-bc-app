@@ -71,6 +71,7 @@
 #define APP_DBG_EVT_DIRTY_RETRY     9U
 #define APP_DBG_EVT_FACTORY_STEP    10U
 #define APP_DBG_EVT_BT_NAME         11U
+#define APP_DBG_EVT_REVERSE_TIMER   12U
 
 #define APP_DBG_AREA_P00       1U
 #define APP_DBG_AREA_P02       2U
