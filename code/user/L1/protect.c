@@ -465,6 +465,12 @@ static uint16_t get_standard_basic_output_uvp_report_fault(void)
         return 0;
     }
 
+    if((charge_state_data.get_is_run == 0U) ||
+       (charge_state_data.soft_start_flag == 0U))
+    {
+        return 0;
+    }
+
     switch(get_check_state_data())
     {
         case ADDRS_FORWARD:

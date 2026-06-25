@@ -623,6 +623,15 @@ static uint8_t unified_write(uint16_t addr, uint16_t count, const uint8_t *data)
     WG_COM_V2_GET_DATA_UINT(old_soft_start_a, wg_com_v2_ctrl.SetOnCurrStartTimeA);
     WG_COM_V2_GET_DATA_UINT(old_soft_start_b, wg_com_v2_ctrl.SetOnCurrStartTimeB);
 
+    if(((writes_power_mode != 0) || (writes_mppt_switch != 0) || (writes_bat_type != 0)) &&
+       ((old_power_mode == eSET_BAT_MODE) || (old_power_mode == eMPPT_MODE) || (old_mppt_switch == 1U)))
+    {
+        if(!eeprom_save_current_mode_profile())
+        {
+            return 0;
+        }
+    }
+
     if(((writes_power_mode != 0) || (writes_mppt_switch != 0)) && (old_power_mode == eSET_BAT_MODE))
     {
         WG_COM_V2_GET_DATA_UINT(bat_return_type_a, wg_com_v2_ctrl.InpBatyType);
