@@ -209,12 +209,13 @@ uint16_t eeprom_profile_calc_page(uint8_t port, uint8_t type_index, uint8_t volt
 
     if(port == EEPROM_PROFILE_PORT_MPPT)
     {
-        (void)type_index;
-        if(volt_index >= EEPROM_MPPT_PROFILE_COUNT)
+        if(type_index >= EEPROM_BAT_PROFILE_B_TYPE_COUNT)
         {
             return 0xFFFF;
         }
-        return (uint16_t)(EEPROM_PAGE_MPPT_PROFILE_BASE + volt_index);
+        return (uint16_t)(EEPROM_PAGE_BAT_PROFILE_B_BASE +
+                          (type_index * EEPROM_BAT_PROFILE_VOLT_COUNT) +
+                          volt_index);
     }
 
     return 0xFFFF;
@@ -642,13 +643,6 @@ static void eeprom_user_profile_capture(uint8_t *payload)
 {
     memcpy(payload,
            ((uint8_t *)&wg_com_v2_param) + EEPROM_PARAM_CAL_SIZE,
-           EEPROM_PARAM_USER_SIZE);
-}
-
-static void eeprom_user_profile_apply(const uint8_t *payload)
-{
-    memcpy(((uint8_t *)&wg_com_v2_param) + EEPROM_PARAM_CAL_SIZE,
-           payload,
            EEPROM_PARAM_USER_SIZE);
 }
 
@@ -1702,116 +1696,7 @@ static void eeprom_refresh_control_cache(void)
     get_wg_com_v2_data.com_ctrl.SleepModeOnOff = sleep_mode;
 }
 
-static uint8_t eeprom_mppt_profile_type_from_ctrl(uint16_t bat_type)
-{
-    return eeprom_profile_type_index_from_ctrl(bat_type, 0);
-}
-
-static uint8_t eeprom_mppt_profile_sys_from_ctrl(uint16_t bat_type)
-{
-    uint8_t sys = eeprom_profile_slot_from_sys(bat_type & 0x00FF);
-
-    if(sys >= EEPROM_MPPT_PROFILE_COUNT)
-    {
-        sys = EEPROM_PROFILE_SYS_12V;
-    }
-
-    return sys;
-}
-
-static uint16_t eeprom_mppt_profile_addr_from_ctrl(void)
-{
-    uint8_t type = eeprom_mppt_profile_type_from_ctrl(get_wg_com_v2_data.com_ctrl.OutBatyType);
-    uint8_t sys = eeprom_mppt_profile_sys_from_ctrl(get_wg_com_v2_data.com_ctrl.OutBatyType);
-    uint16_t page = eeprom_profile_calc_page(EEPROM_PROFILE_PORT_MPPT, type, sys);
-
-    return (page == 0xFFFF) ? 0xFFFF : eeprom_profile_page_to_addr(page);
-}
-
-static uint16_t eeprom_mppt_timing_checksum(uint16_t boot_time_a, uint16_t soft_start_b)
-{
-    return (uint16_t)(EEPROM_MPPT_TIMING_MAGIC ^ boot_time_a ^ (uint16_t)(soft_start_b << 1U) ^ (uint16_t)(soft_start_b >> 1U) ^ 0xA55AU);
-}
-
-static uint16_t eeprom_mppt_timing_offset(void)
-{
-    return (uint16_t)(sizeof(eeprom_profile_header_t) + EEPROM_PARAM_USER_SIZE);
-}
-
-static void eeprom_mppt_timing_capture(eeprom_mppt_timing_profile_t *timing)
-{
-    uint16_t boot_time_a = 0;
-    uint16_t soft_start_b = 0;
-
-    if(timing == NULL)
-    {
-        return;
-    }
-
-    WG_COM_V2_GET_DATA_UINT(boot_time_a, wg_com_v2_ctrl.SetBootTimeA);
-    WG_COM_V2_GET_DATA_UINT(soft_start_b, wg_com_v2_ctrl.SetOnCurrStartTimeB);
-    timing->magic = EEPROM_MPPT_TIMING_MAGIC;
-    timing->boot_time_a = boot_time_a;
-    timing->soft_start_b = soft_start_b;
-    timing->checksum = eeprom_mppt_timing_checksum(boot_time_a, soft_start_b);
-}
-
-static uint8_t eeprom_mppt_timing_is_valid(const eeprom_mppt_timing_profile_t *timing)
-{
-    if(timing == NULL)
-    {
-        return 0;
-    }
-
-    return ((timing->magic == EEPROM_MPPT_TIMING_MAGIC) &&
-            (timing->checksum == eeprom_mppt_timing_checksum(timing->boot_time_a, timing->soft_start_b))) ? 1U : 0U;
-}
-
-static uint8_t eeprom_write_mppt_timing_snapshot(uint16_t addr, const eeprom_mppt_timing_profile_t *timing)
-{
-    uint16_t offset = eeprom_mppt_timing_offset();
-
-    if((addr == 0xFFFF) ||
-       (timing == NULL) ||
-       ((offset + sizeof(*timing)) > sizeof(eeprom_page_read_data)))
-    {
-        return 0;
-    }
-
-    IICx_Read_Byte(addr, (uint8_t *)eeprom_page_read_data, sizeof(eeprom_page_read_data));
-    memcpy((uint8_t *)eeprom_page_read_data + offset, (const uint8_t *)timing, sizeof(*timing));
-    return eeprom_write_page_verify(addr);
-}
-
-static uint8_t eeprom_write_mppt_timing_current(uint16_t addr)
-{
-    eeprom_mppt_timing_profile_t timing;
-
-    eeprom_mppt_timing_capture(&timing);
-    return eeprom_write_mppt_timing_snapshot(addr, &timing);
-}
-
-static void eeprom_apply_mppt_timing_profile(uint16_t addr)
-{
-    uint16_t offset = eeprom_mppt_timing_offset();
-    eeprom_mppt_timing_profile_t timing;
-
-    if((addr == 0xFFFF) ||
-       ((offset + sizeof(timing)) > sizeof(eeprom_page_read_data)))
-    {
-        return;
-    }
-
-    IICx_Read_Byte(addr, (uint8_t *)eeprom_page_read_data, sizeof(eeprom_page_read_data));
-    memcpy((uint8_t *)&timing, (uint8_t *)eeprom_page_read_data + offset, sizeof(timing));
-    if(eeprom_mppt_timing_is_valid(&timing))
-    {
-        WG_COM_V2_SET_DATA_UINT(timing.boot_time_a, wg_com_v2_ctrl.SetBootTimeA);
-        WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetBootTimeB);
-        WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetOnCurrStartTimeA);
-        WG_COM_V2_SET_DATA_UINT(timing.soft_start_b, wg_com_v2_ctrl.SetOnCurrStartTimeB);
-    }
-}void eeprom_apply_mppt_fixed_input_params(void)
+void eeprom_apply_mppt_fixed_input_params(void)
 {
     const float inp_curr = 125.00f;
     const float inp_charge_led = inp_curr * 0.15f;
@@ -1830,125 +1715,22 @@ static void eeprom_apply_mppt_timing_profile(uint16_t addr)
     WG_COM_V2_SET_DATA_UINT(12.00f, wg_com_v2_param.AuotForwardShutVoltA);
 }
 
-static uint8_t eeprom_apply_user_profile(uint16_t addr,
-                                         uint8_t port,
-                                         uint8_t type,
-                                         uint8_t sys)
-{
-    uint8_t payload[EEPROM_PARAM_USER_SIZE];
-
-    if((addr == 0xFFFF) ||
-       (!eeprom_profile_read_payload(addr, port, type, sys, payload, sizeof(payload))))
-    {
-        app_debug_event_push(APP_DBG_EVT_PROFILE_APPLY,
-                             (addr == 0xFFFF) ? APP_DBG_AREA_EXT : app_debug_area_from_page(app_debug_page_from_addr(addr)),
-                             (addr == 0xFFFF) ? 0xFF : app_debug_page_from_addr(addr),
-                             (uint8_t)get_wg_com_v2_data.com_ctrl.SetPowerMode,
-                             type, APP_DBG_RESULT_FAIL, sys);
-        return 0;
-    }
-
-    eeprom_user_profile_apply(payload);
-    app_debug_event_push(APP_DBG_EVT_PROFILE_APPLY, app_debug_area_from_page(app_debug_page_from_addr(addr)),
-                         app_debug_page_from_addr(addr),
-                         (uint8_t)get_wg_com_v2_data.com_ctrl.SetPowerMode,
-                         type, APP_DBG_RESULT_OK, sys);
-    return 1;
-}
-
-static uint8_t eeprom_write_user_profile(uint16_t addr,
-                                         uint8_t port,
-                                         uint8_t type,
-                                         uint8_t sys)
-{
-    uint8_t payload[EEPROM_PARAM_USER_SIZE];
-
-    if(addr == 0xFFFF)
-    {
-        app_debug_event_push(APP_DBG_EVT_PROFILE_SAVE, APP_DBG_AREA_EXT, 0xFF,
-                             (uint8_t)get_wg_com_v2_data.com_ctrl.SetPowerMode,
-                             type, APP_DBG_RESULT_INVALID, sys);
-        return 0;
-    }
-
-    eeprom_user_profile_capture(payload);
-    if(eeprom_profile_write_payload(addr, port, type, sys, payload, sizeof(payload)))
-    {
-        if((port == EEPROM_PROFILE_PORT_MPPT) && (!eeprom_write_mppt_timing_current(addr)))
-        {
-            app_debug_event_push(APP_DBG_EVT_PROFILE_SAVE, app_debug_area_from_page(app_debug_page_from_addr(addr)),
-                                 app_debug_page_from_addr(addr),
-                                 (uint8_t)get_wg_com_v2_data.com_ctrl.SetPowerMode,
-                                 type, APP_DBG_RESULT_FAIL, sys);
-            return 0;
-        }
-        app_debug_event_push(APP_DBG_EVT_PROFILE_SAVE, app_debug_area_from_page(app_debug_page_from_addr(addr)),
-                             app_debug_page_from_addr(addr),
-                             (uint8_t)get_wg_com_v2_data.com_ctrl.SetPowerMode,
-                             type, APP_DBG_RESULT_OK, sys);
-        return 1;
-    }
-    app_debug_event_push(APP_DBG_EVT_PROFILE_SAVE, app_debug_area_from_page(app_debug_page_from_addr(addr)),
-                         app_debug_page_from_addr(addr),
-                         (uint8_t)get_wg_com_v2_data.com_ctrl.SetPowerMode,
-                         type, APP_DBG_RESULT_FAIL, sys);
-    return 0;
-}
-
-static uint8_t eeprom_write_user_profile_snapshot(uint16_t addr,
-                                                  uint8_t port,
-                                                  uint8_t type,
-                                                  uint8_t sys,
-                                                  const uint8_t *payload)
-{
-    if((addr == 0xFFFF) || (payload == NULL))
-    {
-        app_debug_event_push(APP_DBG_EVT_PROFILE_SAVE, APP_DBG_AREA_EXT, 0xFF,
-                             (uint8_t)get_wg_com_v2_data.com_ctrl.SetPowerMode,
-                             type, APP_DBG_RESULT_INVALID, sys);
-        return 0;
-    }
-
-    if(eeprom_profile_write_payload(addr, port, type, sys, payload, EEPROM_PARAM_USER_SIZE))
-    {
-        app_debug_event_push(APP_DBG_EVT_PROFILE_SAVE, app_debug_area_from_page(app_debug_page_from_addr(addr)),
-                             app_debug_page_from_addr(addr),
-                             (uint8_t)get_wg_com_v2_data.com_ctrl.SetPowerMode,
-                             type, APP_DBG_RESULT_OK, sys);
-        return 1;
-    }
-    app_debug_event_push(APP_DBG_EVT_PROFILE_SAVE, app_debug_area_from_page(app_debug_page_from_addr(addr)),
-                         app_debug_page_from_addr(addr),
-                         (uint8_t)get_wg_com_v2_data.com_ctrl.SetPowerMode,
-                         type, APP_DBG_RESULT_FAIL, sys);
-    return 0;
-}
-
 uint8_t eeprom_apply_mppt_mode_profile(void)
 {
-    uint8_t type;
-    uint8_t sys;
-    uint16_t addr;
+    uint16_t bat_type;
+    eeprom_system_profile_t profile;
 
     eeprom_refresh_control_cache();
-    type = eeprom_mppt_profile_type_from_ctrl(get_wg_com_v2_data.com_ctrl.OutBatyType);
-    sys = eeprom_mppt_profile_sys_from_ctrl(get_wg_com_v2_data.com_ctrl.OutBatyType);
-    addr = eeprom_mppt_profile_addr_from_ctrl();
+    bat_type = get_wg_com_v2_data.com_ctrl.OutBatyType;
 
     if(get_wg_com_v2_data.com_ctrl.SetPowerMode != eMPPT_MODE)
     {
         return 0;
     }
 
-    if(!eeprom_apply_user_profile(addr,
-                                  EEPROM_PROFILE_PORT_MPPT,
-                                  type,
-                                  sys))
-    {
-        return 0;
-    }
-
-    eeprom_apply_mppt_timing_profile(addr);
+    eeprom_profile_read_or_init(0, bat_type, &profile);
+    eeprom_profile_apply(0, &profile);
+    eeprom_apply_mppt_fixed_input_params();
     return 1;
 }
 
@@ -1976,8 +1758,6 @@ static uint8_t eeprom_write_p03_user_current_page(void);
 
 uint8_t eeprom_save_current_mode_profile(void)
 {
-    uint8_t type;
-
     eeprom_refresh_control_cache();
     switch(get_wg_com_v2_data.com_ctrl.SetPowerMode)
     {
@@ -1989,11 +1769,7 @@ uint8_t eeprom_save_current_mode_profile(void)
             return eeprom_save_battery_mode_profiles();
 
         case eMPPT_MODE:
-            type = eeprom_mppt_profile_type_from_ctrl(get_wg_com_v2_data.com_ctrl.OutBatyType);
-            return eeprom_write_user_profile(eeprom_mppt_profile_addr_from_ctrl(),
-                                             EEPROM_PROFILE_PORT_MPPT,
-                                             type,
-                                             eeprom_mppt_profile_sys_from_ctrl(get_wg_com_v2_data.com_ctrl.OutBatyType));
+            return eeprom_profile_write(0, get_wg_com_v2_data.com_ctrl.OutBatyType);
 
         case eSET_STANDARD_MODE:
         case eSET_CUSTOM_MODE:
@@ -2011,7 +1787,6 @@ static uint16_t pending_profile_b_type = 0;
 static eeprom_system_profile_t pending_profile_a;
 static eeprom_system_profile_t pending_profile_b;
 static uint8_t pending_user_profile[EEPROM_PARAM_USER_SIZE];
-static eeprom_mppt_timing_profile_t pending_mppt_timing;
 
 void eeprom_request_current_profile_save(void)
 {
@@ -2037,13 +1812,13 @@ void eeprom_request_current_profile_save(void)
         eeprom_profile_capture(1, &pending_profile_a);
         eeprom_profile_capture(0, &pending_profile_b);
     }
+    else if(mode == eMPPT_MODE)
+    {
+        eeprom_profile_capture(0, &pending_profile_b);
+    }
     else
     {
         eeprom_user_profile_capture(pending_user_profile);
-        if(mode == eMPPT_MODE)
-        {
-            eeprom_mppt_timing_capture(&pending_mppt_timing);
-        }
     }
     pending_profile_save = 1;
 }
@@ -2056,8 +1831,6 @@ void eeprom_note_battery_profile_reload_pending(void)
 
 static uint8_t eeprom_flush_pending_profile_save(void)
 {
-    uint8_t type;
-    uint16_t page;
 
     if(pending_profile_save == 0)
     {
@@ -2079,20 +1852,7 @@ static uint8_t eeprom_flush_pending_profile_save(void)
             break;
 
         case eMPPT_MODE:
-            type = eeprom_mppt_profile_type_from_ctrl(pending_profile_b_type);
-            page = eeprom_profile_calc_page(EEPROM_PROFILE_PORT_MPPT,
-                                            type,
-                                            eeprom_mppt_profile_sys_from_ctrl(pending_profile_b_type));
-            if(!eeprom_write_user_profile_snapshot((page == 0xFFFF) ? 0xFFFF : eeprom_profile_page_to_addr(page),
-                                                   EEPROM_PROFILE_PORT_MPPT,
-                                                   type,
-                                                   eeprom_mppt_profile_sys_from_ctrl(pending_profile_b_type),
-                                                   pending_user_profile))
-            {
-                return 0;
-            }
-            if(!eeprom_write_mppt_timing_snapshot((page == 0xFFFF) ? 0xFFFF : eeprom_profile_page_to_addr(page),
-                                                  &pending_mppt_timing))
+            if(!eeprom_profile_write_snapshot(0, pending_profile_b_type, &pending_profile_b))
             {
                 return 0;
             }
@@ -2113,8 +1873,6 @@ static uint8_t eeprom_flush_pending_profile_save(void)
 static uint8_t eeprom_factory_rebuild_current_mode_profile(void)
 {
     uint16_t mode;
-    uint8_t type;
-
     eeprom_refresh_control_cache();
     mode = (uint16_t)get_wg_com_v2_data.com_ctrl.SetPowerMode;
 
@@ -2129,11 +1887,7 @@ static uint8_t eeprom_factory_rebuild_current_mode_profile(void)
             break;
 
         case eMPPT_MODE:
-            type = eeprom_mppt_profile_type_from_ctrl(get_wg_com_v2_data.com_ctrl.OutBatyType);
-            if(!eeprom_write_user_profile(eeprom_mppt_profile_addr_from_ctrl(),
-                                          EEPROM_PROFILE_PORT_MPPT,
-                                          type,
-                                          eeprom_mppt_profile_sys_from_ctrl(get_wg_com_v2_data.com_ctrl.OutBatyType)))
+            if(!eeprom_profile_write(0, get_wg_com_v2_data.com_ctrl.OutBatyType))
             {
                 return 0;
             }

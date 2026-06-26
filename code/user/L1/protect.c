@@ -456,6 +456,46 @@ void protect_temp(void)
 
 extern uint8_t sleep_report_state_flag;
 
+static uint16_t get_standard_basic_output_uvp_report_fault(void)
+{
+    uint16_t power_mode = get_wg_com_v2_data.com_ctrl.SetPowerMode;
+
+    if((power_mode != eSET_STANDARD_MODE) && (power_mode != eSET_CUSTOM_MODE))
+    {
+        return 0;
+    }
+
+    if((charge_state_data.get_is_run == 0U) ||
+       (charge_state_data.soft_start_flag == 0U))
+    {
+        return 0;
+    }
+
+    switch(get_check_state_data())
+    {
+        case ADDRS_FORWARD:
+            if(charge_state_data.protect_data.protect_item_rvs12_uvp.val <
+               charge_state_data.protect_data.protect_item_rvs12_uvp.limit)
+            {
+                return (uint16_t)(1U << FAULT_RVS12_UVP);
+            }
+            break;
+
+        case ADDRS_BACKWARD:
+            if(charge_state_data.protect_data.protect_item_fvs48_uvp.val <
+               charge_state_data.protect_data.protect_item_fvs48_uvp.limit)
+            {
+                return (uint16_t)(1U << FAULT_FVS48_UVP);
+            }
+            break;
+
+        default:
+            break;
+    }
+
+    return 0;
+}
+
 void protect_slow(void)
 {
     protect_volt();
@@ -483,6 +523,7 @@ void protect_slow(void)
 //    }
     
     uint16_t FaultSign = fault_get_all_fault() & 0xFFFF;
+    FaultSign |= get_standard_basic_output_uvp_report_fault();
     WG_COM_V2_SET_DATA_UINT(FaultSign, wg_com_v2_realtime_data.FaultSign);
 
     uint16_t AlarmSign = fault_get_all_alarm() & 0xFFFF;
