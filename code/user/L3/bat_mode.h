@@ -18,8 +18,8 @@
 #define BAT_SYS_12V_AGM_MIN_POWER_VOLT                  50
 #define BAT_SYS_12V_AGM_DEFAULT_POWER_VOLT              1500
 #define BAT_SYS_12V_AGM_OPEN_VOLT_A                     13.60f
-#define BAT_SYS_12V_AGM_CLOSE_VOLT_A                    12.00f
-#define BAT_SYS_12V_AGM_VEER_VOLT_A                     13.00f
+#define BAT_SYS_12V_AGM_CLOSE_VOLT_A                    13.00f
+#define BAT_SYS_12V_AGM_VEER_VOLT_A                     12.00f
 #define BAT_SYS_12V_AGM_OPEN_VOLT_B                     12.50f
 #define BAT_SYS_12V_AGM_CLOSE_VOLT_B                    12.00f
 #define BAT_SYS_12V_AGM_SET_LED_CHAR_CURR               (BAT_SYS_12V_AGM_DEFAULT_CHURR_VOLT*0.15f)

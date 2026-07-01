@@ -86,7 +86,7 @@ void mos_on_off_G300(uint8_t model)
 
 
 
-static uint8_t key_state = 0;
+static uint8_t key_state = 1;
 void key_pg(void)
 {
 	static uint16_t key_cot = 0;
@@ -108,6 +108,10 @@ void key_pg(void)
 uint8_t get_key_pg_val(void)
 {
 	return key_state;
+}
+void get_key_pg_state(void)
+{
+	key_state=(gpio_get_pg()==1)?(1):(0);
 }
 
 REG_TASK(10, key_pg)

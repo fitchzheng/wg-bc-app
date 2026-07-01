@@ -203,6 +203,7 @@ static void wg_com_v2_note_non_mppt_control_state_with_sleep(uint16_t power_mode
             WG_COM_V2_GET_DATA_UINT(bat_return_type_a, wg_com_v2_ctrl.InpBatyType);
             WG_COM_V2_GET_DATA_UINT(bat_return_type_b, wg_com_v2_ctrl.OutBatyType);
             bat_return_type_valid = 1U;
+            eeprom_save_mppt_return_battery_types(bat_return_type_a, bat_return_type_b);
             WG_COM_V2_GET_DATA_UINT(mppt_return_boot_time_a, wg_com_v2_ctrl.SetBootTimeA);
             WG_COM_V2_GET_DATA_UINT(mppt_return_boot_time_b, wg_com_v2_ctrl.SetBootTimeB);
             WG_COM_V2_GET_DATA_UINT(mppt_return_soft_start_a, wg_com_v2_ctrl.SetOnCurrStartTimeA);
@@ -268,6 +269,9 @@ void wg_com_v2_exit_mppt_control_state(void)
 {
     if(mppt_return_state_valid == 0)
     {
+        uint16_t saved_bat_type_a = 0;
+        uint16_t saved_bat_type_b = 0;
+
         mppt_return_power_mode = eSET_BAT_MODE;
         mppt_return_bat_mode_fr = 0;
         mppt_return_sleep_mode = 0;
@@ -275,6 +279,12 @@ void wg_com_v2_exit_mppt_control_state(void)
         mppt_return_boot_time_b = 0;
         mppt_return_soft_start_a = 0;
         mppt_return_soft_start_b = 0;
+        if(eeprom_load_mppt_return_battery_types(&saved_bat_type_a, &saved_bat_type_b) != 0U)
+        {
+            bat_return_type_a = saved_bat_type_a;
+            bat_return_type_b = saved_bat_type_b;
+            bat_return_type_valid = 1U;
+        }
     }
     WG_COM_V2_SET_DATA_UINT(mppt_return_power_mode, wg_com_v2_ctrl.SetPowerMode);
     WG_COM_V2_SET_DATA_UINT(mppt_return_bat_mode_fr, wg_com_v2_ctrl.BatModeFR);
@@ -604,8 +614,11 @@ static uint8_t unified_write(uint16_t addr, uint16_t count, const uint8_t *data)
                                 ((addr + count) > (WG_COM_V2_CTRL_ADDR + 0x02));
     uint8_t writes_mppt_switch = (addr <= (WG_COM_V2_CTRL_ADDR + 0x0D)) &&
                                  ((addr + count) > (WG_COM_V2_CTRL_ADDR + 0x0D));
-    uint8_t writes_bat_type = (addr <= (WG_COM_V2_CTRL_ADDR + 0x05)) &&
-                              ((addr + count) > (WG_COM_V2_CTRL_ADDR + 0x04));
+    uint8_t writes_bat_type_a = (addr <= (WG_COM_V2_CTRL_ADDR + 0x04)) &&
+                                ((addr + count) > (WG_COM_V2_CTRL_ADDR + 0x04));
+    uint8_t writes_bat_type_b = (addr <= (WG_COM_V2_CTRL_ADDR + 0x05)) &&
+                                ((addr + count) > (WG_COM_V2_CTRL_ADDR + 0x05));
+    uint8_t writes_bat_type = (writes_bat_type_a != 0U) || (writes_bat_type_b != 0U);
     uint8_t writes_mppt_profile_select = 0;
     uint8_t writes_mppt_timing = (addr <= (WG_COM_V2_CTRL_ADDR + 0x09)) &&
                                  ((addr + count) > (WG_COM_V2_CTRL_ADDR + 0x06));
@@ -653,9 +666,18 @@ static uint8_t unified_write(uint16_t addr, uint16_t count, const uint8_t *data)
                           (old_power_mode != new_power_mode)) ? 1U : 0U;
     mppt_switch_changed = ((writes_mppt_switch != 0) &&
                            (old_mppt_switch != new_mppt_switch)) ? 1U : 0U;
-    bat_type_changed = ((writes_bat_type != 0) &&
-                        ((old_bat_type_a != new_bat_type_a) ||
-                         (old_bat_type_b != new_bat_type_b))) ? 1U : 0U;
+    if((old_power_mode == eMPPT_MODE) || (old_mppt_switch == 1U) ||
+       (new_power_mode == eMPPT_MODE) || (new_mppt_switch == 1U))
+    {
+        bat_type_changed = ((writes_bat_type_b != 0U) &&
+                            (old_bat_type_b != new_bat_type_b)) ? 1U : 0U;
+    }
+    else
+    {
+        bat_type_changed = ((writes_bat_type != 0) &&
+                            ((old_bat_type_a != new_bat_type_a) ||
+                             (old_bat_type_b != new_bat_type_b))) ? 1U : 0U;
+    }
     writes_mppt_profile_select = ((power_mode_changed != 0) ||
                                   (mppt_switch_changed != 0) ||
                                   (bat_type_changed != 0)) ? 1U : 0U;
@@ -721,9 +743,11 @@ static uint8_t unified_write(uint16_t addr, uint16_t count, const uint8_t *data)
     WG_COM_V2_GET_DATA_UINT(new_mppt_switch, wg_com_v2_ctrl.MpptSwitch);
     if((writes_mppt_timing != 0) &&
        (writes_mppt_profile_select == 0) &&
-       ((new_power_mode == eMPPT_MODE) || (new_mppt_switch == 1U)))
+       ((new_power_mode == eSET_BAT_MODE) ||
+        (new_power_mode == eMPPT_MODE) ||
+        (new_mppt_switch == 1U)))
     {
-        if(!eeprom_save_current_mode_profile())
+        if(!eeprom_save_current_timing_profile())
         {
             return 0;
         }
@@ -733,6 +757,8 @@ static uint8_t unified_write(uint16_t addr, uint16_t count, const uint8_t *data)
     {
         uint16_t mppt_bat_type_a = 0;
         uint16_t mppt_bat_type_b = 0;
+        uint16_t mppt_written_boot_time_a = 0;
+        uint16_t mppt_written_soft_start_b = 0;
 
         WG_COM_V2_GET_DATA_UINT(mppt_bat_type_a, wg_com_v2_ctrl.InpBatyType);
         WG_COM_V2_GET_DATA_UINT(mppt_bat_type_b, wg_com_v2_ctrl.OutBatyType);
@@ -743,10 +769,26 @@ static uint8_t unified_write(uint16_t addr, uint16_t count, const uint8_t *data)
         get_wg_com_v2_data.com_ctrl.InpBatyType = mppt_bat_type_a;
         get_wg_com_v2_data.com_ctrl.OutBatyType = mppt_bat_type_b;
         wg_com_v2_note_mppt_profile_type(mppt_bat_type_a, mppt_bat_type_b);
+        if(writes_mppt_timing != 0U)
+        {
+            WG_COM_V2_GET_DATA_UINT(mppt_written_boot_time_a, wg_com_v2_ctrl.SetBootTimeA);
+            WG_COM_V2_GET_DATA_UINT(mppt_written_soft_start_b, wg_com_v2_ctrl.SetOnCurrStartTimeB);
+        }
         if(eeprom_apply_mppt_mode_profile() == 0U)
         {
             init_mppt_mode_parameter();
             if(!eeprom_save_current_mode_profile())
+            {
+                return 0;
+            }
+        }
+        if(writes_mppt_timing != 0U)
+        {
+            WG_COM_V2_SET_DATA_UINT(mppt_written_boot_time_a, wg_com_v2_ctrl.SetBootTimeA);
+            WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetBootTimeB);
+            WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetOnCurrStartTimeA);
+            WG_COM_V2_SET_DATA_UINT(mppt_written_soft_start_b, wg_com_v2_ctrl.SetOnCurrStartTimeB);
+            if(!eeprom_save_current_timing_profile())
             {
                 return 0;
             }
