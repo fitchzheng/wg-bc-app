@@ -1099,8 +1099,8 @@ void init_mppt_mode_parameter(void)
     }
 
     BatSetInpVolt      = 12.00f;
-    BatSetInpCurr      = 125.00f;
-    BatSetInpCurrPower = 1500.00f;                 
+    BatSetInpCurr      = 85.00f;
+    BatSetInpCurrPower = 1200.00f;                 
     AuotOpenVoltA      = 13.60f;
     AuotVeerVoltA      = 12.00f;
     AuotCloseVoltA     = 13.00f;

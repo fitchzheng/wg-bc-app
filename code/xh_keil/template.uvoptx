@@ -303,13 +303,79 @@
           <Name>UL2CM3(-S0 -C0 -P0 -FD1FFFC000 -FC8000 -FN1 -FF0HC32F334_128K -FS05000 -FL001A000 -FP0($$Device:HC32F334KATI$FlashARM\HC32F334_128K.FLM))</Name>
         </SetRegEntry>
       </TargetDriverDllRegistry>
-      <Breakpoint/>
+      <Breakpoint>
+        <Bp>
+          <Number>0</Number>
+          <Type>0</Type>
+          <LineNumber>1969</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>57520</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>..\user\L1\eeprom_cfg.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\WG_BC1200M_20260617_BOOT_APP_RV\../user/L1/eeprom_cfg.c\1969</Expression>
+        </Bp>
+        <Bp>
+          <Number>1</Number>
+          <Type>0</Type>
+          <LineNumber>1968</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>57500</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>..\user\L1\eeprom_cfg.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\WG_BC1200M_20260617_BOOT_APP_RV\../user/L1/eeprom_cfg.c\1968</Expression>
+        </Bp>
+        <Bp>
+          <Number>2</Number>
+          <Type>0</Type>
+          <LineNumber>1967</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>57488</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>..\user\L1\eeprom_cfg.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\WG_BC1200M_20260617_BOOT_APP_RV\../user/L1/eeprom_cfg.c\1967</Expression>
+        </Bp>
+      </Breakpoint>
+      <WatchWindow2>
+        <Ww>
+          <count>0</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>get_wg_com_v2_data.com_param.AuotForwardVeerVoltA</ItemText>
+        </Ww>
+        <Ww>
+          <count>1</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>get_wg_com_v2_data.com_param.AuotForwardShutVoltA</ItemText>
+        </Ww>
+        <Ww>
+          <count>2</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>get_wg_com_v2_data.com_ctrl.InpBatyType</ItemText>
+        </Ww>
+      </WatchWindow2>
       <Tracepoint>
         <THDelay>0</THDelay>
       </Tracepoint>
       <DebugFlag>
         <trace>0</trace>
-        <periodic>0</periodic>
+        <periodic>1</periodic>
         <aLwin>1</aLwin>
         <aCover>0</aCover>
         <aSer1>0</aSer1>
@@ -1797,8 +1863,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\..\2025\Interleaved-BiDC\code\user\L3\fan_drive.c</PathWithFileName>
-      <FilenameWithoutPath>fan_drive.c</FilenameWithoutPath>
+      <PathWithFileName>..\user\L3\client_can.c</PathWithFileName>
+      <FilenameWithoutPath>client_can.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -1809,8 +1875,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\user\L3\client_can.c</PathWithFileName>
-      <FilenameWithoutPath>client_can.c</FilenameWithoutPath>
+      <PathWithFileName>..\user\L3\fan_drive.c</PathWithFileName>
+      <FilenameWithoutPath>fan_drive.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

@@ -1028,11 +1028,6 @@
               <FilePath>..\user\L3\rvc_message_handler.c</FilePath>
             </File>
             <File>
-              <FileName>fan_drive.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\2025\Interleaved-BiDC\code\user\L3\fan_drive.c</FilePath>
-            </File>
-            <File>
               <FileName>client_can.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\user\L3\client_can.c</FilePath>
@@ -1087,6 +1082,11 @@
                   </Cads>
                 </FileArmAds>
               </FileOption>
+            </File>
+            <File>
+              <FileName>fan_drive.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\user\L3\fan_drive.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1146,7 +1146,7 @@
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
           <OutputDirectory>.\output\debug\rv\</OutputDirectory>
-          <OutputName>WG-BC1500M_20260617_BOOT_APP_RV</OutputName>
+          <OutputName>WG-BC1200M_20260617_BOOT_APP_RV</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
@@ -2124,11 +2124,6 @@
               <FilePath>..\user\L3\rvc_message_handler.c</FilePath>
             </File>
             <File>
-              <FileName>fan_drive.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\2025\Interleaved-BiDC\code\user\L3\fan_drive.c</FilePath>
-            </File>
-            <File>
               <FileName>client_can.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\user\L3\client_can.c</FilePath>
@@ -2183,6 +2178,11 @@
                   </Cads>
                 </FileArmAds>
               </FileOption>
+            </File>
+            <File>
+              <FileName>fan_drive.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\user\L3\fan_drive.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -3322,14 +3322,14 @@
               </FileOption>
             </File>
             <File>
-              <FileName>fan_drive.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\2025\Interleaved-BiDC\code\user\L3\fan_drive.c</FilePath>
-            </File>
-            <File>
               <FileName>client_can.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\user\L3\client_can.c</FilePath>
+            </File>
+            <File>
+              <FileName>fan_drive.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\user\L3\fan_drive.c</FilePath>
             </File>
           </Files>
         </Group>
