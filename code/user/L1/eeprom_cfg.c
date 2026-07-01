@@ -1456,15 +1456,15 @@ static uint8_t eeprom_profile_bat_sys_from_ctrl(uint16_t sys)
 static uint16_t eeprom_autosys_detect_a(void)
 {
     float a_volt = get_wg_com_v2_data.com_realtime_data.InpVolt;
-    if((a_volt >= 10.0f) && (a_volt <= 15.0f))
+    if((a_volt >= 10.0f) && (a_volt <= 17.0f))
     {
         return eSYS_12V;
     }
-    if((a_volt >= 20.0f) && (a_volt <= 30.0f))
+    if((a_volt >= 18.0f) && (a_volt <= 34.0f))
     {
         return eSYS_24V;
     }
-    if((a_volt >= 40.0f) && (a_volt <= 60.0f))
+    if((a_volt >= 36.0f) && (a_volt <= 63.0f))
     {
         return eSYS_48V;
     }
@@ -1665,6 +1665,20 @@ static uint8_t eeprom_profile_sanitize(uint8_t is_a_port,
     {
         profile->AutoCloseVolt = default_profile.AutoCloseVolt;
         if(fixed != NULL) *fixed = 1;
+    }
+    if(is_a_port)
+    {
+        float auto_open = eeprom_raw_to_float(profile->AutoOpenVolt, (void *)&wg_com_v2_param.AuotForwardOpenVoltA);
+        float auto_veer = eeprom_raw_to_float(profile->AutoVeerVolt, (void *)&wg_com_v2_param.AuotForwardVeerVoltA);
+        float auto_close = eeprom_raw_to_float(profile->AutoCloseVolt, (void *)&wg_com_v2_param.AuotForwardShutVoltA);
+
+        if((auto_open <= auto_close) || (auto_close <= auto_veer))
+        {
+            profile->AutoOpenVolt = default_profile.AutoOpenVolt;
+            profile->AutoVeerVolt = default_profile.AutoVeerVolt;
+            profile->AutoCloseVolt = default_profile.AutoCloseVolt;
+            if(fixed != NULL) *fixed = 1;
+        }
     }
     if(profile->SetBootTime > EEPROM_PROFILE_TIME_MAX)
     {
@@ -1965,8 +1979,8 @@ void eeprom_apply_mppt_fixed_input_params(void)
     WG_COM_V2_SET_DATA_UINT(inp_charge_led, wg_com_v2_param.SetInpChargLedCurr);
     WG_COM_V2_SET_DATA_UINT(inp_charge_led - 0.50f, wg_com_v2_param.SetInpFullLedCurr);
     WG_COM_V2_SET_DATA_UINT(13.60f, wg_com_v2_param.AuotForwardOpenVoltA);
-    WG_COM_V2_SET_DATA_UINT(13.00f, wg_com_v2_param.AuotForwardVeerVoltA);
-    WG_COM_V2_SET_DATA_UINT(12.00f, wg_com_v2_param.AuotForwardShutVoltA);
+    WG_COM_V2_SET_DATA_UINT(12.00f, wg_com_v2_param.AuotForwardVeerVoltA);
+    WG_COM_V2_SET_DATA_UINT(13.00f, wg_com_v2_param.AuotForwardShutVoltA);
 }
 
 uint8_t eeprom_apply_mppt_mode_profile(void)
