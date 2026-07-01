@@ -129,6 +129,8 @@ typedef struct
     uint16_t AutoOpenVolt;
     uint16_t AutoVeerVolt;
     uint16_t AutoCloseVolt;
+    uint16_t SetBootTime;
+    uint16_t SetOnCurrStartTime;
 } eeprom_system_profile_t;
 
 typedef struct
@@ -154,13 +156,6 @@ typedef struct
     uint8_t payload[EEPROM_PARAM_USER_SIZE];
 } eeprom_user_profile_page_t;
 
-typedef struct
-{
-    uint16_t magic;
-    uint16_t boot_time_a;
-    uint16_t soft_start_b;
-    uint16_t checksum;
-} eeprom_mppt_timing_profile_t;
 
 #define EEPROM_P03_ZONE_SIZE   100
 enum {
@@ -180,6 +175,9 @@ extern void eeprom_apply_mppt_fixed_input_params(void);
 extern uint8_t eeprom_apply_standard_mode_profile(void);
 extern uint8_t eeprom_apply_basic_mode_profile(void);
 extern uint8_t eeprom_save_current_mode_profile(void);
+extern uint8_t eeprom_save_current_timing_profile(void);
+extern void eeprom_save_mppt_return_battery_types(uint16_t bat_type_a, uint16_t bat_type_b);
+extern uint8_t eeprom_load_mppt_return_battery_types(uint16_t *bat_type_a, uint16_t *bat_type_b);
 extern void eeprom_request_current_profile_save(void);
 extern void eeprom_note_battery_profile_reload_pending(void);
 extern uint8_t eeprom_commit_current_pages_for_range(uint16_t addr, uint16_t count);

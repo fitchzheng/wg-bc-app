@@ -43,4 +43,6 @@ void mos_on_off_G150(uint8_t model);
 void mos_on_off_G300(uint8_t model);
 
 uint8_t get_key_pg_val(void);
+
+void get_key_pg_state(void);
 #endif

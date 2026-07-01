@@ -132,6 +132,10 @@ uint8_t get_key_pg_val(void)
 {
 	return key_state;
 }
+void get_key_pg_state(void)
+{
+	key_state=(gpio_get_pg()==1)?(1):(0);
+}
 
 REG_TASK(10, key_pg)
 

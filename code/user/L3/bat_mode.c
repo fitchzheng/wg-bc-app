@@ -463,10 +463,12 @@ void bat_a_arguments_limi(void)
 {
     float verify_data = 0.00f;
     uint16_t BatTypeA = get_wg_com_v2_data.com_ctrl.InpBatyType;
-    if(((BatTypeA&0xff00)>>8) >= eBAT_TYPE_MAX)
-    {
-        BatTypeA = (eBAT_TYPE_LFP << 8) | (BatTypeA&0x00FF);
+    if(((BatTypeA&0xff00)>>8) == eBAT_AUTOSYS){
+		BatTypeA = (eBAT_TYPE_AGM << 8) | (BatTypeA&0x00FF);
+	}else if(((BatTypeA&0xff00)>>8) >= eBAT_TYPE_MAX){
+        return;
     }
+
     if((BatTypeA&0x00FF) < eBAT_SYS_VOLT_MAX)
     {
         verify_data = get_wg_com_v2_data.com_param.SetInpVolt;
@@ -494,10 +496,12 @@ void bat_b_arguments_limi(void)
 {
     float verify_data = 0.00f;
     uint16_t BatTypeB = get_wg_com_v2_data.com_ctrl.OutBatyType;
-    if(((BatTypeB&0xff00)>>8) >= eBAT_TYPE_MAX)
-    {
-        BatTypeB = (eBAT_TYPE_LFP << 8) | (BatTypeB&0x00FF);
+    if(((BatTypeB&0xff00)>>8) == eBAT_AUTOSYS){
+		BatTypeB = (eBAT_TYPE_AGM << 8) | (BatTypeB&0x00FF);
+	}else if(((BatTypeB&0xff00)>>8) >= eBAT_TYPE_MAX){
+        return;
     }
+
     if((BatTypeB&0x00FF) < eBAT_SYS_VOLT_MAX)
     {
         verify_data = get_wg_com_v2_data.com_param.SetOutVolt;
@@ -521,12 +525,18 @@ void bat_b_arguments_limi(void)
 
 void bat_mode_run(void)
 {
-    if(updated_parameter())
+    uint8_t param_updated;
+
+    param_updated = updated_parameter();
+
+    if(param_updated)
     {
         init_bat_mode_parameter();
     }
 
-    eeprom_autosys_runtime_update();
+	bat_a_arguments_limi();
+	bat_b_arguments_limi();
+    (void)eeprom_autosys_runtime_update();
 
     #if(CAN_ON_OFF != 2) 
     if((get_wg_com_v2_data.com_ctrl.SetChargMode != eSET_AUTO_MODE)   &&

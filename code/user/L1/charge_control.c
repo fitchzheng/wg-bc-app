@@ -10,14 +10,35 @@
 #include "temp_derate.h"
 #include "fault.h"
 #include "mppt.h"
+
+#define CHARGE_FULL_COM_SYNC_MS 500u
+
 void charge_control_run(void)
 {
+    static uint8_t full_sync_ready = 0u;
+    static uint32_t last_full_sync_tick = 0u;
     uint16_t power_mode;
-    get_wg_com_data_rum();
+
+    if ((full_sync_ready == 0u) ||
+        ((uint32_t)(SECTION_SYS_TICK - last_full_sync_tick) >= CHARGE_FULL_COM_SYNC_MS))
+    {
+        get_wg_com_data_rum();
+        last_full_sync_tick = SECTION_SYS_TICK;
+        full_sync_ready = 1u;
+    }
+    else
+    {
+        get_wg_com_data_fast_rum();
+    }
+
     charge_state_data.get_is_run = ctrl_app_get_is_run();
+
     charge_state_data.check_state = get_check_state_data();
+
     GetChargeState(get_wg_com_v2_data.com_ctrl.SetChargMode);
+
     get_temp_derate_curr();
+
     power_mode = get_wg_com_v2_data.com_ctrl.SetPowerMode;
     if(get_wg_com_v2_data.com_ctrl.MpptSwitch == 1)
     {
@@ -27,6 +48,7 @@ void charge_control_run(void)
     {
         power_mode = eSET_BAT_MODE;
     }
+
     switch(power_mode)
     {
         case eSET_STANDARD_MODE:

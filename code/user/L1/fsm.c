@@ -17,6 +17,12 @@
 #include "protect.h"
 #include "stop_dormant.h"
 uint8_t force_ccm = 0;
+static uint8_t direction_restart_pending = 0;
+static uint8_t mode_restart_pending = 0;
+#define FAST_RESTART_VOLTAGE_SYNC_TIME TIME_CNT_20MS_IN_1MS
+#define MODE_RESTART_HOLD_TIME TIME_CNT_500MS_IN_1MS
+static uint16_t fast_restart_voltage_sync_cnt = 0;
+static uint16_t mode_restart_hold_cnt = 0;
 #define PG_ALARM_CONFIRM_TIME TIME_CNT_500MS_IN_1MS
 // 状态枚举
 typedef enum
@@ -60,6 +66,7 @@ static float ilv_lmt = 0;
 extern uint8_t stop_time_flag;
 extern uint8_t sleep_report_state_flag;
 uint8_t pwc_stop_flag = 0;
+extern uint8_t stop_soft;
 static void init_in(void)
 {
     gpio_set_auxoff(0);
@@ -68,6 +75,7 @@ static void init_in(void)
     sleep_report_state_flag = 0;
     init_delay = 0;
     fault_clear_all_fault();
+	get_key_pg_state();
 }
 
 static void init_exe(void)
@@ -135,6 +143,18 @@ static void idle_in(void)
 {
     charge_state_data.Boot_Time_Delay.SetBootTimeFlag = 0;
     charge_state_data.Boot_Time_Delay.BootTimeDelay = 0;
+    if((direction_restart_pending != 0) || (mode_restart_pending != 0))
+    {
+        charge_state_data.soft_start_flag = 0;
+        ihv_lmt = 1.0f;
+        ilv_lmt = 1.0f;
+        set_ihv_lmt_soft_curr(1.0f);
+        set_ilv_lmt_soft_curr(1.0f);
+        fast_restart_voltage_sync_cnt = FAST_RESTART_VOLTAGE_SYNC_TIME;
+        mode_restart_hold_cnt = MODE_RESTART_HOLD_TIME;
+        direction_restart_pending = 0;
+        mode_restart_pending = 0;
+    }
 }
 
 static uint8_t pwr_is_on = 0;
@@ -153,6 +173,13 @@ static void idle_exe(void)
         charge_state_data.Boot_Time_Delay.BootTimeDelay = 0;
     }
 
+    if(mode_restart_hold_cnt != 0)
+    {
+        mode_restart_hold_cnt--;
+        charge_state_data.Boot_Time_Delay.SetBootTimeFlag = 0;
+        charge_state_data.Boot_Time_Delay.BootTimeDelay = 0;
+    }
+
     if ((adc_check_get_addrs_state() != ADDRS_IDLE) &&
         (adc_check_get_aux_is_ok() == 1) &&
         ((adc_check_get_fvs48_is_ok() == 1) ||
@@ -160,7 +187,9 @@ static void idle_exe(void)
          (pwr_is_on == 1) &&
          (charge_state_data.protect_data.over_temp_protect == 0)&&
          (fault_get_alarm_bit(ALARM_PG_IS_OFF) == 0)            &&
-         (charge_state_data.bat_state.LithiumBatOnOff == 0))
+         (mode_restart_hold_cnt == 0)                            &&
+         (charge_state_data.bat_state.LithiumBatOnOff == 0)		&&
+		 (get_key_pg_val()== 1))
     {
         if(charge_state_data.Boot_Time_Delay.SetBootTimeFlag == 1)
         {
@@ -398,6 +427,18 @@ static void set_bidirectional_out(void)
 
 ADC_CHECK_ADDRS_E addrs_state_now = ADDRS_IDLE;
 static STATE_CONTROL_PARAMETER_T control_parameter;
+static uint16_t fsm_get_active_boot_time(ADC_CHECK_ADDRS_E addrs_state)
+{
+    if(addrs_state == ADDRS_BACKWARD)
+    {
+        return get_wg_com_v2_data.com_ctrl.SetBootTimeB;
+    }
+    else if(addrs_state == ADDRS_FORWARD)
+    {
+        return get_wg_com_v2_data.com_ctrl.SetBootTimeA;
+    }
+    return 0;
+}
 static void run_in(void)
 {
     fvs48_lmt = adc_get_fvs48();
@@ -407,6 +448,7 @@ static void run_in(void)
     control_parameter.OutBatyType  = get_wg_com_v2_data.com_ctrl.OutBatyType;
     control_parameter.SetChargMode = get_wg_com_v2_data.com_ctrl.SetChargMode;
     control_parameter.SetPowerMode = get_wg_com_v2_data.com_ctrl.SetPowerMode;
+    control_parameter.MpptSwitch  = get_wg_com_v2_data.com_ctrl.MpptSwitch;
 
     if (addrs_state_now == ADDRS_BACKWARD)
     {
@@ -420,25 +462,21 @@ static void run_in(void)
     {
         charge_state_data.ActiveOnCurrStartTime = 0;
     }
+
+    if(fsm_get_active_boot_time(addrs_state_now) <= 1)
+    {
+        fast_restart_voltage_sync_cnt = FAST_RESTART_VOLTAGE_SYNC_TIME;
+    }
 }
 
 static void run_exe(void)
 {
-    if((get_wg_com_v2_data.com_ctrl.SetPowerMode == eSET_BAT_MODE) &&
-       (((addrs_state_now == ADDRS_BACKWARD) &&
-         (((get_wg_com_v2_data.com_ctrl.InpBatyType & 0xff00) >> 8) == eBAT_DCDC)) ||
-        ((addrs_state_now == ADDRS_FORWARD) &&
-         (((get_wg_com_v2_data.com_ctrl.OutBatyType & 0xff00) >> 8) == eBAT_DCDC))))
-    {
-        force_ccm = 1;
-    }
-    else
-    {
-        force_ccm = 0;
-    }
+    ADC_CHECK_ADDRS_E current_addrs_state = adc_check_get_addrs_state();
+
+    force_ccm = 0;
     pwr_is_on = power_sw_get_power_is_on();
     BAT_CHARGE_MODE_E bat_charge_mode;
-    if ((adc_check_get_addrs_state() == addrs_state_now)                            &&
+    if ((current_addrs_state == addrs_state_now)                                    &&
        ((adc_check_get_fvs48_is_ok() == 1)                                          ||
         (adc_check_get_rvs12_is_ok() == 1))                                         &&
         (pwr_is_on == 1)                                                            &&
@@ -447,6 +485,7 @@ static void run_exe(void)
         (control_parameter.OutBatyType  == get_wg_com_v2_data.com_ctrl.OutBatyType) &&
         (control_parameter.SetChargMode == get_wg_com_v2_data.com_ctrl.SetChargMode)&&
         (control_parameter.SetPowerMode == get_wg_com_v2_data.com_ctrl.SetPowerMode)&&
+        (control_parameter.MpptSwitch  == get_wg_com_v2_data.com_ctrl.MpptSwitch) &&
         (charge_state_data.protect_data.over_temp_protect == 0)                     &&
         (ctrl_app_get_is_run() == 1)                                                &&
         (fault_get_alarm_bit(ALARM_PG_IS_OFF) == 0)                                 &&
@@ -461,6 +500,15 @@ static void run_exe(void)
     }
     else
     {
+        if((current_addrs_state != addrs_state_now) && (current_addrs_state != ADDRS_IDLE))
+        {
+            direction_restart_pending = 1;
+        }
+        if((control_parameter.SetPowerMode != get_wg_com_v2_data.com_ctrl.SetPowerMode) ||
+           (control_parameter.MpptSwitch  != get_wg_com_v2_data.com_ctrl.MpptSwitch))
+        {
+            mode_restart_pending = 1;
+        }
         if(charge_state_data.bat_state.LithiumBatOnOff == 1)
         {
             charge_state_data.SetCharState = eSTOP_CHARGE;
@@ -470,8 +518,17 @@ static void run_exe(void)
     }
 
 	charge_state_data.soft_close_flag = 0;
-    RAMP(fvs48_lmt, data_com_get_fvs48_lmt(), data_com_get_fvs48_lmt() / 200.0f);
-    RAMP(rvs12_lmt, data_com_get_rvs12_lmt(), data_com_get_rvs12_lmt() / 200.0f);
+    if(fast_restart_voltage_sync_cnt != 0)
+    {
+        fvs48_lmt = data_com_get_fvs48_lmt();
+        rvs12_lmt = data_com_get_rvs12_lmt();
+        fast_restart_voltage_sync_cnt--;
+    }
+    else
+    {
+        RAMP(fvs48_lmt, data_com_get_fvs48_lmt(), data_com_get_fvs48_lmt() / 200.0f);
+        RAMP(rvs12_lmt, data_com_get_rvs12_lmt(), data_com_get_rvs12_lmt() / 200.0f);
+    }
     ctrl_app_set_fvs48_lmt(fvs48_lmt);
     ctrl_app_set_rvs12_lmt(rvs12_lmt);
 }
@@ -500,11 +557,9 @@ static void stop_in(void)
     ilv_lmt = fabsf(adc_get_ilv());
     charge_state_data.soft_close_flag = 1;
 }
-extern uint8_t stop_soft;
 static void stop_exe(void)
 {
-
-    if(addrs_state_now == ADDRS_FORWARD)
+if(addrs_state_now == ADDRS_FORWARD)
     {
         RAMP(rvs12_lmt, 1.0f, 0.01f);
         RAMP(ilv_lmt, 1.0f, 0.01f);
@@ -612,7 +667,6 @@ static void pwc_stop_out(void)
 
 
 
-
 static void fault_in(void)
 {
     ctrl_app_disable();
@@ -658,6 +712,7 @@ static uint8_t fsm_state = 0;
 #if (SHELL_ON_OFF == 1)
 REG_SHELL_VAR(fsm_state, fsm_state, SHELL_UINT8, 0xFFu, 0u, NULL, SHELL_STA_NULL)
 #endif
+
 static uint16_t Get_soft_is_off_State(void)
 {
     uint16_t soft_is_off_State;
