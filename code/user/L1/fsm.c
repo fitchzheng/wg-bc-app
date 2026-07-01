@@ -505,7 +505,9 @@ static void run_exe(void)
             direction_restart_pending = 1;
         }
         if((control_parameter.SetPowerMode != get_wg_com_v2_data.com_ctrl.SetPowerMode) ||
-           (control_parameter.MpptSwitch  != get_wg_com_v2_data.com_ctrl.MpptSwitch))
+           (control_parameter.MpptSwitch  != get_wg_com_v2_data.com_ctrl.MpptSwitch)  ||
+           (control_parameter.InpBatyType != get_wg_com_v2_data.com_ctrl.InpBatyType) ||
+           (control_parameter.OutBatyType != get_wg_com_v2_data.com_ctrl.OutBatyType))
         {
             mode_restart_pending = 1;
         }
