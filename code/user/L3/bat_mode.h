@@ -235,7 +235,7 @@
 #define BAT_SYS_12V_NMC_OPEN_VOLT_B                     12.50f
 #define BAT_SYS_12V_NMC_CLOSE_VOLT_B                    12.00f
 #define BAT_SYS_12V_NMC_SET_LED_CHAR_CURR               (BAT_SYS_12V_NMC_DEFAULT_CHURR_VOLT*0.15f)
-#define BAT_SYS_12V_NMC_SET_LED_FULL_CURR               (BAT_SYS_12V_NMC_DEFAULT_CHURR_VOLT-0.5f)
+#define BAT_SYS_12V_NMC_SET_LED_FULL_CURR               (BAT_SYS_12V_NMC_SET_LED_CHAR_CURR-0.5f)
 #define BAT_SYS_12V_NMC_SET_UVLO                        10.00f
 #define BAT_SYS_12V_NMC_SET_UVLORECOVER                 11.00f
 #define BAT_SYS_12V_NMC_SET_OVP                         (BAT_SYS_12V_NMC_DEFAULT_OUT_VOLT+2.0f)
@@ -256,7 +256,7 @@
 #define BAT_SYS_16V_NMC_OPEN_VOLT_B                     16.00f
 #define BAT_SYS_16V_NMC_CLOSE_VOLT_B                    15.00f
 #define BAT_SYS_16V_NMC_SET_LED_CHAR_CURR               (BAT_SYS_16V_NMC_DEFAULT_CHURR_VOLT*0.15f)
-#define BAT_SYS_16V_NMC_SET_LED_FULL_CURR               (BAT_SYS_16V_NMC_DEFAULT_CHURR_VOLT-0.5f)
+#define BAT_SYS_16V_NMC_SET_LED_FULL_CURR               (BAT_SYS_16V_NMC_SET_LED_CHAR_CURR-0.5f)
 #define BAT_SYS_16V_NMC_SET_UVLO                        13.00f
 #define BAT_SYS_16V_NMC_SET_UVLORECOVER                 14.00f
 #define BAT_SYS_16V_NMC_SET_OVP                         (BAT_SYS_16V_NMC_DEFAULT_OUT_VOLT+2.0f)
@@ -277,7 +277,7 @@
 #define BAT_SYS_24V_NMC_OPEN_VOLT_B                     25.00f
 #define BAT_SYS_24V_NMC_CLOSE_VOLT_B                    24.00f
 #define BAT_SYS_24V_NMC_SET_LED_CHAR_CURR               (BAT_SYS_24V_NMC_DEFAULT_CHURR_VOLT*0.15f)
-#define BAT_SYS_24V_NMC_SET_LED_FULL_CURR               (BAT_SYS_24V_NMC_DEFAULT_CHURR_VOLT-0.5f)
+#define BAT_SYS_24V_NMC_SET_LED_FULL_CURR               (BAT_SYS_24V_NMC_SET_LED_CHAR_CURR-0.5f)
 #define BAT_SYS_24V_NMC_SET_UVLO                        20.00f
 #define BAT_SYS_24V_NMC_SET_UVLORECOVER                 21.00f
 #define BAT_SYS_24V_NMC_SET_OVP                         (BAT_SYS_24V_NMC_DEFAULT_OUT_VOLT+2.0f)
@@ -298,7 +298,7 @@
 #define BAT_SYS_36V_NMC_OPEN_VOLT_B                     37.00f
 #define BAT_SYS_36V_NMC_CLOSE_VOLT_B                    36.00f
 #define BAT_SYS_36V_NMC_SET_LED_CHAR_CURR               (BAT_SYS_36V_NMC_DEFAULT_CHURR_VOLT*0.15f)
-#define BAT_SYS_36V_NMC_SET_LED_FULL_CURR               (BAT_SYS_36V_NMC_DEFAULT_CHURR_VOLT-0.5f)
+#define BAT_SYS_36V_NMC_SET_LED_FULL_CURR               (BAT_SYS_36V_NMC_SET_LED_CHAR_CURR-0.5f)
 #define BAT_SYS_36V_NMC_SET_UVLO                        33.00f
 #define BAT_SYS_36V_NMC_SET_UVLORECOVER                 34.00f
 #define BAT_SYS_36V_NMC_SET_OVP                         (BAT_SYS_36V_NMC_DEFAULT_OUT_VOLT+2.0f)
@@ -319,7 +319,7 @@
 #define BAT_SYS_48V_NMC_OPEN_VOLT_B                     50.00f
 #define BAT_SYS_48V_NMC_CLOSE_VOLT_B                    48.00f
 #define BAT_SYS_48V_NMC_SET_LED_CHAR_CURR               (BAT_SYS_48V_NMC_DEFAULT_CHURR_VOLT*0.15f)
-#define BAT_SYS_48V_NMC_SET_LED_FULL_CURR               (BAT_SYS_48V_NMC_DEFAULT_CHURR_VOLT-0.5f)
+#define BAT_SYS_48V_NMC_SET_LED_FULL_CURR               (BAT_SYS_48V_NMC_SET_LED_CHAR_CURR-0.5f)
 #define BAT_SYS_48V_NMC_SET_UVLO                        43.00f
 #define BAT_SYS_48V_NMC_SET_UVLORECOVER                 44.00f
 #define BAT_SYS_48V_NMC_SET_OVP                         (BAT_SYS_48V_NMC_DEFAULT_OUT_VOLT+2.0f)
