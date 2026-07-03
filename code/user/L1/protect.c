@@ -14,6 +14,9 @@
 #include "ctrl_app.h"
 #include "get_com_data.h"
 #include "bat_charge_pattern.h"
+#include "fan_drive.h"
+
+#define ALARM_FAN_RUNNING_REPORT 0x4000U
 // 使用静态变量限制作用域并提高访问速度
 static float ila_val = 0.0f;
 static float ilb_val = 0.0f;
@@ -532,6 +535,10 @@ void protect_slow(void)
     if(sleep_report_state_flag == 1)
     {
         AlarmSign |= 0x8000U;
+    }
+    if(fan_drive_is_running() != 0U)
+    {
+        AlarmSign |= ALARM_FAN_RUNNING_REPORT;
     }
     WG_COM_V2_SET_DATA_UINT(AlarmSign, wg_com_v2_realtime_data.AlarmSign);
 }

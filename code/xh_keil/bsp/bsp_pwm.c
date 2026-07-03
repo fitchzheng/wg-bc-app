@@ -1725,7 +1725,7 @@ void bsp_tmr6_pwm_init (void)
 
     CM_TMR6_1->GCMAR = 2400;
     CM_TMR6_2->GCMAR = 1200/4;
-	bsp_pwm_set_tmr6(0.6f,100000);
+	bsp_pwm_set_tmr6(0.9f,100000);
     bsp_pwm_set_tmr6_fan(1);
 }
 

@@ -6,6 +6,14 @@
 
 #define MAX_POWER_TEMP    100.00f
 #define MIN_POWER_TEMP    50.00f
+
+static uint8_t fan_running_flag = 0;
+
+uint8_t fan_drive_is_running(void)
+{
+    return fan_running_flag;
+}
+
 void fan_drive_run(void)
 {
     static int16_t Temp = 0;
@@ -53,6 +61,7 @@ void fan_drive_run(void)
     if(fan_flag == 1)
     {
         RAMP(duty,fan_duty,0.016f);
+        fan_running_flag = (duty > 0.01f) ? 1U : 0U;
         bsp_pwm_set_tmr6_fan(duty);
     }
 }
