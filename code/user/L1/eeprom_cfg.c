@@ -1479,7 +1479,7 @@ static uint16_t eeprom_autosys_detect_a(void)
     return eSYS_VOLT_MAX;
 }
 
-static uint8_t eeprom_autosys_identify_allowed(void)
+static uint8_t eeprom_autosys_identify_allowed(uint16_t current_sys)
 {
     uint8_t pg_on = get_key_pg_val() ? 1U : 0U;
     uint16_t power_off = 0U;
@@ -1498,16 +1498,24 @@ static uint8_t eeprom_autosys_identify_allowed(void)
         return 0U;
     }
 
-    if((eeprom_autosys_boot_identify_pending != 0U) && (a_volt >= 10.0f))
+    if((eeprom_autosys_boot_identify_pending != 0U) && (a_volt >= 5.0f))
     {
         allow = 1U;
         eeprom_autosys_boot_identify_pending = 0U;
     }
 
-    if((eeprom_autosys_a_low_seen != 0U) && (a_volt >= 10.0f))
+    if((eeprom_autosys_a_low_seen != 0U) && (a_volt >= 5.0f))
     {
         allow = 1U;
-        eeprom_autosys_a_low_seen = 0U;
+        if(a_volt >= 10.0f)
+        {
+            eeprom_autosys_a_low_seen = 0U;
+        }
+    }
+
+    if((current_sys >= eSYS_VOLT_MAX) && (a_volt >= 10.0f))
+    {
+        allow = 1U;
     }
 
     if((eeprom_autosys_last_pg_on != 0xFFU) &&
@@ -2316,7 +2324,7 @@ uint8_t eeprom_apply_battery_mode_profiles(void)
         uint16_t detected_sys;
         uint16_t current_sys = bat_type_a & 0x00FF;
 
-        if(eeprom_autosys_identify_allowed() != 0U)
+        if(eeprom_autosys_identify_allowed(current_sys) != 0U)
         {
             detected_sys = eeprom_autosys_detect_a();
             if(detected_sys >= eSYS_VOLT_MAX)
@@ -2382,13 +2390,14 @@ uint8_t eeprom_autosys_runtime_update(void)
         return 0;
     }
 
-    if(eeprom_autosys_identify_allowed() == 0U)
+    current_sys = bat_type_a & 0x00FF;
+
+    if(eeprom_autosys_identify_allowed(current_sys) == 0U)
     {
         return 0;
     }
 
     detected_sys = eeprom_autosys_detect_a();
-    current_sys = bat_type_a & 0x00FF;
 
     if(detected_sys >= eSYS_VOLT_MAX)
     {
