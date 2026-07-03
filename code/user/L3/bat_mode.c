@@ -463,10 +463,12 @@ void bat_a_arguments_limi(void)
 {
     float verify_data = 0.00f;
     uint16_t BatTypeA = get_wg_com_v2_data.com_ctrl.InpBatyType;
-    if(((BatTypeA&0xff00)>>8) >= eBAT_TYPE_MAX)
-    {
-        BatTypeA = (eBAT_TYPE_LFP << 8) | (BatTypeA&0x00FF);
+    if(((BatTypeA&0xff00)>>8) == eBAT_AUTOSYS){
+		BatTypeA = (eBAT_TYPE_AGM << 8) | (BatTypeA&0x00FF);
+	}else if(((BatTypeA&0xff00)>>8) >= eBAT_TYPE_MAX){
+        return;
     }
+
     if((BatTypeA&0x00FF) < eBAT_SYS_VOLT_MAX)
     {
         verify_data = get_wg_com_v2_data.com_param.SetInpVolt;
@@ -487,6 +489,16 @@ void bat_a_arguments_limi(void)
         verify_data = get_wg_com_v2_data.com_param.AuotForwardVeerVoltA;
         LIMIT_MAX_MIN((Bat_Sys_Volt_Config[(BatTypeA&0x00FF)][((BatTypeA&0xff00)>>8)].VeerVoltA+2.0f),(Bat_Sys_Volt_Config[(BatTypeA&0x00FF)][((BatTypeA&0xff00)>>8)].VeerVoltA-2.0f),Bat_Sys_Volt_Config[(BatTypeA&0x00FF)][((BatTypeA&0xff00)>>8)].VeerVoltA,get_wg_com_v2_data.com_param.AuotForwardVeerVoltA);
         if(float_equal(verify_data,get_wg_com_v2_data.com_param.AuotForwardVeerVoltA) == 1){WG_COM_V2_SET_DATA_UINT(get_wg_com_v2_data.com_param.AuotForwardVeerVoltA, wg_com_v2_param.AuotForwardVeerVoltA);}
+        if((get_wg_com_v2_data.com_param.AuotForwardOpenVoltA <= get_wg_com_v2_data.com_param.AuotForwardShutVoltA) ||
+           (get_wg_com_v2_data.com_param.AuotForwardShutVoltA <= get_wg_com_v2_data.com_param.AuotForwardVeerVoltA))
+        {
+            get_wg_com_v2_data.com_param.AuotForwardOpenVoltA = Bat_Sys_Volt_Config[(BatTypeA&0x00FF)][((BatTypeA&0xff00)>>8)].OpenVoltA;
+            get_wg_com_v2_data.com_param.AuotForwardShutVoltA = Bat_Sys_Volt_Config[(BatTypeA&0x00FF)][((BatTypeA&0xff00)>>8)].CloseVoltA;
+            get_wg_com_v2_data.com_param.AuotForwardVeerVoltA = Bat_Sys_Volt_Config[(BatTypeA&0x00FF)][((BatTypeA&0xff00)>>8)].VeerVoltA;
+            WG_COM_V2_SET_DATA_UINT(get_wg_com_v2_data.com_param.AuotForwardOpenVoltA, wg_com_v2_param.AuotForwardOpenVoltA);
+            WG_COM_V2_SET_DATA_UINT(get_wg_com_v2_data.com_param.AuotForwardShutVoltA, wg_com_v2_param.AuotForwardShutVoltA);
+            WG_COM_V2_SET_DATA_UINT(get_wg_com_v2_data.com_param.AuotForwardVeerVoltA, wg_com_v2_param.AuotForwardVeerVoltA);
+        }
     }
 }
 
@@ -494,10 +506,12 @@ void bat_b_arguments_limi(void)
 {
     float verify_data = 0.00f;
     uint16_t BatTypeB = get_wg_com_v2_data.com_ctrl.OutBatyType;
-    if(((BatTypeB&0xff00)>>8) >= eBAT_TYPE_MAX)
-    {
-        BatTypeB = (eBAT_TYPE_LFP << 8) | (BatTypeB&0x00FF);
+    if(((BatTypeB&0xff00)>>8) == eBAT_AUTOSYS){
+		BatTypeB = (eBAT_TYPE_AGM << 8) | (BatTypeB&0x00FF);
+	}else if(((BatTypeB&0xff00)>>8) >= eBAT_TYPE_MAX){
+        return;
     }
+
     if((BatTypeB&0x00FF) < eBAT_SYS_VOLT_MAX)
     {
         verify_data = get_wg_com_v2_data.com_param.SetOutVolt;
@@ -521,12 +535,18 @@ void bat_b_arguments_limi(void)
 
 void bat_mode_run(void)
 {
-    if(updated_parameter())
+    uint8_t param_updated;
+
+    param_updated = updated_parameter();
+
+    if(param_updated)
     {
         init_bat_mode_parameter();
     }
 
-    eeprom_autosys_runtime_update();
+	bat_a_arguments_limi();
+	bat_b_arguments_limi();
+    (void)eeprom_autosys_runtime_update();
 
     #if(CAN_ON_OFF != 2) 
     if((get_wg_com_v2_data.com_ctrl.SetChargMode != eSET_AUTO_MODE)   &&
@@ -617,8 +637,8 @@ void init_bat_mode_parameter(void)
         BatSetInpCurr      = Bat_Sys_Volt_Config[(BatTypeA&0x00FF)][((BatTypeA&0xff00)>>8)].OutCurrDefault;
         BatSetInpCurrPower = Bat_Sys_Volt_Config[(BatTypeA&0x00FF)][((BatTypeA&0xff00)>>8)].OutPowerDefault;
         AuotOpenVoltA      = Bat_Sys_Volt_Config[(BatTypeA&0x00FF)][((BatTypeA&0xff00)>>8)].OpenVoltA;
-        AuotVeerVoltA      = Bat_Sys_Volt_Config[(BatTypeA&0x00FF)][((BatTypeA&0xff00)>>8)].CloseVoltA;
-        AuotCloseVoltA     = Bat_Sys_Volt_Config[(BatTypeA&0x00FF)][((BatTypeA&0xff00)>>8)].VeerVoltA;
+        AuotVeerVoltA      = Bat_Sys_Volt_Config[(BatTypeA&0x00FF)][((BatTypeA&0xff00)>>8)].VeerVoltA;
+        AuotCloseVoltA     = Bat_Sys_Volt_Config[(BatTypeA&0x00FF)][((BatTypeA&0xff00)>>8)].CloseVoltA;
         SetInpChargCurr    = Bat_Sys_Volt_Config[(BatTypeA&0x00FF)][((BatTypeA&0xff00)>>8)].SetChargLedCurr;
         SetInpFullCurr     = Bat_Sys_Volt_Config[(BatTypeA&0x00FF)][((BatTypeA&0xff00)>>8)].SetFullLedCurr;
         SetUvloA           = Bat_Sys_Volt_Config[(BatTypeA&0x00FF)][((BatTypeA&0xff00)>>8)].SetUvlo;
@@ -1082,8 +1102,8 @@ void init_mppt_mode_parameter(void)
     BatSetInpCurr      = 125.00f;
     BatSetInpCurrPower = 1500.00f;                 
     AuotOpenVoltA      = 13.60f;
-    AuotVeerVoltA      = 13.00f;
-    AuotCloseVoltA     = 12.00f;
+    AuotVeerVoltA      = 12.00f;
+    AuotCloseVoltA     = 13.00f;
     AuotOpenVoltB      = 12.50f;
     AuotCloseVoltB     = 12.00f;
     

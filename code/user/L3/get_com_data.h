@@ -283,5 +283,6 @@ uint8_t consume_out_baty_type_changed_update(void);
 uint16_t Get_Charge_State(void);
 void set_charge_state_mode(BAT_CHARGE_MODE_E state);
 void get_wg_com_data_rum(void);
+void get_wg_com_data_fast_rum(void);
 uint8_t float_equal(float x, float y);
 #endif

@@ -197,8 +197,8 @@ void init_basic_mode_parameter(void)
     BatSetInpCurr      = basic_Sys_Volt_Config[eBASIC_SYS_12V].OutCurrDefault;
     BatSetInpCurrPower = basic_Sys_Volt_Config[eBASIC_SYS_12V].OutPowerDefault;
     AuotOpenVoltA      = basic_Sys_Volt_Config[eBASIC_SYS_12V].OpenVoltA;
-    AuotVeerVoltA      = basic_Sys_Volt_Config[eBASIC_SYS_12V].CloseVoltA;
-    AuotCloseVoltA     = basic_Sys_Volt_Config[eBASIC_SYS_12V].VeerVoltA;
+    AuotVeerVoltA      = basic_Sys_Volt_Config[eBASIC_SYS_12V].VeerVoltA;
+    AuotCloseVoltA     = basic_Sys_Volt_Config[eBASIC_SYS_12V].CloseVoltA;
     SetInpChargCurr    = basic_Sys_Volt_Config[eBASIC_SYS_12V].SetChargLedCurr;
     SetInpFullCurr     = basic_Sys_Volt_Config[eBASIC_SYS_12V].SetFullLedCurr;
     SetUvloA           = BASIC_BAT_SYS_SET_UVLO;
