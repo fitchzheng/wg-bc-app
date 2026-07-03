@@ -4,7 +4,7 @@
 
 void gpio_set_text(uint8_t val)
 {
-    bsp_gpio_set_bit(PIN_TEXT, val);
+    (void)val;
 }
 
 void gpio_set_auxoff(uint8_t val)

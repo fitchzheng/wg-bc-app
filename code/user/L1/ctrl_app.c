@@ -38,6 +38,26 @@ float fvs48_pwr_lmt = 0.0f;
 float rvs12_pwr_lmt = 0.0f;
 static mppt_cfg_para_t mppt;
 static CTRL_MODE_E mppt_ctrl_mode = CTRL_IDLE;
+
+static void ctrl_app_update_aux_pwm(void)
+{
+    uint8_t pc8_on = 0;
+    uint8_t pc9_on = 0;
+
+    if ((ctrl_mode != CTRL_FORWARD) && (ctrl_mode != CTRL_BACKWARD))
+    {
+        bsp_pwm_set_aux_pc8_pc9(0, 0);
+        return;
+    }
+
+    if (buck_boost.inter.is_ccm[0] == 0U)
+    {
+        pc8_on = 1U;
+        pc9_on = 1U;
+    }
+
+    bsp_pwm_set_aux_pc8_pc9(pc8_on, pc9_on);
+}
 static float mppt_vin_flt = 0.0f;
 static float mppt_pin_flt = 0.0f;
 //uint8_t mppt_mode = 1;
@@ -394,6 +414,7 @@ void RAMFUNC ctrl_app_run(void)
 
         bsp_pwm_set_a_duty(&bsp_pwm[0]);
         bsp_pwm_set_b_duty(&bsp_pwm[1]);
+        bsp_pwm_set_aux_pc8_pc9(0, 0);
         FLT(ihv_bias, adc_get_ihv_no_bias(), 0.01f);
         FLT(ilv_bias, adc_get_ilv_no_bias(), 0.01f);
         FLT(ila_bias, adc_get_ila_no_bias(), 0.01f);
@@ -548,6 +569,8 @@ void RAMFUNC ctrl_app_run(void)
 				bsp_pwm_change_full_freq_pwma();
 				bsp_pwm_change_full_freq_pwmb();
     }
+
+    ctrl_app_update_aux_pwm();
 
 //    buck_boost.inter.bb_mode_duty[0].output.is_half_freq
 //        ? bsp_pwm_change_half_freq_pwma()

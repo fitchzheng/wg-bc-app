@@ -25,8 +25,8 @@ const bsp_gpio_parm_t bsp_gpio_parm_table[] = {
     GPIO_REG_PARM(PIN_BOOST_PWMH_A,GPIO_PORT_B, 15, DEFAULT_OUT_PP, 0),
 //    GPIO_REG_PARM(PIN_LED2,        GPIO_PORT_C, 06, OUT_PP,         1),
 //    GPIO_REG_PARM(PIN_LED3,        GPIO_PORT_C, 07, OUT_PP,         1),
-    GPIO_REG_PARM(PIN_LG,          GPIO_PORT_C, 08, OUT_PP,         0),
-    GPIO_REG_PARM(PIN_LR,          GPIO_PORT_C, 09, OUT_PP,         0),
+    GPIO_REG_PARM(PIN_LG,          GPIO_PORT_C, 13, OUT_PP,         0),
+    GPIO_REG_PARM(PIN_LR,          GPIO_PORT_F, 02, OUT_PP,         0),
     GPIO_REG_PARM(PIN_BOOST_PWMH_B,GPIO_PORT_A, 08, DEFAULT_OUT_PP, 0),
     GPIO_REG_PARM(PIN_BOOST_PWML_B,GPIO_PORT_A, 09, DEFAULT_OUT_PP, 0),
     GPIO_REG_PARM(PIN_BUCK_PWMH_B, GPIO_PORT_A, 10, DEFAULT_OUT_PP, 0),
@@ -44,7 +44,6 @@ const bsp_gpio_parm_t bsp_gpio_parm_table[] = {
     GPIO_REG_PARM(PIN_USART0_RX,   GPIO_PORT_B, 07, DEFAULT_IPD,    0),
     GPIO_REG_PARM(PIN_CAN0_RX,     GPIO_PORT_B, 08, DEFAULT_IPD,    0),
     GPIO_REG_PARM(PIN_CAN0_TX,     GPIO_PORT_B, 09, DEFAULT_OUT_PP, 0),
-    GPIO_REG_PARM(PIN_TEXT,        GPIO_PORT_C, 13, OUT_PP, 0),
 };
 
 

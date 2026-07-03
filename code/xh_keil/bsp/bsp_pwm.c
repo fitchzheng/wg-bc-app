@@ -8,6 +8,8 @@ void hrpwm_port_init(void)
 {
     GPIO_SetFunc(GPIO_PORT_C, GPIO_PIN_06, GPIO_FUNC_14);
     GPIO_SetFunc(GPIO_PORT_C, GPIO_PIN_07, GPIO_FUNC_14);
+    GPIO_SetFunc(GPIO_PORT_C, GPIO_PIN_08, GPIO_FUNC_14);
+    GPIO_SetFunc(GPIO_PORT_C, GPIO_PIN_09, GPIO_FUNC_14);
     GPIO_HrpwmPinCmd(HRPWM_HA1_PORT, ENABLE);
     GPIO_HrpwmPinCmd(HRPWM_LA1_PORT, ENABLE);
     GPIO_HrpwmPinCmd(HRPWM_LA2_PORT, ENABLE);
@@ -16,6 +18,8 @@ void hrpwm_port_init(void)
     GPIO_HrpwmPinCmd(HRPWM_LB1_PORT, ENABLE);
     GPIO_HrpwmPinCmd(HRPWM_HB2_PORT, ENABLE);
     GPIO_HrpwmPinCmd(HRPWM_LB2_PORT, ENABLE);
+    GPIO_HrpwmPinCmd(HRPWM_PC8_PORT, ENABLE);
+    GPIO_HrpwmPinCmd(HRPWM_PC9_PORT, ENABLE);
 }
 
 uint32_t RAMFUNC HRPWM_GetPeriodValue_Buff(const CM_HRPWM_TypeDef *HRPWMx)
@@ -272,19 +276,23 @@ void bsp_hrpwm_buffer_cfg(void)
     (void)HRPWM_GeneralAEBufConfig(A2_PWM_UNIT, &stcBufConfig);
     (void)HRPWM_GeneralAEBufConfig(B1_PWM_UNIT, &stcBufConfig);
     (void)HRPWM_GeneralAEBufConfig(B2_PWM_UNIT, &stcBufConfig);
+    (void)HRPWM_GeneralAEBufConfig(AUX_PWM_UNIT, &stcBufConfig);
     HRPWM_GeneralAEBufEnable(A1_PWM_UNIT);
     HRPWM_GeneralAEBufEnable(A2_PWM_UNIT);
     HRPWM_GeneralAEBufEnable(B1_PWM_UNIT);
     HRPWM_GeneralAEBufEnable(B2_PWM_UNIT);
+    HRPWM_GeneralAEBufEnable(AUX_PWM_UNIT);
 
     HRPWM_PeriodBufConfig(A1_PWM_UNIT, &stcBufConfig);
     HRPWM_PeriodBufConfig(A2_PWM_UNIT, &stcBufConfig);
     HRPWM_PeriodBufConfig(B1_PWM_UNIT, &stcBufConfig);
     HRPWM_PeriodBufConfig(B2_PWM_UNIT, &stcBufConfig);
+    HRPWM_PeriodBufConfig(AUX_PWM_UNIT, &stcBufConfig);
     HRPWM_PeriodBufEnable(A1_PWM_UNIT);
     HRPWM_PeriodBufEnable(A2_PWM_UNIT);
     HRPWM_PeriodBufEnable(B1_PWM_UNIT);
     HRPWM_PeriodBufEnable(B2_PWM_UNIT);
+    HRPWM_PeriodBufEnable(AUX_PWM_UNIT);
 
     HRPWM_DeadTimeBufConfig(A1_PWM_UNIT, &stcBufConfig);
     HRPWM_DeadTimeBufConfig(A2_PWM_UNIT, &stcBufConfig);
@@ -303,11 +311,13 @@ void bsp_hrpwm_buffer_cfg(void)
     HRPWM_ControlRegBufConfig(A2_PWM_UNIT, &stcBufConfig);
     HRPWM_ControlRegBufConfig(B1_PWM_UNIT, &stcBufConfig);
     HRPWM_ControlRegBufConfig(B2_PWM_UNIT, &stcBufConfig);
+    HRPWM_ControlRegBufConfig(AUX_PWM_UNIT, &stcBufConfig);
 
     HRPWM_ControlRegBufEnable(A1_PWM_UNIT);
     HRPWM_ControlRegBufEnable(A2_PWM_UNIT);
     HRPWM_ControlRegBufEnable(B1_PWM_UNIT);
     HRPWM_ControlRegBufEnable(B2_PWM_UNIT);
+    HRPWM_ControlRegBufEnable(AUX_PWM_UNIT);
 
     HRPWM_PH_SetBufCond(HRPWM_BUF_TRANS_VALLEY);
     HRPWM_PH_BufEnable();
@@ -334,6 +344,12 @@ void bsp_hrpwm_buffer_cfg(void)
 __STATIC_INLINE void RAMFUNC HRPWM_IDLE_Exit_32bit(uint32_t u32Unit, uint32_t u32Ch)
 {
     WRITE_REG32(CM_HRPWM_COMMON->SSTARUNR1, u32Unit & u32Ch);
+}
+
+static void RAMFUNC bsp_pwm_set_aux_phase_90(uint32_t phase)
+{
+    HRPWM_PH_SetCompareValue(HRPWM_PH_MATCH_IDX2, phase);
+    HRPWM_PH_SetCompareValue_Buf(HRPWM_PH_MATCH_IDX2, phase);
 }
 
 void Set_channelA_outen(uint8_t set)
@@ -688,6 +704,7 @@ void bsp_phase_config(void)
 
     HRPWM_PH_SetCompareValue(HRPWM_PH_MATCH_IDX1, HRPWM_PHSCMP1_VALUE); // 0
     HRPWM_PH_SetCompareValue_Buf(HRPWM_PH_MATCH_IDX1, HRPWM_PHSCMP1_VALUE);
+    bsp_pwm_set_aux_phase_90(HRPWM_AUX_PHSCMP_90_FULL);
 
     (void)HRPWM_PH_StructInit(&stcPHConfig);
     stcPHConfig.u32PhaseIndex = HRPWM_PH_MATCH_IDX1;
@@ -699,10 +716,14 @@ void bsp_phase_config(void)
     (void)HRPWM_PH_Config(A1_PWM_UNIT, &stcPHConfig);
     (void)HRPWM_PH_Config(A2_PWM_UNIT, &stcPHConfig);
 
+    stcPHConfig.u32PhaseIndex = HRPWM_PH_MATCH_IDX2;
+    (void)HRPWM_PH_Config(AUX_PWM_UNIT, &stcPHConfig);
+
     HRPWM_PH_Enable(A2_PWM_UNIT);
     HRPWM_PH_Enable(A1_PWM_UNIT);
     HRPWM_PH_Enable(B2_PWM_UNIT);
     HRPWM_PH_Enable(B1_PWM_UNIT);
+    HRPWM_PH_Enable(AUX_PWM_UNIT);
 }
 
 void bsp_pwm_idle_Level(void)
@@ -718,6 +739,7 @@ void bsp_pwm_idle_Level(void)
     (void)HRPWM_IDLE_DELAY_Init(A2_PWM_UNIT, &stcIdleDelay);
     (void)HRPWM_IDLE_DELAY_Init(B1_PWM_UNIT, &stcIdleDelay);
     (void)HRPWM_IDLE_DELAY_Init(B2_PWM_UNIT, &stcIdleDelay);
+    (void)HRPWM_IDLE_DELAY_Init(AUX_PWM_UNIT, &stcIdleDelay);
 
     HRPWM_IDLE_SetChAIdleLevel(A1_PWM_UNIT, HRPWM_IDLE_CHA_LVL_LOW);
     HRPWM_IDLE_SetChBIdleLevel(A1_PWM_UNIT, HRPWM_IDLE_CHB_LVL_LOW);
@@ -731,6 +753,9 @@ void bsp_pwm_idle_Level(void)
     HRPWM_IDLE_SetChAIdleLevel(B2_PWM_UNIT, HRPWM_IDLE_CHA_LVL_LOW);
     HRPWM_IDLE_SetChBIdleLevel(B2_PWM_UNIT, HRPWM_IDLE_CHB_LVL_LOW);
 
+    HRPWM_IDLE_SetChAIdleLevel(AUX_PWM_UNIT, HRPWM_IDLE_CHA_LVL_LOW);
+    HRPWM_IDLE_SetChBIdleLevel(AUX_PWM_UNIT, HRPWM_IDLE_CHB_LVL_LOW);
+
     HRPWM_IDLE_SetChAIdleLevel(PWM_UNIT, HRPWM_IDLE_CHA_LVL_LOW);
     HRPWM_IDLE_SetChBIdleLevel(PWM_UNIT, HRPWM_IDLE_CHB_LVL_LOW);
 
@@ -738,6 +763,7 @@ void bsp_pwm_idle_Level(void)
     HRPWM_IDLE_DELAY_Enable(A2_PWM_UNIT);
     HRPWM_IDLE_DELAY_Enable(B1_PWM_UNIT);
     HRPWM_IDLE_DELAY_Enable(B2_PWM_UNIT);
+    HRPWM_IDLE_DELAY_Enable(AUX_PWM_UNIT);
 }
 
 void bsp_hrpwm_init_pwc(void)
@@ -1051,6 +1077,8 @@ void RAMFUNC bsp_pwm_change_full_freq_pwma(void)
 {
     HRPWM_SetPeriodValue_Buf(A1_PWM_UNIT, CTRL_PERIOD);
     HRPWM_SetPeriodValue_Buf(A2_PWM_UNIT, CTRL_PERIOD);
+    HRPWM_SetPeriodValue_Buf(AUX_PWM_UNIT, CTRL_PERIOD);
+    bsp_pwm_set_aux_phase_90(HRPWM_AUX_PHSCMP_90_FULL);
 }
 
 // 设定PWMB的重载值为全频率
@@ -1058,6 +1086,8 @@ void RAMFUNC bsp_pwm_change_full_freq_pwmb(void)
 {
     HRPWM_SetPeriodValue_Buf(B1_PWM_UNIT, CTRL_PERIOD);
     HRPWM_SetPeriodValue_Buf(B2_PWM_UNIT, CTRL_PERIOD);
+    HRPWM_SetPeriodValue_Buf(AUX_PWM_UNIT, CTRL_PERIOD);
+    bsp_pwm_set_aux_phase_90(HRPWM_AUX_PHSCMP_90_FULL);
 }
 
 // 设定PWMA的重载值为半频率
@@ -1065,6 +1095,8 @@ void RAMFUNC bsp_pwm_change_half_freq_pwma(void)
 {
     HRPWM_SetPeriodValue_Buf(A1_PWM_UNIT, ((CTRL_PERIOD) << 1));
     HRPWM_SetPeriodValue_Buf(A2_PWM_UNIT, ((CTRL_PERIOD) << 1));
+    HRPWM_SetPeriodValue_Buf(AUX_PWM_UNIT, ((CTRL_PERIOD) << 1));
+    bsp_pwm_set_aux_phase_90(HRPWM_AUX_PHSCMP_90_HALF);
 }
 
 // 设定PWMB的重载值为半频率
@@ -1072,6 +1104,31 @@ void RAMFUNC bsp_pwm_change_half_freq_pwmb(void)
 {
     HRPWM_SetPeriodValue_Buf(B1_PWM_UNIT, ((CTRL_PERIOD) << 1));
     HRPWM_SetPeriodValue_Buf(B2_PWM_UNIT, ((CTRL_PERIOD) << 1));
+    HRPWM_SetPeriodValue_Buf(AUX_PWM_UNIT, ((CTRL_PERIOD) << 1));
+    bsp_pwm_set_aux_phase_90(HRPWM_AUX_PHSCMP_90_HALF);
+}
+
+void RAMFUNC bsp_pwm_set_aux_pc8_pc9(uint8_t pc8_on, uint8_t pc9_on)
+{
+    uint32_t aux_cmp = (uint32_t)(0.70f * (float)CM_HRPWM6->HRPERBR);
+
+    CM_HRPWM6->HRGCMCR = aux_cmp;
+    CM_HRPWM6->HRGCMDR = aux_cmp;
+
+    CM_HRPWM6->BPCNAR1 &= ~(3 << 16);
+    CM_HRPWM6->BPCNBR1 &= ~(3 << 16);
+
+    bCM_HRPWM6->BPCNAR1_b.OUTENA = (pc8_on != 0U) ? 1U : 0U;
+    bCM_HRPWM6->BPCNBR1_b.OUTENB = (pc9_on != 0U) ? 1U : 0U;
+
+    if (pc8_on == 0U)
+    {
+        CM_HRPWM6->BPCNAR1 |= 2 << 16;
+    }
+    if (pc9_on == 0U)
+    {
+        CM_HRPWM6->BPCNBR1 |= 2 << 16;
+    }
 }
 
 void RAMFUNC bsp_hrpwm1_update_trig(void)
@@ -1261,6 +1318,8 @@ void bsp_pwm_deinit(void)
     GPIO_HrpwmPinCmd(HRPWM_LB1_PORT, DISABLE);
     GPIO_HrpwmPinCmd(HRPWM_HB2_PORT, DISABLE);
     GPIO_HrpwmPinCmd(HRPWM_LB2_PORT, DISABLE);
+    GPIO_HrpwmPinCmd(HRPWM_PC8_PORT, DISABLE);
+    GPIO_HrpwmPinCmd(HRPWM_PC9_PORT, DISABLE);
 
     HRPWM_CommonDeInit();
     HRPWM_DeInit(CM_HRPWM1);
@@ -1268,6 +1327,7 @@ void bsp_pwm_deinit(void)
     HRPWM_DeInit(CM_HRPWM5);
     HRPWM_DeInit(CM_HRPWM3);
     HRPWM_DeInit(CM_HRPWM2);
+    HRPWM_DeInit(CM_HRPWM6);
 
     HRPWM_CountStop(PWM_UNIT);
 
@@ -1289,6 +1349,7 @@ void bsp_pwm_init(void)
     HRPWM_DeInit(CM_HRPWM5);
     HRPWM_DeInit(CM_HRPWM3);
     HRPWM_DeInit(CM_HRPWM2);
+    HRPWM_DeInit(CM_HRPWM6);
     TMR6_DeInit(CM_TMR6_1);
     TMR6_DeInit(CM_TMR6_2);
 
@@ -1303,6 +1364,8 @@ void bsp_pwm_init(void)
     CM_HRPWM4->CR |= 1 << 3; /* 1：使能高精度HRPWM */
     CM_HRPWM5->CR |= 1 << 3; /* 1：使能高精度HRPWM */
 
+    CM_HRPWM6->CR |= 1 << 3;
+
     CM_TMR6_1->PERAR   = 2400;
     CM_TMR6_2->PERAR   = 600;
     CM_HRPWM1->HRPERAR = 0xFFFF * 64;
@@ -1316,31 +1379,37 @@ void bsp_pwm_init(void)
     CM_HRPWM3->HRPERBR = CTRL_PERIOD - 64;
     CM_HRPWM4->HRPERBR = CTRL_PERIOD - 64;
     CM_HRPWM5->HRPERBR = CTRL_PERIOD - 64;
+    CM_HRPWM6->HRPERBR = CTRL_PERIOD - 64;
 
     CM_HRPWM2->HCLRR2 |= 1 << 10;
     CM_HRPWM3->HCLRR2 |= 1 << 10;
     CM_HRPWM4->HCLRR2 |= 1 << 10;
     CM_HRPWM5->HCLRR2 |= 1 << 10;
+    CM_HRPWM6->HCLRR2 |= 1 << 10;
 
     bCM_HRPWM2->BCONR1_b.BENP = 1;
     bCM_HRPWM3->BCONR1_b.BENP = 1;
     bCM_HRPWM4->BCONR1_b.BENP = 1;
     bCM_HRPWM5->BCONR1_b.BENP = 1;
+    bCM_HRPWM6->BCONR1_b.BENP = 1;
 
     bCM_HRPWM2->BCONR1_b.BENAE = 1;
     bCM_HRPWM3->BCONR1_b.BENAE = 1;
     bCM_HRPWM4->BCONR1_b.BENAE = 1;
     bCM_HRPWM5->BCONR1_b.BENAE = 1;
+    bCM_HRPWM6->BCONR1_b.BENAE = 1;
 
     bCM_HRPWM2->BCONR1_b.BENBF = 1;
     bCM_HRPWM3->BCONR1_b.BENBF = 1;
     bCM_HRPWM4->BCONR1_b.BENBF = 1;
     bCM_HRPWM5->BCONR1_b.BENBF = 1;
+    bCM_HRPWM6->BCONR1_b.BENBF = 1;
 
     bCM_HRPWM2->BCONR2_b.BENCTL = 1;
     bCM_HRPWM3->BCONR2_b.BENCTL = 1;
     bCM_HRPWM4->BCONR2_b.BENCTL = 1;
     bCM_HRPWM5->BCONR2_b.BENCTL = 1;
+    bCM_HRPWM6->BCONR2_b.BENCTL = 1;
 
     /* 设置缓存传送条件 */
     bCM_HRPWM2->BCONR2_b.BTRU0PCTL = 1; /* 控制寄存器缓存传送U0PCTL 1：在单元1单次缓存传送点，发生一次缓存值传送*/
@@ -1360,12 +1429,19 @@ void bsp_pwm_init(void)
     bCM_HRPWM5->BCONR2_b.BTRU0PBF = 1;  /* 控制寄存器缓存传送U0PBF 1：在单元1单次缓存传送点，发生一次缓存值传送*/
     bCM_HRPWM5->BCONR2_b.BTRU0PP = 1;   /* 周期值缓存传送 1：在单元1单次缓存传送点，发生一次缓存值传送*/
 
+    bCM_HRPWM6->BCONR2_b.BTRU0PCTL = 1;
+    bCM_HRPWM6->BCONR2_b.BTRU0PAE = 1;
+    bCM_HRPWM6->BCONR2_b.BTRU0PBF = 1;
+    bCM_HRPWM6->BCONR2_b.BTRU0PP = 1;
+
     bCM_HRPWM5->BGCONR1_b.SWAPEN = 1;
 
     CM_HRPWM2->GCONR |= 1 << 2; /* 1：三角波模式 */
     CM_HRPWM3->GCONR |= 1 << 2; /* 1：三角波模式 */
     CM_HRPWM4->GCONR |= 1 << 2; /* 1：三角波模式 */
     CM_HRPWM5->GCONR |= 1 << 2; /* 1：三角波模式 */
+
+    CM_HRPWM6->GCONR |= 1 << 2;
 
     CM_TMR6_1->HSTAR |= 1 << 16;
     CM_TMR6_2->HSTAR |= 1 << 16;
@@ -1508,6 +1584,40 @@ void bsp_pwm_init(void)
                           (1 << 28)   /* 0：HRPWM功能时的HRPWM_<t>_PWMB端口输出无效 */
         ;
 
+    CM_HRPWM6->BPCNAR1 = 0;
+    CM_HRPWM6->BPCNAR1 |= (2 << 0) |
+                          (0 << 2) |
+                          (2 << 4) |
+                          (2 << 6) |
+                          (0 << 8) |
+                          (1 << 10) |
+                          (2 << 12) |
+                          (2 << 14) |
+                          (2 << 16) |
+                          (0 << 20) |
+                          (0 << 22) |
+                          (0 << 24) |
+                          (1 << 28);
+
+    CM_HRPWM6->BPCNBR1 = 0;
+    CM_HRPWM6->BPCNBR1 |= (2 << 0) |
+                          (0 << 2) |
+                          (2 << 4) |
+                          (2 << 6) |
+                          (2 << 8) |
+                          (2 << 10) |
+                          (0 << 12) |
+                          (1 << 14) |
+                          (2 << 16) |
+                          (0 << 20) |
+                          (0 << 22) |
+                          (0 << 24) |
+                          (1 << 28);
+
+    CM_HRPWM6->HRGCMCR = (uint32_t)(0.70f * (float)CM_HRPWM6->HRPERBR);
+    CM_HRPWM6->HRGCMDR = (uint32_t)(0.70f * (float)CM_HRPWM6->HRPERBR);
+    bsp_pwm_set_aux_pc8_pc9(0, 0);
+
     CM_HRPWM2->HRGCMCR = 0;
     CM_HRPWM4->HRGCMCR = 0;
 
@@ -1524,6 +1634,8 @@ void bsp_pwm_init(void)
 
     // bsp_DeadTime_Config(); // 死区时间配置
 
+    CM_HRPWM6->GCONR |= 1 << 2;
+
     CM_HRPWM_COMMON->SSTARUNR2 |= 0xFFFF << 2;
     CM_HRPWM_COMMON->SSTARUNR1 |= 0xFFFF << 2;
 
@@ -1539,6 +1651,7 @@ void bsp_pwm_init(void)
     bCM_HRPWM3->GCONR_b.START = 1;
     bCM_HRPWM4->GCONR_b.START = 1;
     bCM_HRPWM5->GCONR_b.START = 1;
+    bCM_HRPWM6->GCONR_b.START = 1;
     bCM_HRPWM1->GCONR_b.START = 1;
     CM_TMR6_2->GCONR |= (1<<0);
     CM_TMR6_1->GCONR |= (1<<0);
@@ -1551,6 +1664,7 @@ void bsp_pwm_init(void)
     bCM_HRPWM3->HCLRR1_b.CLES = 1;
     bCM_HRPWM4->HCLRR1_b.CLES = 1;
     bCM_HRPWM5->HCLRR1_b.CLES = 1;
+    bCM_HRPWM6->HCLRR1_b.CLES = 1;
 }
 
 void bsp_pwm_set_tmr6(float duty,float freq);

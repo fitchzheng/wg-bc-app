@@ -102,6 +102,7 @@ const bsp_gpio_parm_pwc_t bsp_gpio_parm_pwc[] = {
 	PWC_GPIO_REG_PARM(PWC_PB7,	GPIO_PORT_B	,	07	,	ANALOG_PD	,	0),
 	PWC_GPIO_REG_PARM(PWC_PB8,	GPIO_PORT_B	,	08	,	ANALOG_PD	,	0),
 	PWC_GPIO_REG_PARM(PWC_PB9,	GPIO_PORT_B	,	09	,	ANALOG_PD	,	0),
+	PWC_GPIO_REG_PARM(PWC_PF2,	GPIO_PORT_F	,	02	,	ANALOG_PD	,	0),
 };
 
 void bsp_gpio_pwc_init(void)

@@ -71,6 +71,7 @@ typedef enum
     PWC_PB7,
     PWC_PB8,
     PWC_PB9,
+    PWC_PF2,
     PWC_GPIO_TABLE_MAX
 } bsp_gpio_table_pwc_e;
 
