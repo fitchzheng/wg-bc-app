@@ -27,6 +27,10 @@ static uint8_t eeprom_current_param_valid = 1;
 static uint8_t eeprom_write_p02_current(void);
 static uint8_t eeprom_write_p03_user_current(void);
 static uint8_t eeprom_battery_profile_reload_pending = 0;
+static uint8_t eeprom_autosys_boot_identify_pending = 1U;
+static uint8_t eeprom_autosys_a_low_seen = 0U;
+static uint8_t eeprom_autosys_last_pg_on = 0xFFU;
+static uint8_t eeprom_autosys_last_power_on = 0xFFU;
 #define EEPROM_PROFILE_RESERVED_DEFAULT 0xFFU
 #define EEPROM_PROFILE_RESERVED_USER    0xA5U
 #define EEPROM_PROFILE_TIME_MAX         180U
@@ -1455,7 +1459,7 @@ static uint8_t eeprom_profile_bat_sys_from_ctrl(uint16_t sys)
 
 static uint16_t eeprom_autosys_detect_a(void)
 {
-    float a_volt = get_wg_com_v2_data.com_realtime_data.InpVolt;
+    float a_volt = get_show_fvs48_show();
     if((a_volt >= 10.0f) && (a_volt <= 17.0f))
     {
         return eSYS_12V;
@@ -1471,6 +1475,55 @@ static uint16_t eeprom_autosys_detect_a(void)
     return eSYS_VOLT_MAX;
 }
 
+static uint8_t eeprom_autosys_identify_allowed(void)
+{
+    uint8_t pg_on = get_key_pg_val() ? 1U : 0U;
+    uint16_t power_off = 0U;
+    uint8_t power_on;
+    uint8_t allow = 0U;
+    float a_volt = get_show_fvs48_show();
+
+    WG_COM_V2_GET_DATA_UINT(power_off, wg_com_v2_ctrl.PowerOnOff);
+    power_on = (power_off == 0U) ? 1U : 0U;
+
+    if(a_volt < 5.0f)
+    {
+        eeprom_autosys_a_low_seen = 1U;
+        eeprom_autosys_last_pg_on = pg_on;
+        eeprom_autosys_last_power_on = power_on;
+        return 0U;
+    }
+
+    if((eeprom_autosys_boot_identify_pending != 0U) && (a_volt >= 10.0f))
+    {
+        allow = 1U;
+        eeprom_autosys_boot_identify_pending = 0U;
+    }
+
+    if((eeprom_autosys_a_low_seen != 0U) && (a_volt >= 10.0f))
+    {
+        allow = 1U;
+        eeprom_autosys_a_low_seen = 0U;
+    }
+
+    if((eeprom_autosys_last_pg_on != 0xFFU) &&
+       (eeprom_autosys_last_pg_on == 0U) &&
+       (pg_on != 0U))
+    {
+        allow = 1U;
+    }
+
+    if((eeprom_autosys_last_power_on != 0xFFU) &&
+       (eeprom_autosys_last_power_on == 0U) &&
+       (power_on != 0U))
+    {
+        allow = 1U;
+    }
+
+    eeprom_autosys_last_pg_on = pg_on;
+    eeprom_autosys_last_power_on = power_on;
+    return allow;
+}
 static uint16_t eeprom_float_to_raw(float value, void *wg_field)
 {
     float unit = get_unit_for_addr(wg_field);
@@ -2226,28 +2279,37 @@ uint8_t eeprom_apply_battery_mode_profiles(void)
 
     if(((bat_type_a & 0xff00) >> 8) == eBAT_AUTOSYS)
     {
-        uint16_t detected_sys = eeprom_autosys_detect_a();
+        uint16_t detected_sys;
         uint16_t current_sys = bat_type_a & 0x00FF;
-        if(detected_sys >= eSYS_VOLT_MAX)
-        {
-            WG_COM_V2_SET_DATA_UINT((eBAT_AUTOSYS << 8) | eSYS_VOLT_MAX, wg_com_v2_ctrl.InpBatyType);
-            WG_COM_V2_SET_DATA_UINT(1, wg_com_v2_ctrl.PowerOnOff);
-            WG_COM_V2_SET_DATA_UINT(eIDIE_CHARGE, wg_com_v2_realtime_data.StateCharge);
-            fault_set_alarm(ALARM_AUTOSYS_NO_SYSTEM);
-            return 1;
-        }
 
-        bat_type_a = (eBAT_AUTOSYS << 8) | detected_sys;
-        WG_COM_V2_SET_DATA_UINT(bat_type_a, wg_com_v2_ctrl.InpBatyType);
-        if(current_sys != detected_sys)
+        if(eeprom_autosys_identify_allowed() != 0U)
         {
-            (void)eeprom_write_p02_current();
+            detected_sys = eeprom_autosys_detect_a();
+            if(detected_sys >= eSYS_VOLT_MAX)
+            {
+                WG_COM_V2_SET_DATA_UINT((eBAT_AUTOSYS << 8) | eSYS_VOLT_MAX, wg_com_v2_ctrl.InpBatyType);
+                WG_COM_V2_SET_DATA_UINT(1, wg_com_v2_ctrl.PowerOnOff);
+                WG_COM_V2_SET_DATA_UINT(eIDIE_CHARGE, wg_com_v2_realtime_data.StateCharge);
+                fault_set_alarm(ALARM_AUTOSYS_NO_SYSTEM);
+                return 1;
+            }
+
+            bat_type_a = (eBAT_AUTOSYS << 8) | detected_sys;
+            WG_COM_V2_SET_DATA_UINT(bat_type_a, wg_com_v2_ctrl.InpBatyType);
+            if(current_sys != detected_sys)
+            {
+                (void)eeprom_write_p02_current();
+            }
+            if(current_sys >= eSYS_VOLT_MAX)
+            {
+                WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.PowerOnOff);
+            }
+            fault_clear_alarm(ALARM_AUTOSYS_NO_SYSTEM);
         }
-        if(current_sys >= eSYS_VOLT_MAX)
+        else if(current_sys >= eSYS_VOLT_MAX)
         {
-            WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.PowerOnOff);
+            return 0;
         }
-        fault_clear_alarm(ALARM_AUTOSYS_NO_SYSTEM);
     }
     else
     {
@@ -2283,6 +2345,11 @@ uint8_t eeprom_autosys_runtime_update(void)
     if(((bat_type_a & 0xff00) >> 8) != eBAT_AUTOSYS)
     {
         fault_clear_alarm(ALARM_AUTOSYS_NO_SYSTEM);
+        return 0;
+    }
+
+    if(eeprom_autosys_identify_allowed() == 0U)
+    {
         return 0;
     }
 
