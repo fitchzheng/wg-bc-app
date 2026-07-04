@@ -18,6 +18,8 @@ void RAMFUNC buck_boost_mode_func(buck_boost_mode_t *str)
 
     str->output.buck_dn_en = 1;
     str->output.boost_up_en = 1;
+	str->output.boost_dn_en = 1;
+    str->output.buck_up_en = 1;
 
     switch (str->inter.mode)
     {
@@ -32,6 +34,7 @@ void RAMFUNC buck_boost_mode_func(buck_boost_mode_t *str)
         else
         {
             str->output.boost_duty = 1.0f;
+			str->output.boost_dn_en = 0;
         }
         break;
 
@@ -46,6 +49,8 @@ void RAMFUNC buck_boost_mode_func(buck_boost_mode_t *str)
         else
         {
             str->output.buck_duty = 1.0f;
+			str->output.buck_dn_en = 0;
+			
         }
         break;
 
@@ -65,6 +70,7 @@ void RAMFUNC buck_boost_mode_func(buck_boost_mode_t *str)
                 str->inter.mode = BUCK_BOOST_MODE_BOOST;
                 str->output.buck_duty = 1.0f;
                 str->output.boost_duty = (str->input.v_in - str->input.v_l) / str->input.v_out;
+				str->output.buck_dn_en = 0;
             }
         }
         else
@@ -81,6 +87,7 @@ void RAMFUNC buck_boost_mode_func(buck_boost_mode_t *str)
                 str->inter.mode = BUCK_BOOST_MODE_BUCK;
                 str->output.boost_duty = 1.0f;
                 str->output.buck_duty = (str->input.v_l + str->input.v_out) / str->input.v_in;
+				str->output.boost_dn_en = 0;
             }
         }
         break;

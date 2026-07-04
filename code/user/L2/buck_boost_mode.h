@@ -31,8 +31,10 @@ typedef struct
 {
     float buck_duty;
     float boost_duty;
+	uint8_t buck_up_en;
     uint8_t buck_dn_en;
     uint8_t boost_up_en;
+	uint8_t boost_dn_en;
     uint8_t is_half_freq;
 } buck_boost_mode_output_t;
 

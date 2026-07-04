@@ -165,7 +165,7 @@ static void RAMFUNC buck_boost_l_open_loop(buck_boost_t *str, float i_ref, uint3
         buck_duty = 1.0f;
         str->output.duty[i].buck_duty = buck_duty;
         str->output.duty[i].boost_duty = 1.0f - boost_duty;
-        str->output.duty[i].buck_dn_en = 1;
+        str->output.duty[i].buck_dn_en = 0;
         str->output.duty[i].buck_up_en = 1;
         str->output.duty[i].boost_dn_en = 1;
         str->output.duty[i].boost_up_en = 0;
@@ -187,7 +187,7 @@ static void RAMFUNC buck_boost_l_open_loop(buck_boost_t *str, float i_ref, uint3
         str->output.duty[i].boost_duty = boost_duty;
         str->output.duty[i].buck_dn_en = 0;
         str->output.duty[i].buck_up_en = 1;
-        str->output.duty[i].boost_dn_en = 1;
+        str->output.duty[i].boost_dn_en = 0;
         str->output.duty[i].boost_up_en = 1;
 							// gpio_set_db2(0);
 					// gpio_set_db2(1);
@@ -205,7 +205,7 @@ static void RAMFUNC buck_boost_l_open_loop(buck_boost_t *str, float i_ref, uint3
                                 &boost_duty);
         str->output.duty[i].buck_duty = buck_duty;
         str->output.duty[i].boost_duty = 1.0f - boost_duty;
-        str->output.duty[i].buck_dn_en = 0;
+        str->output.duty[i].buck_dn_en = 1;
         str->output.duty[i].buck_up_en = 1;
         str->output.duty[i].boost_dn_en = 1;
         str->output.duty[i].boost_up_en = 0;
@@ -234,8 +234,8 @@ static void RAMFUNC buck_boost_set_close_loop_duty(buck_boost_t *str, uint32_t i
     str->output.duty[i].boost_duty = str->inter.bb_mode_duty[i].output.boost_duty;
 
     str->output.duty[i].buck_dn_en = str->inter.bb_mode_duty[i].output.buck_dn_en;
-    str->output.duty[i].buck_up_en = 1;
-    str->output.duty[i].boost_dn_en = 1;
+    str->output.duty[i].buck_up_en = str->inter.bb_mode_duty[i].output.buck_up_en;
+    str->output.duty[i].boost_dn_en = str->inter.bb_mode_duty[i].output.boost_dn_en;
     str->output.duty[i].boost_up_en = str->inter.bb_mode_duty[i].output.boost_up_en;
 }
 

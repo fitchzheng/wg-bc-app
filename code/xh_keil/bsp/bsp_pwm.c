@@ -352,6 +352,11 @@ static void RAMFUNC bsp_pwm_set_aux_phase_90(uint32_t phase)
     HRPWM_PH_SetCompareValue_Buf(HRPWM_PH_MATCH_IDX2, phase);
 }
 
+static uint8_t RAMFUNC bsp_pwm_cmd_is_wave(float duty, uint8_t enable)
+{
+    return ((enable != 0U) && (duty >= 0.012f) && (duty <= 0.988f)) ? 1U : 0U;
+}
+
 void Set_channelA_outen(uint8_t set)
 {
     if (set & HA1_EN_BIT)
@@ -1110,7 +1115,7 @@ void RAMFUNC bsp_pwm_change_half_freq_pwmb(void)
 
 void RAMFUNC bsp_pwm_set_aux_pc8_pc9(uint8_t pc8_on, uint8_t pc9_on)
 {
-    uint32_t aux_cmp = (uint32_t)(0.70f * (float)CM_HRPWM6->HRPERBR);
+    uint32_t aux_cmp = (uint32_t)(0.80f * (float)CM_HRPWM6->HRPERBR);
 
     CM_HRPWM6->HRGCMCR = aux_cmp;
     CM_HRPWM6->HRGCMDR = aux_cmp;
@@ -1124,11 +1129,34 @@ void RAMFUNC bsp_pwm_set_aux_pc8_pc9(uint8_t pc8_on, uint8_t pc9_on)
     if (pc8_on == 0U)
     {
         CM_HRPWM6->BPCNAR1 |= 2 << 16;
+        HRPWM_IDLE_EnterImmediate(AUX_SW_PWM_UNIT, HRPWM_SW_SYNC_CHA);
+    }
+    else
+    {
+        HRPWM_IDLE_Exit_32bit(AUX_SW_PWM_UNIT, HRPWM_SW_SYNC_CHA);
     }
     if (pc9_on == 0U)
     {
         CM_HRPWM6->BPCNBR1 |= 2 << 16;
+        HRPWM_IDLE_EnterImmediate(AUX_SW_PWM_UNIT, HRPWM_SW_SYNC_CHB);
     }
+    else
+    {
+        HRPWM_IDLE_Exit_32bit(AUX_SW_PWM_UNIT, HRPWM_SW_SYNC_CHB);
+    }
+}
+
+void RAMFUNC bsp_pwm_update_aux_by_main_pwm(const bsp_pwm_t *pwma, const bsp_pwm_t *pwmb)
+{
+    uint8_t pb13_wave = ((pwma->left_dn_en == 0U) || (pwma->left_duty > 0.98f)) ? 0U : 1U;
+    uint8_t pa11_wave = ((pwmb->left_dn_en == 0U) || (pwmb->left_duty > 0.98f)) ? 0U : 1U;
+    uint8_t pb14_wave = ((pwma->right_dn_en == 0U) || (pwma->right_duty > 0.98f)) ? 0U : 1U;
+    uint8_t pa9_wave = ((pwmb->right_dn_en == 0U) || (pwmb->right_duty > 0.98f)) ? 0U : 1U;
+
+    uint8_t pc8_on = ((pb14_wave == 0U) || (pa9_wave == 0U)) ? 1U : 0U;
+    uint8_t pc9_on = ((pb13_wave == 0U) || (pa11_wave == 0U)) ? 1U : 0U;
+
+    bsp_pwm_set_aux_pc8_pc9(pc8_on, pc9_on);
 }
 
 void RAMFUNC bsp_hrpwm1_update_trig(void)
@@ -1614,8 +1642,8 @@ void bsp_pwm_init(void)
                           (0 << 24) |
                           (1 << 28);
 
-    CM_HRPWM6->HRGCMCR = (uint32_t)(0.70f * (float)CM_HRPWM6->HRPERBR);
-    CM_HRPWM6->HRGCMDR = (uint32_t)(0.70f * (float)CM_HRPWM6->HRPERBR);
+    CM_HRPWM6->HRGCMCR = (uint32_t)(0.80f * (float)CM_HRPWM6->HRPERBR);
+    CM_HRPWM6->HRGCMDR = (uint32_t)(0.80f * (float)CM_HRPWM6->HRPERBR);
     bsp_pwm_set_aux_pc8_pc9(0, 0);
 
     CM_HRPWM2->HRGCMCR = 0;

@@ -193,6 +193,7 @@ void bsp_pwm_init(void);
 void bsp_pwm_set_a_duty(bsp_pwm_t *str);
 void bsp_pwm_set_b_duty(bsp_pwm_t *str);
 void bsp_pwm_set_aux_pc8_pc9(uint8_t pc8_on, uint8_t pc9_on);
+void bsp_pwm_update_aux_by_main_pwm(const bsp_pwm_t *pwma, const bsp_pwm_t *pwmb);
 void bsp_pwm_update_chclt2(void);
 
 

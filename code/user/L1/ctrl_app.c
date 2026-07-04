@@ -39,25 +39,6 @@ float rvs12_pwr_lmt = 0.0f;
 static mppt_cfg_para_t mppt;
 static CTRL_MODE_E mppt_ctrl_mode = CTRL_IDLE;
 
-static void ctrl_app_update_aux_pwm(void)
-{
-    uint8_t pc8_on = 0;
-    uint8_t pc9_on = 0;
-
-    if ((ctrl_mode != CTRL_FORWARD) && (ctrl_mode != CTRL_BACKWARD))
-    {
-        bsp_pwm_set_aux_pc8_pc9(0, 0);
-        return;
-    }
-
-    if (buck_boost.inter.is_ccm[0] == 0U)
-    {
-        pc8_on = 1U;
-        pc9_on = 1U;
-    }
-
-    bsp_pwm_set_aux_pc8_pc9(pc8_on, pc9_on);
-}
 static float mppt_vin_flt = 0.0f;
 static float mppt_pin_flt = 0.0f;
 //uint8_t mppt_mode = 1;
@@ -425,7 +406,7 @@ void RAMFUNC ctrl_app_run(void)
         adc_set_ila_bias(ila_bias);
         adc_set_ilb_bias(ilb_bias);
         fault_delay=0;
-        return;
+        goto func_end;
     }
 
     if(ctrl_mode == ADDRS_FORWARD)
@@ -570,8 +551,6 @@ void RAMFUNC ctrl_app_run(void)
 				bsp_pwm_change_full_freq_pwmb();
     }
 
-    ctrl_app_update_aux_pwm();
-
 //    buck_boost.inter.bb_mode_duty[0].output.is_half_freq
 //        ? bsp_pwm_change_half_freq_pwma()
 //        : bsp_pwm_change_full_freq_pwma();
@@ -582,6 +561,11 @@ void RAMFUNC ctrl_app_run(void)
 
     bsp_pwm_set_a_duty(&bsp_pwm[0]);
     bsp_pwm_set_b_duty(&bsp_pwm[1]);
+
+func_end:
+	
+	bsp_pwm_update_aux_by_main_pwm(&bsp_pwm[0], &bsp_pwm[1]);
+    bsp_hrpwm1_update_trig();
 
 //    bsp_pwm_update_chclt2();  // 更新通道配置
 //    bsp_hrpwm1_update_trig(); // 触发hrpwm1单次缓存
