@@ -68,14 +68,14 @@ void buck_boost_init(buck_boost_t *str)
     {
         str->inter.is_ccm[i] = 1;
         str->inter.l_loop[i].cfg.l_val = str->cfg.l_val[i];
-        str->inter.l_loop[i].cfg.freq_cut = 2000.0f;
+        str->inter.l_loop[i].cfg.freq_cut = 2500.0f;
         str->inter.l_loop[i].cfg.lmt = 100.0f;
         str->inter.l_loop[i].cfg.freq_ctrl = str->cfg.ctrl_freq;
         l_loop_init(&str->inter.l_loop[i]);
     }
     str->inter.volt_loop.cfg.c_val = str->cfg.c_val;
     str->inter.volt_loop.cfg.freq_ctrl = str->cfg.ctrl_freq;
-    str->inter.volt_loop.cfg.freq_cut = 350.0f;
+    str->inter.volt_loop.cfg.freq_cut = 250.0f;
     str->inter.volt_loop.cfg.lmt = 100.0f;
     volt_loop_init(&str->inter.volt_loop);
 
@@ -165,7 +165,7 @@ static void RAMFUNC buck_boost_l_open_loop(buck_boost_t *str, float i_ref, uint3
         buck_duty = 1.0f;
         str->output.duty[i].buck_duty = buck_duty;
         str->output.duty[i].boost_duty = 1.0f - boost_duty;
-        str->output.duty[i].buck_dn_en = 0;
+        str->output.duty[i].buck_dn_en = 1;
         str->output.duty[i].buck_up_en = 1;
         str->output.duty[i].boost_dn_en = 1;
         str->output.duty[i].boost_up_en = 0;
@@ -185,10 +185,10 @@ static void RAMFUNC buck_boost_l_open_loop(buck_boost_t *str, float i_ref, uint3
         boost_duty = 1.0f;
         str->output.duty[i].buck_duty = buck_duty;
         str->output.duty[i].boost_duty = boost_duty;
-        str->output.duty[i].buck_dn_en = 0;
+        str->output.duty[i].buck_dn_en = 1;
         str->output.duty[i].buck_up_en = 1;
-        str->output.duty[i].boost_dn_en = 0;
-        str->output.duty[i].boost_up_en = 1;
+        str->output.duty[i].boost_dn_en = 1;
+        str->output.duty[i].boost_up_en = 0;
 							// gpio_set_db2(0);
 					// gpio_set_db2(1);
         break;

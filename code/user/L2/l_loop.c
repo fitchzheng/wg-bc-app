@@ -7,8 +7,8 @@ void l_loop_init(l_loop_t *str)
 {
     pid_reset(&str->inter.pid);
     str->cfg.w_cut = 2.0f * M_PI * str->cfg.freq_cut;
-    str->inter.pid.cfg.kp = sinf(45.0f / 180.0f*M_PI) * str->cfg.w_cut * str->cfg.l_val;
-    str->inter.pid.cfg.ki = str->cfg.w_cut * str->inter.pid.cfg.kp / tanf(45.0f / 180.0f * M_PI) / str->cfg.freq_ctrl;
+    str->inter.pid.cfg.kp = sinf(70.0f / 180.0f*M_PI) * str->cfg.w_cut * str->cfg.l_val;
+    str->inter.pid.cfg.ki = str->cfg.w_cut * str->inter.pid.cfg.kp / tanf(70.0f / 180.0f * M_PI) / str->cfg.freq_ctrl;
     str->inter.pid.cfg.ki_inv = 1.0f / str->inter.pid.cfg.ki;
     str->inter.pid.cfg.i_err_lmt_max = str->cfg.lmt * str->inter.pid.cfg.ki_inv;
     str->inter.pid.cfg.i_err_lmt_min = -str->cfg.lmt * str->inter.pid.cfg.ki_inv;

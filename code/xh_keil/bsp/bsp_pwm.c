@@ -1148,13 +1148,13 @@ void RAMFUNC bsp_pwm_set_aux_pc8_pc9(uint8_t pc8_on, uint8_t pc9_on)
 
 void RAMFUNC bsp_pwm_update_aux_by_main_pwm(const bsp_pwm_t *pwma, const bsp_pwm_t *pwmb)
 {
-    uint8_t pb13_wave = ((pwma->left_dn_en == 0U) || (pwma->left_duty > 0.98f)) ? 0U : 1U;
-    uint8_t pa11_wave = ((pwmb->left_dn_en == 0U) || (pwmb->left_duty > 0.98f)) ? 0U : 1U;
-    uint8_t pb14_wave = ((pwma->right_dn_en == 0U) || (pwma->right_duty > 0.98f)) ? 0U : 1U;
-    uint8_t pa9_wave = ((pwmb->right_dn_en == 0U) || (pwmb->right_duty > 0.98f)) ? 0U : 1U;
+    uint8_t pb13_wave = ((pwma->left_dn_en == 0U) || (pwma->left_duty > 0.995f)) ? 0U : 1U;
+    uint8_t pa11_wave = ((pwmb->left_dn_en == 0U) || (pwmb->left_duty > 0.995f)) ? 0U : 1U;
+    uint8_t pb14_wave = ((pwma->right_dn_en == 0U) || (pwma->right_duty > 0.995f)) ? 0U : 1U;
+    uint8_t pa9_wave = ((pwmb->right_dn_en == 0U) || (pwmb->right_duty > 0.995f)) ? 0U : 1U;
 
-    uint8_t pc8_on = ((pb14_wave == 0U) || (pa9_wave == 0U)) ? 1U : 0U;
-    uint8_t pc9_on = ((pb13_wave == 0U) || (pa11_wave == 0U)) ? 1U : 0U;
+    uint8_t pc8_on = ((pb13_wave == 0U) || (pa11_wave == 0U)) ? 1U : 0U;
+    uint8_t pc9_on = ((pb14_wave == 0U) || (pa9_wave == 0U)) ? 1U : 0U;
 
     bsp_pwm_set_aux_pc8_pc9(pc8_on, pc9_on);
 }
@@ -1682,7 +1682,6 @@ void bsp_pwm_init(void)
     bCM_HRPWM6->GCONR_b.START = 1;
     bCM_HRPWM1->GCONR_b.START = 1;
     CM_TMR6_2->GCONR |= (1<<0);
-    CM_TMR6_1->GCONR |= (1<<0);
     volatile uint32_t i = 1000;
     while (i--)
         ;
@@ -1868,7 +1867,7 @@ void bsp_tmr6_pwm_init (void)
     CM_TMR6_1->GCMAR = 2400;
     CM_TMR6_2->GCMAR = 1200/4;
 	bsp_pwm_set_tmr6(0.9f,100000);
-    bsp_pwm_set_tmr6_fan(1);
+    bsp_pwm_set_tmr6_fan(0);
 }
 
 void RAMFUNC bsp_pwm_set_tmr6(float duty,float freq)
@@ -1881,14 +1880,18 @@ void RAMFUNC bsp_pwm_set_tmr6(float duty,float freq)
 
 void bsp_pwm_set_tmr6_fan(float duty)
 {
-    if((duty <= 0)||(duty >= 1))
+    if(duty <= 0)
     {
-        if(duty >= 1)
-        {
-            duty = 1;
-        }else{
-            duty = 0;
-        }
+        CM_TMR6_1->BCONR = 0;
+        CM_TMR6_1->GCMCR = 0;
+        CM_TMR6_1->PCNAR = 0x000041A0;
+        CM_TMR6_1->GCONR &= ~(1U << 0);
+        return;
+    }
+
+    if(duty >= 1)
+    {
+        duty = 1;
         CM_TMR6_1->PCNAR = 0x100041A0;
     }else{
         CM_TMR6_1->PCNAR = 0x100044A0;
@@ -1896,6 +1899,7 @@ void bsp_pwm_set_tmr6_fan(float duty)
 	CM_TMR6_1->BCONR = 0;
 	CM_TMR6_1->PERBR = 120000000/25000/2;
 	CM_TMR6_1->GCMCR = duty*CM_TMR6_1->PERBR;
+    CM_TMR6_1->GCONR |= (1U << 0);
 	CM_TMR6_1->BCONR = (1<<0) | (1<<3)|(1<<8)|(1<<11);
 }
 
