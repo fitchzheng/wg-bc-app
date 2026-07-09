@@ -4,6 +4,7 @@
 #include "fault.h"
 
 static float temp_derate_curr = 0;
+static float temp_derate_ratio = 1.0f;
 
 void temp_current(temp_derate_item_t *derate)
 {
@@ -82,6 +83,23 @@ void temp_derate_run (void)
      (protect_protections[DERATE_TEMP2_DETECTION].temp_current  > protect_protections[DERATE_INSIDE_DETECTION].temp_current) ? 
     ((protect_protections[DERATE_INSIDE_DETECTION].temp_current > protect_protections[DERATE_OUTSIDE_DETECTION].temp_current)) ? (temp_derate_curr = protect_protections[DERATE_OUTSIDE_DETECTION].temp_current) : (temp_derate_curr = protect_protections[DERATE_INSIDE_DETECTION].temp_current): 
     ((protect_protections[DERATE_TEMP2_DETECTION].temp_current  > protect_protections[DERATE_OUTSIDE_DETECTION].temp_current)) ? (temp_derate_curr = protect_protections[DERATE_OUTSIDE_DETECTION].temp_current) : (temp_derate_curr = protect_protections[DERATE_TEMP2_DETECTION].temp_current);
+
+    if(charge_state_data.ActualOutCurr > 0.1f)
+    {
+        temp_derate_ratio = temp_derate_curr / charge_state_data.ActualOutCurr;
+        if(temp_derate_ratio > 1.0f)
+        {
+            temp_derate_ratio = 1.0f;
+        }
+        else if(temp_derate_ratio < 0.0f)
+        {
+            temp_derate_ratio = 0.0f;
+        }
+    }
+    else
+    {
+        temp_derate_ratio = 1.0f;
+    }
 }
 
 REG_TASK(20, temp_derate_run)
@@ -89,6 +107,7 @@ REG_TASK(20, temp_derate_run)
 void get_temp_derate_curr(void)
 {
     charge_state_data.temp_derate_curr = temp_derate_curr;
+    charge_state_data.temp_derate_ratio = temp_derate_ratio;
 }
 
 

@@ -10,6 +10,7 @@
 #include "eeprom_cfg.h"
 #include "fault.h"
 #include "bat_mode.h"
+#include "basic_mode.h"
 
 extern uint32_t systemtime;
 
@@ -189,6 +190,20 @@ const wg_com_v2_data_lmt_map_t *get_lmt_for_addr(void *p)
             return &lmt_map[i];
     }
     return NULL;
+}
+
+static uint16_t get_dynamic_up_lmt_for_addr(void *p, const wg_com_v2_data_lmt_map_t *lmt)
+{
+    uint16_t power_mode = get_uint16((uint8_t *)&wg_com_v2_ctrl.SetPowerMode);
+
+    if(((p == (void *)&wg_com_v2_param.SetInpCurrPower) ||
+        (p == (void *)&wg_com_v2_param.SetOutCurrPower)) &&
+       (power_mode == eSET_CUSTOM_MODE))
+    {
+        return BASIC_BAT_SYS_12V_MAX_POWER_VOLT;
+    }
+
+    return lmt->up_lmt;
 }
 
 static void wg_com_v2_note_non_mppt_control_state_with_sleep(uint16_t power_mode, uint16_t bat_mode_fr, uint16_t sleep_mode)
@@ -439,7 +454,7 @@ float wg_com_v2_get_data_uint(float user_data, void *wg_com_v2_data)
     {
         if (lmt_map != NULL)
         {
-            UP_DN_LMT(litend_uint16, lmt_map->up_lmt, lmt_map->dn_lmt);
+            UP_DN_LMT(litend_uint16, get_dynamic_up_lmt_for_addr(wg_com_v2_data, lmt_map), lmt_map->dn_lmt);
             set_uint16((uint8_t *)wg_com_v2_data, litend_uint16);
         }
         user_data = litend_uint16 * unit;
@@ -475,7 +490,7 @@ void wg_com_v2_set_data_uint(float user_data, void *wg_com_v2_data)
 
     if (lmt_map != NULL)
     {
-        UP_DN_LMT(act_data_temp, lmt_map->up_lmt, lmt_map->dn_lmt);
+        UP_DN_LMT(act_data_temp, get_dynamic_up_lmt_for_addr(wg_com_v2_data, lmt_map), lmt_map->dn_lmt);
     }
 
     set_uint16((uint8_t *)wg_com_v2_data, act_data_temp);

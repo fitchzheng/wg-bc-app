@@ -671,6 +671,7 @@ void BattChargingCurve(charge_state_data_t *bat_charge_data,uint8_t soft_flag)
     uint16_t OutPower = 0;              // 显示输出功率
     uint16_t SetOutCurrPower;           // 设置输出功率
     uint8_t bat_step = 0;
+    float temp_derate_ratio = bat_charge_data->temp_derate_ratio;
     static uint8_t record_bat_step = 0;
     static uint8_t exeion_step = 0;
     float UfuncOutVolt = 0.0f;               // 运算输出电压
@@ -688,8 +689,8 @@ void BattChargingCurve(charge_state_data_t *bat_charge_data,uint8_t soft_flag)
         bat_charge_data->SetOutVolt = get_wg_com_v2_data.com_param.SetInpVolt;
         bat_charge_data->SetInpCurr = get_wg_com_v2_data.com_param.SetOutCurr;
         bat_charge_data->SetOutCurr = get_wg_com_v2_data.com_param.SetInpCurr;
-        bat_charge_data->fvs48_pwr_lmt = get_wg_com_v2_data.com_param.SetInpCurrPower;
-        bat_charge_data->rvs12_pwr_lmt = get_wg_com_v2_data.com_param.SetOutCurrPower;
+        bat_charge_data->fvs48_pwr_lmt = (uint16_t)((float)get_wg_com_v2_data.com_param.SetInpCurrPower * temp_derate_ratio);
+        bat_charge_data->rvs12_pwr_lmt = (uint16_t)((float)get_wg_com_v2_data.com_param.SetOutCurrPower * temp_derate_ratio);
         bat_charge_data->OutBatyType = get_wg_com_v2_data.com_ctrl.InpBatyType;
         bat_charge_data->rvs12_lmt = get_wg_com_v2_data.com_param.SetOutUvlo+0.5f;
         if(((bat_charge_data->OutBatyType&0xff00)>>8) == eBAT_DCDC)
@@ -701,7 +702,7 @@ void BattChargingCurve(charge_state_data_t *bat_charge_data,uint8_t soft_flag)
             bat_charge_data->fvs48_lmt = bat_charge_data->ActualOutVolt;//get_wg_com_v2_data.com_param.SetInpVolt;
         }
         bat_charge_data->Boot_Time_Delay.SetBootTime = get_wg_com_v2_data.com_ctrl.SetBootTimeB;
-        bat_charge_data->ilv_lmt = bat_charge_data->SetInpCurr;
+        bat_charge_data->ilv_lmt = bat_charge_data->SetInpCurr * temp_derate_ratio;
         if(bat_charge_data->get_is_run == 1)
         {
             if(soft_flag == 1)
@@ -726,8 +727,8 @@ void BattChargingCurve(charge_state_data_t *bat_charge_data,uint8_t soft_flag)
         bat_charge_data->SetOutVolt = get_wg_com_v2_data.com_param.SetOutVolt;
         bat_charge_data->SetInpCurr = get_wg_com_v2_data.com_param.SetInpCurr;
         bat_charge_data->SetOutCurr = get_wg_com_v2_data.com_param.SetOutCurr;
-        bat_charge_data->fvs48_pwr_lmt = get_wg_com_v2_data.com_param.SetInpCurrPower;
-        bat_charge_data->rvs12_pwr_lmt = get_wg_com_v2_data.com_param.SetOutCurrPower;
+        bat_charge_data->fvs48_pwr_lmt = (uint16_t)((float)get_wg_com_v2_data.com_param.SetInpCurrPower * temp_derate_ratio);
+        bat_charge_data->rvs12_pwr_lmt = (uint16_t)((float)get_wg_com_v2_data.com_param.SetOutCurrPower * temp_derate_ratio);
         bat_charge_data->OutBatyType = get_wg_com_v2_data.com_ctrl.OutBatyType;
         if(((bat_charge_data->OutBatyType&0xff00)>>8) == eBAT_DCDC)
         {
@@ -739,7 +740,7 @@ void BattChargingCurve(charge_state_data_t *bat_charge_data,uint8_t soft_flag)
         }
         bat_charge_data->fvs48_lmt = get_wg_com_v2_data.com_param.SetInpUvlo+0.5f;
         bat_charge_data->Boot_Time_Delay.SetBootTime = get_wg_com_v2_data.com_ctrl.SetBootTimeA;
-        bat_charge_data->ihv_lmt = bat_charge_data->SetInpCurr;
+        bat_charge_data->ihv_lmt = bat_charge_data->SetInpCurr * temp_derate_ratio;
         if(bat_charge_data->get_is_run == 1)
         {
             if(soft_flag == 1)

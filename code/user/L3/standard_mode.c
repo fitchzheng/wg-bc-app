@@ -123,6 +123,7 @@ static void standard_apply_out_sys_defaults(uint16_t sys)
 void standard_mode_run(charge_state_data_t *standard_charge_data)
 {
     float verify_data = 0.00f;
+    float temp_derate_ratio = standard_charge_data->temp_derate_ratio;
     uint16_t BatTypeB = get_wg_com_v2_data.com_ctrl.OutBatyType;
     
     if(updated_parameter())
@@ -170,13 +171,13 @@ void standard_mode_run(charge_state_data_t *standard_charge_data)
         standard_charge_data->SetOutVolt = get_wg_com_v2_data.com_param.SetInpVolt;
         standard_charge_data->SetInpCurr = get_wg_com_v2_data.com_param.SetOutCurr;
         standard_charge_data->SetOutCurr = get_wg_com_v2_data.com_param.SetInpCurr;
-        standard_charge_data->fvs48_pwr_lmt = get_wg_com_v2_data.com_param.SetInpCurrPower;
-        standard_charge_data->rvs12_pwr_lmt = get_wg_com_v2_data.com_param.SetOutCurrPower;
+        standard_charge_data->fvs48_pwr_lmt = (uint16_t)((float)get_wg_com_v2_data.com_param.SetInpCurrPower * temp_derate_ratio);
+        standard_charge_data->rvs12_pwr_lmt = (uint16_t)((float)get_wg_com_v2_data.com_param.SetOutCurrPower * temp_derate_ratio);
         standard_charge_data->OutBatyType = get_wg_com_v2_data.com_ctrl.InpBatyType;
         standard_charge_data->rvs12_lmt = get_wg_com_v2_data.com_param.SetOutUvlo+0.5f;
         standard_charge_data->fvs48_lmt = get_wg_com_v2_data.com_param.SetInpVolt;
         standard_charge_data->Boot_Time_Delay.SetBootTime = get_wg_com_v2_data.com_ctrl.SetBootTimeB;
-        standard_charge_data->ilv_lmt = standard_charge_data->SetInpCurr;
+        standard_charge_data->ilv_lmt = standard_charge_data->SetInpCurr * temp_derate_ratio;
         if(standard_charge_data->get_is_run == 1)
         {
             //standard_charge_data->ihv_lmt = standard_charge_data->temp_derate_curr;
@@ -190,14 +191,14 @@ void standard_mode_run(charge_state_data_t *standard_charge_data)
         standard_charge_data->SetOutVolt = get_wg_com_v2_data.com_param.SetOutVolt;
         standard_charge_data->SetInpCurr=get_wg_com_v2_data.com_param.SetInpCurr;
         standard_charge_data->SetOutCurr=get_wg_com_v2_data.com_param.SetOutCurr;
-        standard_charge_data->fvs48_pwr_lmt = get_wg_com_v2_data.com_param.SetInpCurrPower;
-        standard_charge_data->rvs12_pwr_lmt = get_wg_com_v2_data.com_param.SetOutCurrPower;
+        standard_charge_data->fvs48_pwr_lmt = (uint16_t)((float)get_wg_com_v2_data.com_param.SetInpCurrPower * temp_derate_ratio);
+        standard_charge_data->rvs12_pwr_lmt = (uint16_t)((float)get_wg_com_v2_data.com_param.SetOutCurrPower * temp_derate_ratio);
         standard_charge_data->OutBatyType = get_wg_com_v2_data.com_ctrl.OutBatyType;
         standard_charge_data->rvs12_lmt = get_wg_com_v2_data.com_param.SetOutVolt;
         standard_charge_data->fvs48_lmt = get_wg_com_v2_data.com_param.SetInpUvlo+0.5f;
         standard_charge_data->Boot_Time_Delay.SetBootTime = get_wg_com_v2_data.com_ctrl.SetBootTimeA;
         
-        standard_charge_data->ihv_lmt = standard_charge_data->SetInpCurr;
+        standard_charge_data->ihv_lmt = standard_charge_data->SetInpCurr * temp_derate_ratio;
         if(standard_charge_data->get_is_run == 1)
         {
             standard_charge_data->ilv_lmt = curr_soft_start(standard_charge_data->ilv_lmt,standard_charge_data->temp_derate_curr,80);

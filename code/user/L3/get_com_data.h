@@ -256,6 +256,7 @@ typedef struct
     float ilv_lmt;
     float ihv_lmt;
     float temp_derate_curr;      // 温度降额电流
+    float temp_derate_ratio;
     Boot_Time_Delay_t Boot_Time_Delay;
     bat_state_t bat_state;
     protect_data_t protect_data; // 保护

@@ -463,7 +463,7 @@ static uint16_t get_standard_basic_output_uvp_report_fault(void)
 {
     uint16_t power_mode = get_wg_com_v2_data.com_ctrl.SetPowerMode;
 
-    if((power_mode != eSET_STANDARD_MODE) && (power_mode != eSET_CUSTOM_MODE))
+    if(power_mode != eSET_STANDARD_MODE)
     {
         return 0;
     }
