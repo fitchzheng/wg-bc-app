@@ -8,6 +8,9 @@
 #include "section.h"
 #include "pid.h"
 
+#define BUCK_BOOST_SIN_60       (0.866025404f)
+#define BUCK_BOOST_TAN_60       (1.732050808f)
+
 extern float Get_Set_Out_Curr_Value_Lmt(void);
 uint8_t dcm_obs_trig = 0;
 float dcm_i_ref_obs = 0.0f;
@@ -101,8 +104,8 @@ void buck_boost_init(buck_boost_t *str)
 //    buck_boost_mode_init(&str->inter.bb_mode_duty[0]);
 //    buck_boost_mode_init(&str->inter.bb_mode_duty[1]);
 
-    str->inter.volt_comp_loop.cfg.kp = sinf(60.0f / 180.0f * M_PI) * 2.0f * M_PI * 2.0f * str->cfg.c_val;
-    str->inter.volt_comp_loop.cfg.ki = 2.0f * M_PI * 2.0f * str->inter.volt_comp_loop.cfg.kp / tanf(60.0f / 180.0f * M_PI) / str->cfg.ctrl_freq;    
+    str->inter.volt_comp_loop.cfg.kp = BUCK_BOOST_SIN_60 * 2.0f * M_PI * 2.0f * str->cfg.c_val;
+    str->inter.volt_comp_loop.cfg.ki = 2.0f * M_PI * 2.0f * str->inter.volt_comp_loop.cfg.kp / BUCK_BOOST_TAN_60 / str->cfg.ctrl_freq;    
     str->inter.volt_comp_loop.cfg.kd = 0.0f;
     str->inter.volt_comp_loop.cfg.ki_inv = 1.0f / str->inter.volt_comp_loop.cfg.ki;
     str->inter.volt_comp_loop.cfg.i_err_lmt_max = 2.0f;

@@ -5,7 +5,7 @@
 
 #include <string.h>
 
-#if (APP_DEBUG_FEATURES == 1)
+#if (APP_PERF_FEATURES == 1)
 
 section_perf_record_t *p_perf_record_first = NULL;
 uint32_t *g_section_perf_cnt = NULL;

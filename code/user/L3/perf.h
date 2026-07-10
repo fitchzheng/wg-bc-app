@@ -33,7 +33,7 @@ typedef struct
 
 extern uint32_t *g_section_perf_cnt;
 
-#if (APP_DEBUG_FEATURES == 1)
+#if (APP_PERF_FEATURES == 1)
 
 #define REG_PERF_BASE_CNT(timer_cnt)                \
     const section_perf_base_t section_perf_base_timer = { \
@@ -52,10 +52,10 @@ extern uint32_t *g_section_perf_cnt;
 #endif
 
 #ifndef PERF_RECORD_ENABLE
-#define PERF_RECORD_ENABLE APP_DEBUG_FEATURES
+#define PERF_RECORD_ENABLE APP_PERF_FEATURES
 #endif
 
-#if (APP_DEBUG_FEATURES == 1) && (PERF_RECORD_ENABLE == 1)
+#if (APP_PERF_FEATURES == 1) && (PERF_RECORD_ENABLE == 1)
 
 #define PERF_START(name)                                                           \
     do                                                                             \

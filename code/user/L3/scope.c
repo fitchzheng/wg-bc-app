@@ -5,7 +5,7 @@
 #include <stddef.h>
 #include <string.h>
 
-#if (APP_DEBUG_FEATURES == 1)
+#if (APP_SCOPE_FEATURES == 1)
 
 #define SCOPE_SERVICE_VAR_COUNT_MAX 10u
 #define SCOPE_SERVICE_NAME_SIZE_MAX 32u

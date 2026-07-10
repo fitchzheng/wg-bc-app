@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#if (APP_DEBUG_FEATURES == 1)
+#if (APP_SHELL_FEATURES == 1)
 
 section_shell_t *p_shell_first;
 

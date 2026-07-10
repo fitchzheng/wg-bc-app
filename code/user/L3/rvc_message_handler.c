@@ -38,7 +38,7 @@ static void rvc_put_u16_be(uint8_t *data, uint8_t offset, uint16_t value)
 
 /* ========== 公共 API 实现 ========== */
 
-#if (APP_DEBUG_EVENT_FEATURES == 1)
+#if (APP_DEBUG_EVENT_READ_FEATURES == 1)
 #define RVC_APP_DEBUG_EVENT_REG_OFFSET       8U
 #define RVC_APP_DEBUG_EVENT_REGS_PER_PART    3U
 #define RVC_APP_DEBUG_EVENT_PART_COUNT       40U
@@ -1098,7 +1098,7 @@ void rvc_message_handler_process(uint32_t can_id, uint8_t *data, uint8_t len)
         case RVC_DGN_PROPRIETARY_STATUS_CONTROL_R:
             handle_control_settings(dgn, data, len);
             break;
-#if (APP_DEBUG_EVENT_FEATURES == 1)
+#if (APP_DEBUG_EVENT_READ_FEATURES == 1)
         case RVC_DGN_PROPRIETARY_APP_DEBUG_EVENT_R:
             handle_app_debug_event_data(data, len);
             break;
@@ -1386,7 +1386,7 @@ void on_request_for_dgn(const rvc_request_for_dgn_t *req)
         case RVC_DGN_PROPRIETARY_STATUS_CONTROL_R:
             handle_control_settings(req->requested_dgn, data, 8);
             break;
-#if (APP_DEBUG_EVENT_FEATURES == 1)
+#if (APP_DEBUG_EVENT_READ_FEATURES == 1)
         case RVC_DGN_PROPRIETARY_APP_DEBUG_EVENT_R:
             handle_app_debug_event_data(data, 8);
             break;

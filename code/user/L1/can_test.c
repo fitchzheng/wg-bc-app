@@ -1,5 +1,6 @@
 #include "section.h"
 #include "can_packet.h"
+#include "app_features.h"
 
 #ifndef CAN_ON_OFF
 #define CAN_ON_OFF 1
@@ -17,7 +18,7 @@
 
 static can_packet_t can_rx_packet;
 
-#if(CAN_ON_OFF == 1)
+#if((CAN_ON_OFF == 1) && (APP_CAN_OTA_FEATURES == 1))
 static uint32_t can_ota_pending_size = 0U;
 static uint8_t can_ota_start_seen = 0U;
 static uint16_t can_ota_reset_delay_ms = 0U;
@@ -115,10 +116,12 @@ void can_test_1ms_task(void)
     {
         rx_count++;
         #if(CAN_ON_OFF == 1)
+        #if(APP_CAN_OTA_FEATURES == 1)
         if (can_ota_app_trigger_process(can_rx_packet.id.raw, can_rx_packet.data.raw, 8U) != 0U)
         {
             continue;
         }
+        #endif
 
         // 1. Address claim handler.
         rvc_address_can_rx_callback(can_rx_packet.id.raw, can_rx_packet.data.raw, 8);
@@ -133,7 +136,7 @@ void can_test_1ms_task(void)
         #endif
     }
 
-    #if(CAN_ON_OFF == 1)
+    #if((CAN_ON_OFF == 1) && (APP_CAN_OTA_FEATURES == 1))
     if (can_ota_reset_delay_ms > 0U)
     {
         can_ota_reset_delay_ms--;

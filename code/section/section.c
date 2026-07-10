@@ -183,15 +183,18 @@ void run_task(void)
         if (elapsed < period)
             continue;
 
+#if (APP_PERF_FEATURES == 1)
         section_perf_record_t *rec = task->p_perf_record;
         const uint32_t *perf_cnt = g_section_perf_cnt;
         uint32_t perf_start = 0u;
-        if (rec && perf_cnt)
+        if ((rec != NULL) && (perf_cnt != NULL))
             perf_start = *perf_cnt;
+#endif
 
         task->p_func();
 
-        if (rec && perf_cnt)
+#if (APP_PERF_FEATURES == 1)
+        if ((rec != NULL) && (perf_cnt != NULL))
         {
             const uint32_t perf_end = *perf_cnt;
             const uint32_t delta = (uint32_t)(perf_end - perf_start);
@@ -200,6 +203,7 @@ void run_task(void)
             if (delta > rec->max_time)
                 rec->max_time = delta;
         }
+#endif
 
         const uint32_t k = elapsed / period;
         task->time_last += k * period;

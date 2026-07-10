@@ -1,4 +1,9 @@
 #include "bsp_timer.h"
+
+#include "app_features.h"
+
+#if (APP_PERF_FEATURES == 1)
+
 #include "section.h"
 
 #define BSP_TIMER_PERF_UNIT              (CM_TMRA_1)
@@ -49,3 +54,5 @@ static void bsp_timer_init_entry(void)
 }
 
 REG_INIT(0, bsp_timer_init_entry)
+
+#endif

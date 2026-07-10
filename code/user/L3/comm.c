@@ -1,5 +1,6 @@
 #include "comm.h"
 
+#include "app_features.h"
 #include "section.h"
 #include <string.h>
 
@@ -8,6 +9,7 @@ comm_route_t *p_comm_route_first = NULL;
 
 extern section_link_t *p_link_first;
 
+#if (APP_USART3_DEBUG_LINK_FEATURES == 1)
 static section_com_t *s_com_tail = NULL;
 static comm_route_t *s_route_tail = NULL;
 
@@ -76,9 +78,14 @@ static void comm_init(void)
     }
 }
 
+#if (APP_USART3_DEBUG_LINK_FEATURES == 1)
 REG_INIT(0, comm_init)
+#endif
+#endif
 
 static uint16_t crc16_table[256];
+
+#if (APP_USART3_DEBUG_LINK_FEATURES == 1)
 static uint8_t s_crc16_table_ready = 0u;
 
 static void crc16_init_table(void)
@@ -111,7 +118,10 @@ static void crc16_init_table(void)
     s_crc16_table_ready = 1u;
 }
 
+#if (APP_USART3_DEBUG_LINK_FEATURES == 1)
 REG_INIT(0, crc16_init_table)
+#endif
+#endif
 
 uint16_t crc16_init(void)
 {

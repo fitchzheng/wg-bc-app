@@ -3,7 +3,6 @@
 #include "section.h"
 #include "stdint.h"
 #include "string.h"
-#include "stdio.h"
 #include <stdarg.h>
 #include "bsp_dma.h"
 #include "get_com_data.h"
@@ -588,7 +587,7 @@ static const addr_region_t *find_addr_region(uint16_t addr, uint16_t count)
 // 各区域的具体读写实现
 static uint8_t unified_read(uint16_t addr, uint16_t count, uint8_t *data)
 {
-#if (APP_DEBUG_EVENT_FEATURES == 1)
+#if (APP_DEBUG_EVENT_READ_FEATURES == 1)
     if((addr >= WG_COM_V2_APP_DEBUG_ADDR) &&
        ((addr + count) <= (WG_COM_V2_APP_DEBUG_ADDR + WG_COM_V2_APP_DEBUG_REG_COUNT)))
     {
@@ -983,12 +982,65 @@ void wg_com_v2_run(void)
 
 #include "gpio.h"
 
+static void usart_send_byte(usart_output_port_t port, uint8_t data)
+{
+    switch(port)
+    {
+    case OUTPUT_USART0:
+        while(USART_GetStatus(CM_USART1, USART_FLAG_TX_EMPTY) == 0);
+        CM_USART1->TDR = data;
+        while(USART_GetStatus(CM_USART1, USART_FLAG_TX_EMPTY) == 0);
+        break;
+    case OUTPUT_USART2:
+        while(USART_GetStatus(CM_USART2, USART_FLAG_TX_EMPTY) == 0);
+        CM_USART2->TDR = data;
+        while(USART_GetStatus(CM_USART2, USART_FLAG_TX_EMPTY) == 0);
+        break;
+    default:
+        break;
+    }
+}
+
+static void usart_light_printf(usart_output_port_t port, const char *fmt, va_list args)
+{
+    const char *str;
+
+    if(fmt == NULL)
+    {
+        return;
+    }
+
+    if(strcmp(fmt, "%c") == 0)
+    {
+        usart_send_byte(port, (uint8_t)va_arg(args, int));
+    }
+    else if(strcmp(fmt, "%s") == 0)
+    {
+        str = va_arg(args, const char *);
+        if(str != NULL)
+        {
+            while(*str != '\0')
+            {
+                usart_send_byte(port, (uint8_t)*str);
+                str++;
+            }
+        }
+    }
+    else
+    {
+        while(*fmt != '\0')
+        {
+            usart_send_byte(port, (uint8_t)*fmt);
+            fmt++;
+        }
+    }
+}
+
 void usart0_printf(const char *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
-    g_output_port = OUTPUT_USART0;
-    vprintf(fmt, args);
+    usart_light_printf(OUTPUT_USART0, fmt, args);
     va_end(args);
 }
 
@@ -996,11 +1048,9 @@ void usart2_printf(const char *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
-    g_output_port = OUTPUT_USART2;
-    vprintf(fmt, args);
+    usart_light_printf(OUTPUT_USART2, fmt, args);
     va_end(args);
 }
-
 // 安全增加计数器（防止溢出�?
 static inline void safe_increment(uint32_t *counter, uint32_t max)
 {

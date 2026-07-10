@@ -194,7 +194,7 @@ typedef struct
 #define REG_SCOPE_DATA_STEP_CMD(name)
 #endif
 
-#if (APP_DEBUG_FEATURES == 1)
+#if (APP_SCOPE_FEATURES == 1)
 
 #define REG_SCOPE_EX(name, buf_size, trig_post_cnt, _sample_period_us, ...)                                         \
     float scope_##name##_buffer[SCOPE_COUNT_ARGS(__VA_ARGS__)][buf_size];                                           \
@@ -254,7 +254,7 @@ void scope_service_register(scope_service_obj_t *p_obj);
 scope_service_obj_t *scope_service_first(void);
 uint8_t scope_service_count(void);
 
-#if (APP_DEBUG_FEATURES == 1)
+#if (APP_SCOPE_FEATURES == 1)
 #define SCOPE_RUN(name) scope_run(&scope_##name)
 #define SCOPE(name) scope_run(&scope_##name)
 #define SCOPE_TRIGGER(name) scope_trigger(&scope_##name)

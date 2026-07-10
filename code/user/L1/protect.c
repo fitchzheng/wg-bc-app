@@ -22,7 +22,7 @@ static float ila_val = 0.0f;
 static float ilb_val = 0.0f;
 static uint32_t il_ocp_cnt = 0;
 
-#if (APP_DEBUG_FEATURES == 1)
+#if (APP_SHELL_FEATURES == 1)
 static float ila_val_obs = 0.0f;
 static float ilb_val_obs = 0.0f;
 

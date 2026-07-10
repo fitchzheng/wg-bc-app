@@ -4,6 +4,9 @@
 #include "section.h"
 #include "stdio.h"
 #include <stdarg.h>
+#ifndef BSP_USART_DBG_FULL_PRINTF
+#define BSP_USART_DBG_FULL_PRINTF 0
+#endif
 
 uint8_t USART1_Txbuff[Usart1_TxBuff_Size];
 //uint8_t USART1_Rxbuff[Usart1_RxBuff_Size];
@@ -393,6 +396,7 @@ void bsp_usart_dbg_tx(char *ptr, int len)
     while(USART_GetStatus(CM_USART3, USART_FLAG_TX_EMPTY) == 0);
 }
 
+#if (BSP_USART_DBG_FULL_PRINTF == 1)
 void bsp_usart_dbg_printf(const char *__format, ...)
 {
     char buffer[128];
@@ -419,7 +423,118 @@ void bsp_usart_dbg_printf(const char *__format, ...)
 
     bsp_usart_dbg_tx(buffer, len);
 }
+#else
+static void bsp_usart_dbg_put_unsigned(uint32_t value)
+{
+    char buf[10];
+    uint8_t index = 0U;
 
+    do
+    {
+        buf[index] = (char)('0' + (value % 10U));
+        value /= 10U;
+        index++;
+    } while((value != 0U) && (index < sizeof(buf)));
+
+    while(index > 0U)
+    {
+        index--;
+        bsp_usart_dbg_tx(&buf[index], 1);
+    }
+}
+
+static void bsp_usart_dbg_put_signed(int32_t value)
+{
+    if(value < 0)
+    {
+        char minus = '-';
+        bsp_usart_dbg_tx(&minus, 1);
+        value = -value;
+    }
+    bsp_usart_dbg_put_unsigned((uint32_t)value);
+}
+
+void bsp_usart_dbg_printf(const char *__format, ...)
+{
+    va_list args;
+
+    if(__format == NULL)
+    {
+        return;
+    }
+
+    va_start(args, __format);
+    while(*__format != '\0')
+    {
+        if(*__format != '%')
+        {
+            bsp_usart_dbg_tx((char *)__format, 1);
+            __format++;
+            continue;
+        }
+
+        __format++;
+        while(((*__format >= '0') && (*__format <= '9')) || (*__format == '.'))
+        {
+            __format++;
+        }
+        if(*__format == 'l')
+        {
+            __format++;
+        }
+
+        switch(*__format)
+        {
+        case 'c':
+        {
+            char ch = (char)va_arg(args, int);
+            bsp_usart_dbg_tx(&ch, 1);
+            break;
+        }
+        case 's':
+        {
+            const char *str = va_arg(args, const char *);
+            if(str != NULL)
+            {
+                while(*str != '\0')
+                {
+                    bsp_usart_dbg_tx((char *)str, 1);
+                    str++;
+                }
+            }
+            break;
+        }
+        case 'd':
+            bsp_usart_dbg_put_signed((int32_t)va_arg(args, int32_t));
+            break;
+        case 'u':
+            bsp_usart_dbg_put_unsigned((uint32_t)va_arg(args, uint32_t));
+            break;
+        case 'f':
+        {
+            char fp = '?';
+            (void)va_arg(args, double);
+            bsp_usart_dbg_tx(&fp, 1);
+            break;
+        }
+        case '%':
+        {
+            char percent = '%';
+            bsp_usart_dbg_tx(&percent, 1);
+            break;
+        }
+        default:
+            break;
+        }
+
+        if(*__format != '\0')
+        {
+            __format++;
+        }
+    }
+    va_end(args);
+}
+#endif
 #ifndef BSP_USART3_TEST_ENABLE
 #define BSP_USART3_TEST_ENABLE 0
 #endif

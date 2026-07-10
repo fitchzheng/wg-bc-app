@@ -401,6 +401,11 @@
           <GroupName>source</GroupName>
           <Files>
             <File>
+              <FileName>bsp_flash.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\bsp\bsp_flash.c</FilePath>
+            </File>
+            <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\main.c</FilePath>
@@ -424,11 +429,6 @@
               <FileName>bsp_dma.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\bsp\bsp_dma.c</FilePath>
-            </File>
-            <File>
-              <FileName>bsp_flash.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\bsp\bsp_flash.c</FilePath>
             </File>
             <File>
               <FileName>bsp_gpio.c</FileName>
@@ -1146,7 +1146,7 @@
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
           <OutputDirectory>.\output\debug\rv\</OutputDirectory>
-          <OutputName>WG-BC1500M_-1200M20260703_BOOT_APP_RV</OutputName>
+          <OutputName>WG-BC1500M_-1200M20260710_BOOT_APP_RV</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
@@ -1497,6 +1497,11 @@
           <GroupName>source</GroupName>
           <Files>
             <File>
+              <FileName>bsp_flash.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\bsp\bsp_flash.c</FilePath>
+            </File>
+            <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\main.c</FilePath>
@@ -1520,11 +1525,6 @@
               <FileName>bsp_dma.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\bsp\bsp_dma.c</FilePath>
-            </File>
-            <File>
-              <FileName>bsp_flash.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\bsp\bsp_flash.c</FilePath>
             </File>
             <File>
               <FileName>bsp_gpio.c</FileName>
@@ -2593,6 +2593,11 @@
           <GroupName>source</GroupName>
           <Files>
             <File>
+              <FileName>bsp_flash.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\bsp\bsp_flash.c</FilePath>
+            </File>
+            <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\main.c</FilePath>
@@ -2616,11 +2621,6 @@
               <FileName>bsp_dma.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\bsp\bsp_dma.c</FilePath>
-            </File>
-            <File>
-              <FileName>bsp_flash.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\bsp\bsp_flash.c</FilePath>
             </File>
             <File>
               <FileName>bsp_gpio.c</FileName>

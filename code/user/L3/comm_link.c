@@ -1,5 +1,9 @@
 #include "comm_link.h"
 
+#include "app_features.h"
+
+#if (APP_USART3_DEBUG_LINK_FEATURES == 1)
+
 #include "bsp_usart.h"
 #include "comm.h"
 #include "comm_addr.h"
@@ -16,11 +20,15 @@ static section_link_tx_func_t s_usart_dbg_tx_func = {
 };
 
 DECLARE_COMM_CTX(s_usart_dbg_comm_ctx, USART_DBG_COMM_PAYLOAD_SIZE, LOCAL_ADDR, USART_DBG_LINK)
+#if (APP_SHELL_FEATURES == 1)
 DECLARE_SHELL_CTX(s_usart_dbg_shell_ctx);
+#endif
 
 static const section_link_handler_item_t s_usart_dbg_handler_arr[] = {
     {.func = comm_run, .ctx = (void *)&s_usart_dbg_comm_ctx},
+#if (APP_SHELL_FEATURES == 1)
     {.func = shell_run, .ctx = (void *)&s_usart_dbg_shell_ctx},
+#endif
 };
 
 REG_LINK(USART_DBG_LINK,
@@ -28,3 +36,5 @@ REG_LINK(USART_DBG_LINK,
          bsp_usart_dbg_rx_get_byte,
          s_usart_dbg_handler_arr,
          sizeof(s_usart_dbg_handler_arr) / sizeof(s_usart_dbg_handler_arr[0]))
+
+#endif

@@ -8,7 +8,7 @@
 #include "section.h"
 
 #ifndef SHELL_ON_OFF
-#define SHELL_ON_OFF 0
+#define SHELL_ON_OFF APP_SHELL_FEATURES
 #endif
 
 /* Parser state owned by one link handler instance. */
@@ -67,7 +67,7 @@ typedef struct section_shell_t
 #define SHELL_STATIC_ASSERT_NAME(name) SHELL_STATIC_ASSERT_NAME_(name)
 #define SHELL_STATIC_ASSERT_NAME_(name) shell_name_len_check_##name
 
-#if (APP_DEBUG_FEATURES == 1)
+#if (APP_SHELL_FEATURES == 1)
 
 /* Register a writable shell variable with typed limits. */
 #define REG_SHELL_VAR(_name, _var, _type, _max, _min, _func, _status)                                      \
