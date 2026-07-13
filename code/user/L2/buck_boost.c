@@ -7,9 +7,11 @@
 #include "buck_boost_mode.h"
 #include "section.h"
 #include "pid.h"
+#include "parallel_mode.h"
 
 #define BUCK_BOOST_SIN_60       (0.866025404f)
 #define BUCK_BOOST_TAN_60       (1.732050808f)
+#define BUCK_BOOST_PARALLEL_DROOP_K (0.01f)
 
 extern float Get_Set_Out_Curr_Value_Lmt(void);
 uint8_t dcm_obs_trig = 0;
@@ -359,12 +361,30 @@ REG_SHELL_VAR(b_boost_duty_obs, b_boost_duty_obs, SHELL_FP32, 10000.0f, -10000.0
 #endif
 
 extern uint8_t force_ccm;
+
+static float buck_boost_get_parallel_v_ref(const buck_boost_t *str)
+{
+    float v_ref;
+
+    v_ref = str->input.v_out_ref;
+#if (APP_PARALLEL_MODE_FEATURES == 1)
+    if (parallel_mode_is_run_allowed() != 0U)
+    {
+        v_ref -= (BUCK_BOOST_PARALLEL_DROOP_K * str->input.i_out);
+    }
+#else
+    (void)str;
+#endif
+
+    return v_ref;
+}
+
 void RAMFUNC buck_boost_run(buck_boost_t *str)
 {
 	// // gpio_set_db2(0);
 	// // gpio_set_db2(1);
     str->inter.volt_loop.input.v_act = str->input.v_out;// * 0.3f + str->inter.volt_loop.input.v_act * 0.7f;
-    str->inter.volt_loop.input.v_ref = str->input.v_out_ref;//-0.01f * str->input.i_out;// + str->input.volt_comp;
+    str->inter.volt_loop.input.v_ref = buck_boost_get_parallel_v_ref(str);// + str->input.volt_comp;
 
     //pid_cal(&str->inter.volt_comp_loop,str->input.v_out_ref,str->input.v_out);
 

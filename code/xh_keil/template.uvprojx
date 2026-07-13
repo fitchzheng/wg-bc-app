@@ -721,6 +721,11 @@
               <FilePath>..\user\L1\can_test.c</FilePath>
             </File>
             <File>
+              <FileName>parallel_mode.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\user\L1\parallel_mode.c</FilePath>
+            </File>
+            <File>
               <FileName>bat_charge_pattern.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\user\L1\bat_charge_pattern.c</FilePath>
@@ -1817,6 +1822,11 @@
               <FilePath>..\user\L1\can_test.c</FilePath>
             </File>
             <File>
+              <FileName>parallel_mode.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\user\L1\parallel_mode.c</FilePath>
+            </File>
+            <File>
               <FileName>bat_charge_pattern.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\user\L1\bat_charge_pattern.c</FilePath>
@@ -2911,6 +2921,11 @@
               <FileName>can_test.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\user\L1\can_test.c</FilePath>
+            </File>
+            <File>
+              <FileName>parallel_mode.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\user\L1\parallel_mode.c</FilePath>
             </File>
             <File>
               <FileName>bat_charge_pattern.c</FileName>

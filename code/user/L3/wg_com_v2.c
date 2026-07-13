@@ -10,10 +10,12 @@
 #include "fault.h"
 #include "bat_mode.h"
 #include "basic_mode.h"
+#include "parallel_mode.h"
 
 extern uint32_t systemtime;
 
 static uint8_t host_addr = WG_COM_V2_HOST_ADDR;
+static uint8_t wg_com_v2_is_accepted_addr(uint8_t rx_addr);
 
 static uint8_t wg_com_tx_buffer[WG_COM_V2_BUFFER_SIZE];
 static uint32_t wg_com_tx_buffer_cnt = 0;
@@ -587,6 +589,13 @@ static const addr_region_t *find_addr_region(uint16_t addr, uint16_t count)
 // 各区域的具体读写实现
 static uint8_t unified_read(uint16_t addr, uint16_t count, uint8_t *data)
 {
+#if (APP_PARALLEL_RS485_FEATURES == 1)
+    if (parallel_mode_read_registers(addr, count, data) != 0U)
+    {
+        return 1U;
+    }
+#endif
+
 #if (APP_DEBUG_EVENT_READ_FEATURES == 1)
     if((addr >= WG_COM_V2_APP_DEBUG_ADDR) &&
        ((addr + count) <= (WG_COM_V2_APP_DEBUG_ADDR + WG_COM_V2_APP_DEBUG_REG_COUNT)))
@@ -608,6 +617,13 @@ static uint8_t unified_read(uint16_t addr, uint16_t count, uint8_t *data)
 
 static uint8_t unified_write(uint16_t addr, uint16_t count, const uint8_t *data)
 {
+#if (APP_PARALLEL_RS485_FEATURES == 1)
+    if (parallel_mode_write_registers(addr, count, data) != 0U)
+    {
+        return 1U;
+    }
+#endif
+
     const addr_region_t *region = find_addr_region(addr, count);
     if (region == NULL)
         return 0;
@@ -964,7 +980,6 @@ void wg_com_v2_init(void)
 }
 
 REG_INIT(wg_com_v2_init)
-
 void wg_com_v2_run(void)
 {
     static uint32_t time = 0;
@@ -1105,8 +1120,7 @@ void process_usart_dma_input(const usart_dma_port_t *port)
         set_uint16((uint8_t *)&cal_crc, cal_crc);
         WG_COM_V2_GET_DATA_UINT(host_addr, wg_com_v2_product_info.Address);  
         if ((*rx_crc == cal_crc) &&
-            ((wg_com_rx_buffer[0] == host_addr) ||
-             (wg_com_rx_buffer[0] == WG_COM_V2_BROADCAST_ADDR)))
+            (wg_com_v2_is_accepted_addr(wg_com_rx_buffer[0]) != 0U))
         {
             process_command();
                   
@@ -1214,6 +1228,29 @@ void process_usart_dma_input(const usart_dma_port_t *port)
             }
         }
     }
+}
+static uint8_t wg_com_v2_is_accepted_addr(uint8_t rx_addr)
+{
+    uint8_t runtime_addr = 0U;
+
+#if (APP_PARALLEL_RS485_FEATURES == 1)
+    runtime_addr = parallel_mode_get_rs485_runtime_addr();
+    if (runtime_addr != 0U)
+    {
+        if ((rx_addr == runtime_addr) || (rx_addr == WG_COM_V2_BROADCAST_ADDR))
+        {
+            return 1U;
+        }
+        return 0U;
+    }
+#endif
+
+    if ((rx_addr == host_addr) || (rx_addr == WG_COM_V2_BROADCAST_ADDR))
+    {
+        return 1U;
+    }
+
+    return 0U;
 }
 
 void wg_com_v2_run(void)

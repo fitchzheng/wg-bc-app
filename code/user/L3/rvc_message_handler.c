@@ -9,6 +9,7 @@
 #include "wg_com_v2.h"
 #include "eeprom_cfg.h"
 #include "string.h"
+#include "parallel_mode.h"
 
 static uint8_t g_my_instance = 1;
 
@@ -27,6 +28,12 @@ static uint8_t g_occurrence_count = 0;
 
 static void handle_charger_command(uint32_t can_id, uint8_t *data, uint8_t len);
 static void handle_request_for_dgn(uint32_t can_id, uint8_t *data, uint8_t len);
+#if (APP_PARALLEL_CAN_FEATURES == 1)
+static void handle_parallel_mode(uint32_t dgn, uint8_t *data, uint8_t len);
+static void handle_parallel_mode_observe(uint32_t dgn, uint8_t *data, uint8_t len);
+static void handle_parallel_mode_w(uint32_t dgn, uint8_t *data, uint8_t len);
+static void parallel_mode_can_broadcast(uint32_t dgn);
+#endif
 
 static uint32_t build_can_id(uint8_t priority, uint32_t dgn, uint8_t sa);
 
@@ -74,6 +81,56 @@ static void handle_app_debug_event_data(uint8_t *data, uint8_t len)
     app_debug_event_read_regs(reg_offset, RVC_APP_DEBUG_EVENT_REGS_PER_PART, &tx_data[2]);
     tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_APP_DEBUG_EVENT_R, rvc_address_get_current());
     bsp_rvc_can_tx(tx_can_id, tx_data, 8);
+}
+#endif
+
+#if (APP_PARALLEL_CAN_FEATURES == 1)
+static void handle_parallel_mode(uint32_t dgn, uint8_t *data, uint8_t len)
+{
+    uint8_t tx_data[8];
+    uint32_t tx_can_id;
+
+    if ((data == NULL) || (len < 1U))
+    {
+        return;
+    }
+
+    memset(tx_data, 0xFF, sizeof(tx_data));
+    tx_data[0] = data[0];
+    if (parallel_mode_make_rvc_response(dgn, tx_data, 8U) == 0U)
+    {
+        return;
+    }
+
+    tx_can_id = build_can_id(6U, dgn, rvc_address_get_current());
+    (void)bsp_rvc_can_tx(tx_can_id, tx_data, 8U);
+}
+
+static void handle_parallel_mode_observe(uint32_t dgn, uint8_t *data, uint8_t len)
+{
+    parallel_mode_on_rvc_rx(dgn, data, len);
+    handle_parallel_mode(dgn, data, len);
+}
+
+static void handle_parallel_mode_w(uint32_t dgn, uint8_t *data, uint8_t len)
+{
+    parallel_mode_on_rvc_rx(dgn, data, len);
+    handle_parallel_mode(RVC_DGN_PROPRIETARY_PARALLEL_STATUS, data, len);
+}
+
+static void parallel_mode_can_broadcast(uint32_t dgn)
+{
+    uint8_t tx_data[8];
+    uint32_t tx_can_id;
+
+    memset(tx_data, 0xFF, sizeof(tx_data));
+    if (parallel_mode_make_rvc_response(dgn, tx_data, 8U) == 0U)
+    {
+        return;
+    }
+
+    tx_can_id = build_can_id(6U, dgn, rvc_address_get_current());
+    (void)bsp_rvc_can_tx(tx_can_id, tx_data, 8U);
 }
 #endif
 
@@ -1103,6 +1160,19 @@ void rvc_message_handler_process(uint32_t can_id, uint8_t *data, uint8_t len)
             handle_app_debug_event_data(data, len);
             break;
 #endif
+#if (APP_PARALLEL_CAN_FEATURES == 1)
+        case RVC_DGN_PROPRIETARY_PARALLEL_DISCOVERY:
+        case RVC_DGN_PROPRIETARY_PARALLEL_MASTER_CLAIM:
+        case RVC_DGN_PROPRIETARY_PARALLEL_ADDR_ASSIGN:
+        case RVC_DGN_PROPRIETARY_PARALLEL_ADDR_ACK:
+            handle_parallel_mode_observe(dgn, data, len);
+            break;
+        case RVC_DGN_PROPRIETARY_PARALLEL_HEARTBEAT:
+        case RVC_DGN_PROPRIETARY_PARALLEL_STATUS:
+        case RVC_DGN_PROPRIETARY_PARALLEL_PARAM_SUMMARY:
+            handle_parallel_mode(dgn, data, len);
+            break;
+#endif
 
         case RVC_DGN_PROPRIETARY_SET_AVOLT_ACURR_APOWER_R:
         case RVC_DGN_PROPRIETARY_SET_BVOLT_BCURR_BPOWER_R:
@@ -1134,6 +1204,16 @@ void rvc_message_handler_process(uint32_t can_id, uint8_t *data, uint8_t len)
         case RVC_DGN_PROPRIETARY_STATUS_CONTROL_W:
             handle_control_settings_w(dgn, data, len);
             break;
+#if (APP_PARALLEL_CAN_FEATURES == 1)
+        case RVC_DGN_PROPRIETARY_PARALLEL_CONTROL:
+        case RVC_DGN_PROPRIETARY_PARALLEL_FORCE_STOP:
+        case RVC_DGN_PROPRIETARY_PARALLEL_PARAM_SYNC:
+        case RVC_DGN_PROPRIETARY_PARALLEL_JOIN_REQUEST:
+        case RVC_DGN_PROPRIETARY_PARALLEL_JOIN_ENABLE:
+        case RVC_DGN_PROPRIETARY_PARALLEL_LEAVE_NOTICE:
+            handle_parallel_mode_w(dgn, data, len);
+            break;
+#endif
 
         case RVC_DGN_PROPRIETARY_SET_AVOLT_ACURR_APOWER_W:
         case RVC_DGN_PROPRIETARY_SET_BVOLT_BCURR_BPOWER_W:
@@ -1391,6 +1471,23 @@ void on_request_for_dgn(const rvc_request_for_dgn_t *req)
             handle_app_debug_event_data(data, 8);
             break;
 #endif
+#if (APP_PARALLEL_CAN_FEATURES == 1)
+        case RVC_DGN_PROPRIETARY_PARALLEL_DISCOVERY:
+        case RVC_DGN_PROPRIETARY_PARALLEL_MASTER_CLAIM:
+        case RVC_DGN_PROPRIETARY_PARALLEL_ADDR_ASSIGN:
+        case RVC_DGN_PROPRIETARY_PARALLEL_ADDR_ACK:
+        case RVC_DGN_PROPRIETARY_PARALLEL_HEARTBEAT:
+        case RVC_DGN_PROPRIETARY_PARALLEL_STATUS:
+        case RVC_DGN_PROPRIETARY_PARALLEL_CONTROL:
+        case RVC_DGN_PROPRIETARY_PARALLEL_FORCE_STOP:
+        case RVC_DGN_PROPRIETARY_PARALLEL_PARAM_SUMMARY:
+        case RVC_DGN_PROPRIETARY_PARALLEL_PARAM_SYNC:
+        case RVC_DGN_PROPRIETARY_PARALLEL_JOIN_REQUEST:
+        case RVC_DGN_PROPRIETARY_PARALLEL_JOIN_ENABLE:
+        case RVC_DGN_PROPRIETARY_PARALLEL_LEAVE_NOTICE:
+            handle_parallel_mode(req->requested_dgn, data, 8);
+            break;
+#endif
 
         case RVC_DGN_PROPRIETARY_SET_AVOLT_ACURR_APOWER_R:
         case RVC_DGN_PROPRIETARY_SET_BVOLT_BCURR_BPOWER_R:
@@ -1440,12 +1537,38 @@ void message_rum(void)
     static uint32_t last_status2_time = 0;
     static uint32_t last_dm_rv_time = 0;
 #endif
+#if (APP_PARALLEL_CAN_FEATURES == 1)
+    static uint32_t last_parallel_time = 0;
+    static uint8_t parallel_phase = 0;
+#endif
 
     /* 周期调用地址管理器 */
     rvc_address_process();
 
     /* 检查地址状态 */
     if (rvc_address_is_claimed()) {
+#if (APP_PARALLEL_CAN_FEATURES == 1)
+        uint32_t now_parallel = systemtime;
+
+        if ((now_parallel - last_parallel_time) >= 500U)
+        {
+            last_parallel_time = now_parallel;
+            switch (parallel_phase)
+            {
+                case 0U:
+                    parallel_mode_can_broadcast(RVC_DGN_PROPRIETARY_PARALLEL_DISCOVERY);
+                    break;
+                case 1U:
+                    parallel_mode_can_broadcast(RVC_DGN_PROPRIETARY_PARALLEL_HEARTBEAT);
+                    break;
+                default:
+                    parallel_mode_can_broadcast(RVC_DGN_PROPRIETARY_PARALLEL_STATUS);
+                    parallel_phase = 0U;
+                    break;
+            }
+            parallel_phase++;
+        }
+#endif
 #if RVC_PERIODIC_BROADCAST_ENABLE
         uint32_t now = systemtime;
         uint8_t my_addr = rvc_address_get_current();

@@ -46,6 +46,27 @@
 #define APP_CAN_OTA_FEATURES 1
 #endif
 
+/* Parallel preparation layer. CAN/RS485 only negotiate readiness; real current
+ * sharing is handled by local droop control. */
+#ifndef APP_PARALLEL_MODE_FEATURES
+#define APP_PARALLEL_MODE_FEATURES 1
+#endif
+
+#ifndef APP_PARALLEL_CAN_FEATURES
+#define APP_PARALLEL_CAN_FEATURES 1
+#endif
+
+#ifndef APP_PARALLEL_RS485_FEATURES
+#define APP_PARALLEL_RS485_FEATURES 1
+#endif
+
+#if (APP_PARALLEL_MODE_FEATURES != 1)
+#undef APP_PARALLEL_CAN_FEATURES
+#define APP_PARALLEL_CAN_FEATURES 0
+#undef APP_PARALLEL_RS485_FEATURES
+#define APP_PARALLEL_RS485_FEATURES 0
+#endif
+
 #if (APP_SHELL_FEATURES == 1) && (APP_CAN_OTA_FEATURES == 1)
 #error "APP_SHELL_FEATURES does not fit in WG-BOOT-APP-RV while APP_CAN_OTA_FEATURES is enabled."
 #endif

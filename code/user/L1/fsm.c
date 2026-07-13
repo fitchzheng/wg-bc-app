@@ -16,6 +16,7 @@
 #include "bat_charge_pattern.h"
 #include "protect.h"
 #include "stop_dormant.h"
+#include "parallel_mode.h"
 uint8_t force_ccm = 0;
 static uint8_t direction_restart_pending = 0;
 static uint8_t mode_restart_pending = 0;
@@ -189,6 +190,7 @@ static void idle_exe(void)
          (fault_get_alarm_bit(ALARM_PG_IS_OFF) == 0)            &&
          (mode_restart_hold_cnt == 0)                            &&
          (charge_state_data.bat_state.LithiumBatOnOff == 0)		&&
+         (parallel_mode_should_block_local_run() == 0U)          &&
 		 (get_key_pg_val()== 1))
     {
         if(charge_state_data.Boot_Time_Delay.SetBootTimeFlag == 1)
@@ -489,6 +491,7 @@ static void run_exe(void)
         (charge_state_data.protect_data.over_temp_protect == 0)                     &&
         (ctrl_app_get_is_run() == 1)                                                &&
         (fault_get_alarm_bit(ALARM_PG_IS_OFF) == 0)                                 &&
+        (parallel_mode_should_block_local_run() == 0U)                              &&
         (stop_time_flag == 0))
     {
         (get_volt_low_fault() == 1) ? (bat_charge_mode = eFAULT_CHARGE) : (bat_charge_mode = (BAT_CHARGE_MODE_E)charge_state_data.SetCharState);

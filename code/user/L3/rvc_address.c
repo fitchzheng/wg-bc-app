@@ -9,6 +9,7 @@
 #include "stdbool.h"
 #include "section.h"
 #include "bsp_can.h"
+#include "parallel_mode.h"
 
 extern uint32_t systemtime;
 /* ========== 内部数据结构 ========== */
@@ -245,6 +246,15 @@ void rvc_address_process(void)
  */
 uint8_t rvc_address_get_current(void)
 {
+#if (APP_PARALLEL_CAN_FEATURES == 1)
+    uint8_t runtime_addr = parallel_mode_get_can_runtime_addr();
+
+    if (runtime_addr != 0U)
+    {
+        return runtime_addr;
+    }
+#endif
+
     return g_addr_mgr.current_address;
 }
 
