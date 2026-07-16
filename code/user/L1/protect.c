@@ -217,11 +217,11 @@ static protect_item_t protections[PROTECT_MAX] = {
 //    [PROTECT_FVS48_SCP] = {.fault = FAULT_FVS48_SCP, .cmp_trigger = cmp_less, .cmp_recover = cmp_greater, .enable = 0,.TriggerTime = PROTECT_SCP_TRIGGER_DELAY_COUNT,PROTECT_SCP_TRIGGER_R_DELAY_COUNT},
     [PROTECT_FVS48_UVP] = {.fault = FAULT_FVS48_UVP, .cmp_trigger = cmp_less, .cmp_recover = cmp_greater, .enable = 0,.TriggerTime = PROTECT_TRIGGER_DELAY_COUNT,PROTECT_TRIGGER_R_DELAY_COUNT},
     [PROTECT_FVS48_OVP] = {.fault = FAULT_FVS48_OVP, .cmp_trigger = cmp_greater, .cmp_recover = cmp_less, .enable = 0,.TriggerTime = PROTECT_TRIGGER_DELAY_COUNT,PROTECT_TRIGGER_R_DELAY_COUNT},
-    [PROTECT_ACC_UVP  ] = {.fault = FAULT_ACC_UVP, .cmp_trigger = cmp_less, .cmp_recover = cmp_greater, .enable = 0,.TriggerTime = PROTECT_TRIGGER_DELAY_COUNT,PROTECT_TRIGGER_R_DELAY_COUNT},
+    [PROTECT_ACC_UVP  ] = {.fault = FAULT_ACC_UVP, .cmp_trigger = cmp_less, .cmp_recover = cmp_greater, .enable = 0,.TriggerTime = PROTECT_ACC_RTM_TRIGGER_DELAY_COUNT,PROTECT_TRIGGER_R_DELAY_COUNT},
 //    [PROTECT_FVS12_SCP] = {.fault = FAULT_RVS12_SCP, .cmp_trigger = cmp_less, .cmp_recover = cmp_greater, .enable = 0,.TriggerTime = PROTECT_SCP_TRIGGER_DELAY_COUNT,PROTECT_SCP_TRIGGER_R_DELAY_COUNT},
     [PROTECT_RVS12_UVP] = {.fault = FAULT_RVS12_UVP, .cmp_trigger = cmp_less, .cmp_recover = cmp_greater, .enable = 0,.TriggerTime = PROTECT_TRIGGER_DELAY_COUNT,PROTECT_TRIGGER_R_DELAY_COUNT},
     [PROTECT_RVS12_OVP] = {.fault = FAULT_RVS12_OVP, .cmp_trigger = cmp_greater, .cmp_recover = cmp_less, .enable = 0,.TriggerTime = PROTECT_TRIGGER_DELAY_COUNT,PROTECT_TRIGGER_R_DELAY_COUNT},
-    [PROTECT_RTM_UVP  ] = {.fault = FAULT_RTM_UVP, .cmp_trigger = cmp_less, .cmp_recover = cmp_greater, .enable = 0,.TriggerTime = PROTECT_TRIGGER_DELAY_COUNT,PROTECT_TRIGGER_R_DELAY_COUNT},
+    [PROTECT_RTM_UVP  ] = {.fault = FAULT_RTM_UVP, .cmp_trigger = cmp_less, .cmp_recover = cmp_greater, .enable = 0,.TriggerTime = PROTECT_ACC_RTM_TRIGGER_DELAY_COUNT,PROTECT_TRIGGER_R_DELAY_COUNT},
 //    [PROTECT_INSIDE_OTP] = {.fault = FAULT_INSIDE_OTP, .cmp_trigger = cmp_greater, .cmp_recover = cmp_less, .enable = 1,.TriggerTime = PROTECT_TRIGGER_DELAY_COUNT,PROTECT_TRIGGER_R_DELAY_COUNT},
 //    [PROTECT_OUTSIDE_OTP] = {.fault = FAULT_OUTSIDE_OTP, .cmp_trigger = cmp_greater, .cmp_recover = cmp_less, .enable = 1,.TriggerTime = PROTECT_TRIGGER_DELAY_COUNT,PROTECT_TRIGGER_R_DELAY_COUNT},
 //    [PROTECT_TEMP2_OTP] = {.fault = FAULT_TEMP2_OTP, .cmp_trigger = cmp_greater, .cmp_recover = cmp_less, .enable = 1,.TriggerTime = PROTECT_TRIGGER_DELAY_COUNT,PROTECT_TRIGGER_R_DELAY_COUNT},
@@ -310,12 +310,12 @@ static void protect_volt(void)
 //    protections[PROTECT_FVS48_SCP].recover = 5.0f;
 //    protections[PROTECT_FVS48_SCP].enable = (((get_check_state_data() == ADDRS_BACKWARD)&&(Get_Soft_Finish_Flag() == 1)) ? 1 : 0);
 
-    protections[PROTECT_ACC_UVP  ].val = charge_state_data.protect_data.protect_item_acc.val;
+    protections[PROTECT_ACC_UVP  ].val = Acc_val;
     protections[PROTECT_ACC_UVP  ].limit = charge_state_data.protect_data.protect_item_acc.limit;
     protections[PROTECT_ACC_UVP  ].recover = charge_state_data.protect_data.protect_item_acc.recover;
     protections[PROTECT_ACC_UVP  ].enable =  charge_state_data.protect_data.protect_item_acc.enable;
 
-    protections[PROTECT_RTM_UVP  ].val = charge_state_data.protect_data.protect_item_rtm.val;
+    protections[PROTECT_RTM_UVP  ].val = Rtm_val;
     protections[PROTECT_RTM_UVP  ].limit = charge_state_data.protect_data.protect_item_rtm.limit;
     protections[PROTECT_RTM_UVP  ].recover = charge_state_data.protect_data.protect_item_rtm.recover;
     protections[PROTECT_RTM_UVP  ].enable = charge_state_data.protect_data.protect_item_rtm.enable;
