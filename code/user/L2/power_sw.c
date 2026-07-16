@@ -59,4 +59,8 @@ uint8_t power_sw_get_power_is_on(void)
     return power_is_on;
 }
 
+void power_sw_force_power_on(void)
+{
+    power_is_on = 1U;
+}
 
