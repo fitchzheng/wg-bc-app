@@ -36,6 +36,21 @@ static void handle_parallel_mode_w(uint32_t dgn, uint8_t *data, uint8_t len);
 #endif
 
 static uint32_t build_can_id(uint8_t priority, uint32_t dgn, uint8_t sa);
+static void rvc_put_u16_le(uint8_t *data, uint8_t offset, uint16_t value)
+{
+    data[offset] = (uint8_t)(value & 0xFFU);
+    data[offset + 1U] = (uint8_t)((value >> 8U) & 0xFFU);
+}
+
+static void rvc_put_words_le(uint8_t *data, uint8_t offset, const uint16_t *words, uint8_t count)
+{
+    uint8_t i;
+
+    for(i = 0U; i < count; i++)
+    {
+        rvc_put_u16_le(data, (uint8_t)(offset + (i * 2U)), words[i]);
+    }
+}
 static uint8_t rvc_is_pc_source(uint32_t can_id);
 
 static void rvc_put_u16_be(uint8_t *data, uint8_t offset, uint16_t value)
@@ -176,50 +191,33 @@ static void handle_manufacturer_data(uint32_t gdn, uint8_t *data, uint8_t len)
     // 提取发送者地址
     uint32_t tx_can_id = 0;//build_can_id(6, RVC_DGN_ACKNOWLEDGEMENT, rvc_address_get_current());
     uint8_t tx_data[8];
-    uint16_t data_u16 = 0;
     switch(gdn){
         case RVC_DGN_PROPRIETARY_PROTOCOL_VERSION_R:
             memset(tx_data, 0xFF, sizeof(tx_data));
             tx_data[0] = data[0];
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_PROTOCOL_VERSION_R, rvc_address_get_current());
-            for(uint16_t i = 0;i < 2;i++){
-                data_u16 = wg_com_v2_product_info.ProtocolVersion[i];
-                tx_data[i*2+1] = (data_u16&0xff);
-                tx_data[i*2+2] = ((data_u16>>8)&0xff);
-            }
+            rvc_put_words_le(tx_data, 1U, wg_com_v2_product_info.ProtocolVersion, 2U);
             bsp_rvc_can_tx(tx_can_id, tx_data, 8);
             break;
         case RVC_DGN_PROPRIETARY_PRODUCT_TYPE_R:
             memset(tx_data, 0xFF, sizeof(tx_data));
             tx_data[0] = data[0];
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_PRODUCT_TYPE_R, rvc_address_get_current());
-            for(uint16_t i = 0;i < 2;i++){
-                data_u16 = wg_com_v2_product_info.ProductType[i];
-                tx_data[i*2+1] = (data_u16&0xff);
-                tx_data[i*2+2] = ((data_u16>>8)&0xff);
-            }
+            rvc_put_words_le(tx_data, 1U, wg_com_v2_product_info.ProductType, 2U);
             bsp_rvc_can_tx(tx_can_id, tx_data, 8);
             break;
         case RVC_DGN_PROPRIETARY_HARDVER_VERSION_R:
             memset(tx_data, 0xFF, sizeof(tx_data));
             tx_data[0] = data[0];
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_HARDVER_VERSION_R, rvc_address_get_current());
-            for(uint16_t i = 0;i < 2;i++){
-                data_u16 = wg_com_v2_product_info.HardverVerzi[i];
-                tx_data[i*2+1] = (data_u16&0xff);
-                tx_data[i*2+2] = ((data_u16>>8)&0xff);
-            }
+            rvc_put_words_le(tx_data, 1U, wg_com_v2_product_info.HardverVerzi, 2U);
             bsp_rvc_can_tx(tx_can_id, tx_data, 8);
             break;
         case RVC_DGN_PROPRIETARY_SOFT_VERSION_R:
             memset(tx_data, 0xFF, sizeof(tx_data));
             tx_data[0] = data[0];
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_SOFT_VERSION_R, rvc_address_get_current());
-            for(uint16_t i = 0;i < 2;i++){
-                data_u16 = wg_com_v2_product_info.SoftVersion[i];
-                tx_data[i*2+1] = (data_u16&0xff);
-                tx_data[i*2+2] = ((data_u16>>8)&0xff);
-            }
+            rvc_put_words_le(tx_data, 1U, wg_com_v2_product_info.SoftVersion, 2U);
             bsp_rvc_can_tx(tx_can_id, tx_data, 8);
             break;
         case RVC_DGN_PROPRIETARY_SN_SERIAL_R:
@@ -231,11 +229,7 @@ static void handle_manufacturer_data(uint32_t gdn, uint8_t *data, uint8_t len)
             memset(tx_data, 0xFF, sizeof(tx_data));
             tx_data[0] = data[0];
             tx_data[1] = data[1];
-            for(uint16_t i = 0;i < 3;i++){
-                data_u16 = wg_com_v2_product_info.SnSerial[(tx_data[1]*3)+i];
-                tx_data[i*2+2] = (data_u16&0xff);
-                tx_data[i*2+3] = ((data_u16>>8)&0xff);
-            }
+            rvc_put_words_le(tx_data, 2U, &wg_com_v2_product_info.SnSerial[(uint16_t)tx_data[1] * 3U], 3U);
             bsp_rvc_can_tx(tx_can_id, tx_data, 8);
             break;
         case RVC_DGN_PROPRIETARY_PRODUCT_NAME_R:
@@ -247,35 +241,23 @@ static void handle_manufacturer_data(uint32_t gdn, uint8_t *data, uint8_t len)
             memset(tx_data, 0xFF, sizeof(tx_data));
             tx_data[0] = data[0];
             tx_data[1] = data[1];
-            for(uint16_t i = 0;i < 3;i++){
-                data_u16 = wg_com_v2_product_info.ProductName[(tx_data[1]*3)+i];
-                tx_data[i*2+2] = (data_u16&0xff);
-                tx_data[i*2+3] = ((data_u16>>8)&0xff);
-            }
+            rvc_put_words_le(tx_data, 2U, &wg_com_v2_product_info.ProductName[(uint16_t)tx_data[1] * 3U], 3U);
             bsp_rvc_can_tx(tx_can_id, tx_data, 8);
             break;
         case RVC_DGN_PROPRIETARY_ADDRE_APPLI_R:
             memset(tx_data, 0xFF, sizeof(tx_data));
             tx_data[0] = data[0];
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_ADDRE_APPLI_R, rvc_address_get_current());
-            data_u16 = wg_com_v2_product_info.Address;
-            tx_data[2] = (data_u16&0xff);
-            tx_data[1] = ((data_u16>>8)&0xff);
-            data_u16 = wg_com_v2_product_info.ApplicationScenarios;
-            tx_data[4] = (data_u16&0xff);
-            tx_data[3] = ((data_u16>>8)&0xff);
+            rvc_put_u16_be(tx_data, 1U, wg_com_v2_product_info.Address);
+            rvc_put_u16_be(tx_data, 3U, wg_com_v2_product_info.ApplicationScenarios);
             bsp_rvc_can_tx(tx_can_id, tx_data, 8);
             break;
         case RVC_DGN_PROPRIETARY_CUST_BT_NAME_R:
             memset(tx_data, 0xFF, sizeof(tx_data));
             tx_data[0] = data[0];
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_CUST_BT_NAME_R, rvc_address_get_current());
-            data_u16 = wg_com_v2_product_info.CustomizationVersion;
-            tx_data[1] = (data_u16&0xff);
-            tx_data[2] = ((data_u16>>8)&0xff);
-            data_u16 = wg_com_v2_product_info.BtName;
-            tx_data[3] = (data_u16&0xff);
-            tx_data[4] = ((data_u16>>8)&0xff);
+            rvc_put_u16_le(tx_data, 1U, wg_com_v2_product_info.CustomizationVersion);
+            rvc_put_u16_le(tx_data, 3U, wg_com_v2_product_info.BtName);
             bsp_rvc_can_tx(tx_can_id, tx_data, 8);
             break;
         case RVC_DGN_PROPRIETARY_MAC_ADDRESS_R:
@@ -287,10 +269,8 @@ static void handle_manufacturer_data(uint32_t gdn, uint8_t *data, uint8_t len)
             memset(tx_data, 0xFF, sizeof(tx_data));
             tx_data[0] = data[0];
             tx_data[1] = data[1];
-            for(uint16_t i = 0;i < 3;i++){
-                data_u16 = wg_com_v2_product_info.MacAddress[(tx_data[1]*3)+i];
-                tx_data[i*2+2] = ((data_u16>>8)&0xff);
-                tx_data[i*2+3] = (data_u16&0xff);
+            for(uint8_t i = 0U; i < 3U; i++){
+                rvc_put_u16_be(tx_data, (uint8_t)(2U + (i * 2U)), wg_com_v2_product_info.MacAddress[((uint16_t)tx_data[1] * 3U) + i]);
             }
             bsp_rvc_can_tx(tx_can_id, tx_data, 8);
             break;
@@ -320,30 +300,21 @@ static void handle_real_time_data(uint32_t gdn, uint8_t *data, uint8_t len)
     switch(gdn){
         case RVC_DGN_PROPRIETARY_AVOLT_ACURR_APOWER_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_AVOLT_ACURR_APOWER_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_realtime_data.InpVolt>>8)&0xff);
-            tx_data[2] = (wg_com_v2_realtime_data.InpVolt&0xff);
-            tx_data[3] = ((wg_com_v2_realtime_data.InpCurr>>8)&0xff);
-            tx_data[4] = (wg_com_v2_realtime_data.InpCurr&0xff);
-            tx_data[5] = ((wg_com_v2_realtime_data.InpCurrPower>>8)&0xff);
-            tx_data[6] = (wg_com_v2_realtime_data.InpCurrPower&0xff);
+            rvc_put_u16_be(tx_data, 1U, wg_com_v2_realtime_data.InpVolt);
+            rvc_put_u16_be(tx_data, 3U, wg_com_v2_realtime_data.InpCurr);
+            rvc_put_u16_be(tx_data, 5U, wg_com_v2_realtime_data.InpCurrPower);
             break;
         case RVC_DGN_PROPRIETARY_BVOLT_BCURR_BPOWER_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_BVOLT_BCURR_BPOWER_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_realtime_data.OutVolt>>8)&0xff);
-            tx_data[2] = (wg_com_v2_realtime_data.OutVolt&0xff);
-            tx_data[3] = ((wg_com_v2_realtime_data.OutCurr>>8)&0xff);
-            tx_data[4] = (wg_com_v2_realtime_data.OutCurr&0xff);
-            tx_data[5] = ((wg_com_v2_realtime_data.OutCurrPower>>8)&0xff);
-            tx_data[6] = (wg_com_v2_realtime_data.OutCurrPower&0xff);
+            rvc_put_u16_be(tx_data, 1U, wg_com_v2_realtime_data.OutVolt);
+            rvc_put_u16_be(tx_data, 3U, wg_com_v2_realtime_data.OutCurr);
+            rvc_put_u16_be(tx_data, 5U, wg_com_v2_realtime_data.OutCurrPower);
             break;
         case RVC_DGN_PROPRIETARY_T1_T2_TA_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_T1_T2_TA_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_realtime_data.InsideTemp>>8)&0xff);        // T1温度
-            tx_data[2] = (wg_com_v2_realtime_data.InsideTemp&0xff);             // T1温度
-            tx_data[3] = ((wg_com_v2_realtime_data.OutsideTemp>>8)&0xff);       // T2温度
-            tx_data[4] = (wg_com_v2_realtime_data.OutsideTemp&0xff);            // T2温度
-            tx_data[5] = ((wg_com_v2_realtime_data.Temp2>>8)&0xff);             // Ta温度
-            tx_data[6] = (wg_com_v2_realtime_data.Temp2&0xff);                  // Ta温度
+            rvc_put_u16_be(tx_data, 1U, (uint16_t)wg_com_v2_realtime_data.InsideTemp);
+            rvc_put_u16_be(tx_data, 3U, (uint16_t)wg_com_v2_realtime_data.OutsideTemp);
+            rvc_put_u16_be(tx_data, 5U, (uint16_t)wg_com_v2_realtime_data.Temp2);
             break;
         case RVC_DGN_PROPRIETARY_POWER_CHARG_STATE_CHARGEE_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_POWER_CHARG_STATE_CHARGEE_R, rvc_address_get_current());
@@ -363,12 +334,9 @@ static void handle_real_time_data(uint32_t gdn, uint8_t *data, uint8_t len)
             break;
         case RVC_DGN_PROPRIETARY_VOLTA_VOLTB_ADDVOLT_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_VOLTA_VOLTB_ADDVOLT_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_realtime_data.CompensationVoltA>>8)&0xff); // A端补�?
-            tx_data[2] = (wg_com_v2_realtime_data.CompensationVoltA&0xff);      // A端补�?
-            tx_data[3] = ((wg_com_v2_realtime_data.CompensationVoltB>>8)&0xff); // B端补�?
-            tx_data[4] = (wg_com_v2_realtime_data.CompensationVoltB&0xff);      // B端补�?
-            tx_data[5] = ((wg_com_v2_realtime_data.ADDVolt>>8)&0xff);           // ADD辅源电压
-            tx_data[6] = (wg_com_v2_realtime_data.ADDVolt&0xff);                // ADD辅源电压
+            rvc_put_u16_be(tx_data, 1U, wg_com_v2_realtime_data.CompensationVoltA);
+            rvc_put_u16_be(tx_data, 3U, wg_com_v2_realtime_data.CompensationVoltB);
+            rvc_put_u16_be(tx_data, 5U, wg_com_v2_realtime_data.ADDVolt);
             break;
         default:
             return;
@@ -456,6 +424,32 @@ static uint16_t rvc_get_write_u16(const uint8_t *data, uint8_t offset)
     return (uint16_t)(((uint16_t)data[offset + 1U] << 8) | data[offset]);
 }
 
+static uint16_t rvc_get_write_u16_be(const uint8_t *data, uint8_t offset)
+{
+    return (uint16_t)(((uint16_t)data[offset] << 8) | data[offset + 1U]);
+}
+
+static uint8_t rvc_store_page_words(uint16_t *dst, uint8_t page, const uint8_t *data)
+{
+    uint8_t i;
+    uint8_t word_count;
+    uint16_t index;
+
+    if((dst == NULL) || (data == NULL) || (page >= 4U))
+    {
+        return 0U;
+    }
+
+    word_count = (page == 3U) ? 1U : 3U;
+    index = (uint16_t)((uint16_t)page * 3U);
+    for(i = 0U; i < word_count; i++)
+    {
+        set_uint16((uint8_t *)&dst[index + i],
+                   rvc_get_write_u16_be(data, (uint8_t)(2U + (i * 2U))));
+    }
+
+    return 1U;
+}
 static uint8_t rvc_write_register_words(uint16_t addr, const uint16_t *values, uint16_t count)
 {
     uint8_t reg_data[12];
@@ -618,88 +612,62 @@ static void handle_set_parameter_area(uint32_t gdn, uint8_t *data, uint8_t len)
     switch(gdn){
         case RVC_DGN_PROPRIETARY_SET_AVOLT_ACURR_APOWER_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_SET_AVOLT_ACURR_APOWER_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_param.SetInpVolt>>8)&0xff);
-            tx_data[2] = (wg_com_v2_param.SetInpVolt&0xff);
-            tx_data[3] = ((wg_com_v2_param.SetInpCurr>>8)&0xff);
-            tx_data[4] = (wg_com_v2_param.SetInpCurr&0xff);
-            tx_data[5] = ((wg_com_v2_param.SetInpCurrPower>>8)&0xff);
-            tx_data[6] = (wg_com_v2_param.SetInpCurrPower&0xff);
+            rvc_put_u16_be(tx_data, 1U, wg_com_v2_param.SetInpVolt);
+            rvc_put_u16_be(tx_data, 3U, wg_com_v2_param.SetInpCurr);
+            rvc_put_u16_be(tx_data, 5U, wg_com_v2_param.SetInpCurrPower);
             break;
         case RVC_DGN_PROPRIETARY_SET_BVOLT_BCURR_BPOWER_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_SET_BVOLT_BCURR_BPOWER_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_param.SetOutVolt>>8)&0xff);
-            tx_data[2] = (wg_com_v2_param.SetOutVolt&0xff);
-            tx_data[3] = ((wg_com_v2_param.SetOutCurr>>8)&0xff);
-            tx_data[4] = (wg_com_v2_param.SetOutCurr&0xff);
-            tx_data[5] = ((wg_com_v2_param.SetOutCurrPower>>8)&0xff);
-            tx_data[6] = (wg_com_v2_param.SetOutCurrPower&0xff);
+            rvc_put_u16_be(tx_data, 1U, wg_com_v2_param.SetOutVolt);
+            rvc_put_u16_be(tx_data, 3U, wg_com_v2_param.SetOutCurr);
+            rvc_put_u16_be(tx_data, 5U, wg_com_v2_param.SetOutCurrPower);
             break;
         case RVC_DGN_PROPRIETARY_SET_AUVLO_AUVLO_RECOVER_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_SET_AUVLO_AUVLO_RECOVER_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_param.SetInpUvlo>>8)&0xff);
-            tx_data[2] = (wg_com_v2_param.SetInpUvlo&0xff);
-            tx_data[3] = ((wg_com_v2_param.SetInpUvloRecover>>8)&0xff);
-            tx_data[4] = (wg_com_v2_param.SetInpUvloRecover&0xff);
+            rvc_put_u16_be(tx_data, 1U, wg_com_v2_param.SetInpUvlo);
+            rvc_put_u16_be(tx_data, 3U, wg_com_v2_param.SetInpUvloRecover);
             break;
         case RVC_DGN_PROPRIETARY_SET_AOVP_AUVLO_OVPRECOVER_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_SET_AOVP_AUVLO_OVPRECOVER_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_param.SetInpOVP>>8)&0xff);
-            tx_data[2] = (wg_com_v2_param.SetInpOVP&0xff);
-            tx_data[3] = ((wg_com_v2_param.SetInpOVPRecover>>8)&0xff);
-            tx_data[4] = (wg_com_v2_param.SetInpOVPRecover&0xff);
+            rvc_put_u16_be(tx_data, 1U, wg_com_v2_param.SetInpOVP);
+            rvc_put_u16_be(tx_data, 3U, wg_com_v2_param.SetInpOVPRecover);
             break;
         case RVC_DGN_PROPRIETARY_SET_BUVLO_BUVLO_RECOVER_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_SET_BUVLO_BUVLO_RECOVER_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_param.SetOutUvlo>>8)&0xff);
-            tx_data[2] = (wg_com_v2_param.SetOutUvlo&0xff);
-            tx_data[3] = ((wg_com_v2_param.SetOutUvloRecover>>8)&0xff);
-            tx_data[4] = (wg_com_v2_param.SetOutUvloRecover&0xff);
+            rvc_put_u16_be(tx_data, 1U, wg_com_v2_param.SetOutUvlo);
+            rvc_put_u16_be(tx_data, 3U, wg_com_v2_param.SetOutUvloRecover);
             break;
         case RVC_DGN_PROPRIETARY_SET_BOVP_BUVLO_OVPRECOVER_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_SET_BOVP_BUVLO_OVPRECOVER_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_param.SetOutOVP>>8)&0xff);
-            tx_data[2] = (wg_com_v2_param.SetOutOVP&0xff);
-            tx_data[3] = ((wg_com_v2_param.SetOutOVPRecover>>8)&0xff);
-            tx_data[4] = (wg_com_v2_param.SetOutOVPRecover&0xff);
+            rvc_put_u16_be(tx_data, 1U, wg_com_v2_param.SetOutOVP);
+            rvc_put_u16_be(tx_data, 3U, wg_com_v2_param.SetOutOVPRecover);
             break;
         case RVC_DGN_PROPRIETARY_SET_T1_T2_TA_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_SET_T1_T2_TA_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_param.SetInsideTemp>>8)&0xff);              // T1温度
-            tx_data[2] = (wg_com_v2_param.SetInsideTemp&0xff);                   // T1温度
-            tx_data[3] = ((wg_com_v2_param.SetOutsideTemp>>8)&0xff);             // T2温度
-            tx_data[4] = (wg_com_v2_param.SetOutsideTemp&0xff);                  // T2温度
-            tx_data[5] = ((wg_com_v2_param.SetTemp2>>8)&0xff);                   // Ta温度
-            tx_data[6] = (wg_com_v2_param.SetTemp2&0xff);                        // Ta温度
+            rvc_put_u16_be(tx_data, 1U, (uint16_t)wg_com_v2_param.SetInsideTemp);
+            rvc_put_u16_be(tx_data, 3U, (uint16_t)wg_com_v2_param.SetOutsideTemp);
+            rvc_put_u16_be(tx_data, 5U, (uint16_t)wg_com_v2_param.SetTemp2);
             break;
         case RVC_DGN_PROPRIETARY_SET_ACHARG_AFULL_LED_CURR_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_SET_ACHARG_AFULL_LED_CURR_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_param.SetInpChargLedCurr>>8)&0xff);         // A端充电指示灯电流
-            tx_data[2] = (wg_com_v2_param.SetInpChargLedCurr&0xff);              // A端充电指示灯电流
-            tx_data[3] = ((wg_com_v2_param.SetInpFullLedCurr>>8)&0xff);          // A端充满指示灯电流
-            tx_data[4] = (wg_com_v2_param.SetInpFullLedCurr&0xff);               // A端充满指示灯电流
+            rvc_put_u16_be(tx_data, 1U, wg_com_v2_param.SetInpChargLedCurr);
+            rvc_put_u16_be(tx_data, 3U, wg_com_v2_param.SetInpFullLedCurr);
             break;
         case RVC_DGN_PROPRIETARY_SET_BCHARG_BFULL_LED_CURR_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_SET_BCHARG_BFULL_LED_CURR_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_param.SetOutChargLedCurr>>8)&0xff);         // B端充电指示灯电流
-            tx_data[2] = (wg_com_v2_param.SetOutChargLedCurr&0xff);              // B端充电指示灯电流
-            tx_data[3] = ((wg_com_v2_param.SetOutFullLedCurr>>8)&0xff);          // B端充满指示灯电流
-            tx_data[4] = (wg_com_v2_param.SetOutFullLedCurr&0xff);               // B端充满指示灯电流
+            rvc_put_u16_be(tx_data, 1U, wg_com_v2_param.SetOutChargLedCurr);
+            rvc_put_u16_be(tx_data, 3U, wg_com_v2_param.SetOutFullLedCurr);
             break;
         case RVC_DGN_PROPRIETARY_AUOT_OPEN_VEER_SHUT_VOLT_A_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_AUOT_OPEN_VEER_SHUT_VOLT_A_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_param.AuotForwardOpenVoltA>>8)&0xff);
-            tx_data[2] = (wg_com_v2_param.AuotForwardOpenVoltA&0xff);
-            tx_data[3] = ((wg_com_v2_param.AuotForwardVeerVoltA>>8)&0xff);
-            tx_data[4] = (wg_com_v2_param.AuotForwardVeerVoltA&0xff);            // 自动模式正向转向A电压
-            tx_data[5] = ((wg_com_v2_param.AuotForwardShutVoltA>>8)&0xff);
-            tx_data[6] = (wg_com_v2_param.AuotForwardShutVoltA&0xff);
+            rvc_put_u16_be(tx_data, 1U, wg_com_v2_param.AuotForwardOpenVoltA);
+            rvc_put_u16_be(tx_data, 3U, wg_com_v2_param.AuotForwardVeerVoltA);
+            rvc_put_u16_be(tx_data, 5U, wg_com_v2_param.AuotForwardShutVoltA);
             break;
         case RVC_DGN_PROPRIETARY_AUOT_OPEN_SHUT_VOLT_B_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_AUOT_OPEN_SHUT_VOLT_B_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_param.AuotReverseOpenVoltB>>8)&0xff);
-            tx_data[2] = (wg_com_v2_param.AuotReverseOpenVoltB&0xff);
-            tx_data[3] = ((wg_com_v2_param.AuotReverseShutVoltB>>8)&0xff);
-            tx_data[4] = (wg_com_v2_param.AuotReverseShutVoltB&0xff);
+            rvc_put_u16_be(tx_data, 1U, wg_com_v2_param.AuotReverseOpenVoltB);
+            rvc_put_u16_be(tx_data, 3U, wg_com_v2_param.AuotReverseShutVoltB);
             break;
         default:
             return;
@@ -721,130 +689,35 @@ static void handle_manufacturer_data_w(uint32_t gdn, uint8_t *data, uint8_t len)
     // 提取发送者地址
     //uint32_t tx_can_id = build_can_id(6, RVC_DGN_ACKNOWLEDGEMENT, rvc_address_get_current());
     //uint8_t tx_data[8];
-    uint16_t data_u16 = 0;
     switch(gdn){
         case RVC_DGN_PROPRIETARY_SN_SERIAL_W:
-            switch(data[1])
+            if(rvc_store_page_words(wg_com_v2_product_info.SnSerial, data[1], data) == 0U)
             {
-                case 0:
-                    data_u16 = (data[2]<<8)+data[3];
-                    WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_product_info.SnSerial[0]);
-                    data_u16 = (data[4]<<8)+data[5];
-                    WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_product_info.SnSerial[1]);
-                    data_u16 = (data[6]<<8)+data[7];
-                    WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_product_info.SnSerial[2]);
-                    break;
-                case 1:
-                    data_u16 = (data[2]<<8)+data[3];
-                    WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_product_info.SnSerial[3]);
-                    data_u16 = (data[4]<<8)+data[5];
-                    WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_product_info.SnSerial[4]);
-                    data_u16 = (data[6]<<8)+data[7];
-                    WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_product_info.SnSerial[5]);
-                    break;
-                case 2:
-                    data_u16 = (data[2]<<8)+data[3];
-                    WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_product_info.SnSerial[6]);
-                    data_u16 = (data[4]<<8)+data[5];
-                    WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_product_info.SnSerial[7]);
-                    data_u16 = (data[6]<<8)+data[7];
-                    WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_product_info.SnSerial[8]);
-                    break;
-                case 3:
-                    data_u16 = (data[2]<<8)+data[3];
-                    WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_product_info.SnSerial[9]);
-                    break;
-                default:
-                    return;
-                    // 未知 DGN，忽�?
+                return;
             }
             handle_manufacturer_data(RVC_DGN_PROPRIETARY_SN_SERIAL_R, data, 8);
             break;
         case RVC_DGN_PROPRIETARY_PRODUCT_NAME_W:
-            switch(data[1])
+            if(rvc_store_page_words(wg_com_v2_product_info.ProductName, data[1], data) == 0U)
             {
-                case 0:
-                    data_u16 = (data[2]<<8)+data[3];
-                    WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_product_info.ProductName[0]);
-                    data_u16 = (data[4]<<8)+data[5];
-                    WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_product_info.ProductName[1]);
-                    data_u16 = (data[6]<<8)+data[7];
-                    WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_product_info.ProductName[2]);
-                    break;
-                case 1:
-                    data_u16 = (data[2]<<8)+data[3];
-                    WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_product_info.ProductName[3]);
-                    data_u16 = (data[4]<<8)+data[5];
-                    WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_product_info.ProductName[4]);
-                    data_u16 = (data[6]<<8)+data[7];
-                    WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_product_info.ProductName[5]);
-                    break;
-                case 2:
-                    data_u16 = (data[2]<<8)+data[3];
-                    WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_product_info.ProductName[6]);
-                    data_u16 = (data[4]<<8)+data[5];
-                    WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_product_info.ProductName[7]);
-                    data_u16 = (data[6]<<8)+data[7];
-                    WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_product_info.ProductName[8]);
-                    break;
-                case 3:
-                    data_u16 = (data[2]<<8)+data[3];
-                    WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_product_info.ProductName[9]);
-                    break;
-                default:
-                    return;
-                    // 未知 DGN，忽�?
+                return;
             }
             handle_manufacturer_data(RVC_DGN_PROPRIETARY_PRODUCT_NAME_R, data, 8);
             break;
         case RVC_DGN_PROPRIETARY_ADDRE_APPLI_W:
-            data_u16 = (data[2]<<8)+data[1];
-            WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_product_info.Address);
-            data_u16 = (data[4]<<8)+data[3];
-            WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_product_info.ApplicationScenarios);
+            WG_COM_V2_SET_DATA_UINT(rvc_get_write_u16(data, 1U), wg_com_v2_product_info.Address);
+            WG_COM_V2_SET_DATA_UINT(rvc_get_write_u16(data, 3U), wg_com_v2_product_info.ApplicationScenarios);
             handle_manufacturer_data(RVC_DGN_PROPRIETARY_ADDRE_APPLI_R, data, 8);
             break;
         case RVC_DGN_PROPRIETARY_CUST_BT_NAME_W:
-            data_u16 = (data[2]<<8)+data[1];
-            WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_product_info.CustomizationVersion);
-            data_u16 = (data[4]<<8)+data[3];
-            WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_product_info.BtName);
+            WG_COM_V2_SET_DATA_UINT(rvc_get_write_u16(data, 1U), wg_com_v2_product_info.CustomizationVersion);
+            WG_COM_V2_SET_DATA_UINT(rvc_get_write_u16(data, 3U), wg_com_v2_product_info.BtName);
             handle_manufacturer_data(RVC_DGN_PROPRIETARY_CUST_BT_NAME_R, data, 8);
             break;
         case RVC_DGN_PROPRIETARY_MAC_ADDRESS_W:
-            switch(data[1])
+            if(rvc_store_page_words(wg_com_v2_product_info.MacAddress, data[1], data) == 0U)
             {
-                case 0:
-                    data_u16 = (data[2]<<8)+data[3];
-                    WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_product_info.MacAddress[0]);
-                    data_u16 = (data[4]<<8)+data[5];
-                    WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_product_info.MacAddress[1]);
-                    data_u16 = (data[6]<<8)+data[7];
-                    WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_product_info.MacAddress[2]);
-                    break;
-                case 1:
-                    data_u16 = (data[2]<<8)+data[3];
-                    WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_product_info.MacAddress[3]);
-                    data_u16 = (data[4]<<8)+data[5];
-                    WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_product_info.MacAddress[4]);
-                    data_u16 = (data[6]<<8)+data[7];
-                    WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_product_info.MacAddress[5]);
-                    break;
-                case 2:
-                    data_u16 = (data[2]<<8)+data[3];
-                    WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_product_info.MacAddress[6]);
-                    data_u16 = (data[4]<<8)+data[5];
-                    WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_product_info.MacAddress[7]);
-                    data_u16 = (data[6]<<8)+data[7];
-                    WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_product_info.MacAddress[8]);
-                    break;
-                case 3:
-                    data_u16 = (data[2]<<8)+data[3];
-                    WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_product_info.MacAddress[9]);
-                    break;
-                default:
-                    return;
-                    // 未知 DGN，忽�?
+                return;
             }
             handle_manufacturer_data(RVC_DGN_PROPRIETARY_MAC_ADDRESS_R, data, 8);
             break;
