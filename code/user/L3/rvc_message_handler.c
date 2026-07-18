@@ -11,6 +11,8 @@
 #include "string.h"
 #include "parallel_mode.h"
 
+#define RVC_PC_SOURCE_ADDRESS    0xF9U
+
 static uint8_t g_my_instance = 1;
 
 /* ========== 内部变量 ========== */
@@ -34,11 +36,17 @@ static void handle_parallel_mode_w(uint32_t dgn, uint8_t *data, uint8_t len);
 #endif
 
 static uint32_t build_can_id(uint8_t priority, uint32_t dgn, uint8_t sa);
+static uint8_t rvc_is_pc_source(uint32_t can_id);
 
 static void rvc_put_u16_be(uint8_t *data, uint8_t offset, uint16_t value)
 {
     data[offset] = (uint8_t)((value >> 8) & 0xFF);
     data[offset + 1] = (uint8_t)(value & 0xFF);
+}
+
+static uint8_t rvc_is_pc_source(uint32_t can_id)
+{
+    return (((uint8_t)(can_id & 0xFFU)) == RVC_PC_SOURCE_ADDRESS) ? 1U : 0U;
 }
 
 /* ========== 公共 API 实现 ========== */
@@ -1112,7 +1120,10 @@ void rvc_message_handler_process(uint32_t can_id, uint8_t *data, uint8_t len)
         case RVC_DGN_PROPRIETARY_ADDRE_APPLI_R:
         case RVC_DGN_PROPRIETARY_CUST_BT_NAME_R:
         case RVC_DGN_PROPRIETARY_MAC_ADDRESS_R:
-            handle_manufacturer_data(dgn, data, len);
+            if (rvc_is_pc_source(can_id) != 0U)
+            {
+                handle_manufacturer_data(dgn, data, len);
+            }
             break;
 
         case RVC_DGN_PROPRIETARY_AVOLT_ACURR_APOWER_R:
@@ -1121,7 +1132,10 @@ void rvc_message_handler_process(uint32_t can_id, uint8_t *data, uint8_t len)
         case RVC_DGN_PROPRIETARY_POWER_CHARG_STATE_CHARGEE_R:
         case RVC_DGN_PROPRIETARY_FAULT_SIGN_ALARM_SIGN_R:
         case RVC_DGN_PROPRIETARY_VOLTA_VOLTB_ADDVOLT_R:
-            handle_real_time_data(dgn, data, len);
+            if (rvc_is_pc_source(can_id) != 0U)
+            {
+                handle_real_time_data(dgn, data, len);
+            }
             break;
 
         case RVC_DGN_PROPRIETARY_ON_Off_SETPOWER_SET_CHARG_R:
@@ -1130,11 +1144,17 @@ void rvc_message_handler_process(uint32_t can_id, uint8_t *data, uint8_t len)
         case RVC_DGN_PROPRIETARY_BATY_TYPE_BOOT_CURR_STARTB_R:
         case RVC_DGN_PROPRIETARY_ZERO_CURR_BAT_MODE_FR_R:
         case RVC_DGN_PROPRIETARY_STATUS_CONTROL_R:
-            handle_control_settings(dgn, data, len);
+            if (rvc_is_pc_source(can_id) != 0U)
+            {
+                handle_control_settings(dgn, data, len);
+            }
             break;
 #if (APP_DEBUG_EVENT_READ_FEATURES == 1)
         case RVC_DGN_PROPRIETARY_APP_DEBUG_EVENT_R:
-            handle_app_debug_event_data(data, len);
+            if (rvc_is_pc_source(can_id) != 0U)
+            {
+                handle_app_debug_event_data(data, len);
+            }
             break;
 #endif
 #if (APP_PARALLEL_CAN_FEATURES == 1)
@@ -1155,7 +1175,10 @@ void rvc_message_handler_process(uint32_t can_id, uint8_t *data, uint8_t len)
         case RVC_DGN_PROPRIETARY_SET_BCHARG_BFULL_LED_CURR_R:
         case RVC_DGN_PROPRIETARY_AUOT_OPEN_VEER_SHUT_VOLT_A_R:
         case RVC_DGN_PROPRIETARY_AUOT_OPEN_SHUT_VOLT_B_R:
-            handle_set_parameter_area(dgn, data, len);
+            if (rvc_is_pc_source(can_id) != 0U)
+            {
+                handle_set_parameter_area(dgn, data, len);
+            }
             break;
 
         case RVC_DGN_PROPRIETARY_SN_SERIAL_W:

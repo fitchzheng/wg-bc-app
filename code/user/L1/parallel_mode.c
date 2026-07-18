@@ -17,8 +17,8 @@
 #define PARALLEL_CAP_RS485                    0x0002UL
 #define PARALLEL_CAP_LOCAL_DROOP              0x0004UL
 #define PARALLEL_HEARTBEAT_TICKS              50U
-#define PARALLEL_MAX_NODE_COUNT               PARALLEL_RS485_SUMMARY_MAX_NODES
-#define PARALLEL_NODE_TIMEOUT_TICKS           100U
+#define PARALLEL_MAX_NODE_COUNT               30U
+#define PARALLEL_NODE_TIMEOUT_TICKS           300U
 
 #define PARALLEL_NODE_FLAG_USED               0x01U
 #define PARALLEL_NODE_FLAG_LOCAL              0x02U
@@ -28,7 +28,8 @@
 #define PARALLEL_RS485_TEMP_ADDR_MASTER       2U
 #define PARALLEL_CAN_TEMP_ADDR_MASTER         75U
 #define PARALLEL_RS485_MAX_ADDR               31U
-#define PARALLEL_RS485_POLL_TICKS             100U
+#define PARALLEL_RS485_POLL_TICKS             10U
+#define PARALLEL_RS485_RUN_IDLE_TICKS         500U
 #define PARALLEL_RS485_ELECTION_WAIT_TICKS    1500U
 #define PARALLEL_RS485_UID_ANNOUNCE_FUNC      0x41U
 #define PARALLEL_RS485_UID_ASSIGN_FUNC        0x42U
@@ -46,6 +47,13 @@
 #define PARALLEL_RS485_CTRL_SYNC_COUNT        0x000DU
 #define PARALLEL_RS485_PARAM_SYNC_START       0x081AU
 #define PARALLEL_RS485_PARAM_SYNC_COUNT       0x001AU
+#define PARALLEL_RS485_CRC_CONFIRM_SETTLE_POLLS 2U
+#define PARALLEL_RS485_STATUS_REPLY_WAIT_POLLS 1U
+#define PARALLEL_RS485_BACKEND_READ_TIMEOUT_POLLS 1U
+#define PARALLEL_RS485_MASTER_POLL_REPLY_GUARD_POLLS 1U
+#define PARALLEL_RS485_BROADCAST_REPLY_INTERVAL_MS 200U
+#define PARALLEL_RS485_BROADCAST_REPLY_INTERVAL_TICKS \
+    (PARALLEL_RS485_BROADCAST_REPLY_INTERVAL_MS / 10U)
 
 static parallel_mode_status_t parallel_status;
 static uint16_t parallel_tick_10ms;
@@ -56,13 +64,15 @@ static uint8_t parallel_requested_params_crc_mask;
 static uint32_t parallel_master_uid32;
 static uint8_t parallel_master_locked;
 static uint8_t parallel_rs485_active;
-static uint8_t parallel_rs485_poll_tick;
+static uint16_t parallel_rs485_poll_tick;
 static uint8_t parallel_rs485_sync_phase;
 static uint8_t parallel_rs485_sync_addr;
+static uint8_t parallel_rs485_sync_wait_polls;
 static uint8_t parallel_rs485_prepare_ready_latched;
 static uint8_t parallel_rs485_prepare_ok_sent;
 static uint8_t parallel_rs485_assigned_slave;
-static uint8_t parallel_rs485_run_poll_rank;
+static uint8_t parallel_rs485_backend_read_quiet_polls;
+static uint8_t parallel_rs485_master_poll_reply_guard_polls;
 static uint16_t parallel_rs485_election_wait_tick;
 static uint8_t parallel_rs485_uid_announce_sent_mask;
 
@@ -72,9 +82,9 @@ typedef struct
     uint32_t params_crc32;
     uint16_t ready_flags;
     uint16_t block_fault;
+    uint16_t timeout;
     uint8_t temp_addr;
     uint8_t role_state;
-    uint8_t timeout;
     uint8_t flags;
 } parallel_node_t;
 
@@ -89,15 +99,29 @@ static void parallel_apply_params_crc(uint32_t params_crc32);
 static void parallel_update_local_ready_flags(void);
 static void parallel_update_prepare_block(void);
 static uint8_t parallel_rs485_prepare_ready_hold(void);
-static void parallel_node_mark_run_allowed(uint8_t index);
 static uint8_t parallel_node_find_by_rank(uint8_t rank);
+static uint8_t parallel_rank_is_valid(uint8_t rank);
+static void parallel_note_rs485_runtime_activity(uint8_t addr);
+static void parallel_note_rs485_broadcast_status_request(const uint8_t *frame, uint16_t len);
 static uint8_t parallel_node_rank_under_master(uint32_t uid32);
 static uint8_t parallel_node_sync_rank(uint8_t index);
+static void parallel_node_mark_remote_run_allowed(void);
+static void parallel_node_refresh_remote_timeouts(void);
+static void parallel_stop_running_group(uint16_t block_fault);
 static void parallel_rs485_run_10ms(void);
+static uint16_t parallel_rs485_get_run_refresh_ticks(void);
 static uint8_t parallel_rs485_poll_run_status(void);
-static uint8_t parallel_mode_read_summary_registers(uint16_t addr, uint16_t count, uint8_t *data);
+static uint8_t parallel_rs485_send_write_one(uint8_t addr, uint16_t reg_addr, uint16_t value);
 static uint8_t parallel_rs485_uid_announce_active(void);
 static uint8_t parallel_rs485_send_prepare_ready_ok(void);
+static uint8_t parallel_rs485_status_payload_is_valid(uint8_t addr, const uint8_t *data);
+static uint8_t parallel_rs485_node_run_status_is_valid(uint8_t index);
+static uint8_t parallel_mode_range_inside(uint16_t addr,
+                                          uint16_t count,
+                                          uint16_t allowed_addr,
+                                          uint16_t allowed_count);
+static uint8_t parallel_mode_should_reply_rs485_broadcast_read(uint16_t addr, uint16_t count);
+static uint8_t parallel_mode_should_reply_rs485_broadcast_write(uint16_t addr, uint16_t count);
 
 static uint8_t parallel_pg_is_active(void)
 {
@@ -127,9 +151,76 @@ static uint8_t parallel_rs485_addr_to_rank(uint8_t addr)
     return rank;
 }
 
+static uint8_t parallel_rs485_status_payload_is_valid(uint8_t addr, const uint8_t *data)
+{
+    uint8_t rank;
+    uint8_t role;
+    uint8_t state;
+    uint8_t runtime_addr;
+    uint16_t status_role;
+
+    if (data == NULL)
+    {
+        return 0U;
+    }
+
+    rank = parallel_rs485_addr_to_rank(addr);
+    if (parallel_rank_is_valid(rank) == 0U)
+    {
+        return 0U;
+    }
+
+    if (parallel_read_u16_be(data, 0U) != 0U)
+    {
+        return 0U;
+    }
+
+    status_role = parallel_read_u16_be(data, 2U);
+    role = (uint8_t)((status_role >> 8U) & 0x00FFU);
+    state = (uint8_t)(status_role & 0x00FFU);
+    if ((role != PARALLEL_ROLE_MASTER) && (role != PARALLEL_ROLE_SLAVE))
+    {
+        return 0U;
+    }
+
+    if (state > PARALLEL_STATE_RUN_ALLOWED)
+    {
+        return 0U;
+    }
+
+    runtime_addr = (uint8_t)parallel_read_u16_be(data, 12U);
+    if (runtime_addr != addr)
+    {
+        return 0U;
+    }
+
+    if (runtime_addr != parallel_rank_to_rs485_addr(rank))
+    {
+        return 0U;
+    }
+
+    if (parallel_read_u32_be(data, 8U) == 0UL)
+    {
+        return 0U;
+    }
+
+    return 1U;
+}
+
 static uint8_t parallel_is_requested(void)
 {
-    return parallel_pg_is_active();
+    if (parallel_pg_is_active() != 0U)
+    {
+        return 1U;
+    }
+
+    if ((parallel_status.control == PARALLEL_CONTROL_PREPARE_START) ||
+        (parallel_status.control == PARALLEL_CONTROL_RUN_ENABLE))
+    {
+        return 1U;
+    }
+
+    return 0U;
 }
 
 static uint8_t parallel_get_local_rank(void)
@@ -320,10 +411,10 @@ static void parallel_node_ack_matching_crc_nodes(void)
     }
 }
 
-static uint8_t parallel_node_find_run_enable_target(void)
+static void parallel_node_mark_remote_run_allowed(void)
 {
     uint8_t index;
-    uint8_t state;
+    uint8_t role;
 
     for (index = 0U; index < PARALLEL_MAX_NODE_COUNT; index++)
     {
@@ -332,30 +423,27 @@ static uint8_t parallel_node_find_run_enable_target(void)
             (parallel_nodes[index].temp_addr > PARALLEL_ADDR_RANK_MASTER) &&
             (parallel_rank_is_valid(parallel_nodes[index].temp_addr) != 0U))
         {
-            state = (uint8_t)(parallel_nodes[index].role_state & 0x0FU);
-            if (state != PARALLEL_STATE_RUN_ALLOWED)
-            {
-                return index;
-            }
+            role = (uint8_t)(parallel_nodes[index].role_state & 0xF0U);
+            parallel_nodes[index].role_state = (uint8_t)(role | PARALLEL_STATE_RUN_ALLOWED);
+            parallel_nodes[index].block_fault = PARALLEL_BLOCK_NONE;
+            parallel_nodes[index].timeout = PARALLEL_NODE_TIMEOUT_TICKS;
         }
     }
-
-    return PARALLEL_MAX_NODE_COUNT;
 }
 
-static void parallel_node_mark_run_allowed(uint8_t index)
+static void parallel_node_refresh_remote_timeouts(void)
 {
-    uint8_t role;
+    uint8_t index;
 
-    if (index >= PARALLEL_MAX_NODE_COUNT)
+    for (index = 0U; index < PARALLEL_MAX_NODE_COUNT; index++)
     {
-        return;
+        if (((parallel_nodes[index].flags & PARALLEL_NODE_FLAG_USED) != 0U) &&
+            ((parallel_nodes[index].flags & PARALLEL_NODE_FLAG_LOCAL) == 0U))
+        {
+            parallel_nodes[index].timeout = PARALLEL_NODE_TIMEOUT_TICKS;
+            parallel_nodes[index].flags |= PARALLEL_NODE_FLAG_READY;
+        }
     }
-
-    role = (uint8_t)(parallel_nodes[index].role_state & 0xF0U);
-    parallel_nodes[index].role_state = (uint8_t)(role | PARALLEL_STATE_RUN_ALLOWED);
-    parallel_nodes[index].block_fault = PARALLEL_BLOCK_NONE;
-    parallel_nodes[index].timeout = PARALLEL_NODE_TIMEOUT_TICKS;
 }
 
 static uint8_t parallel_node_alloc(uint32_t uid32)
@@ -392,8 +480,7 @@ static void parallel_block_if_running(uint16_t block_fault)
 {
     if (parallel_get_state() == PARALLEL_STATE_RUN_ALLOWED)
     {
-        parallel_status.block_fault = block_fault;
-        parallel_set_state(PARALLEL_STATE_BLOCKED);
+        parallel_stop_running_group(block_fault);
     }
 }
 
@@ -452,6 +539,97 @@ static uint8_t parallel_node_find_by_rank(uint8_t rank)
     }
 
     return PARALLEL_MAX_NODE_COUNT;
+}
+
+static void parallel_note_rs485_runtime_activity(uint8_t addr)
+{
+    uint8_t rank;
+    uint8_t index;
+
+    if (parallel_get_state() != PARALLEL_STATE_RUN_ALLOWED)
+    {
+        return;
+    }
+
+    rank = parallel_rs485_addr_to_rank(addr);
+    if ((parallel_rank_is_valid(rank) == 0U) ||
+        (rank == parallel_get_local_rank()))
+    {
+        return;
+    }
+
+    index = parallel_node_find_by_rank(rank);
+    if ((index < PARALLEL_MAX_NODE_COUNT) &&
+        ((parallel_nodes[index].flags & PARALLEL_NODE_FLAG_LOCAL) == 0U))
+    {
+        parallel_nodes[index].timeout = PARALLEL_NODE_TIMEOUT_TICKS;
+        parallel_nodes[index].flags |= PARALLEL_NODE_FLAG_READY;
+    }
+}
+
+static void parallel_note_rs485_broadcast_status_request(const uint8_t *frame, uint16_t len)
+{
+    uint16_t reg_addr;
+    uint16_t count;
+
+    if ((parallel_get_state() != PARALLEL_STATE_RUN_ALLOWED) ||
+        (parallel_get_role() != PARALLEL_ROLE_SLAVE) ||
+        (frame == NULL) ||
+        (len < 8U) ||
+        (frame[0] != WG_COM_V2_BROADCAST_ADDR) ||
+        (frame[1] != WG_COM_V2_CMD_READ))
+    {
+        return;
+    }
+
+    reg_addr = parallel_read_u16_be(frame, 2U);
+    count = parallel_read_u16_be(frame, 4U);
+    if ((reg_addr == PARALLEL_RS485_BASE_ADDR) &&
+        (count == PARALLEL_RS485_REG_COUNT))
+    {
+        parallel_node_refresh_remote_timeouts();
+    }
+}
+
+static uint8_t parallel_rs485_node_run_status_is_valid(uint8_t index)
+{
+    uint16_t required_flags;
+    uint8_t state;
+
+    if (index >= PARALLEL_MAX_NODE_COUNT)
+    {
+        return 0U;
+    }
+
+    required_flags = (PARALLEL_READY_PG_OFF |
+                      PARALLEL_READY_HW_VALID |
+                      PARALLEL_READY_NO_FAULT |
+                      PARALLEL_READY_HEARTBEAT_FRESH |
+                      PARALLEL_READY_PARAMS_CRC);
+    state = (uint8_t)(parallel_nodes[index].role_state & 0x0FU);
+
+    if (state != PARALLEL_STATE_RUN_ALLOWED)
+    {
+        return 0U;
+    }
+
+    if ((parallel_nodes[index].ready_flags & required_flags) != required_flags)
+    {
+        return 0U;
+    }
+
+    if (parallel_nodes[index].block_fault != PARALLEL_BLOCK_NONE)
+    {
+        return 0U;
+    }
+
+    if ((parallel_status.params_crc32 == 0UL) ||
+        (parallel_nodes[index].params_crc32 != parallel_status.params_crc32))
+    {
+        return 0U;
+    }
+
+    return 1U;
 }
 
 static uint32_t parallel_node_min_uid(void)
@@ -823,6 +1001,7 @@ static void parallel_update_prepare_block(void)
         parallel_rs485_active = 0U;
         parallel_rs485_sync_phase = 0U;
         parallel_rs485_sync_addr = 0U;
+        parallel_rs485_sync_wait_polls = 0U;
         parallel_node_refresh_local();
         return;
     }
@@ -845,6 +1024,7 @@ static void parallel_update_prepare_block(void)
             parallel_rs485_active = 0U;
             parallel_rs485_sync_phase = 0U;
             parallel_rs485_sync_addr = 0U;
+            parallel_rs485_sync_wait_polls = 0U;
         }
         parallel_node_refresh_local();
     }
@@ -962,44 +1142,33 @@ static uint8_t parallel_rs485_send_read(uint8_t addr, uint16_t reg_addr, uint16_
 
 static uint8_t parallel_rs485_poll_run_status(void)
 {
-    uint8_t loop;
-    uint8_t rank;
-    uint8_t index;
-    uint8_t addr;
-
     if ((parallel_get_role() != PARALLEL_ROLE_MASTER) ||
         (parallel_get_state() != PARALLEL_STATE_RUN_ALLOWED))
     {
         return 0U;
     }
 
-    if ((parallel_rs485_run_poll_rank <= PARALLEL_ADDR_RANK_MASTER) ||
-        (parallel_rs485_run_poll_rank > PARALLEL_MAX_NODE_COUNT))
+    return parallel_rs485_send_read(WG_COM_V2_BROADCAST_ADDR,
+                                    PARALLEL_RS485_BASE_ADDR,
+                                    PARALLEL_RS485_REG_COUNT);
+}
+
+static uint16_t parallel_rs485_get_run_refresh_ticks(void)
+{
+    uint16_t node_count;
+
+    node_count = parallel_status.discovered_count;
+    if (node_count < 2U)
     {
-        parallel_rs485_run_poll_rank = (uint8_t)(PARALLEL_ADDR_RANK_MASTER + 1U);
+        node_count = 2U;
+    }
+    if (node_count > PARALLEL_MAX_NODE_COUNT)
+    {
+        node_count = PARALLEL_MAX_NODE_COUNT;
     }
 
-    for (loop = 0U; loop < PARALLEL_MAX_NODE_COUNT; loop++)
-    {
-        rank = parallel_rs485_run_poll_rank;
-        parallel_rs485_run_poll_rank++;
-        if (parallel_rs485_run_poll_rank > PARALLEL_MAX_NODE_COUNT)
-        {
-            parallel_rs485_run_poll_rank = (uint8_t)(PARALLEL_ADDR_RANK_MASTER + 1U);
-        }
-
-        index = parallel_node_find_by_rank(rank);
-        if ((index < PARALLEL_MAX_NODE_COUNT) &&
-            ((parallel_nodes[index].flags & PARALLEL_NODE_FLAG_LOCAL) == 0U))
-        {
-            addr = parallel_rank_to_rs485_addr(rank);
-            return parallel_rs485_send_read(addr,
-                                            PARALLEL_RS485_BASE_ADDR,
-                                            PARALLEL_RS485_REG_COUNT);
-        }
-    }
-
-    return 0U;
+    return (uint16_t)(PARALLEL_RS485_RUN_IDLE_TICKS +
+                      (node_count * PARALLEL_RS485_BROADCAST_REPLY_INTERVAL_TICKS));
 }
 
 static uint8_t parallel_rs485_send_write_one(uint8_t addr, uint16_t reg_addr, uint16_t value)
@@ -1015,6 +1184,29 @@ static uint8_t parallel_rs485_send_write_one(uint8_t addr, uint16_t reg_addr, ui
     parallel_write_u16_be(frame, 6U, crc);
 
     return wg_com_v2_send_rs485_raw(frame, (uint16_t)sizeof(frame));
+}
+
+static void parallel_stop_running_group(uint16_t block_fault)
+{
+    if (parallel_get_state() != PARALLEL_STATE_RUN_ALLOWED)
+    {
+        return;
+    }
+
+    if (parallel_get_role() == PARALLEL_ROLE_MASTER)
+    {
+        (void)parallel_rs485_send_write_one(WG_COM_V2_BROADCAST_ADDR,
+                                            PARALLEL_RS485_CONTROL_REG,
+                                            PARALLEL_CONTROL_STOP);
+    }
+
+    WG_COM_V2_SET_DATA_UINT(1U, wg_com_v2_ctrl.PowerOnOff);
+    parallel_status.block_fault = block_fault;
+    parallel_rs485_active = 0U;
+    parallel_rs485_backend_read_quiet_polls = 0U;
+    parallel_rs485_master_poll_reply_guard_polls = 0U;
+    parallel_set_state(PARALLEL_STATE_BLOCKED);
+    parallel_node_refresh_local();
 }
 
 static uint8_t parallel_rs485_send_write_block(uint8_t addr,
@@ -1097,6 +1289,34 @@ static uint8_t parallel_rs485_send_prepare_ready_ok(void)
         parallel_rs485_prepare_ok_sent = 1U;
     }
 
+    return 1U;
+}
+
+static uint8_t parallel_local_can_enter_run(uint16_t *block_fault)
+{
+    uint16_t required_flags;
+
+    parallel_update_local_ready_flags();
+
+    required_flags = (PARALLEL_READY_PG_OFF |
+                      PARALLEL_READY_HW_VALID |
+                      PARALLEL_READY_NO_FAULT |
+                      PARALLEL_READY_HEARTBEAT_FRESH |
+                      PARALLEL_READY_PARAMS_CRC);
+
+    if ((parallel_status.ready_flags & required_flags) != required_flags)
+    {
+        *block_fault = PARALLEL_BLOCK_LOCAL_NOT_READY;
+        return 0U;
+    }
+
+    if (parallel_status.params_crc32 == 0UL)
+    {
+        *block_fault = PARALLEL_BLOCK_CONFIG_MISSING;
+        return 0U;
+    }
+
+    *block_fault = PARALLEL_BLOCK_NONE;
     return 1U;
 }
 
@@ -1207,15 +1427,25 @@ static void parallel_update_params_crc(void)
     if (parallel_status.params_crc32 != params_crc32)
     {
         parallel_status.params_crc32 = params_crc32;
-        parallel_confirmed_params_crc32 = 0UL;
-        parallel_requested_params_crc_mask = 0U;
-        parallel_rs485_prepare_ready_latched = 0U;
-        if ((parallel_status.block_fault == PARALLEL_BLOCK_PARAMS_MISMATCH) ||
-            (parallel_status.block_fault == PARALLEL_BLOCK_CONFIG_MISSING))
+        if (parallel_get_state() == PARALLEL_STATE_RUN_ALLOWED)
         {
-            parallel_status.block_fault = PARALLEL_BLOCK_LOCAL_NOT_READY;
-            parallel_set_state(PARALLEL_STATE_PREPARE);
-            parallel_update_prepare_block();
+            parallel_confirmed_params_crc32 = params_crc32;
+            parallel_requested_params_crc32 = params_crc32;
+            parallel_requested_params_crc_mask = 0U;
+            parallel_rs485_prepare_ready_latched = 0U;
+        }
+        else
+        {
+            parallel_confirmed_params_crc32 = 0UL;
+            parallel_requested_params_crc_mask = 0U;
+            parallel_rs485_prepare_ready_latched = 0U;
+            if ((parallel_status.block_fault == PARALLEL_BLOCK_PARAMS_MISMATCH) ||
+                (parallel_status.block_fault == PARALLEL_BLOCK_CONFIG_MISSING))
+            {
+                parallel_status.block_fault = PARALLEL_BLOCK_LOCAL_NOT_READY;
+                parallel_set_state(PARALLEL_STATE_PREPARE);
+                parallel_update_prepare_block();
+            }
         }
     }
 }
@@ -1266,8 +1496,11 @@ static void parallel_apply_control(uint16_t control)
         parallel_rs485_active = 0U;
         parallel_rs485_sync_phase = 0U;
         parallel_rs485_sync_addr = 0U;
+        parallel_rs485_sync_wait_polls = 0U;
         parallel_rs485_assigned_slave = 0U;
-        parallel_rs485_run_poll_rank = 0U;
+
+        parallel_rs485_backend_read_quiet_polls = 0U;
+        parallel_rs485_master_poll_reply_guard_polls = 0U;
         parallel_status.block_fault = PARALLEL_BLOCK_NONE;
         parallel_set_state(PARALLEL_STATE_IDLE);
         return;
@@ -1281,8 +1514,11 @@ static void parallel_apply_control(uint16_t control)
         parallel_rs485_active = 0U;
         parallel_rs485_sync_phase = 0U;
         parallel_rs485_sync_addr = 0U;
+        parallel_rs485_sync_wait_polls = 0U;
         parallel_rs485_assigned_slave = 0U;
-        parallel_rs485_run_poll_rank = 0U;
+
+        parallel_rs485_backend_read_quiet_polls = 0U;
+        parallel_rs485_master_poll_reply_guard_polls = 0U;
         parallel_status.block_fault = PARALLEL_BLOCK_FORCE_STOP;
         parallel_set_state(PARALLEL_STATE_BLOCKED);
         return;
@@ -1299,12 +1535,15 @@ static void parallel_apply_control(uint16_t control)
         parallel_rs485_poll_tick = 0U;
         parallel_rs485_sync_phase = 0U;
         parallel_rs485_sync_addr = 0U;
+        parallel_rs485_sync_wait_polls = 0U;
         parallel_rs485_election_wait_tick = 0U;
         parallel_rs485_uid_announce_sent_mask = 0U;
         parallel_rs485_prepare_ready_latched = 0U;
         parallel_rs485_prepare_ok_sent = 0U;
         parallel_rs485_assigned_slave = 0U;
-        parallel_rs485_run_poll_rank = 0U;
+
+        parallel_rs485_backend_read_quiet_polls = 0U;
+        parallel_rs485_master_poll_reply_guard_polls = 0U;
         parallel_status.block_fault = PARALLEL_BLOCK_LOCAL_NOT_READY;
         parallel_set_role(PARALLEL_ROLE_UNKNOWN);
         parallel_set_state(PARALLEL_STATE_PREPARE);
@@ -1325,7 +1564,15 @@ static void parallel_apply_control(uint16_t control)
                 parallel_rs485_poll_tick = PARALLEL_RS485_POLL_TICKS;
                 parallel_rs485_sync_phase = 0U;
                 parallel_rs485_sync_addr = 0U;
-                parallel_rs485_run_poll_rank = (uint8_t)(PARALLEL_ADDR_RANK_MASTER + 1U);
+                parallel_rs485_sync_wait_polls = 0U;
+
+                parallel_rs485_backend_read_quiet_polls = PARALLEL_RS485_BACKEND_READ_TIMEOUT_POLLS;
+                parallel_rs485_master_poll_reply_guard_polls = 0U;
+                (void)parallel_rs485_send_write_one(WG_COM_V2_BROADCAST_ADDR,
+                                                    PARALLEL_RS485_CONTROL_REG,
+                                                    PARALLEL_CONTROL_RUN_ENABLE);
+                parallel_node_mark_remote_run_allowed();
+                parallel_node_refresh_remote_timeouts();
                 WG_COM_V2_SET_DATA_UINT(0U, wg_com_v2_ctrl.PowerOnOff);
                 power_sw_force_power_on();
                 parallel_set_state(PARALLEL_STATE_RUN_ALLOWED);
@@ -1337,9 +1584,10 @@ static void parallel_apply_control(uint16_t control)
                 parallel_set_state(PARALLEL_STATE_BLOCKED);
             }
         }
-        else if (parallel_local_is_ready(&block_fault) != 0U)
+        else if (parallel_local_can_enter_run(&block_fault) != 0U)
         {
             parallel_status.block_fault = PARALLEL_BLOCK_NONE;
+            parallel_node_refresh_remote_timeouts();
             WG_COM_V2_SET_DATA_UINT(0U, wg_com_v2_ctrl.PowerOnOff);
             power_sw_force_power_on();
             parallel_set_state(PARALLEL_STATE_RUN_ALLOWED);
@@ -1367,7 +1615,7 @@ static void parallel_rs485_run_10ms(void)
     uint8_t sync_target;
 
     if ((parallel_rs485_active == 0U) ||
-        (parallel_pg_is_active() == 0U))
+        (parallel_is_requested() == 0U))
     {
         return;
     }
@@ -1398,6 +1646,7 @@ static void parallel_rs485_run_10ms(void)
         parallel_rs485_active = 0U;
         parallel_rs485_sync_phase = 0U;
         parallel_rs485_sync_addr = 0U;
+        parallel_rs485_sync_wait_polls = 0U;
         return;
     }
 
@@ -1416,11 +1665,14 @@ static void parallel_rs485_run_10ms(void)
         parallel_node_refresh_local();
         parallel_rs485_sync_phase = 0U;
         parallel_rs485_sync_addr = 0U;
+        parallel_rs485_sync_wait_polls = 0U;
         return;
     }
 
     parallel_rs485_poll_tick++;
-    if (parallel_rs485_poll_tick < PARALLEL_RS485_POLL_TICKS)
+    if (parallel_rs485_poll_tick < ((parallel_get_state() == PARALLEL_STATE_RUN_ALLOWED) ?
+                                    parallel_rs485_get_run_refresh_ticks() :
+                                    PARALLEL_RS485_POLL_TICKS))
     {
         return;
     }
@@ -1428,37 +1680,63 @@ static void parallel_rs485_run_10ms(void)
 
     if ((parallel_rs485_sync_phase == 5U) && (parallel_rs485_sync_addr != 0U))
     {
+        if (parallel_rs485_sync_wait_polls < PARALLEL_RS485_CRC_CONFIRM_SETTLE_POLLS)
+        {
+            parallel_rs485_sync_wait_polls++;
+            return;
+        }
+
         (void)parallel_rs485_send_read(parallel_rs485_sync_addr,
                                        PARALLEL_RS485_BASE_ADDR,
                                        PARALLEL_RS485_REG_COUNT);
-        parallel_rs485_sync_phase = 0U;
-        parallel_rs485_sync_addr = 0U;
+        parallel_rs485_sync_phase = 6U;
+        parallel_rs485_sync_wait_polls = 0U;
         return;
     }
+
+    if ((parallel_rs485_sync_phase == 6U) && (parallel_rs485_sync_addr != 0U))
+    {
+        if (parallel_rs485_sync_wait_polls < PARALLEL_RS485_STATUS_REPLY_WAIT_POLLS)
+        {
+            parallel_rs485_sync_wait_polls++;
+            return;
+        }
+
+        parallel_rs485_sync_phase = 0U;
+        parallel_rs485_sync_addr = 0U;
+        parallel_rs485_sync_wait_polls = 0U;
+        return;
+    }
+
     if (parallel_get_state() == PARALLEL_STATE_RUN_ALLOWED)
     {
-        index = parallel_node_find_run_enable_target();
-        if (index < PARALLEL_MAX_NODE_COUNT)
+        if (parallel_get_role() != PARALLEL_ROLE_MASTER)
         {
-            addr = parallel_rank_to_rs485_addr(parallel_nodes[index].temp_addr);
-            (void)parallel_rs485_send_write_one(addr,
-                                                PARALLEL_RS485_CONTROL_REG,
-                                                PARALLEL_CONTROL_RUN_ENABLE);
-            parallel_node_mark_run_allowed(index);
+            return;
+        }
+
+        if (parallel_rs485_master_poll_reply_guard_polls > 0U)
+        {
+            parallel_rs485_master_poll_reply_guard_polls--;
+        }
+
+        if (parallel_rs485_backend_read_quiet_polls < PARALLEL_RS485_BACKEND_READ_TIMEOUT_POLLS)
+        {
+            parallel_rs485_backend_read_quiet_polls++;
             return;
         }
 
         if (parallel_rs485_poll_run_status() != 0U)
         {
-            return;
+            parallel_rs485_master_poll_reply_guard_polls = PARALLEL_RS485_MASTER_POLL_REPLY_GUARD_POLLS;
         }
-
         return;
     }
 
     if ((parallel_rs485_sync_phase != 0U) && (parallel_rs485_sync_addr == 0U))
     {
         parallel_rs485_sync_phase = 0U;
+        parallel_rs485_sync_wait_polls = 0U;
     }
 
     parallel_node_ack_matching_crc_nodes();
@@ -1473,6 +1751,7 @@ static void parallel_rs485_run_10ms(void)
         {
             parallel_rs485_sync_phase = 0U;
             parallel_rs485_sync_addr = 0U;
+            parallel_rs485_sync_wait_polls = 0U;
             return;
         }
 
@@ -1481,6 +1760,7 @@ static void parallel_rs485_run_10ms(void)
         {
             parallel_rs485_sync_phase = 0U;
             parallel_rs485_sync_addr = 0U;
+            parallel_rs485_sync_wait_polls = 0U;
             return;
         }
         addr = parallel_rank_to_rs485_addr(rank);
@@ -1493,6 +1773,7 @@ static void parallel_rs485_run_10ms(void)
         parallel_nodes[index].flags |= PARALLEL_NODE_FLAG_READY;
         parallel_rs485_sync_addr = addr;
         parallel_rs485_sync_phase = 1U;
+        parallel_rs485_sync_wait_polls = 0U;
         return;
     }
 
@@ -1529,18 +1810,18 @@ static void parallel_rs485_run_10ms(void)
                                               PARALLEL_RS485_CRC_CONFIRM_COUNT,
                                               crc_data);
         parallel_rs485_sync_phase = 5U;
+        parallel_rs485_sync_wait_polls = 0U;
     }
 }
 
 void parallel_mode_run_10ms(void)
 {
-    uint16_t block_fault;
-
     parallel_init_state_if_needed();
     parallel_update_params_crc();
     parallel_update_local_ready_flags();
 
-    if (parallel_pg_is_active() == 0U)
+    if ((parallel_pg_is_active() == 0U) &&
+        (parallel_is_requested() == 0U))
     {
         memset(parallel_nodes, 0, sizeof(parallel_nodes));
         parallel_confirmed_params_crc32 = 0UL;
@@ -1552,12 +1833,15 @@ void parallel_mode_run_10ms(void)
         parallel_rs485_poll_tick = 0U;
         parallel_rs485_sync_phase = 0U;
         parallel_rs485_sync_addr = 0U;
+        parallel_rs485_sync_wait_polls = 0U;
         parallel_rs485_prepare_ready_latched = 0U;
         parallel_rs485_prepare_ok_sent = 0U;
         parallel_rs485_election_wait_tick = 0U;
         parallel_rs485_uid_announce_sent_mask = 0U;
         parallel_rs485_assigned_slave = 0U;
-        parallel_rs485_run_poll_rank = 0U;
+
+        parallel_rs485_backend_read_quiet_polls = 0U;
+        parallel_rs485_master_poll_reply_guard_polls = 0U;
         parallel_status.control = PARALLEL_CONTROL_STOP;
         parallel_status.reserved0 = 0U;
         parallel_status.temp_addr = 0U;
@@ -1593,14 +1877,6 @@ void parallel_mode_run_10ms(void)
     parallel_confirm_single_node_params();
     parallel_update_prepare_block();
     parallel_rs485_run_10ms();
-
-    if ((parallel_get_state() == PARALLEL_STATE_RUN_ALLOWED) &&
-        (parallel_get_role() == PARALLEL_ROLE_MASTER) &&
-        (parallel_group_is_ready(&block_fault, 0U) == 0U))
-    {
-        parallel_status.block_fault = block_fault;
-        parallel_set_state(PARALLEL_STATE_BLOCKED);
-    }
 }
 
 void parallel_mode_on_rvc_rx(uint32_t dgn, const uint8_t *data, uint8_t len, uint8_t source_addr)
@@ -1636,7 +1912,7 @@ void parallel_mode_on_rs485_frame(const uint8_t *frame, uint16_t len)
 
     parallel_init_state_if_needed();
 
-    if ((frame == NULL) || (len < 5U) || (parallel_pg_is_active() == 0U))
+    if ((frame == NULL) || (len < 5U) || (parallel_is_requested() == 0U))
     {
         return;
     }
@@ -1709,10 +1985,17 @@ void parallel_mode_on_rs485_frame(const uint8_t *frame, uint16_t len)
     }
 
     addr = frame[0];
+    if (addr == WG_COM_V2_BROADCAST_ADDR)
+    {
+        parallel_note_rs485_broadcast_status_request(frame, len);
+        return;
+    }
+
     if ((addr < PARALLEL_RS485_TEMP_ADDR_MASTER) || (addr > PARALLEL_RS485_MAX_ADDR))
     {
         return;
     }
+    parallel_note_rs485_runtime_activity(addr);
 
     if (((frame[1] == WG_COM_V2_CMD_WRITE_DATA) ||
          (frame[1] == WG_COM_V2_CMD_WRITE_STR)) &&
@@ -1733,6 +2016,11 @@ void parallel_mode_on_rs485_frame(const uint8_t *frame, uint16_t len)
     }
 
     data = &frame[3];
+    if (parallel_rs485_status_payload_is_valid(addr, data) == 0U)
+    {
+        return;
+    }
+
     uid32 = parallel_read_u32_be(data, 8U);
     if ((uid32 == 0UL) || (uid32 == parallel_status.uid32))
     {
@@ -1759,6 +2047,27 @@ void parallel_mode_on_rs485_frame(const uint8_t *frame, uint16_t len)
         parallel_nodes[index].params_crc32 = parallel_read_u32_be(data, 20U);
         parallel_nodes[index].timeout = PARALLEL_NODE_TIMEOUT_TICKS;
         parallel_nodes[index].flags |= PARALLEL_NODE_FLAG_READY;
+
+        if ((parallel_get_role() == PARALLEL_ROLE_MASTER) &&
+            (parallel_get_state() == PARALLEL_STATE_RUN_ALLOWED))
+        {
+            if (parallel_rs485_master_poll_reply_guard_polls == 0U)
+            {
+                parallel_rs485_backend_read_quiet_polls = 0U;
+            }
+            if (parallel_rs485_node_run_status_is_valid(index) == 0U)
+            {
+                if ((parallel_status.params_crc32 == 0UL) ||
+                    (parallel_nodes[index].params_crc32 != parallel_status.params_crc32))
+                {
+                    parallel_stop_running_group(PARALLEL_BLOCK_PARAMS_MISMATCH);
+                }
+                else
+                {
+                    parallel_stop_running_group(PARALLEL_BLOCK_NODE_NOT_READY);
+                }
+            }
+        }
     }
 
     parallel_update_prepare_block();
@@ -1854,83 +2163,111 @@ uint8_t parallel_mode_get_can_runtime_addr(void)
     return parallel_rank_to_can_addr(parallel_get_local_rank());
 }
 
-static uint8_t parallel_mode_read_summary_registers(uint16_t addr, uint16_t count, uint8_t *data)
+static uint8_t parallel_mode_range_inside(uint16_t addr,
+                                          uint16_t count,
+                                          uint16_t allowed_addr,
+                                          uint16_t allowed_count)
 {
-    uint16_t offset;
-    uint16_t index;
-    uint16_t reg;
-    uint16_t value;
-    uint16_t node_reg;
-    uint8_t slot;
-    uint8_t field;
-    uint8_t rank;
-    uint8_t node_index;
-    uint8_t node_addr;
+    uint32_t end_addr = 0UL;
+    uint32_t allowed_end_addr = 0UL;
 
-    if ((data == NULL) ||
-        (addr < PARALLEL_RS485_SUMMARY_ADDR) ||
-        (((uint32_t)addr + (uint32_t)count) >
-         ((uint32_t)PARALLEL_RS485_SUMMARY_ADDR + (uint32_t)PARALLEL_RS485_SUMMARY_REG_COUNT)))
+    if ((count == 0U) || (allowed_count == 0U))
     {
         return 0U;
     }
 
-    parallel_update_local_ready_flags();
-    parallel_update_prepare_block();
-    parallel_node_refresh_local();
+    end_addr = (uint32_t)addr + (uint32_t)count;
+    allowed_end_addr = (uint32_t)allowed_addr + (uint32_t)allowed_count;
 
-    offset = (uint16_t)(addr - PARALLEL_RS485_SUMMARY_ADDR);
-    for (index = 0U; index < count; index++)
+    if (((uint32_t)addr >= (uint32_t)allowed_addr) &&
+        (end_addr <= allowed_end_addr))
     {
-        reg = (uint16_t)(offset + index);
-        if (reg == 0U)
-        {
-            value = PARALLEL_PROTOCOL_VERSION;
-        }
-        else if (reg == 1U)
-        {
-            value = parallel_status.status_role;
-        }
-        else if (reg == 2U)
-        {
-            value = parallel_status.discovered_count;
-        }
-        else if (reg == 3U)
-        {
-            value = parallel_status.block_fault;
-        }
-        else
-        {
-            node_reg = (uint16_t)(reg - PARALLEL_RS485_SUMMARY_HEADER_COUNT);
-            slot = (uint8_t)(node_reg / PARALLEL_RS485_SUMMARY_NODE_REG_COUNT);
-            field = (uint8_t)(node_reg % PARALLEL_RS485_SUMMARY_NODE_REG_COUNT);
-            rank = (uint8_t)(slot + PARALLEL_ADDR_RANK_MASTER);
-            node_index = parallel_node_find_by_rank(rank);
-            value = 0U;
-
-            if (node_index < PARALLEL_MAX_NODE_COUNT)
-            {
-                if (field == 0U)
-                {
-                    node_addr = parallel_rank_to_rs485_addr(parallel_nodes[node_index].temp_addr);
-                    value = (uint16_t)(((uint16_t)node_addr << 8) |
-                                       (uint16_t)parallel_nodes[node_index].role_state);
-                }
-                else if (field == 1U)
-                {
-                    value = parallel_nodes[node_index].ready_flags;
-                }
-                else
-                {
-                    value = parallel_nodes[node_index].block_fault;
-                }
-            }
-        }
-
-        parallel_write_u16_be(data, (uint8_t)(index * 2U), value);
+        return 1U;
     }
 
-    return 1U;
+    return 0U;
+}
+
+static uint8_t parallel_mode_should_reply_rs485_broadcast_read(uint16_t addr, uint16_t count)
+{
+    if ((addr == WG_COM_V2_REALTIME_DATA_ADDR) && (count == 0x0011U))
+    {
+        return 1U;
+    }
+
+    if ((addr == WG_COM_V2_CTRL_ADDR) && (count == 0x000FU))
+    {
+        return 1U;
+    }
+
+    if ((addr == (WG_COM_V2_PRUCUCT_INFO_ADDR + 0x0008U)) && (count == 0x000AU))
+    {
+        return 1U;
+    }
+
+    if ((addr == PARALLEL_RS485_BASE_ADDR) && (count == PARALLEL_RS485_REG_COUNT))
+    {
+        return 1U;
+    }
+
+    return 0U;
+}
+
+static uint8_t parallel_mode_should_reply_rs485_broadcast_write(uint16_t addr, uint16_t count)
+{
+    if (parallel_mode_range_inside(addr, count, PARALLEL_RS485_CTRL_SYNC_START, PARALLEL_RS485_CTRL_SYNC_COUNT) != 0U)
+    {
+        return 1U;
+    }
+
+    if (parallel_mode_range_inside(addr, count, PARALLEL_RS485_PARAM_SYNC_START, PARALLEL_RS485_PARAM_SYNC_COUNT) != 0U)
+    {
+        return 1U;
+    }
+
+    return 0U;
+}
+
+uint8_t parallel_mode_should_reply_rs485_broadcast(uint8_t cmd, uint16_t addr, uint16_t count)
+{
+    parallel_init_state_if_needed();
+
+    if (parallel_get_state() != PARALLEL_STATE_RUN_ALLOWED)
+    {
+        return 0U;
+    }
+
+    if (parallel_mode_get_rs485_runtime_addr() == 0U)
+    {
+        return 0U;
+    }
+
+    if (cmd == WG_COM_V2_CMD_READ)
+    {
+        return parallel_mode_should_reply_rs485_broadcast_read(addr, count);
+    }
+
+    if ((cmd == WG_COM_V2_CMD_WRITE_DATA) || (cmd == WG_COM_V2_CMD_WRITE_STR))
+    {
+        return parallel_mode_should_reply_rs485_broadcast_write(addr, count);
+    }
+
+    return 0U;
+}
+
+uint16_t parallel_mode_get_rs485_broadcast_reply_delay_ms(void)
+{
+    uint8_t runtime_addr = 0U;
+    uint16_t delay_ms = 0U;
+
+    runtime_addr = parallel_mode_get_rs485_runtime_addr();
+    if (runtime_addr > PARALLEL_RS485_TEMP_ADDR_MASTER)
+    {
+        delay_ms = (uint16_t)(((uint16_t)runtime_addr - (uint16_t)PARALLEL_RS485_TEMP_ADDR_MASTER) *
+                              PARALLEL_RS485_BROADCAST_REPLY_INTERVAL_MS);
+    }
+
+    return delay_ms;
 }
 
 uint8_t parallel_mode_read_registers(uint16_t addr, uint16_t count, uint8_t *data)
@@ -1949,11 +2286,6 @@ uint8_t parallel_mode_read_registers(uint16_t addr, uint16_t count, uint8_t *dat
     if (parallel_rs485_uid_announce_active() != 0U)
     {
         return 0U;
-    }
-
-    if (parallel_mode_read_summary_registers(addr, count, data) != 0U)
-    {
-        return 1U;
     }
 
     if ((addr < PARALLEL_RS485_BASE_ADDR) ||
@@ -2139,6 +2471,19 @@ uint8_t parallel_mode_get_rs485_runtime_addr(void)
 }
 
 uint8_t parallel_mode_get_can_runtime_addr(void)
+{
+    return 0U;
+}
+
+uint8_t parallel_mode_should_reply_rs485_broadcast(uint8_t cmd, uint16_t addr, uint16_t count)
+{
+    (void)cmd;
+    (void)addr;
+    (void)count;
+    return 0U;
+}
+
+uint16_t parallel_mode_get_rs485_broadcast_reply_delay_ms(void)
 {
     return 0U;
 }

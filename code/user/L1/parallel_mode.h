@@ -6,12 +6,6 @@
 
 #define PARALLEL_RS485_BASE_ADDR              0x1200U
 #define PARALLEL_RS485_REG_COUNT              0x0011U
-#define PARALLEL_RS485_SUMMARY_ADDR           0x1220U
-#define PARALLEL_RS485_SUMMARY_MAX_NODES      16U
-#define PARALLEL_RS485_SUMMARY_HEADER_COUNT   4U
-#define PARALLEL_RS485_SUMMARY_NODE_REG_COUNT 3U
-#define PARALLEL_RS485_SUMMARY_REG_COUNT      (PARALLEL_RS485_SUMMARY_HEADER_COUNT + \
-                                               (PARALLEL_RS485_SUMMARY_MAX_NODES * PARALLEL_RS485_SUMMARY_NODE_REG_COUNT))
 
 #define PARALLEL_STATE_IDLE                   0U
 #define PARALLEL_STATE_PREPARE                1U
@@ -70,6 +64,8 @@ uint8_t parallel_mode_is_run_allowed(void);
 uint8_t parallel_mode_should_block_local_run(void);
 uint8_t parallel_mode_get_rs485_runtime_addr(void);
 uint8_t parallel_mode_get_can_runtime_addr(void);
+uint8_t parallel_mode_should_reply_rs485_broadcast(uint8_t cmd, uint16_t addr, uint16_t count);
+uint16_t parallel_mode_get_rs485_broadcast_reply_delay_ms(void);
 uint8_t parallel_mode_read_registers(uint16_t addr, uint16_t count, uint8_t *data);
 uint8_t parallel_mode_write_registers(uint16_t addr, uint16_t count, const uint8_t *data);
 

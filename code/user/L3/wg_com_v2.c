@@ -20,6 +20,13 @@ static uint8_t wg_com_v2_is_accepted_addr(uint8_t rx_addr);
 static uint8_t wg_com_tx_buffer[WG_COM_V2_BUFFER_SIZE];
 static uint32_t wg_com_tx_buffer_cnt = 0;
 
+#if (APP_PARALLEL_RS485_FEATURES == 1)
+static uint8_t wg_com_v2_parallel_broadcast_reply_pending = 0U;
+static uint8_t wg_com_v2_parallel_broadcast_reply_buffer[WG_COM_V2_BUFFER_SIZE];
+static uint16_t wg_com_v2_parallel_broadcast_reply_len = 0U;
+static uint32_t wg_com_v2_parallel_broadcast_reply_due_ms = 0UL;
+#endif
+
 static uint8_t wg_com_rx_buffer[WG_COM_V2_BUFFER_SIZE];
 static uint32_t wg_com_rx_buffer_cnt = 0;
 
@@ -1103,6 +1110,11 @@ uint8_t wg_com_v2_send_rs485_raw(const uint8_t *data, uint16_t len)
 }
 
 #if (APP_PARALLEL_RS485_FEATURES == 1)
+static uint8_t wg_com_v2_parallel_time_reached(uint32_t due_ms)
+{
+    return (((uint32_t)(systemtime - due_ms)) < 0x80000000UL) ? 1U : 0U;
+}
+
 static uint8_t wg_com_v2_parallel_rs485_crc_ok(const uint8_t *frame, uint16_t len)
 {
     uint16_t crc;
@@ -1143,6 +1155,98 @@ static void wg_com_v2_dispatch_parallel_rs485_stream(void)
             offset++;
         }
     }
+}
+static void wg_com_v2_parallel_broadcast_reply_tick(void)
+{
+    uint16_t len = 0U;
+    uint8_t buffer[WG_COM_V2_BUFFER_SIZE];
+
+    if (wg_com_v2_parallel_broadcast_reply_pending == 0U)
+    {
+        return;
+    }
+
+    if (wg_com_v2_parallel_time_reached(wg_com_v2_parallel_broadcast_reply_due_ms) == 0U)
+    {
+        return;
+    }
+
+    len = wg_com_v2_parallel_broadcast_reply_len;
+    if ((len == 0U) || (len > WG_COM_V2_BUFFER_SIZE))
+    {
+        wg_com_v2_parallel_broadcast_reply_pending = 0U;
+        return;
+    }
+
+    (void)memcpy(buffer, wg_com_v2_parallel_broadcast_reply_buffer, len);
+    wg_com_v2_parallel_broadcast_reply_pending = 0U;
+    wg_com_v2_parallel_broadcast_reply_len = 0U;
+    (void)wg_com_v2_send_rs485_raw(buffer, len);
+}
+
+static uint8_t wg_com_v2_parallel_get_broadcast_target(uint8_t cmd,
+                                                       uint16_t *addr,
+                                                       uint16_t *count)
+{
+    if ((addr == NULL) || (count == NULL))
+    {
+        return 0U;
+    }
+
+    if ((cmd == WG_COM_V2_CMD_READ) && (wg_com_rx_buffer_cnt >= 8U))
+    {
+        *addr = get_uint16(&wg_com_rx_buffer[2]);
+        *count = get_uint16(&wg_com_rx_buffer[4]);
+        return 1U;
+    }
+
+    if ((cmd == WG_COM_V2_CMD_WRITE_DATA) && (wg_com_rx_buffer_cnt >= 8U))
+    {
+        *addr = get_uint16(&wg_com_rx_buffer[2]);
+        *count = 1U;
+        return 1U;
+    }
+
+    if ((cmd == WG_COM_V2_CMD_WRITE_STR) && (wg_com_rx_buffer_cnt >= 9U))
+    {
+        *addr = get_uint16(&wg_com_rx_buffer[2]);
+        *count = get_uint16(&wg_com_rx_buffer[4]);
+        return 1U;
+    }
+
+    return 0U;
+}
+
+static void wg_com_v2_parallel_rewrite_response_addr(uint8_t response_addr)
+{
+    uint16_t crc = 0U;
+
+    if (wg_com_tx_buffer_cnt < 5U)
+    {
+        return;
+    }
+
+    wg_com_tx_buffer[0] = response_addr;
+    crc = ModBusCRC16(wg_com_tx_buffer, (uint16_t)(wg_com_tx_buffer_cnt - 2U));
+    set_uint16(&wg_com_tx_buffer[(uint16_t)(wg_com_tx_buffer_cnt - 2U)], crc);
+}
+
+static void wg_com_v2_parallel_schedule_broadcast_reply(void)
+{
+    uint16_t len = 0U;
+    uint16_t delay_ms = 0U;
+
+    if ((wg_com_tx_buffer_cnt == 0U) || (wg_com_tx_buffer_cnt > WG_COM_V2_BUFFER_SIZE))
+    {
+        return;
+    }
+
+    len = (uint16_t)wg_com_tx_buffer_cnt;
+    (void)memcpy(wg_com_v2_parallel_broadcast_reply_buffer, wg_com_tx_buffer, len);
+    wg_com_v2_parallel_broadcast_reply_len = len;
+    delay_ms = parallel_mode_get_rs485_broadcast_reply_delay_ms();
+    wg_com_v2_parallel_broadcast_reply_due_ms = systemtime + (uint32_t)delay_ms;
+    wg_com_v2_parallel_broadcast_reply_pending = 1U;
 }
 #endif
 void process_usart_dma_input(const usart_dma_port_t *port)
@@ -1212,11 +1316,47 @@ void process_usart_dma_input(const usart_dma_port_t *port)
         {
             uint8_t is_broadcast = (wg_com_rx_buffer[0] == WG_COM_V2_BROADCAST_ADDR) ? 1U : 0U;
             uint8_t cmd = wg_com_rx_buffer[1];
+#if (APP_PARALLEL_RS485_FEATURES == 1)
+            uint8_t parallel_broadcast_reply = 0U;
+            uint16_t parallel_broadcast_addr = 0U;
+            uint16_t parallel_broadcast_count = 0U;
 
-            if ((is_broadcast == 0U) || (cmd == WG_COM_V2_CMD_WRITE_DATA) || (cmd == WG_COM_V2_CMD_WRITE_STR))
+            if ((is_broadcast != 0U) &&
+                (port->USARTx == OUTPUT_USART0) &&
+                (wg_com_v2_parallel_get_broadcast_target(cmd, &parallel_broadcast_addr, &parallel_broadcast_count) != 0U))
+            {
+                parallel_broadcast_reply = parallel_mode_should_reply_rs485_broadcast(cmd,
+                                                                                      parallel_broadcast_addr,
+                                                                                      parallel_broadcast_count);
+            }
+#endif
+
+            if ((is_broadcast == 0U) ||
+                (cmd == WG_COM_V2_CMD_WRITE_DATA) ||
+                (cmd == WG_COM_V2_CMD_WRITE_STR)
+#if (APP_PARALLEL_RS485_FEATURES == 1)
+                || (parallel_broadcast_reply != 0U)
+#endif
+               )
             {
                 process_command();
             }
+
+#if (APP_PARALLEL_RS485_FEATURES == 1)
+            if ((is_broadcast != 0U) &&
+                (port->USARTx == OUTPUT_USART0) &&
+                (parallel_broadcast_reply != 0U) &&
+                (wg_com_tx_buffer_cnt != 0U))
+            {
+                uint8_t response_addr = parallel_mode_get_rs485_runtime_addr();
+                if (response_addr != 0U)
+                {
+                    wg_com_v2_parallel_rewrite_response_addr(response_addr);
+                    wg_com_v2_parallel_schedule_broadcast_reply();
+                }
+                wg_com_tx_buffer_cnt = 0U;
+            }
+#endif
 
             if (is_broadcast != 0U)
             {
@@ -1395,6 +1535,9 @@ void wg_com_v2_run(void)
  
     process_usart_dma_input(&usart2_port);
     process_usart_dma_input(&usart0_port);
+#if (APP_PARALLEL_RS485_FEATURES == 1)
+    wg_com_v2_parallel_broadcast_reply_tick();
+#endif
 }
 
 #endif
