@@ -44,6 +44,8 @@ const bsp_gpio_parm_t bsp_gpio_parm_table[] = {
     GPIO_REG_PARM(PIN_USART0_RX,   GPIO_PORT_B, 07, DEFAULT_IPD,    0),
     GPIO_REG_PARM(PIN_CAN0_RX,     GPIO_PORT_B, 08, DEFAULT_IPD,    0),
     GPIO_REG_PARM(PIN_CAN0_TX,     GPIO_PORT_B, 09, DEFAULT_OUT_PP, 0),
+    GPIO_REG_PARM(PIN_ADC_SAMPLE_A,GPIO_PORT_B, 00, OUT_PP,         0),
+    GPIO_REG_PARM(PIN_ADC_SAMPLE_B,GPIO_PORT_B, 02, OUT_PP,         0),
 };
 
 

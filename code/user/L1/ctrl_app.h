@@ -5,8 +5,8 @@
 
 #include "my_math.h"
 
-#define L_VAL 3.3e-6f//4.7e-6f
-#define V_CAP 12 * 470e-6f
+#define L_VAL 5.8e-6f//4.7e-6f
+#define V_CAP 4 * 680e-6f
 
 typedef enum
 {

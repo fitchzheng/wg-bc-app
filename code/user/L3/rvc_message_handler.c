@@ -32,7 +32,7 @@ static void handle_charger_command(uint32_t can_id, uint8_t *data, uint8_t len);
 static void handle_request_for_dgn(uint32_t can_id, uint8_t *data, uint8_t len);
 #if (APP_PARALLEL_CAN_FEATURES == 1)
 static void handle_parallel_mode(uint32_t dgn, uint8_t *data, uint8_t len);
-static void handle_parallel_mode_w(uint32_t dgn, uint8_t *data, uint8_t len);
+static void handle_parallel_mode_w(uint32_t dgn, uint8_t *data, uint8_t len, uint8_t source_addr, uint8_t pc_source);
 #endif
 
 static uint32_t build_can_id(uint8_t priority, uint32_t dgn, uint8_t sa);
@@ -127,10 +127,13 @@ static void handle_parallel_mode(uint32_t dgn, uint8_t *data, uint8_t len)
     (void)bsp_rvc_can_tx(tx_can_id, tx_data, 8U);
 }
 
-static void handle_parallel_mode_w(uint32_t dgn, uint8_t *data, uint8_t len)
+static void handle_parallel_mode_w(uint32_t dgn, uint8_t *data, uint8_t len, uint8_t source_addr, uint8_t pc_source)
 {
-    parallel_mode_on_rvc_rx(dgn, data, len, rvc_address_get_current());
-    handle_parallel_mode(RVC_DGN_PROPRIETARY_PARALLEL_STATUS, data, len);
+    parallel_mode_on_rvc_rx(dgn, data, len, source_addr);
+    if (pc_source != 0U)
+    {
+        handle_parallel_mode(RVC_DGN_PROPRIETARY_PARALLEL_STATUS, data, len);
+    }
 }
 #endif
 
@@ -1031,9 +1034,23 @@ void rvc_message_handler_process(uint32_t can_id, uint8_t *data, uint8_t len)
             break;
 #endif
 #if (APP_PARALLEL_CAN_FEATURES == 1)
+        case RVC_DGN_PROPRIETARY_PARALLEL_UID_ANNOUNCE:
+        case RVC_DGN_PROPRIETARY_PARALLEL_UID_ASSIGN:
+        case RVC_DGN_PROPRIETARY_PARALLEL_READY_OK:
+        case RVC_DGN_PROPRIETARY_PARALLEL_PARAM_SYNC:
+            parallel_mode_on_rvc_rx(dgn, data, len, (uint8_t)(can_id & 0xFFU));
+            break;
+
         case RVC_DGN_PROPRIETARY_PARALLEL_STATUS:
         case RVC_DGN_PROPRIETARY_PARALLEL_PARAM_SUMMARY:
-            handle_parallel_mode(dgn, data, len);
+            if (rvc_is_pc_source(can_id) != 0U)
+            {
+                handle_parallel_mode(dgn, data, len);
+            }
+            else
+            {
+                parallel_mode_on_rvc_rx(dgn, data, len, (uint8_t)(can_id & 0xFFU));
+            }
             break;
 #endif
 
@@ -1072,7 +1089,7 @@ void rvc_message_handler_process(uint32_t can_id, uint8_t *data, uint8_t len)
             break;
 #if (APP_PARALLEL_CAN_FEATURES == 1)
         case RVC_DGN_PROPRIETARY_PARALLEL_CONTROL:
-            handle_parallel_mode_w(dgn, data, len);
+            handle_parallel_mode_w(dgn, data, len, (uint8_t)(can_id & 0xFFU), rvc_is_pc_source(can_id));
             break;
 #endif
 

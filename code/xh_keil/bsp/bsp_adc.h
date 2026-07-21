@@ -5,7 +5,8 @@
 #include "hc32_ll_adc.h"
 
 #define SAMPLE_TIME   16 //采样周期
-#define ADC_TRIG_EVT  EVT_SRC_HRPWM_1_SCMP_A  //ADC触发事件
+#define ADC_ILA_TRIG_EVT EVT_SRC_HRPWM_1_SCMP_A // ADC trigger event for ILA
+#define ADC_ILB_TRIG_EVT EVT_SRC_HRPWM_1_SCMP_B // ADC trigger event for ILB
 
 #define BSP_ADC_ILA_GAIN (66.0f * 2.0f / 4095.0f)
 #define BSP_ADC_ILA_BIAS (-66.0f)
@@ -135,6 +136,7 @@ typedef struct
 } bsp_adc_param_t;
 
 void bsp_adc_init(void);
+uint16_t bsp_adc_get_raw12(const CM_ADC_TypeDef *adc_periph, uint8_t adc_ch);
 float bsp_adc0_get_value(ADC0_TABLE_E name);
 float bsp_adc1_get_value(ADC1_TABLE_E name);
 

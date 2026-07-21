@@ -66,6 +66,8 @@ typedef enum
   PIN_USART0_RX,
   PIN_CAN0_RX,
   PIN_CAN0_TX,
+  PIN_ADC_SAMPLE_A,
+  PIN_ADC_SAMPLE_B,
 } bsp_gpio_table_e;
 
 typedef struct

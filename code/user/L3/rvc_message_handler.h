@@ -92,9 +92,13 @@
 #define RVC_DGN_PROPRIETARY_CALIBRATION_R                  0xEF42  // calibration readback
 #define RVC_DGN_PROPRIETARY_CALIBRATION_W                  0xEF43  // calibration read/write command
 #if (APP_PARALLEL_CAN_FEATURES == 1)
+#define RVC_DGN_PROPRIETARY_PARALLEL_UID_ANNOUNCE          0xEF60
+#define RVC_DGN_PROPRIETARY_PARALLEL_UID_ASSIGN            0xEF62
+#define RVC_DGN_PROPRIETARY_PARALLEL_READY_OK              0xEF64
 #define RVC_DGN_PROPRIETARY_PARALLEL_STATUS                0xEF65
 #define RVC_DGN_PROPRIETARY_PARALLEL_CONTROL               0xEF66
 #define RVC_DGN_PROPRIETARY_PARALLEL_PARAM_SUMMARY         0xEF68
+#define RVC_DGN_PROPRIETARY_PARALLEL_PARAM_SYNC            0xEF69
 #endif
 
 /* ========== 数据结构 ========== */

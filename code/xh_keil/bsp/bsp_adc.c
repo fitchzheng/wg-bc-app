@@ -174,7 +174,7 @@ void bsp_adc_init(void)
     
     //ADC1触发配置
     ADC_TriggerConfig(CM_ADC1, ADC_SEQ_A, ADC_HARDTRIG_EVT0);
-    AOS_SetTriggerEventSrc(AOS_ADC1_0, ADC_TRIG_EVT);
+    AOS_SetTriggerEventSrc(AOS_ADC1_0, ADC_ILA_TRIG_EVT);
     ADC_TriggerCmd(CM_ADC1, ADC_SEQ_A, ENABLE);
     
 
@@ -196,7 +196,7 @@ void bsp_adc_init(void)
     }
         //ADC2触发配置
     ADC_TriggerConfig(CM_ADC2, ADC_SEQ_A, ADC_HARDTRIG_EVT0);
-    AOS_SetTriggerEventSrc(AOS_ADC2_0, ADC_TRIG_EVT);
+    AOS_SetTriggerEventSrc(AOS_ADC2_0, ADC_ILB_TRIG_EVT);
     ADC_TriggerCmd(CM_ADC2, ADC_SEQ_A, ENABLE);
 }
 
@@ -236,7 +236,7 @@ void bsp_adc_init_pwc(void)
     
     //ADC1触发配置
     ADC_TriggerConfig(CM_ADC1, ADC_SEQ_A, ADC_HARDTRIG_EVT0);
-    AOS_SetTriggerEventSrc(AOS_ADC1_0, ADC_TRIG_EVT);
+    AOS_SetTriggerEventSrc(AOS_ADC1_0, ADC_ILA_TRIG_EVT);
     ADC_TriggerCmd(CM_ADC1, ADC_SEQ_A, ENABLE);
     
 
@@ -258,14 +258,19 @@ void bsp_adc_init_pwc(void)
     }
         //ADC2触发配置
     ADC_TriggerConfig(CM_ADC2, ADC_SEQ_A, ADC_HARDTRIG_EVT0);
-    AOS_SetTriggerEventSrc(AOS_ADC2_0, ADC_TRIG_EVT);
+    AOS_SetTriggerEventSrc(AOS_ADC2_0, ADC_ILB_TRIG_EVT);
     ADC_TriggerCmd(CM_ADC2, ADC_SEQ_A, ENABLE);
+}
+
+uint16_t RAMFUNC bsp_adc_get_raw12(const CM_ADC_TypeDef *adc_periph, uint8_t adc_ch)
+{
+    return (uint16_t)(ADC_GetValue(adc_periph, adc_ch) & 0x0FFFU);
 }
 
 float RAMFUNC bsp_adc0_get_value(ADC0_TABLE_E name)
 {
 
-    return ADC_GetValue((CM_ADC_TypeDef *)bsp_adc0_param[name].adc_periph,\
+    return bsp_adc_get_raw12((CM_ADC_TypeDef *)bsp_adc0_param[name].adc_periph,\
                            bsp_adc0_param[name].adc_ch) * \
                            bsp_adc0_linear_calib[name].gain + \
                            bsp_adc0_linear_calib[name].bias;
@@ -273,7 +278,7 @@ float RAMFUNC bsp_adc0_get_value(ADC0_TABLE_E name)
 
 float RAMFUNC bsp_adc1_get_value(ADC1_TABLE_E name)
 {
-    return ADC_GetValue((CM_ADC_TypeDef *)bsp_adc1_param[name].adc_periph,\
+    return bsp_adc_get_raw12((CM_ADC_TypeDef *)bsp_adc1_param[name].adc_periph,\
                            bsp_adc1_param[name].adc_ch) * \
                            bsp_adc1_linear_calib[name].gain + \
                            bsp_adc1_linear_calib[name].bias;

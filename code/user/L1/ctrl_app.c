@@ -56,6 +56,10 @@ REG_SHELL_VAR(ILA_VL, buck_boost.inter.l_loop[0].output.l_volt, SHELL_FP32, 1000
 REG_SHELL_VAR(ILB_ACT, buck_boost.inter.l_loop[1].input.i_act, SHELL_FP32, 10000.0f, -10000.0f, NULL, SHELL_STA_NULL)
 REG_SHELL_VAR(ILB_REF, buck_boost.inter.l_loop[1].input.i_ref, SHELL_FP32, 10000.0f, -10000.0f, NULL, SHELL_STA_NULL)
 REG_SHELL_VAR(ILB_VL, buck_boost.inter.l_loop[1].output.l_volt, SHELL_FP32, 10000.0f, -10000.0f, NULL, SHELL_STA_NULL)
+REG_SHELL_VAR(A_BUCK_DUTY, buck_boost.output.duty[0].buck_duty, SHELL_FP32, 10000.0f, -10000.0f, NULL, SHELL_STA_NULL)
+REG_SHELL_VAR(A_BOOST_DUTY, buck_boost.output.duty[0].boost_duty, SHELL_FP32, 10000.0f, -10000.0f, NULL, SHELL_STA_NULL)
+REG_SHELL_VAR(B_BUCK_DUTY, buck_boost.output.duty[1].buck_duty, SHELL_FP32, 10000.0f, -10000.0f, NULL, SHELL_STA_NULL)
+REG_SHELL_VAR(B_BOOST_DUTY, buck_boost.output.duty[1].boost_duty, SHELL_FP32, 10000.0f, -10000.0f, NULL, SHELL_STA_NULL)
 //REG_SHELL(mppt_mode, mppt_mode, SHELL_DATA_UINT8_T, 0, NULL)
 
 #endif
@@ -260,31 +264,31 @@ REG_SCOPE(SOFT_STOP,300,10,ihv_lmt_act,ihv_lmt_tag,ilv_lmt_act,ilv_lmt_tag)
 void RAMFUNC ctrl_app_run(void)
 {
      // gpio_set_db2(1);
-    fvs48 = (ADC_GetValue((CM_ADC_TypeDef *)bsp_adc0_param[FVS48].adc_periph,   \
+    fvs48 = (bsp_adc_get_raw12((CM_ADC_TypeDef *)bsp_adc0_param[FVS48].adc_periph,   \
                            bsp_adc0_param[FVS48].adc_ch)        *               \
                            bsp_adc0_linear_calib[FVS48].gain    +               \
                            bsp_adc0_linear_calib[FVS48].bias)   *               \
                            fvs48_k;//adc_get_fvs48();
-    ihv = (((ADC_GetValue((CM_ADC_TypeDef *)bsp_adc1_param[IHV].adc_periph,     \
+    ihv = (((bsp_adc_get_raw12((CM_ADC_TypeDef *)bsp_adc1_param[IHV].adc_periph,     \
                            bsp_adc1_param[IHV].adc_ch)          *               \
                            bsp_adc1_linear_calib[IHV].gain      +               \
                            bsp_adc1_linear_calib[IHV].bias)     *               \
                            ihv_k) - ihv_bias);//adc_get_ihv();
-    ilv = (((ADC_GetValue((CM_ADC_TypeDef *)bsp_adc0_param[ILV].adc_periph,     \
+    ilv = (((bsp_adc_get_raw12((CM_ADC_TypeDef *)bsp_adc0_param[ILV].adc_periph,     \
                            bsp_adc0_param[ILV].adc_ch)          *               \
                            bsp_adc0_linear_calib[ILV].gain      +               \
                            bsp_adc0_linear_calib[ILV].bias)     *
                            ilv_k) - ilv_bias);//adc_get_ilv();
-    rvs12 = (ADC_GetValue((CM_ADC_TypeDef *)bsp_adc0_param[RVS12].adc_periph,   \
+    rvs12 = (bsp_adc_get_raw12((CM_ADC_TypeDef *)bsp_adc0_param[RVS12].adc_periph,   \
                            bsp_adc0_param[RVS12].adc_ch)        *               \
                            bsp_adc0_linear_calib[RVS12].gain    +               \
                            bsp_adc0_linear_calib[RVS12].bias)   *               \
                            rvs12_k;//adc_get_rvs12();
-    ila = (ADC_GetValue((CM_ADC_TypeDef *)bsp_adc0_param[ILA].adc_periph,       \
+    ila = (bsp_adc_get_raw12((CM_ADC_TypeDef *)bsp_adc0_param[ILA].adc_periph, \
                            bsp_adc0_param[ILA].adc_ch)          *               \
                            bsp_adc0_linear_calib[ILA].gain      +               \
                            bsp_adc0_linear_calib[ILA].bias)     - ila_bias;//adc_get_ila();
-    ilb = (ADC_GetValue((CM_ADC_TypeDef *)bsp_adc1_param[ILB].adc_periph,       \
+    ilb = (bsp_adc_get_raw12((CM_ADC_TypeDef *)bsp_adc1_param[ILB].adc_periph, \
                            bsp_adc1_param[ILB].adc_ch)          *               \
                            bsp_adc1_linear_calib[ILB].gain      +               \
                            bsp_adc1_linear_calib[ILB].bias) - ilb_bias;//adc_get_ilb();
@@ -498,7 +502,7 @@ void RAMFUNC ctrl_app_run(void)
     {
         buck_boost_bidirectional(&buck_boost);
     }
-	
+
     if ((ctrl_mode == CTRL_FORWARD) ||
         (ctrl_mode == CTRL_BIDIRECTIONAL))
     {

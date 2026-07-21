@@ -1470,9 +1470,9 @@ void process_usart_dma_input(const usart_dma_port_t *port)
 }
 static uint8_t wg_com_v2_is_accepted_addr(uint8_t rx_addr)
 {
+#if (APP_PARALLEL_RS485_FEATURES == 1)
     uint8_t runtime_addr = 0U;
 
-#if (APP_PARALLEL_RS485_FEATURES == 1)
     runtime_addr = parallel_mode_get_rs485_runtime_addr();
     if (runtime_addr != 0U)
     {

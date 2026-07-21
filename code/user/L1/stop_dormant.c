@@ -15,6 +15,7 @@
 #include "ctrl_app.h"
 #include "get_com_data.h"
 #include "bat_charge_pattern.h"
+#include "parallel_mode.h"
 
 static uint8_t bat_sleep_battery_type_allowed(uint16_t bat_type)
 {
@@ -45,6 +46,8 @@ static uint8_t bat_sleep_condition_met(uint16_t PowerMode, uint16_t SleepModeOnO
             (bat_sleep_battery_type_allowed(bat_type) == 1)             &&
             (get_check_state_data() == ADDRS_BACKWARD)                  &&
             (get_wg_com_v2_data.BatModeFRState == 0)                    &&
+            (parallel_mode_is_run_allowed() == 0)                       &&
+            (parallel_mode_should_block_local_run() == 0)                &&
             (SleepModeOnOff == 1)                                       &&
             (ctrl_app_get_is_run() == 1));
 }

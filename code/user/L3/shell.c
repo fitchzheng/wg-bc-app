@@ -51,6 +51,8 @@ void shell_init(void)
 
 REG_INIT(0, shell_init)
 
+#if (APP_SHELL_TEXT_CLI_FEATURES == 1)
+
 /* Parse decimal, hex, binary, and small arithmetic expressions for text commands. */
 static int is_string_number(const char *str)
 {
@@ -229,6 +231,8 @@ static inline void rtrim_inplace(char *s)
     }
 }
 
+#endif
+
 static void shell_limit_u8(uint8_t *val, const void *p_max, const void *p_min)
 {
     if (*val > *(const uint8_t *)p_max)
@@ -316,6 +320,8 @@ static uint32_t shell_read_field_u32(uint32_t type, const void *ptr)
 
     return data;
 }
+
+#if (APP_SHELL_TEXT_CLI_FEATURES == 1)
 
 /* Split "value -s state" parameters in place inside the shell input buffer. */
 static void parse_param_value_and_status(char *param, char **value_str, int32_t *status_set)
@@ -814,6 +820,17 @@ static void CPU_Utilization(DEC_MY_PRINTF)
 REG_SHELL_CMD(CPU_Utilization, CPU_Utilization)
 REG_SHELL_VAR(TASK_METRIC, task_metric, SHELL_FP32, 100.0f, 0.0f, NULL, SHELL_STA_NULL)
 REG_SHELL_VAR(TASK_METRIC_MAX, task_metric_max, SHELL_FP32, 100.0f, 0.0f, NULL, SHELL_STA_NULL)
+
+#else
+
+void shell_run(uint8_t data, DEC_MY_PRINTF, void *p_ctx)
+{
+    (void)data;
+    (void)my_printf;
+    (void)p_ctx;
+}
+
+#endif
 
 static shell_report_ctx_t shell_report_ctx = {0};
 
