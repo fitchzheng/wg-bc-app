@@ -129,7 +129,7 @@ static void handle_parallel_mode(uint32_t dgn, uint8_t *data, uint8_t len)
 
 static void handle_parallel_mode_w(uint32_t dgn, uint8_t *data, uint8_t len, uint8_t source_addr, uint8_t pc_source)
 {
-    parallel_mode_on_rvc_rx(dgn, data, len, source_addr);
+    parallel_mode_on_rvc_control_rx(dgn, data, len, source_addr, pc_source);
     if (pc_source != 0U)
     {
         handle_parallel_mode(RVC_DGN_PROPRIETARY_PARALLEL_STATUS, data, len);

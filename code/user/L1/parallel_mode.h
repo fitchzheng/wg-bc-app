@@ -58,6 +58,7 @@ typedef struct
 
 void parallel_mode_run_10ms(void);
 void parallel_mode_on_rvc_rx(uint32_t dgn, const uint8_t *data, uint8_t len, uint8_t source_addr);
+void parallel_mode_on_rvc_control_rx(uint32_t dgn, const uint8_t *data, uint8_t len, uint8_t source_addr, uint8_t pc_source);
 void parallel_mode_on_rs485_frame(const uint8_t *frame, uint16_t len);
 uint8_t parallel_mode_make_rvc_response(uint32_t dgn, uint8_t *data, uint8_t len);
 uint8_t parallel_mode_is_run_allowed(void);
