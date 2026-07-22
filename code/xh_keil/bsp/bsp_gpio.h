@@ -8,11 +8,14 @@
 #define GPIO_MODE_IPD               1
 #define GPIO_MODE_DEFAULT_OUT_PP    2
 #define GPIO_MODE_DEFAULT_IPD       3
-//其他类型定义按实际需要增加
+#ifndef APP_ADC_SAMPLE_GPIO_PROBE_FEATURES
+#define APP_ADC_SAMPLE_GPIO_PROBE_FEATURES 0
+#endif
+//其他类型定义按实际需要增�?
 
 
 
-//以下定义中，speed与rcu_periph用不到，直接给0
+//以下定义中，speed与rcu_periph用不到，直接�?
 #define GPIO_REG_PARM(_name, _gpx, _pin, _mode, _def_lv) { \
     .bsp_gpio_table = _name,                               \
     .gpio_periph = _gpx,                                   \
@@ -66,6 +69,10 @@ typedef enum
   PIN_USART0_RX,
   PIN_CAN0_RX,
   PIN_CAN0_TX,
+#if (APP_ADC_SAMPLE_GPIO_PROBE_FEATURES == 1)
+  PIN_ADC_SAMPLE_A,
+  PIN_ADC_SAMPLE_B,
+#endif
 } bsp_gpio_table_e;
 
 typedef struct

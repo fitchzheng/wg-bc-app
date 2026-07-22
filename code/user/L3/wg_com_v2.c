@@ -658,6 +658,18 @@ static uint8_t unified_write(uint16_t addr, uint16_t count, const uint8_t *data)
     }
 
     memcpy((uint8_t *)region->data_ptr + offset * 2, data, count * 2);
+    if(writes_bat_type_a != 0U)
+    {
+        WG_COM_V2_GET_DATA_UINT(new_bat_type_a, wg_com_v2_ctrl.InpBatyType);
+        if(((new_bat_type_a & 0xFF00U) >> 8) == eBAT_AUTOSYS)
+        {
+            uint16_t old_a_type = (uint16_t)((old_bat_type_a & 0xFF00U) >> 8);
+            uint16_t autosys_sys = (old_a_type == eBAT_AUTOSYS) ?
+                                   (uint16_t)(old_bat_type_a & 0x00FFU) :
+                                   (uint16_t)eSYS_VOLT_MAX;
+            WG_COM_V2_SET_DATA_UINT((uint16_t)((eBAT_AUTOSYS << 8) | autosys_sys), wg_com_v2_ctrl.InpBatyType);
+        }
+    }
     WG_COM_V2_GET_DATA_UINT(new_power_mode, wg_com_v2_ctrl.SetPowerMode);
     WG_COM_V2_GET_DATA_UINT(new_mppt_switch, wg_com_v2_ctrl.MpptSwitch);
     WG_COM_V2_GET_DATA_UINT(new_bat_type_a, wg_com_v2_ctrl.InpBatyType);

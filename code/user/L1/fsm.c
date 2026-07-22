@@ -18,13 +18,15 @@
 #include "stop_dormant.h"
 uint8_t force_ccm = 0;
 static uint8_t direction_restart_pending = 0;
+static uint8_t direction_soft_stop_pending = 0;
 static uint8_t mode_restart_pending = 0;
 #define FAST_RESTART_VOLTAGE_SYNC_TIME TIME_CNT_20MS_IN_1MS
 #define MODE_RESTART_HOLD_TIME TIME_CNT_500MS_IN_1MS
+#define DIRECTION_STOP_CURRENT_RAMP_STEP 0.10f
 static uint16_t fast_restart_voltage_sync_cnt = 0;
 static uint16_t mode_restart_hold_cnt = 0;
 #define PG_ALARM_CONFIRM_TIME TIME_CNT_500MS_IN_1MS
-// 状态枚举
+// 状态枚�?
 typedef enum
 {
     STATE_INIT = 1,
@@ -73,6 +75,7 @@ static void init_in(void)
     pwc_stop_flag = 0;
     stop_time_flag = 0;
     sleep_report_state_flag = 0;
+    direction_soft_stop_pending = 0;
     init_delay = 0;
     fault_clear_all_fault();
 	get_key_pg_state();
@@ -489,6 +492,7 @@ static void run_exe(void)
         if((current_addrs_state != addrs_state_now) && (current_addrs_state != ADDRS_IDLE))
         {
             direction_restart_pending = 1;
+            direction_soft_stop_pending = 1;
         }
         if((control_parameter.SetPowerMode != get_wg_com_v2_data.com_ctrl.SetPowerMode) ||
            (control_parameter.MpptSwitch  != get_wg_com_v2_data.com_ctrl.MpptSwitch)  ||
@@ -543,19 +547,28 @@ static void stop_in(void)
 {
     ihv_lmt = fabsf(adc_get_ihv());
     ilv_lmt = fabsf(adc_get_ilv());
+    ADC_CHECK_ADDRS_E current_addrs_state = adc_check_get_addrs_state();
+
+    if((current_addrs_state != addrs_state_now) && (current_addrs_state != ADDRS_IDLE))
+    {
+        direction_restart_pending = 1;
+        direction_soft_stop_pending = 1;
+    }
     charge_state_data.soft_close_flag = 1;
 }
 static void stop_exe(void)
 {
+    float current_ramp_step = (direction_soft_stop_pending != 0) ? DIRECTION_STOP_CURRENT_RAMP_STEP : 0.01f;
+
 if(addrs_state_now == ADDRS_FORWARD)
     {
         RAMP(rvs12_lmt, 1.0f, 0.01f);
-        RAMP(ilv_lmt, 1.0f, 0.01f);
+        RAMP(ilv_lmt, 1.0f, current_ramp_step);
     }
     else
     {
         RAMP(fvs48_lmt, 1.0f, 0.01f);
-        RAMP(ihv_lmt, 1.0f, 0.01f);
+        RAMP(ihv_lmt, 1.0f, current_ramp_step);
     }
     ctrl_app_set_fvs48_lmt(fvs48_lmt);
     ctrl_app_set_rvs12_lmt(rvs12_lmt);
@@ -596,6 +609,7 @@ static uint32_t stop_chk(uint32_t fsm_ev)
 static void stop_out(void)
 {
     ctrl_app_disable();
+    direction_soft_stop_pending = 0;
     charge_state_data.soft_close_flag = 0;
 }
 
@@ -658,6 +672,7 @@ static void pwc_stop_out(void)
 static void fault_in(void)
 {
     ctrl_app_disable();
+    direction_soft_stop_pending = 0;
 }
 
 static void fault_exe(void)
@@ -745,6 +760,11 @@ static void fsm_run(void)
 }
 
 REG_TASK(1, fsm_run)
+
+uint8_t fsm_direction_soft_stop_is_pending(void)
+{
+    return direction_soft_stop_pending;
+}
 
 uint8_t RAMFUNC fsm_get_fsm_state_is_fault(void)
 {

@@ -371,14 +371,14 @@ static void eeprom_ctrl_fill_safe_default(void)
 {
     WG_COM_V2_SET_DATA_UINT(0, eeprom_wg_com_v2_param.wg_com_v2_ctrl.FactoryReset);
     WG_COM_V2_SET_DATA_UINT(0, eeprom_wg_com_v2_param.wg_com_v2_ctrl.PowerOnOff);
-    WG_COM_V2_SET_DATA_UINT(eSET_CUSTOM_MODE, eeprom_wg_com_v2_param.wg_com_v2_ctrl.SetPowerMode);
-    WG_COM_V2_SET_DATA_UINT(eSET_FORWARD, eeprom_wg_com_v2_param.wg_com_v2_ctrl.SetChargMode);
-    WG_COM_V2_SET_DATA_UINT(((eBAT_DCDC << 8) | eSYS_10_60V), eeprom_wg_com_v2_param.wg_com_v2_ctrl.InpBatyType);
-    WG_COM_V2_SET_DATA_UINT(((eBAT_DCDC << 8) | eSYS_10_60V), eeprom_wg_com_v2_param.wg_com_v2_ctrl.OutBatyType);
-    WG_COM_V2_SET_DATA_UINT(0, eeprom_wg_com_v2_param.wg_com_v2_ctrl.SetBootTimeA);
-    WG_COM_V2_SET_DATA_UINT(0, eeprom_wg_com_v2_param.wg_com_v2_ctrl.SetBootTimeB);
-    WG_COM_V2_SET_DATA_UINT(0, eeprom_wg_com_v2_param.wg_com_v2_ctrl.SetOnCurrStartTimeA);
-    WG_COM_V2_SET_DATA_UINT(0, eeprom_wg_com_v2_param.wg_com_v2_ctrl.SetOnCurrStartTimeB);
+    WG_COM_V2_SET_DATA_UINT(eSET_BAT_MODE, eeprom_wg_com_v2_param.wg_com_v2_ctrl.SetPowerMode);
+    WG_COM_V2_SET_DATA_UINT(eSET_MANUAL_MODE, eeprom_wg_com_v2_param.wg_com_v2_ctrl.SetChargMode);
+    WG_COM_V2_SET_DATA_UINT(((eBAT_LA_AGM << 8) | eSYS_12V), eeprom_wg_com_v2_param.wg_com_v2_ctrl.InpBatyType);
+    WG_COM_V2_SET_DATA_UINT(((eBAT_LI_LFP << 8) | eSYS_24V), eeprom_wg_com_v2_param.wg_com_v2_ctrl.OutBatyType);
+    WG_COM_V2_SET_DATA_UINT(5, eeprom_wg_com_v2_param.wg_com_v2_ctrl.SetBootTimeA);
+    WG_COM_V2_SET_DATA_UINT(5, eeprom_wg_com_v2_param.wg_com_v2_ctrl.SetBootTimeB);
+    WG_COM_V2_SET_DATA_UINT(5, eeprom_wg_com_v2_param.wg_com_v2_ctrl.SetOnCurrStartTimeA);
+    WG_COM_V2_SET_DATA_UINT(5, eeprom_wg_com_v2_param.wg_com_v2_ctrl.SetOnCurrStartTimeB);
     WG_COM_V2_SET_DATA_UINT(0, eeprom_wg_com_v2_param.wg_com_v2_ctrl.ZeroCurrCalibration);
     WG_COM_V2_SET_DATA_UINT(0, eeprom_wg_com_v2_param.wg_com_v2_ctrl.ResetFactoryData);
     WG_COM_V2_SET_DATA_UINT(eADDRS_FORWARD, eeprom_wg_com_v2_param.wg_com_v2_ctrl.BatModeFR);
@@ -1291,14 +1291,14 @@ static uint8_t eeprom_factory_restore_app_defaults_verified(void)
 
     WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.FactoryReset);
     WG_COM_V2_SET_DATA_UINT(1, wg_com_v2_ctrl.PowerOnOff);
-    WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetPowerMode);
-    WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetChargMode);
-    WG_COM_V2_SET_DATA_UINT(0x0407, wg_com_v2_ctrl.InpBatyType);
-    WG_COM_V2_SET_DATA_UINT(0x0400, wg_com_v2_ctrl.OutBatyType);
-    WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetBootTimeA);
-    WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetBootTimeB);
-    WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetOnCurrStartTimeA);
-    WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetOnCurrStartTimeB);
+    WG_COM_V2_SET_DATA_UINT(eSET_BAT_MODE, wg_com_v2_ctrl.SetPowerMode);
+    WG_COM_V2_SET_DATA_UINT(eSET_MANUAL_MODE, wg_com_v2_ctrl.SetChargMode);
+    WG_COM_V2_SET_DATA_UINT(((eBAT_LA_AGM << 8) | eSYS_12V), wg_com_v2_ctrl.InpBatyType);
+    WG_COM_V2_SET_DATA_UINT(((eBAT_LI_LFP << 8) | eSYS_24V), wg_com_v2_ctrl.OutBatyType);
+    WG_COM_V2_SET_DATA_UINT(5, wg_com_v2_ctrl.SetBootTimeA);
+    WG_COM_V2_SET_DATA_UINT(5, wg_com_v2_ctrl.SetBootTimeB);
+    WG_COM_V2_SET_DATA_UINT(5, wg_com_v2_ctrl.SetOnCurrStartTimeA);
+    WG_COM_V2_SET_DATA_UINT(5, wg_com_v2_ctrl.SetOnCurrStartTimeB);
     WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.ZeroCurrCalibration);
     WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.ResetFactoryData);
     WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.BatModeFR);
@@ -1620,8 +1620,8 @@ static void eeprom_profile_fill_default(eeprom_system_profile_t *profile, uint8_
     profile->AutoOpenVolt = eeprom_float_to_raw(is_a_port ? cfg->OpenVoltA : cfg->OpenVoltB, is_a_port ? (void *)&wg_com_v2_param.AuotForwardOpenVoltA : (void *)&wg_com_v2_param.AuotReverseOpenVoltB);
     profile->AutoVeerVolt = eeprom_float_to_raw(is_a_port ? cfg->VeerVoltA : 0.0f, (void *)&wg_com_v2_param.AuotForwardVeerVoltA);
     profile->AutoCloseVolt = eeprom_float_to_raw(is_a_port ? cfg->CloseVoltA : cfg->CloseVoltB, is_a_port ? (void *)&wg_com_v2_param.AuotForwardShutVoltA : (void *)&wg_com_v2_param.AuotReverseShutVoltB);
-    profile->SetBootTime = 0;
-    profile->SetOnCurrStartTime = 0;
+    profile->SetBootTime = 5;
+    profile->SetOnCurrStartTime = 5;
 }
 
 static uint8_t eeprom_profile_sanitize(uint8_t is_a_port,
@@ -2539,14 +2539,14 @@ void eeprom_cfg_init(void)
 
             WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.FactoryReset);
             WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.PowerOnOff);
-            WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetPowerMode);
-            WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetChargMode);
-            WG_COM_V2_SET_DATA_UINT(0x0407, wg_com_v2_ctrl.InpBatyType);
-            WG_COM_V2_SET_DATA_UINT(0x0400, wg_com_v2_ctrl.OutBatyType);
-            WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetBootTimeA);
-            WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetBootTimeB);
-            WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetOnCurrStartTimeA);
-            WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetOnCurrStartTimeB);
+            WG_COM_V2_SET_DATA_UINT(eSET_BAT_MODE, wg_com_v2_ctrl.SetPowerMode);
+            WG_COM_V2_SET_DATA_UINT(eSET_MANUAL_MODE, wg_com_v2_ctrl.SetChargMode);
+            WG_COM_V2_SET_DATA_UINT(((eBAT_LA_AGM << 8) | eSYS_12V), wg_com_v2_ctrl.InpBatyType);
+            WG_COM_V2_SET_DATA_UINT(((eBAT_LI_LFP << 8) | eSYS_24V), wg_com_v2_ctrl.OutBatyType);
+            WG_COM_V2_SET_DATA_UINT(5, wg_com_v2_ctrl.SetBootTimeA);
+            WG_COM_V2_SET_DATA_UINT(5, wg_com_v2_ctrl.SetBootTimeB);
+            WG_COM_V2_SET_DATA_UINT(5, wg_com_v2_ctrl.SetOnCurrStartTimeA);
+            WG_COM_V2_SET_DATA_UINT(5, wg_com_v2_ctrl.SetOnCurrStartTimeB);
             WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.ZeroCurrCalibration);
             WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.ResetFactoryData);
             WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.BatModeFR);

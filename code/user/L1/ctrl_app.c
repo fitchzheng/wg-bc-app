@@ -12,6 +12,7 @@
 #include "adc_check.h"
 #include "get_com_data.h"
 #include "mppt.h"
+#include "fsm.h"
 
 #ifndef CAN_ON_OFF
 #define CAN_ON_OFF 1
@@ -41,6 +42,22 @@ static CTRL_MODE_E mppt_ctrl_mode = CTRL_IDLE;
 static float mppt_vin_flt = 0.0f;
 static float mppt_pin_flt = 0.0f;
 //uint8_t mppt_mode = 1;
+
+static void ctrl_app_force_pwm_off(void)
+{
+    for (uint8_t i = 0; i < BUCK_BOOST_L_LOOP_NUM; i++)
+    {
+        bsp_pwm[i].left_duty = 0.0f;
+        bsp_pwm[i].right_duty = 0.0f;
+        bsp_pwm[i].left_up_en = 0;
+        bsp_pwm[i].left_dn_en = 0;
+        bsp_pwm[i].right_up_en = 0;
+        bsp_pwm[i].right_dn_en = 0;
+    }
+
+    bsp_pwm_set_a_duty(&bsp_pwm[0]);
+    bsp_pwm_set_b_duty(&bsp_pwm[1]);
+}
 
 #if (SHELL_ON_OFF == 1)
 REG_SHELL_VAR(ADC_FVS48_OBS, fvs48, SHELL_FP32, 10000.0f, -10000.0f, NULL, SHELL_STA_NULL)
@@ -356,6 +373,14 @@ void RAMFUNC ctrl_app_run(void)
 		stop_soft_up = 0;
 	}
 	
+	if((fsm_direction_soft_stop_is_pending() != 0) &&
+	   (charge_state_data.soft_close_flag == 1) &&
+	   ((ctrl_mode == CTRL_FORWARD) || (ctrl_mode == CTRL_BACKWARD)))
+	{
+		stop_soft_up = ((out_volt <= 5.0f) || (fabsf(out_curr) <= 10.0f));
+	}
+
+    if(charge_state_data.soft_close_flag == 0){stop_soft = 0;}
 	if(stop_soft == 0){
 		if(charge_state_data.soft_close_flag == 1){
 			stop_soft = stop_soft_up;
@@ -363,6 +388,8 @@ void RAMFUNC ctrl_app_run(void)
 //				fault_set_fault(FAULT_SOFT_STOP);
 				SCOPE_TRIGGER(SOFT_STOP);
 				ctrl_mode = CTRL_IDLE;
+				ctrl_app_force_pwm_off();
+				return;
 			}
 			ihv_lmt_act = ihv;
 			ihv_lmt_tag = ihv_lmt;
@@ -372,8 +399,9 @@ void RAMFUNC ctrl_app_run(void)
 	}else{
 //		fault_set_fault(FAULT_SOFT_STOP);
 		ctrl_mode = CTRL_IDLE;
+		ctrl_app_force_pwm_off();
+		return;
 	}
-	if(charge_state_data.soft_close_flag == 0){stop_soft = 0;}
 
     if (ctrl_mode == CTRL_IDLE)   //软关电压低于2.5V或电流小5A封波
     {
@@ -421,7 +449,7 @@ void RAMFUNC ctrl_app_run(void)
             fault_delay = 0;
         }
 
-        if(get_show_ilv_show() > (125*1.05f))//最大电流的0.5倍
+        if(get_show_ilv_show() > (125*1.05f))//最大电流的0.5�?
         {
             fault_set_fault(FAULT_RVS12_SCP);
             ctrl_app_disable();
@@ -442,7 +470,7 @@ void RAMFUNC ctrl_app_run(void)
             fault_delay = 0;
         }
 
-        if(get_show_ihv_show() > (125*1.05f))//最大电流的0.5倍
+        if(get_show_ihv_show() > (125*1.05f))//最大电流的0.5�?
         {
             fault_set_fault(FAULT_FVS48_SCP);
             ctrl_app_disable();
@@ -450,8 +478,11 @@ void RAMFUNC ctrl_app_run(void)
         }
     }
 
-    RAMP(ihv_lmt/*当前限幅电流*/, data_com_get_ihv_lmt()/*目标限幅电流*/, 0.01f/*电流软起步进，单位A/40us*/);
-    RAMP(ilv_lmt/*当前限幅电流*/, data_com_get_ilv_lmt()/*目标限幅电流*/, 0.01f/*电流软起步进，单位A/40us*/);
+    if(charge_state_data.soft_close_flag == 0)
+    {
+        RAMP(ihv_lmt/*当前限幅电流*/, data_com_get_ihv_lmt()/*目标限幅电流*/, 0.01f/*电流软起步进，单位A/40us*/);
+        RAMP(ilv_lmt/*当前限幅电流*/, data_com_get_ilv_lmt()/*目标限幅电流*/, 0.01f/*电流软起步进，单位A/40us*/);
+    }
 
         SCOPE_RUN(SOFT_STOP);
         

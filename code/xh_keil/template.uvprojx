@@ -1141,7 +1141,7 @@
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
           <OutputDirectory>.\output\debug\rv\</OutputDirectory>
-          <OutputName>WG-BC1500M_20260617_BOOT_APP_RV</OutputName>
+          <OutputName>WG-BC1500M_20260722_APP_RV</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>

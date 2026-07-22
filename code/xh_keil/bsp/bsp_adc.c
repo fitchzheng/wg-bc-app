@@ -1,24 +1,24 @@
 //ADC
-//GD功能：
-//1、ADC0与ADC1使用规则组并行模式
+//GD功能�?
+//1、ADC0与ADC1使用规则组并行模�?
 //2、ADC0负责 ILA,ILV,FVS48,TEMP_INT,
 //3、ADC1负责 ILB,IHV,RVS12,RMTVS,	
 //4、AADC0,1被TIMER1同步触发
 //5、转换结果通过DMA搬运
 //6、ADC2使用规则组，负责TEMP1,TEMP2,TEMP3,ACCVS,ADDRS,
-//7、ADC2使用软件触发，结果也通过DMA搬运。
-//8、最终获取采样值接口 bsp_adc_get_xxx
+//7、ADC2使用软件触发，结果也通过DMA搬运�?
+//8、最终获取采样值接�?bsp_adc_get_xxx
 
 //小华F334差异:
 //1、三个独立采样单元，可被同步触发
 //2、每个采样通道都有独立的结果寄存器，可以不使用DMA搬运
 
-//计划修改如下：
+//计划修改如下�?
 //1、ADC0负责 ILA,ILV,FVS48,
 //2、ADC1负责 ILB,IHV,RVS12,RMTVS,
 //3、ADC2负责TEMP1,TEMP2,TEMP3,ACCVS,ADDRS,
 //4、三个单元同步触发，转换结果不需要DMA搬运
-//5、使用bsp_adc_get_xxx接口返回采样值 
+//5、使用bsp_adc_get_xxx接口返回采样�?
 
 #include "bsp_adc.h"
 #include "hc32_ll_aos.h"
@@ -138,7 +138,7 @@ const bsp_adc_param_t bsp_adc1_param[ADC1_TABLE_MAX] = {
 };
 
 
-//adc 初始化
+//adc 初始�?
 void bsp_adc_init(void)
 {
     stc_gpio_init_t stcGpioInit;
@@ -152,7 +152,7 @@ void bsp_adc_init(void)
 //    FCG_Fcg3PeriphClockCmd(FCG3_PERIPH_ADC3, ENABLE);
     FCG_Fcg0PeriphClockCmd(FCG0_PERIPH_AOS,  ENABLE);
     
-    stcAdcInit.u16ScanMode = ADC_MD_SEQA_SINGLESHOT; //序列A单次触发模式，触发一次采集一次
+    stcAdcInit.u16ScanMode = ADC_MD_SEQA_SINGLESHOT; //序列A单次触发模式，触发一次采集一�?
     
     (void)ADC_Init(CM_ADC1, &stcAdcInit);
     (void)ADC_Init(CM_ADC2, &stcAdcInit);
@@ -174,7 +174,7 @@ void bsp_adc_init(void)
     
     //ADC1触发配置
     ADC_TriggerConfig(CM_ADC1, ADC_SEQ_A, ADC_HARDTRIG_EVT0);
-    AOS_SetTriggerEventSrc(AOS_ADC1_0, ADC_TRIG_EVT);
+    AOS_SetTriggerEventSrc(AOS_ADC1_0, ADC_ILA_TRIG_EVT);
     ADC_TriggerCmd(CM_ADC1, ADC_SEQ_A, ENABLE);
     
 
@@ -196,11 +196,11 @@ void bsp_adc_init(void)
     }
         //ADC2触发配置
     ADC_TriggerConfig(CM_ADC2, ADC_SEQ_A, ADC_HARDTRIG_EVT0);
-    AOS_SetTriggerEventSrc(AOS_ADC2_0, ADC_TRIG_EVT);
+    AOS_SetTriggerEventSrc(AOS_ADC2_0, ADC_ILB_TRIG_EVT);
     ADC_TriggerCmd(CM_ADC2, ADC_SEQ_A, ENABLE);
 }
 
-//adc 初始化
+//adc 初始�?
 void bsp_adc_init_pwc(void)
 {
     stc_gpio_init_t stcGpioInit;
@@ -214,7 +214,7 @@ void bsp_adc_init_pwc(void)
 //    FCG_Fcg3PeriphClockCmd(FCG3_PERIPH_ADC3, ENABLE);
     FCG_Fcg0PeriphClockCmd(FCG0_PERIPH_AOS,  ENABLE);
     
-    stcAdcInit.u16ScanMode = ADC_MD_SEQA_SINGLESHOT; //序列A单次触发模式，触发一次采集一次
+    stcAdcInit.u16ScanMode = ADC_MD_SEQA_SINGLESHOT; //序列A单次触发模式，触发一次采集一�?
     
     (void)ADC_Init(CM_ADC1, &stcAdcInit);
     (void)ADC_Init(CM_ADC2, &stcAdcInit);
@@ -236,7 +236,7 @@ void bsp_adc_init_pwc(void)
     
     //ADC1触发配置
     ADC_TriggerConfig(CM_ADC1, ADC_SEQ_A, ADC_HARDTRIG_EVT0);
-    AOS_SetTriggerEventSrc(AOS_ADC1_0, ADC_TRIG_EVT);
+    AOS_SetTriggerEventSrc(AOS_ADC1_0, ADC_ILA_TRIG_EVT);
     ADC_TriggerCmd(CM_ADC1, ADC_SEQ_A, ENABLE);
     
 
@@ -258,7 +258,7 @@ void bsp_adc_init_pwc(void)
     }
         //ADC2触发配置
     ADC_TriggerConfig(CM_ADC2, ADC_SEQ_A, ADC_HARDTRIG_EVT0);
-    AOS_SetTriggerEventSrc(AOS_ADC2_0, ADC_TRIG_EVT);
+    AOS_SetTriggerEventSrc(AOS_ADC2_0, ADC_ILB_TRIG_EVT);
     ADC_TriggerCmd(CM_ADC2, ADC_SEQ_A, ENABLE);
 }
 
