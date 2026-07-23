@@ -194,7 +194,7 @@ uint8_t bsp_pwc_stop_rum(void)
             CLK_SetClockDiv(CLK_BUS_CLK_ALL,
             (CLK_PCLK0_DIV8 | CLK_PCLK1_DIV16| CLK_PCLK2_DIV16 |
             CLK_PCLK3_DIV16 | CLK_PCLK4_DIV16 | CLK_HCLK_DIV8));  //配置主频分频 CLK_HCLK_DIV16决定主频
-            CLK_SetSysClockSrc(CLK_SYSCLK_SRC_MRC); //配置时钟源 ,MRC 8M
+            CLK_SetSysClockSrc(CLK_SYSCLK_SRC_MRC); //配置时钟�?,MRC 8M
             
             CLK_PLLCmd(DISABLE);
             TMR0_Config();

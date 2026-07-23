@@ -258,7 +258,7 @@ void bsp_adc_init_pwc(void)
     }
         //ADC2触发配置
     ADC_TriggerConfig(CM_ADC2, ADC_SEQ_A, ADC_HARDTRIG_EVT0);
-    AOS_SetTriggerEventSrc(AOS_ADC2_0, ADC_ILB_TRIG_EVT);
+    AOS_SetTriggerEventSrc(AOS_ADC2_0, ADC_ILA_TRIG_EVT);
     ADC_TriggerCmd(CM_ADC2, ADC_SEQ_A, ENABLE);
 }
 
