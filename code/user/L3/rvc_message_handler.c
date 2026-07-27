@@ -36,6 +36,16 @@ static void rvc_put_u16_be(uint8_t *data, uint8_t offset, uint16_t value)
     data[offset + 1] = (uint8_t)(value & 0xFF);
 }
 
+static uint16_t rvc_get_reg_u16(const void *reg)
+{
+    return get_uint16((uint8_t *)reg);
+}
+
+static void rvc_put_reg_u16_be(uint8_t *data, uint8_t offset, const void *reg)
+{
+    rvc_put_u16_be(data, offset, rvc_get_reg_u16(reg));
+}
+
 /* ========== 公共 API 实现 ========== */
 
 #if (APP_DEBUG_EVENT_FEATURES == 1)
@@ -141,9 +151,8 @@ static void handle_manufacturer_data(uint32_t gdn, uint8_t *data, uint8_t len)
             tx_data[0] = data[0];
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_PROTOCOL_VERSION_R, rvc_address_get_current());
             for(uint16_t i = 0;i < 2;i++){
-                data_u16 = wg_com_v2_product_info.ProtocolVersion[i];
-                tx_data[i*2+1] = (data_u16&0xff);
-                tx_data[i*2+2] = ((data_u16>>8)&0xff);
+                data_u16 = rvc_get_reg_u16(&wg_com_v2_product_info.ProtocolVersion[i]);
+                rvc_put_u16_be(tx_data, (uint8_t)(i * 2U + 1U), data_u16);
             }
             bsp_rvc_can_tx(tx_can_id, tx_data, 8);
             break;
@@ -152,9 +161,8 @@ static void handle_manufacturer_data(uint32_t gdn, uint8_t *data, uint8_t len)
             tx_data[0] = data[0];
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_PRODUCT_TYPE_R, rvc_address_get_current());
             for(uint16_t i = 0;i < 2;i++){
-                data_u16 = wg_com_v2_product_info.ProductType[i];
-                tx_data[i*2+1] = (data_u16&0xff);
-                tx_data[i*2+2] = ((data_u16>>8)&0xff);
+                data_u16 = rvc_get_reg_u16(&wg_com_v2_product_info.ProductType[i]);
+                rvc_put_u16_be(tx_data, (uint8_t)(i * 2U + 1U), data_u16);
             }
             bsp_rvc_can_tx(tx_can_id, tx_data, 8);
             break;
@@ -163,9 +171,8 @@ static void handle_manufacturer_data(uint32_t gdn, uint8_t *data, uint8_t len)
             tx_data[0] = data[0];
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_HARDVER_VERSION_R, rvc_address_get_current());
             for(uint16_t i = 0;i < 2;i++){
-                data_u16 = wg_com_v2_product_info.HardverVerzi[i];
-                tx_data[i*2+1] = (data_u16&0xff);
-                tx_data[i*2+2] = ((data_u16>>8)&0xff);
+                data_u16 = rvc_get_reg_u16(&wg_com_v2_product_info.HardverVerzi[i]);
+                rvc_put_u16_be(tx_data, (uint8_t)(i * 2U + 1U), data_u16);
             }
             bsp_rvc_can_tx(tx_can_id, tx_data, 8);
             break;
@@ -174,9 +181,8 @@ static void handle_manufacturer_data(uint32_t gdn, uint8_t *data, uint8_t len)
             tx_data[0] = data[0];
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_SOFT_VERSION_R, rvc_address_get_current());
             for(uint16_t i = 0;i < 2;i++){
-                data_u16 = wg_com_v2_product_info.SoftVersion[i];
-                tx_data[i*2+1] = (data_u16&0xff);
-                tx_data[i*2+2] = ((data_u16>>8)&0xff);
+                data_u16 = rvc_get_reg_u16(&wg_com_v2_product_info.SoftVersion[i]);
+                rvc_put_u16_be(tx_data, (uint8_t)(i * 2U + 1U), data_u16);
             }
             bsp_rvc_can_tx(tx_can_id, tx_data, 8);
             break;
@@ -190,9 +196,8 @@ static void handle_manufacturer_data(uint32_t gdn, uint8_t *data, uint8_t len)
             tx_data[0] = data[0];
             tx_data[1] = data[1];
             for(uint16_t i = 0;i < 3;i++){
-                data_u16 = wg_com_v2_product_info.SnSerial[(tx_data[1]*3)+i];
-                tx_data[i*2+2] = (data_u16&0xff);
-                tx_data[i*2+3] = ((data_u16>>8)&0xff);
+                data_u16 = rvc_get_reg_u16(&wg_com_v2_product_info.SnSerial[(tx_data[1]*3)+i]);
+                rvc_put_u16_be(tx_data, (uint8_t)(i * 2U + 2U), data_u16);
             }
             bsp_rvc_can_tx(tx_can_id, tx_data, 8);
             break;
@@ -206,9 +211,8 @@ static void handle_manufacturer_data(uint32_t gdn, uint8_t *data, uint8_t len)
             tx_data[0] = data[0];
             tx_data[1] = data[1];
             for(uint16_t i = 0;i < 3;i++){
-                data_u16 = wg_com_v2_product_info.ProductName[(tx_data[1]*3)+i];
-                tx_data[i*2+2] = (data_u16&0xff);
-                tx_data[i*2+3] = ((data_u16>>8)&0xff);
+                data_u16 = rvc_get_reg_u16(&wg_com_v2_product_info.ProductName[(tx_data[1]*3)+i]);
+                rvc_put_u16_be(tx_data, (uint8_t)(i * 2U + 2U), data_u16);
             }
             bsp_rvc_can_tx(tx_can_id, tx_data, 8);
             break;
@@ -216,24 +220,20 @@ static void handle_manufacturer_data(uint32_t gdn, uint8_t *data, uint8_t len)
             memset(tx_data, 0xFF, sizeof(tx_data));
             tx_data[0] = data[0];
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_ADDRE_APPLI_R, rvc_address_get_current());
-            data_u16 = wg_com_v2_product_info.Address;
-            tx_data[2] = (data_u16&0xff);
-            tx_data[1] = ((data_u16>>8)&0xff);
-            data_u16 = wg_com_v2_product_info.ApplicationScenarios;
-            tx_data[4] = (data_u16&0xff);
-            tx_data[3] = ((data_u16>>8)&0xff);
+            data_u16 = rvc_get_reg_u16(&wg_com_v2_product_info.Address);
+            rvc_put_u16_be(tx_data, 1, data_u16);
+            data_u16 = rvc_get_reg_u16(&wg_com_v2_product_info.ApplicationScenarios);
+            rvc_put_u16_be(tx_data, 3, data_u16);
             bsp_rvc_can_tx(tx_can_id, tx_data, 8);
             break;
         case RVC_DGN_PROPRIETARY_CUST_BT_NAME_R:
             memset(tx_data, 0xFF, sizeof(tx_data));
             tx_data[0] = data[0];
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_CUST_BT_NAME_R, rvc_address_get_current());
-            data_u16 = wg_com_v2_product_info.CustomizationVersion;
-            tx_data[1] = (data_u16&0xff);
-            tx_data[2] = ((data_u16>>8)&0xff);
-            data_u16 = wg_com_v2_product_info.BtName;
-            tx_data[3] = (data_u16&0xff);
-            tx_data[4] = ((data_u16>>8)&0xff);
+            data_u16 = rvc_get_reg_u16(&wg_com_v2_product_info.CustomizationVersion);
+            rvc_put_u16_be(tx_data, 1, data_u16);
+            data_u16 = rvc_get_reg_u16(&wg_com_v2_product_info.BtName);
+            rvc_put_u16_be(tx_data, 3, data_u16);
             bsp_rvc_can_tx(tx_can_id, tx_data, 8);
             break;
         case RVC_DGN_PROPRIETARY_MAC_ADDRESS_R:
@@ -246,9 +246,8 @@ static void handle_manufacturer_data(uint32_t gdn, uint8_t *data, uint8_t len)
             tx_data[0] = data[0];
             tx_data[1] = data[1];
             for(uint16_t i = 0;i < 3;i++){
-                data_u16 = wg_com_v2_product_info.MacAddress[(tx_data[1]*3)+i];
-                tx_data[i*2+2] = ((data_u16>>8)&0xff);
-                tx_data[i*2+3] = (data_u16&0xff);
+                data_u16 = rvc_get_reg_u16(&wg_com_v2_product_info.MacAddress[(tx_data[1]*3)+i]);
+                rvc_put_u16_be(tx_data, (uint8_t)(i * 2U + 2U), data_u16);
             }
             bsp_rvc_can_tx(tx_can_id, tx_data, 8);
             break;
@@ -278,30 +277,21 @@ static void handle_real_time_data(uint32_t gdn, uint8_t *data, uint8_t len)
     switch(gdn){
         case RVC_DGN_PROPRIETARY_AVOLT_ACURR_APOWER_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_AVOLT_ACURR_APOWER_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_realtime_data.InpVolt>>8)&0xff);
-            tx_data[2] = (wg_com_v2_realtime_data.InpVolt&0xff);
-            tx_data[3] = ((wg_com_v2_realtime_data.InpCurr>>8)&0xff);
-            tx_data[4] = (wg_com_v2_realtime_data.InpCurr&0xff);
-            tx_data[5] = ((wg_com_v2_realtime_data.InpCurrPower>>8)&0xff);
-            tx_data[6] = (wg_com_v2_realtime_data.InpCurrPower&0xff);
+            rvc_put_reg_u16_be(tx_data, 1, &wg_com_v2_realtime_data.InpVolt);
+            rvc_put_reg_u16_be(tx_data, 3, &wg_com_v2_realtime_data.InpCurr);
+            rvc_put_reg_u16_be(tx_data, 5, &wg_com_v2_realtime_data.InpCurrPower);
             break;
         case RVC_DGN_PROPRIETARY_BVOLT_BCURR_BPOWER_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_BVOLT_BCURR_BPOWER_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_realtime_data.OutVolt>>8)&0xff);
-            tx_data[2] = (wg_com_v2_realtime_data.OutVolt&0xff);
-            tx_data[3] = ((wg_com_v2_realtime_data.OutCurr>>8)&0xff);
-            tx_data[4] = (wg_com_v2_realtime_data.OutCurr&0xff);
-            tx_data[5] = ((wg_com_v2_realtime_data.OutCurrPower>>8)&0xff);
-            tx_data[6] = (wg_com_v2_realtime_data.OutCurrPower&0xff);
+            rvc_put_reg_u16_be(tx_data, 1, &wg_com_v2_realtime_data.OutVolt);
+            rvc_put_reg_u16_be(tx_data, 3, &wg_com_v2_realtime_data.OutCurr);
+            rvc_put_reg_u16_be(tx_data, 5, &wg_com_v2_realtime_data.OutCurrPower);
             break;
         case RVC_DGN_PROPRIETARY_T1_T2_TA_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_T1_T2_TA_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_realtime_data.InsideTemp>>8)&0xff);        // T1温度
-            tx_data[2] = (wg_com_v2_realtime_data.InsideTemp&0xff);             // T1温度
-            tx_data[3] = ((wg_com_v2_realtime_data.OutsideTemp>>8)&0xff);       // T2温度
-            tx_data[4] = (wg_com_v2_realtime_data.OutsideTemp&0xff);            // T2温度
-            tx_data[5] = ((wg_com_v2_realtime_data.Temp2>>8)&0xff);             // Ta温度
-            tx_data[6] = (wg_com_v2_realtime_data.Temp2&0xff);                  // Ta温度
+            rvc_put_reg_u16_be(tx_data, 1, &wg_com_v2_realtime_data.InsideTemp);
+            rvc_put_reg_u16_be(tx_data, 3, &wg_com_v2_realtime_data.OutsideTemp);
+            rvc_put_reg_u16_be(tx_data, 5, &wg_com_v2_realtime_data.Temp2);
             break;
         case RVC_DGN_PROPRIETARY_POWER_CHARG_STATE_CHARGEE_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_POWER_CHARG_STATE_CHARGEE_R, rvc_address_get_current());
@@ -321,12 +311,9 @@ static void handle_real_time_data(uint32_t gdn, uint8_t *data, uint8_t len)
             break;
         case RVC_DGN_PROPRIETARY_VOLTA_VOLTB_ADDVOLT_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_VOLTA_VOLTB_ADDVOLT_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_realtime_data.CompensationVoltA>>8)&0xff); // A端补偿
-            tx_data[2] = (wg_com_v2_realtime_data.CompensationVoltA&0xff);      // A端补偿
-            tx_data[3] = ((wg_com_v2_realtime_data.CompensationVoltB>>8)&0xff); // B端补偿
-            tx_data[4] = (wg_com_v2_realtime_data.CompensationVoltB&0xff);      // B端补偿
-            tx_data[5] = ((wg_com_v2_realtime_data.ADDVolt>>8)&0xff);           // ADD辅源电压
-            tx_data[6] = (wg_com_v2_realtime_data.ADDVolt&0xff);                // ADD辅源电压
+            rvc_put_reg_u16_be(tx_data, 1, &wg_com_v2_realtime_data.CompensationVoltA);
+            rvc_put_reg_u16_be(tx_data, 3, &wg_com_v2_realtime_data.CompensationVoltB);
+            rvc_put_reg_u16_be(tx_data, 5, &wg_com_v2_realtime_data.ADDVolt);
             break;
         default:
             return;
@@ -411,7 +398,7 @@ static void handle_control_settings(uint32_t gdn, uint8_t *data, uint8_t len)
 
 static uint16_t rvc_get_write_u16(const uint8_t *data, uint8_t offset)
 {
-    return (uint16_t)(((uint16_t)data[offset + 1U] << 8) | data[offset]);
+    return (uint16_t)(((uint16_t)data[offset] << 8) | data[offset + 1U]);
 }
 
 static uint8_t rvc_write_register_words(uint16_t addr, const uint16_t *values, uint16_t count)
@@ -576,88 +563,62 @@ static void handle_set_parameter_area(uint32_t gdn, uint8_t *data, uint8_t len)
     switch(gdn){
         case RVC_DGN_PROPRIETARY_SET_AVOLT_ACURR_APOWER_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_SET_AVOLT_ACURR_APOWER_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_param.SetInpVolt>>8)&0xff);
-            tx_data[2] = (wg_com_v2_param.SetInpVolt&0xff);
-            tx_data[3] = ((wg_com_v2_param.SetInpCurr>>8)&0xff);
-            tx_data[4] = (wg_com_v2_param.SetInpCurr&0xff);
-            tx_data[5] = ((wg_com_v2_param.SetInpCurrPower>>8)&0xff);
-            tx_data[6] = (wg_com_v2_param.SetInpCurrPower&0xff);
+            rvc_put_reg_u16_be(tx_data, 1, &wg_com_v2_param.SetInpVolt);
+            rvc_put_reg_u16_be(tx_data, 3, &wg_com_v2_param.SetInpCurr);
+            rvc_put_reg_u16_be(tx_data, 5, &wg_com_v2_param.SetInpCurrPower);
             break;
         case RVC_DGN_PROPRIETARY_SET_BVOLT_BCURR_BPOWER_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_SET_BVOLT_BCURR_BPOWER_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_param.SetOutVolt>>8)&0xff);
-            tx_data[2] = (wg_com_v2_param.SetOutVolt&0xff);
-            tx_data[3] = ((wg_com_v2_param.SetOutCurr>>8)&0xff);
-            tx_data[4] = (wg_com_v2_param.SetOutCurr&0xff);
-            tx_data[5] = ((wg_com_v2_param.SetOutCurrPower>>8)&0xff);
-            tx_data[6] = (wg_com_v2_param.SetOutCurrPower&0xff);
+            rvc_put_reg_u16_be(tx_data, 1, &wg_com_v2_param.SetOutVolt);
+            rvc_put_reg_u16_be(tx_data, 3, &wg_com_v2_param.SetOutCurr);
+            rvc_put_reg_u16_be(tx_data, 5, &wg_com_v2_param.SetOutCurrPower);
             break;
         case RVC_DGN_PROPRIETARY_SET_AUVLO_AUVLO_RECOVER_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_SET_AUVLO_AUVLO_RECOVER_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_param.SetInpUvlo>>8)&0xff);
-            tx_data[2] = (wg_com_v2_param.SetInpUvlo&0xff);
-            tx_data[3] = ((wg_com_v2_param.SetInpUvloRecover>>8)&0xff);
-            tx_data[4] = (wg_com_v2_param.SetInpUvloRecover&0xff);
+            rvc_put_reg_u16_be(tx_data, 1, &wg_com_v2_param.SetInpUvlo);
+            rvc_put_reg_u16_be(tx_data, 3, &wg_com_v2_param.SetInpUvloRecover);
             break;
         case RVC_DGN_PROPRIETARY_SET_AOVP_AUVLO_OVPRECOVER_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_SET_AOVP_AUVLO_OVPRECOVER_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_param.SetInpOVP>>8)&0xff);
-            tx_data[2] = (wg_com_v2_param.SetInpOVP&0xff);
-            tx_data[3] = ((wg_com_v2_param.SetInpOVPRecover>>8)&0xff);
-            tx_data[4] = (wg_com_v2_param.SetInpOVPRecover&0xff);
+            rvc_put_reg_u16_be(tx_data, 1, &wg_com_v2_param.SetInpOVP);
+            rvc_put_reg_u16_be(tx_data, 3, &wg_com_v2_param.SetInpOVPRecover);
             break;
         case RVC_DGN_PROPRIETARY_SET_BUVLO_BUVLO_RECOVER_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_SET_BUVLO_BUVLO_RECOVER_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_param.SetOutUvlo>>8)&0xff);
-            tx_data[2] = (wg_com_v2_param.SetOutUvlo&0xff);
-            tx_data[3] = ((wg_com_v2_param.SetOutUvloRecover>>8)&0xff);
-            tx_data[4] = (wg_com_v2_param.SetOutUvloRecover&0xff);
+            rvc_put_reg_u16_be(tx_data, 1, &wg_com_v2_param.SetOutUvlo);
+            rvc_put_reg_u16_be(tx_data, 3, &wg_com_v2_param.SetOutUvloRecover);
             break;
         case RVC_DGN_PROPRIETARY_SET_BOVP_BUVLO_OVPRECOVER_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_SET_BOVP_BUVLO_OVPRECOVER_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_param.SetOutOVP>>8)&0xff);
-            tx_data[2] = (wg_com_v2_param.SetOutOVP&0xff);
-            tx_data[3] = ((wg_com_v2_param.SetOutOVPRecover>>8)&0xff);
-            tx_data[4] = (wg_com_v2_param.SetOutOVPRecover&0xff);
+            rvc_put_reg_u16_be(tx_data, 1, &wg_com_v2_param.SetOutOVP);
+            rvc_put_reg_u16_be(tx_data, 3, &wg_com_v2_param.SetOutOVPRecover);
             break;
         case RVC_DGN_PROPRIETARY_SET_T1_T2_TA_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_SET_T1_T2_TA_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_param.SetInsideTemp>>8)&0xff);              // T1温度
-            tx_data[2] = (wg_com_v2_param.SetInsideTemp&0xff);                   // T1温度
-            tx_data[3] = ((wg_com_v2_param.SetOutsideTemp>>8)&0xff);             // T2温度
-            tx_data[4] = (wg_com_v2_param.SetOutsideTemp&0xff);                  // T2温度
-            tx_data[5] = ((wg_com_v2_param.SetTemp2>>8)&0xff);                   // Ta温度
-            tx_data[6] = (wg_com_v2_param.SetTemp2&0xff);                        // Ta温度
+            rvc_put_reg_u16_be(tx_data, 1, &wg_com_v2_param.SetInsideTemp);
+            rvc_put_reg_u16_be(tx_data, 3, &wg_com_v2_param.SetOutsideTemp);
+            rvc_put_reg_u16_be(tx_data, 5, &wg_com_v2_param.SetTemp2);
             break;
         case RVC_DGN_PROPRIETARY_SET_ACHARG_AFULL_LED_CURR_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_SET_ACHARG_AFULL_LED_CURR_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_param.SetInpChargLedCurr>>8)&0xff);         // A端充电指示灯电流
-            tx_data[2] = (wg_com_v2_param.SetInpChargLedCurr&0xff);              // A端充电指示灯电流
-            tx_data[3] = ((wg_com_v2_param.SetInpFullLedCurr>>8)&0xff);          // A端充满指示灯电流
-            tx_data[4] = (wg_com_v2_param.SetInpFullLedCurr&0xff);               // A端充满指示灯电流
+            rvc_put_reg_u16_be(tx_data, 1, &wg_com_v2_param.SetInpChargLedCurr);
+            rvc_put_reg_u16_be(tx_data, 3, &wg_com_v2_param.SetInpFullLedCurr);
             break;
         case RVC_DGN_PROPRIETARY_SET_BCHARG_BFULL_LED_CURR_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_SET_BCHARG_BFULL_LED_CURR_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_param.SetOutChargLedCurr>>8)&0xff);         // B端充电指示灯电流
-            tx_data[2] = (wg_com_v2_param.SetOutChargLedCurr&0xff);              // B端充电指示灯电流
-            tx_data[3] = ((wg_com_v2_param.SetOutFullLedCurr>>8)&0xff);          // B端充满指示灯电流
-            tx_data[4] = (wg_com_v2_param.SetOutFullLedCurr&0xff);               // B端充满指示灯电流
+            rvc_put_reg_u16_be(tx_data, 1, &wg_com_v2_param.SetOutChargLedCurr);
+            rvc_put_reg_u16_be(tx_data, 3, &wg_com_v2_param.SetOutFullLedCurr);
             break;
         case RVC_DGN_PROPRIETARY_AUOT_OPEN_VEER_SHUT_VOLT_A_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_AUOT_OPEN_VEER_SHUT_VOLT_A_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_param.AuotForwardOpenVoltA>>8)&0xff);
-            tx_data[2] = (wg_com_v2_param.AuotForwardOpenVoltA&0xff);
-            tx_data[3] = ((wg_com_v2_param.AuotForwardVeerVoltA>>8)&0xff);
-            tx_data[4] = (wg_com_v2_param.AuotForwardVeerVoltA&0xff);            // 自动模式正向转向A电压
-            tx_data[5] = ((wg_com_v2_param.AuotForwardShutVoltA>>8)&0xff);
-            tx_data[6] = (wg_com_v2_param.AuotForwardShutVoltA&0xff);
+            rvc_put_reg_u16_be(tx_data, 1, &wg_com_v2_param.AuotForwardOpenVoltA);
+            rvc_put_reg_u16_be(tx_data, 3, &wg_com_v2_param.AuotForwardVeerVoltA);            // 自动模式正向转向A电压
+            rvc_put_reg_u16_be(tx_data, 5, &wg_com_v2_param.AuotForwardShutVoltA);
             break;
         case RVC_DGN_PROPRIETARY_AUOT_OPEN_SHUT_VOLT_B_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_AUOT_OPEN_SHUT_VOLT_B_R, rvc_address_get_current());
-            tx_data[1] = ((wg_com_v2_param.AuotReverseOpenVoltB>>8)&0xff);
-            tx_data[2] = (wg_com_v2_param.AuotReverseOpenVoltB&0xff);
-            tx_data[3] = ((wg_com_v2_param.AuotReverseShutVoltB>>8)&0xff);
-            tx_data[4] = (wg_com_v2_param.AuotReverseShutVoltB&0xff);
+            rvc_put_reg_u16_be(tx_data, 1, &wg_com_v2_param.AuotReverseOpenVoltB);
+            rvc_put_reg_u16_be(tx_data, 3, &wg_com_v2_param.AuotReverseShutVoltB);
             break;
         default:
             return;
@@ -714,7 +675,7 @@ static void handle_manufacturer_data_w(uint32_t gdn, uint8_t *data, uint8_t len)
                     break;
                 default:
                     return;
-                    // 未知 DGN，忽略
+                    // 未知 DGN，忽�?
             }
             handle_manufacturer_data(RVC_DGN_PROPRIETARY_SN_SERIAL_R, data, 8);
             break;
@@ -751,21 +712,21 @@ static void handle_manufacturer_data_w(uint32_t gdn, uint8_t *data, uint8_t len)
                     break;
                 default:
                     return;
-                    // 未知 DGN，忽略
+                    // 未知 DGN，忽�?
             }
             handle_manufacturer_data(RVC_DGN_PROPRIETARY_PRODUCT_NAME_R, data, 8);
             break;
         case RVC_DGN_PROPRIETARY_ADDRE_APPLI_W:
-            data_u16 = (data[2]<<8)+data[1];
+            data_u16 = (uint16_t)(((uint16_t)data[1] << 8) + data[2]);
             WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_product_info.Address);
-            data_u16 = (data[4]<<8)+data[3];
+            data_u16 = (uint16_t)(((uint16_t)data[3] << 8) + data[4]);
             WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_product_info.ApplicationScenarios);
             handle_manufacturer_data(RVC_DGN_PROPRIETARY_ADDRE_APPLI_R, data, 8);
             break;
         case RVC_DGN_PROPRIETARY_CUST_BT_NAME_W:
-            data_u16 = (data[2]<<8)+data[1];
+            data_u16 = (uint16_t)(((uint16_t)data[1] << 8) + data[2]);
             WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_product_info.CustomizationVersion);
-            data_u16 = (data[4]<<8)+data[3];
+            data_u16 = (uint16_t)(((uint16_t)data[3] << 8) + data[4]);
             WG_COM_V2_SET_DATA_UINT(data_u16, wg_com_v2_product_info.BtName);
             handle_manufacturer_data(RVC_DGN_PROPRIETARY_CUST_BT_NAME_R, data, 8);
             break;
@@ -802,13 +763,13 @@ static void handle_manufacturer_data_w(uint32_t gdn, uint8_t *data, uint8_t len)
                     break;
                 default:
                     return;
-                    // 未知 DGN，忽略
+                    // 未知 DGN，忽�?
             }
             handle_manufacturer_data(RVC_DGN_PROPRIETARY_MAC_ADDRESS_R, data, 8);
             break;
         default:
             break;
-            // 未知 DGN，忽略
+            // 未知 DGN，忽�?
     }
 }
 
@@ -914,7 +875,7 @@ static void handle_control_settings_w(uint32_t gdn, uint8_t *data, uint8_t len)
             break;
         default:
             return;
-            // 未知 DGN，忽略
+            // 未知 DGN，忽�?
     }
     handle_control_settings(send_gnd, data, 8);
 }
@@ -1155,7 +1116,7 @@ void rvc_message_handler_process(uint32_t can_id, uint8_t *data, uint8_t len)
 
         default:
             break;
-            // 未知 DGN，忽略
+            // 未知 DGN，忽�?
     }
 }
 
@@ -1257,7 +1218,7 @@ static void handle_charger_command(uint32_t can_id, uint8_t *data, uint8_t len)
         g_charger_command_cb(&cmd);
     }
 
-    // 发送 ACK
+    // 发�?ACK
     rvc_send_ack(0x00, cmd.instance, RVC_DGN_CHARGER_COMMAND, sender_sa);
 }
 
@@ -1293,7 +1254,7 @@ static void handle_request_for_dgn(uint32_t can_id, uint8_t *data, uint8_t len)
 
 
 
-/* ========== 充电器状态变化 ========== */
+/* ========== 充电器状态变�?========== */
 
 #if RVC_PERIODIC_BROADCAST_ENABLE
 typedef struct {
@@ -1302,7 +1263,7 @@ typedef struct {
     float target_current;
     float actual_voltage;
     float actual_current;
-    uint8_t state;  // 0=禁用, 1=未充电, 2=Bulk, 7=CC/CV
+    uint8_t state;  // 0=禁用, 1=未充�? 2=Bulk, 7=CC/CV
 } charger_state_t;
 
 static charger_state_t g_charger_state = {
@@ -1323,23 +1284,23 @@ void on_charger_command(const rvc_charger_command_t *cmd)
 #if RVC_PERIODIC_BROADCAST_ENABLE
     // 执行命令
     if (cmd->status == 1) {
-        // 使能充电器
+        // 使能充电�?
         g_charger_state.enabled = 1;
         g_charger_state.target_voltage = cmd->voltage * 0.05f;
         g_charger_state.target_current = cmd->current * 0.05f;
         g_charger_state.state = 7;  // CC/CV ģʽ
 
-        // TODO: 启动实际的充电硬件
+        // TODO: 启动实际的充电硬�?
         // charger_hardware_enable();
         // charger_hardware_set_voltage(g_charger_state.target_voltage);
         // charger_hardware_set_current(g_charger_state.target_current);
 
     } else {
-        // 禁用充电器
+        // 禁用充电�?
         g_charger_state.enabled = 0;
         g_charger_state.state = 0;
 
-        // TODO: 关闭实际的充电硬件
+        // TODO: 关闭实际的充电硬�?
         // charger_hardware_disable();
     }
 #else
@@ -1413,7 +1374,7 @@ void on_request_for_dgn(const rvc_request_for_dgn_t *req)
 
 void message_init(void)
 {
-    /* 初始化 RV-C 地址管理器 */
+    /* 初始�?RV-C 地址管理�?*/
     rvc_address_init(RVC_ADDRESS_MODE_STATIC);
     /* 初始化消息处理器 */
     rvc_message_handler_init();
@@ -1441,16 +1402,16 @@ void message_rum(void)
     static uint32_t last_dm_rv_time = 0;
 #endif
 
-    /* 周期调用地址管理器 */
+    /* 周期调用地址管理�?*/
     rvc_address_process();
 
-    /* 检查地址状态 */
+    /* 检查地址状�?*/
     if (rvc_address_is_claimed()) {
 #if RVC_PERIODIC_BROADCAST_ENABLE
         uint32_t now = systemtime;
         uint8_t my_addr = rvc_address_get_current();
 
-        /* 周期发送 CHARGER_STATUS */
+        /* 周期发�?CHARGER_STATUS */
         uint32_t status_interval = g_charger_state.enabled ? 500 : 5000;
         if (now - last_status_time >= status_interval) {
             last_status_time = now;
@@ -1462,11 +1423,11 @@ void message_rum(void)
                                    g_charger_state.state);
         }
 
-        /* 周期发送 CHARGER_STATUS_2 (每 500ms) */
+        /* 周期发�?CHARGER_STATUS_2 (�?500ms) */
         if (now - last_status2_time >= 500) {
             last_status2_time = now;
 
-            // TODO: 读取实际的电压/电流/温度
+            // TODO: 读取实际的电�?电流/温度
             // g_charger_state.actual_voltage = charger_hardware_read_voltage();
             // g_charger_state.actual_current = charger_hardware_read_current();
 
@@ -1480,7 +1441,7 @@ void message_rum(void)
                                      25);
         }
 
-        /* 周期发送 DM_RV（每 5000ms） */
+        /* 周期发�?DM_RV（每 5000ms�?*/
         if (now - last_dm_rv_time >= 5000) {
             last_dm_rv_time = now;
             
@@ -1488,10 +1449,10 @@ void message_rum(void)
             uint16_t spn = 0;
             uint8_t fmi = 0;
             
-            // TODO: 检查实际故障
+            // TODO: 检查实际故�?
             // if (over_temperature) {
             //     spn = 110;  // 温度过高
-            //     fmi = 0;    // 数据有效但超出正常范围
+            //     fmi = 0;    // 数据有效但超出正常范�?
             // }
             
             rvc_send_dm_rv(g_my_instance, spn, fmi);
@@ -1501,7 +1462,7 @@ void message_rum(void)
         // 地址冲突，无法声明地址
 
 
-        // LED 指示：错误状态（闪烁）
+        // LED 指示：错误状态（闪烁�?
 
     } else {
         // 正在声明地址

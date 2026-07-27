@@ -9,23 +9,23 @@
 
 static float voltcomp_com = 0.0f;
 
-static uint16_t can_wg_get_u16_le(const uint8_t *p_data)
+static uint16_t can_wg_get_u16_be(const uint8_t *p_data)
 {
-    return (uint16_t)(p_data[0] | ((uint16_t)p_data[1] << 8));
+    return (uint16_t)(((uint16_t)p_data[0] << 8) | p_data[1]);
 }
 
-static void can_wg_put_u16_le(uint8_t *p_data, uint16_t data)
+static void can_wg_put_u16_be(uint8_t *p_data, uint16_t data)
 {
-    p_data[0] = (uint8_t)(data & 0x00FFU);
-    p_data[1] = (uint8_t)((data >> 8) & 0x00FFU);
+    p_data[0] = (uint8_t)((data >> 8) & 0x00FFU);
+    p_data[1] = (uint8_t)(data & 0x00FFU);
 }
 
-static void can_wg_put_reg_u16_le(uint8_t *p_data, const void *reg)
+static void can_wg_put_reg_u16_be(uint8_t *p_data, const void *reg)
 {
-    can_wg_put_u16_le(p_data, get_uint16((uint8_t *)reg));
+    can_wg_put_u16_be(p_data, get_uint16((uint8_t *)reg));
 }
 
-static uint8_t can_wg_write_registers_from_le(uint16_t addr, uint16_t count, const uint8_t *le_data)
+static uint8_t can_wg_write_registers_from_be(uint16_t addr, uint16_t count, const uint8_t *be_data)
 {
     uint8_t reg_data[8] = {0};
 
@@ -36,7 +36,7 @@ static uint8_t can_wg_write_registers_from_le(uint16_t addr, uint16_t count, con
 
     for (uint16_t i = 0; i < count; i++)
     {
-        set_uint16(&reg_data[i * 2U], can_wg_get_u16_le(&le_data[i * 2U]));
+        set_uint16(&reg_data[i * 2U], can_wg_get_u16_be(&be_data[i * 2U]));
     }
 
     return wg_com_v2_write_registers(addr, count, reg_data);
@@ -215,7 +215,7 @@ void can_wg_handle_set_param(const can_packet_t *packet)
     {
         return; // 错误的参数个数
     }
-    (void)can_wg_write_registers_from_le((uint16_t)(WG_COM_V2_PARAM_ADDR + param_data->data_offset),
+    (void)can_wg_write_registers_from_be((uint16_t)(WG_COM_V2_PARAM_ADDR + param_data->data_offset),
                                          count,
                                          param_data->data);
 }
@@ -235,8 +235,8 @@ void can_wg_handle_get_param(const can_packet_t *packet)
     uint16_t *p_data = (uint16_t *)&wg_com_v2_param + param_data->data_offset;
     for (uint32_t i = 0; i < pack_num; i++)
     {
-        can_wg_put_reg_u16_le(&param_data->data[0], &p_data[i * 2U]);
-        can_wg_put_reg_u16_le(&param_data->data[2], &p_data[(i * 2U) + 1U]);
+        can_wg_put_reg_u16_be(&param_data->data[0], &p_data[i * 2U]);
+        can_wg_put_reg_u16_be(&param_data->data[2], &p_data[(i * 2U) + 1U]);
         can_packet_transmit_data(
             PROTNO_WG,
             packet->id.id.ptp,     // ptp
@@ -268,13 +268,13 @@ void can_wg_handle_set_ctrl(const can_packet_t *packet)
         (void)wg_com_v2_write_registers(WG_COM_V2_CTRL_ADDR, 4U, reg_data);
         break;
     case CAN_WG_CTRL_VALUETYPE_BATTERY_TYPE:
-        (void)can_wg_write_registers_from_le((uint16_t)(WG_COM_V2_CTRL_ADDR + 4U), 2U, p_data);
+        (void)can_wg_write_registers_from_be((uint16_t)(WG_COM_V2_CTRL_ADDR + 4U), 2U, p_data);
         break;
     case CAN_WG_CTRL_VALUETYPE_BOOT_TIME:
-        (void)can_wg_write_registers_from_le((uint16_t)(WG_COM_V2_CTRL_ADDR + 6U), 2U, p_data);
+        (void)can_wg_write_registers_from_be((uint16_t)(WG_COM_V2_CTRL_ADDR + 6U), 2U, p_data);
         break;
     case CAN_WG_CTRL_VALUETYPE_SOFT_START:
-        (void)can_wg_write_registers_from_le((uint16_t)(WG_COM_V2_CTRL_ADDR + 8U), 2U, p_data);
+        (void)can_wg_write_registers_from_be((uint16_t)(WG_COM_V2_CTRL_ADDR + 8U), 2U, p_data);
         break;
     default:
         break;
@@ -301,16 +301,16 @@ void can_wg_handle_get_ctrl(const can_packet_t *packet)
         memcpy(can_packet_data.data.data_info.valueinfo.value.bytes, &common_ctrl, sizeof(common_ctrl));
         break;
     case CAN_WG_CTRL_VALUETYPE_BATTERY_TYPE:
-        can_wg_put_reg_u16_le(can_packet_data.data.data_info.valueinfo.value.bytes, &wg_com_v2_ctrl.InpBatyType);
-        can_wg_put_reg_u16_le(can_packet_data.data.data_info.valueinfo.value.bytes + 2, &wg_com_v2_ctrl.OutBatyType);
+        can_wg_put_reg_u16_be(can_packet_data.data.data_info.valueinfo.value.bytes, &wg_com_v2_ctrl.InpBatyType);
+        can_wg_put_reg_u16_be(can_packet_data.data.data_info.valueinfo.value.bytes + 2, &wg_com_v2_ctrl.OutBatyType);
         break;
     case CAN_WG_CTRL_VALUETYPE_BOOT_TIME:
-        can_wg_put_reg_u16_le(can_packet_data.data.data_info.valueinfo.value.bytes, &wg_com_v2_ctrl.SetBootTimeA);
-        can_wg_put_reg_u16_le(can_packet_data.data.data_info.valueinfo.value.bytes + 2, &wg_com_v2_ctrl.SetBootTimeB);
+        can_wg_put_reg_u16_be(can_packet_data.data.data_info.valueinfo.value.bytes, &wg_com_v2_ctrl.SetBootTimeA);
+        can_wg_put_reg_u16_be(can_packet_data.data.data_info.valueinfo.value.bytes + 2, &wg_com_v2_ctrl.SetBootTimeB);
         break;
     case CAN_WG_CTRL_VALUETYPE_SOFT_START:
-        can_wg_put_reg_u16_le(can_packet_data.data.data_info.valueinfo.value.bytes, &wg_com_v2_ctrl.SetOnCurrStartTimeA);
-        can_wg_put_reg_u16_le(can_packet_data.data.data_info.valueinfo.value.bytes + 2, &wg_com_v2_ctrl.SetOnCurrStartTimeB);
+        can_wg_put_reg_u16_be(can_packet_data.data.data_info.valueinfo.value.bytes, &wg_com_v2_ctrl.SetOnCurrStartTimeA);
+        can_wg_put_reg_u16_be(can_packet_data.data.data_info.valueinfo.value.bytes + 2, &wg_com_v2_ctrl.SetOnCurrStartTimeB);
         break;
     default:
         return;

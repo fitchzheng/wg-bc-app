@@ -25,7 +25,7 @@ void send_data(void)
 
 static uint16_t can_get_u16_be(const uint8_t *data, uint8_t offset)
 {
-    return (uint16_t)(((uint16_t)data[offset + 1] << 8) | data[offset]);
+    return (uint16_t)(((uint16_t)data[offset] << 8) | data[offset + 1]);
 }
 
 static uint16_t can_get_battery_type_value(const uint8_t *data, uint8_t offset)
@@ -35,14 +35,10 @@ static uint16_t can_get_battery_type_value(const uint8_t *data, uint8_t offset)
 
 static void can_put_u16_be(uint8_t *data, uint8_t offset, uint16_t value)
 {
-    data[offset] = (uint8_t)(value & 0xff);
-    data[offset + 1] = (uint8_t)((value >> 8) & 0xff);
+    data[offset] = (uint8_t)((value >> 8) & 0xff);
+    data[offset + 1] = (uint8_t)(value & 0xff);
 }
 
-static uint16_t can_centi_to_deci(uint16_t value)
-{
-    return (uint16_t)((value + 5U) / 10U);
-}
 
 
 static uint8_t can_write_register_u16(uint16_t addr, uint16_t value)
@@ -86,14 +82,6 @@ static uint8_t can_write_param_u16(void *field, uint16_t value)
     return can_write_register_u16(can_field_register_addr(&wg_com_v2_param, field, WG_COM_V2_PARAM_ADDR), value);
 }
 
-static uint16_t can_deci_to_centi(uint16_t value)
-{
-    if(value > 6553U)
-    {
-        return 65535U;
-    }
-    return (uint16_t)(value * 10U);
-}
 #define CANSTACK_DEFAULT_ADDRESS 1U
 #define CANSTACK_ADDRESS_MAX 31U
 
@@ -368,7 +356,7 @@ void Get_CAN_Communications_Content (uint32_t can_id, uint8_t *data, uint8_t len
                 if(data[1] != 0x22){return;}
                 can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_realtime_data.CompensationVoltA));
                 can_put_u16_be(data, 4, can_read_u16_field(&wg_com_v2_realtime_data.CompensationVoltB));
-                can_put_u16_be(data, 6, can_read_u16_field(&wg_com_v2_realtime_data.Temp2));
+                can_put_u16_be(data, 6, can_read_u16_field(&wg_com_v2_realtime_data.ADDVolt));
                 break;
             case CHARGING_STATUS:
                 if(data[1] != 0x22){return;}
@@ -600,9 +588,9 @@ void Get_CAN_Communications_Content (uint32_t can_id, uint8_t *data, uint8_t len
                 break;
             case TERMINAL_A_UNDER:
                 if(data[1] == 0x88){
-                    (void)can_write_param_u16(&wg_com_v2_param.SetInpUvlo, can_deci_to_centi(can_get_u16_be(data, 2)));                        // A端欠压保�?
+                    (void)can_write_param_u16(&wg_com_v2_param.SetInpUvlo, can_get_u16_be(data, 2));                        // A端欠压保�?
                 }else if(data[1] == 0x22){
-                    can_put_u16_be(data, 2, can_centi_to_deci(can_read_u16_field(&wg_com_v2_param.SetInpUvlo)));
+                    can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_param.SetInpUvlo));
                     data[4] = 0;                                                                            // 保留
                     data[5] = 0;                                                                            // 保留
                     data[6] = 0;                                                                            // 保留
@@ -611,9 +599,9 @@ void Get_CAN_Communications_Content (uint32_t can_id, uint8_t *data, uint8_t len
                 break;
             case TERMINAL_A_UNDER_R:
                 if(data[1] == 0x88){
-                    (void)can_write_param_u16(&wg_com_v2_param.SetInpUvloRecover, can_deci_to_centi(can_get_u16_be(data, 2)));                 // A端欠压保护恢�?
+                    (void)can_write_param_u16(&wg_com_v2_param.SetInpUvloRecover, can_get_u16_be(data, 2));                 // A端欠压保护恢�?
                 }else if(data[1] == 0x22){
-                    can_put_u16_be(data, 2, can_centi_to_deci(can_read_u16_field(&wg_com_v2_param.SetInpUvloRecover)));
+                    can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_param.SetInpUvloRecover));
                     data[4] = 0;                                                                            // 保留
                     data[5] = 0;                                                                            // 保留
                     data[6] = 0;                                                                            // 保留
@@ -622,9 +610,9 @@ void Get_CAN_Communications_Content (uint32_t can_id, uint8_t *data, uint8_t len
                 break;
             case TERMINAL_A_OVER:
                 if(data[1] == 0x88){
-                    (void)can_write_param_u16(&wg_com_v2_param.SetInpOVP, can_deci_to_centi(can_get_u16_be(data, 2)));                         // A端过压保�?
+                    (void)can_write_param_u16(&wg_com_v2_param.SetInpOVP, can_get_u16_be(data, 2));                         // A端过压保�?
                 }else if(data[1] == 0x22){
-                    can_put_u16_be(data, 2, can_centi_to_deci(can_read_u16_field(&wg_com_v2_param.SetInpOVP)));
+                    can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_param.SetInpOVP));
                     data[4] = 0;                                                                            // 保留
                     data[5] = 0;                                                                            // 保留
                     data[6] = 0;                                                                            // 保留
@@ -633,9 +621,9 @@ void Get_CAN_Communications_Content (uint32_t can_id, uint8_t *data, uint8_t len
                 break;
             case TERMINAL_A_OVER_R:
                 if(data[1] == 0x88){
-                    (void)can_write_param_u16(&wg_com_v2_param.SetInpOVPRecover, can_deci_to_centi(can_get_u16_be(data, 2)));                  // A端过压保护恢�?
+                    (void)can_write_param_u16(&wg_com_v2_param.SetInpOVPRecover, can_get_u16_be(data, 2));                  // A端过压保护恢�?
                 }else if(data[1] == 0x22){
-                    can_put_u16_be(data, 2, can_centi_to_deci(can_read_u16_field(&wg_com_v2_param.SetInpOVPRecover)));
+                    can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_param.SetInpOVPRecover));
                     data[4] = 0;                                                                            // 保留
                     data[5] = 0;                                                                            // 保留
                     data[6] = 0;                                                                            // 保留
@@ -644,9 +632,9 @@ void Get_CAN_Communications_Content (uint32_t can_id, uint8_t *data, uint8_t len
                 break;
             case TERMINAL_B_UNDER:
                 if(data[1] == 0x88){
-                    (void)can_write_param_u16(&wg_com_v2_param.SetOutUvlo, can_deci_to_centi(can_get_u16_be(data, 2)));                        // B端欠压保�?
+                    (void)can_write_param_u16(&wg_com_v2_param.SetOutUvlo, can_get_u16_be(data, 2));                        // B端欠压保�?
                 }else if(data[1] == 0x22){
-                    can_put_u16_be(data, 2, can_centi_to_deci(can_read_u16_field(&wg_com_v2_param.SetOutUvlo)));
+                    can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_param.SetOutUvlo));
                     data[4] = 0;                                                                            // 保留
                     data[5] = 0;                                                                            // 保留
                     data[6] = 0;                                                                            // 保留
@@ -655,9 +643,9 @@ void Get_CAN_Communications_Content (uint32_t can_id, uint8_t *data, uint8_t len
                 break;
             case TERMINAL_B_UNDER_R:
                 if(data[1] == 0x88){
-                    (void)can_write_param_u16(&wg_com_v2_param.SetOutUvloRecover, can_deci_to_centi(can_get_u16_be(data, 2)));                 // B端欠压保护恢�?
+                    (void)can_write_param_u16(&wg_com_v2_param.SetOutUvloRecover, can_get_u16_be(data, 2));                 // B端欠压保护恢�?
                 }else if(data[1] == 0x22){
-                    can_put_u16_be(data, 2, can_centi_to_deci(can_read_u16_field(&wg_com_v2_param.SetOutUvloRecover)));
+                    can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_param.SetOutUvloRecover));
                     data[4] = 0;                                                                            // 保留
                     data[5] = 0;                                                                            // 保留
                     data[6] = 0;                                                                            // 保留
@@ -666,9 +654,9 @@ void Get_CAN_Communications_Content (uint32_t can_id, uint8_t *data, uint8_t len
                 break;
             case TERMINAL_B_OVER:
                 if(data[1] == 0x88){
-                    (void)can_write_param_u16(&wg_com_v2_param.SetOutOVP, can_deci_to_centi(can_get_u16_be(data, 2)));                         // B端过压保�?
+                    (void)can_write_param_u16(&wg_com_v2_param.SetOutOVP, can_get_u16_be(data, 2));                         // B端过压保�?
                 }else if(data[1] == 0x22){
-                    can_put_u16_be(data, 2, can_centi_to_deci(can_read_u16_field(&wg_com_v2_param.SetOutOVP)));
+                    can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_param.SetOutOVP));
                     data[4] = 0;                                                                            // 保留
                     data[5] = 0;                                                                            // 保留
                     data[6] = 0;                                                                            // 保留
@@ -677,9 +665,9 @@ void Get_CAN_Communications_Content (uint32_t can_id, uint8_t *data, uint8_t len
                 break;
             case TERMINAL_B_OVER_R:
                 if(data[1] == 0x88){
-                    (void)can_write_param_u16(&wg_com_v2_param.SetOutOVPRecover, can_deci_to_centi(can_get_u16_be(data, 2)));                  // B端过压保护恢�?
+                    (void)can_write_param_u16(&wg_com_v2_param.SetOutOVPRecover, can_get_u16_be(data, 2));                  // B端过压保护恢�?
                 }else if(data[1] == 0x22){
-                    can_put_u16_be(data, 2, can_centi_to_deci(can_read_u16_field(&wg_com_v2_param.SetOutOVPRecover)));
+                    can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_param.SetOutOVPRecover));
                     data[4] = 0;                                                                            // 保留
                     data[5] = 0;                                                                            // 保留
                     data[6] = 0;                                                                            // 保留
@@ -699,22 +687,22 @@ void Get_CAN_Communications_Content (uint32_t can_id, uint8_t *data, uint8_t len
                 break;
             case TERMINAL_A_CHARGING_LIGHT:
                 if(data[1] == 0x88){
-                    (void)can_write_param_u16(&wg_com_v2_param.SetInpChargLedCurr, can_deci_to_centi(can_get_u16_be(data, 2)));                // A端充电指示灯电流
-                    (void)can_write_param_u16(&wg_com_v2_param.SetInpFullLedCurr, can_deci_to_centi(can_get_u16_be(data, 4)));                 // A端充满指示灯电流
+                    (void)can_write_param_u16(&wg_com_v2_param.SetInpChargLedCurr, can_get_u16_be(data, 2));                // A端充电指示灯电流
+                    (void)can_write_param_u16(&wg_com_v2_param.SetInpFullLedCurr, can_get_u16_be(data, 4));                 // A端充满指示灯电流
                 }else if(data[1] == 0x22){
-                    can_put_u16_be(data, 2, can_centi_to_deci(can_read_u16_field(&wg_com_v2_param.SetInpChargLedCurr)));
-                    can_put_u16_be(data, 4, can_centi_to_deci(can_read_u16_field(&wg_com_v2_param.SetInpFullLedCurr)));
+                    can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_param.SetInpChargLedCurr));
+                    can_put_u16_be(data, 4, can_read_u16_field(&wg_com_v2_param.SetInpFullLedCurr));
                     data[6] = 0;                                                                            // 保留
                     data[7] = 0;                                                                            // 保留
                 }
                 break;
             case TERMINAL_B_CHARGING_LIGHT:
                 if(data[1] == 0x88){
-                    (void)can_write_param_u16(&wg_com_v2_param.SetOutChargLedCurr, can_deci_to_centi(can_get_u16_be(data, 2)));                // B端充电指示灯电流
-                    (void)can_write_param_u16(&wg_com_v2_param.SetOutFullLedCurr, can_deci_to_centi(can_get_u16_be(data, 4)));                 // B端充满指示灯电流
+                    (void)can_write_param_u16(&wg_com_v2_param.SetOutChargLedCurr, can_get_u16_be(data, 2));                // B端充电指示灯电流
+                    (void)can_write_param_u16(&wg_com_v2_param.SetOutFullLedCurr, can_get_u16_be(data, 4));                 // B端充满指示灯电流
                 }else if(data[1] == 0x22){
-                    can_put_u16_be(data, 2, can_centi_to_deci(can_read_u16_field(&wg_com_v2_param.SetOutChargLedCurr)));
-                    can_put_u16_be(data, 4, can_centi_to_deci(can_read_u16_field(&wg_com_v2_param.SetOutFullLedCurr)));
+                    can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_param.SetOutChargLedCurr));
+                    can_put_u16_be(data, 4, can_read_u16_field(&wg_com_v2_param.SetOutFullLedCurr));
                     data[6] = 0;                                                                            // 保留
                     data[7] = 0;                                                                            // 保留
                 }
