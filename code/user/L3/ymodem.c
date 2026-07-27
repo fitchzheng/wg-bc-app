@@ -58,6 +58,8 @@ static uint8_t is_recv_cplt[2];
 #define IAP_META_MAGIC      0x4D504149UL
 #define IAP_META_PENDING    0x444E4550UL
 #define IAP_META_OFFSET     256U
+#define IAP_FACTORY_BACKUP_OFFSET 0x200U
+#define IAP_FACTORY_BACKUP_SIZE   0x410U
 
 typedef struct
 {
@@ -149,16 +151,17 @@ static uint8_t  up_data = 0;
 
 static void ymodem_program_bytes(uint32_t base_addr, const uint8_t *data, uint32_t len)
 {
-    uint32_t offset = 0;
+    uint32_t offset = 0U;
 
     while (offset < len)
     {
         uint32_t word = 0xFFFFFFFFUL;
-        uint8_t *pword = (uint8_t *)&word;
+        uint8_t i;
 
-        for (uint32_t i = 0; (i < 4U) && ((offset + i) < len); i++)
+        for (i = 0U; (i < 4U) && ((offset + i) < len); i++)
         {
-            pword[i] = data[offset + i];
+            word &= ~((uint32_t)0xFFU << (8U * i));
+            word |= ((uint32_t)data[offset + i] << (8U * i));
         }
 
         EFM_ProgramWord(base_addr + offset, word);
@@ -170,6 +173,9 @@ static uint8_t ymodem_write_update_request(const iap_meta_t *meta)
 {
     uint32_t update_page = IAP_META_ADDR / FLASH_LOGICAL_PAGE_SIZE;
     const uint8_t *flash_data = (const uint8_t *)IAP_META_ADDR;
+    uint8_t factory_backup[IAP_FACTORY_BACKUP_SIZE];
+
+    memcpy(factory_backup, &flash_data[IAP_FACTORY_BACKUP_OFFSET], IAP_FACTORY_BACKUP_SIZE);
 
     EFM_REG_Unlock();
     EFM_FWMC_Cmd(ENABLE);
@@ -177,6 +183,7 @@ static uint8_t ymodem_write_update_request(const iap_meta_t *meta)
     EFM_SectorErase(IAP_META_ADDR);
     ymodem_program_bytes(IAP_META_ADDR, (const uint8_t *)&ymodem_soh_first_parsed, sizeof(ymodem_soh_first_parsed));
     ymodem_program_bytes(IAP_META_ADDR + IAP_META_OFFSET, (const uint8_t *)meta, sizeof(*meta));
+    ymodem_program_bytes(IAP_META_ADDR + IAP_FACTORY_BACKUP_OFFSET, factory_backup, IAP_FACTORY_BACKUP_SIZE);
     (void)EFM_SingleSectorOperateCmd(update_page, DISABLE);
     EFM_REG_Lock();
 

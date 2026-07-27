@@ -194,8 +194,16 @@ void get_protect_data(void)
             charge_state_data.protect_data.protect_item_rvs12_uvp.recover = OutUvloRecover;
             charge_state_data.protect_data.protect_item_rvs12_uvp.enable = 0;
             charge_state_data.protect_data.protect_item_rvs12_ovp.val = rvs12_val;
-            charge_state_data.protect_data.protect_item_rvs12_ovp.limit = (SetVolt+2.0f);
-            charge_state_data.protect_data.protect_item_rvs12_ovp.recover = SetVolt;
+            if(get_wg_com_v2_data.com_ctrl.SetPowerMode == eSET_CUSTOM_MODE)
+            {
+                charge_state_data.protect_data.protect_item_rvs12_ovp.limit = OutOVP;
+                charge_state_data.protect_data.protect_item_rvs12_ovp.recover = OutOVPRecover;
+            }
+            else
+            {
+                charge_state_data.protect_data.protect_item_rvs12_ovp.limit = (SetVolt+2.0f);
+                charge_state_data.protect_data.protect_item_rvs12_ovp.recover = SetVolt;
+            }
             charge_state_data.protect_data.protect_item_rvs12_ovp.enable = 1;
              break;
         case eBACKWARD: // 反向
@@ -206,8 +214,16 @@ void get_protect_data(void)
             charge_state_data.protect_data.protect_item_fvs48_uvp.recover = InpUvloRecover;
             charge_state_data.protect_data.protect_item_fvs48_uvp.enable = 0;
             charge_state_data.protect_data.protect_item_fvs48_ovp.val = fvs48_val;
-            charge_state_data.protect_data.protect_item_fvs48_ovp.limit = (SetInpt+2.0f);
-            charge_state_data.protect_data.protect_item_fvs48_ovp.recover = SetInpt;
+            if(get_wg_com_v2_data.com_ctrl.SetPowerMode == eSET_CUSTOM_MODE)
+            {
+                charge_state_data.protect_data.protect_item_fvs48_ovp.limit = InpOVP;
+                charge_state_data.protect_data.protect_item_fvs48_ovp.recover = InpOVPRecover;
+            }
+            else
+            {
+                charge_state_data.protect_data.protect_item_fvs48_ovp.limit = (SetInpt+2.0f);
+                charge_state_data.protect_data.protect_item_fvs48_ovp.recover = SetInpt;
+            }
             charge_state_data.protect_data.protect_item_fvs48_ovp.enable = 1;
             charge_state_data.protect_data.protect_item_rvs12_uvp.val = rvs12_val;
             charge_state_data.protect_data.protect_item_rvs12_uvp.limit = OutUvlo;
@@ -233,8 +249,16 @@ void get_protect_data(void)
             charge_state_data.protect_data.protect_item_rvs12_uvp.recover = AuotOpenVoltB;
             charge_state_data.protect_data.protect_item_rvs12_uvp.enable = 1;
             charge_state_data.protect_data.protect_item_rvs12_ovp.val = rvs12_val;
-            charge_state_data.protect_data.protect_item_rvs12_ovp.limit = (SetVolt+2.0f);
-            charge_state_data.protect_data.protect_item_rvs12_ovp.recover = SetVolt;
+            if(get_wg_com_v2_data.com_ctrl.SetPowerMode == eSET_CUSTOM_MODE)
+            {
+                charge_state_data.protect_data.protect_item_rvs12_ovp.limit = OutOVP;
+                charge_state_data.protect_data.protect_item_rvs12_ovp.recover = OutOVPRecover;
+            }
+            else
+            {
+                charge_state_data.protect_data.protect_item_rvs12_ovp.limit = (SetVolt+2.0f);
+                charge_state_data.protect_data.protect_item_rvs12_ovp.recover = SetVolt;
+            }
             charge_state_data.protect_data.protect_item_rvs12_ovp.enable = 1;
             break;
         case eAUTO_BACKWARD:
@@ -244,8 +268,16 @@ void get_protect_data(void)
             charge_state_data.protect_data.protect_item_fvs48_uvp.recover = InpUvloRecover;
             charge_state_data.protect_data.protect_item_fvs48_uvp.enable = 1;
             charge_state_data.protect_data.protect_item_fvs48_ovp.val = fvs48_val;
-            charge_state_data.protect_data.protect_item_fvs48_ovp.limit = (SetInpt+2.0f);
-            charge_state_data.protect_data.protect_item_fvs48_ovp.recover = SetInpt;
+            if(get_wg_com_v2_data.com_ctrl.SetPowerMode == eSET_CUSTOM_MODE)
+            {
+                charge_state_data.protect_data.protect_item_fvs48_ovp.limit = InpOVP;
+                charge_state_data.protect_data.protect_item_fvs48_ovp.recover = InpOVPRecover;
+            }
+            else
+            {
+                charge_state_data.protect_data.protect_item_fvs48_ovp.limit = (SetInpt+2.0f);
+                charge_state_data.protect_data.protect_item_fvs48_ovp.recover = SetInpt;
+            }
             charge_state_data.protect_data.protect_item_fvs48_ovp.enable = 1;
             charge_state_data.protect_data.protect_item_rvs12_uvp.val = rvs12_val;
             charge_state_data.protect_data.protect_item_rvs12_uvp.limit = (OutUvlo > AuotCloseVoltB) ? OutUvlo : AuotCloseVoltB;

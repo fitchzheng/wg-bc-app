@@ -43,6 +43,18 @@
 #define AUTO_CHARGE_REVERSE_OPEN    0x94
 #define AUTO_CHARGE_REVERSE_SHUT    0x95
 #define SET_TEMP_INNER              0x96
+#define MFG_PROTOCOL_VERSION        0x50
+#define MFG_PRODUCT_TYPE            0x51
+#define MFG_HARDVER_VERSION         0x52
+#define MFG_SOFT_VERSION            0x53
+#define MFG_ADDRESS_SCENARIO        0x54
+#define MFG_CUSTOM_BT_NAME          0x55
+#define MFG_SN_SERIAL_PART          0x56
+#define MFG_PRODUCT_NAME_PART       0x57
+#define MFG_MAC_ADDRESS_PART        0x58
+#define APP_DEBUG_EVENT_PART        0x59
+#define CANSTACK_CALIBRATION        0x5A
+#define CANSTACK_ADDRESS_SELECT    0x5B
 #define MOSFET_CONTROL_300A         0x10
 #define MOSFET_CONTROL_150A         0x12
 

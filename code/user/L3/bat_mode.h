@@ -53,7 +53,7 @@
 #define BAT_SYS_24V_AGM_MAX_OUT_VOLT                    30.00f
 #define BAT_SYS_24V_AGM_MIN_OUT_VOLT                    15.00f
 #define BAT_SYS_24V_AGM_DEFAULT_OUT_VOLT                28.80f
-#define BAT_SYS_24V_AGM_MAX_CHURR_VOLT                  55.00f
+#define BAT_SYS_24V_AGM_MAX_CHURR_VOLT                  100.00f
 #define BAT_SYS_24V_AGM_MIN_CHURR_VOLT                  1.00f
 #define BAT_SYS_24V_AGM_DEFAULT_CHURR_VOLT              50.00f
 #define BAT_SYS_24V_AGM_MAX_POWER_VOLT                  1500

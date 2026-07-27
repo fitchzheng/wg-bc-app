@@ -40,7 +40,9 @@ void charge_control_run(void)
     get_temp_derate_curr();
 
     power_mode = get_wg_com_v2_data.com_ctrl.SetPowerMode;
-    if(get_wg_com_v2_data.com_ctrl.MpptSwitch == 1)
+    if((get_wg_com_v2_data.com_ctrl.MpptSwitch == 1) &&
+       (power_mode != eSET_STANDARD_MODE) &&
+       (power_mode != eSET_CUSTOM_MODE))
     {
         power_mode = eMPPT_MODE;
     }

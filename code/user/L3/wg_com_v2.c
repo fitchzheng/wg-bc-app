@@ -305,6 +305,11 @@ void wg_com_v2_exit_mppt_control_state(void)
     }
 }
 
+static uint8_t wg_com_v2_mode_blocks_mppt(uint16_t power_mode)
+{
+    return ((power_mode == eSET_STANDARD_MODE) || (power_mode == eSET_CUSTOM_MODE)) ? 1U : 0U;
+}
+
 static uint8_t normalize_mode_control_state(uint16_t addr,
                                             uint16_t count,
                                             uint16_t old_power_mode,
@@ -328,7 +333,6 @@ static uint8_t normalize_mode_control_state(uint16_t addr,
     uint16_t soft_start_b = 0;
 
     (void)old_bat_mode_fr;
-    (void)old_sleep_mode;
 
     WG_COM_V2_GET_DATA_UINT(power_mode, wg_com_v2_ctrl.SetPowerMode);
     WG_COM_V2_GET_DATA_UINT(mppt_switch, wg_com_v2_ctrl.MpptSwitch);
@@ -337,6 +341,25 @@ static uint8_t normalize_mode_control_state(uint16_t addr,
     WG_COM_V2_GET_DATA_UINT(boot_time_b, wg_com_v2_ctrl.SetBootTimeB);
     WG_COM_V2_GET_DATA_UINT(soft_start_a, wg_com_v2_ctrl.SetOnCurrStartTimeA);
     WG_COM_V2_GET_DATA_UINT(soft_start_b, wg_com_v2_ctrl.SetOnCurrStartTimeB);
+
+    if((writes_power_mode != 0U) &&
+       (power_mode == eMPPT_MODE) &&
+       (wg_com_v2_mode_blocks_mppt(old_power_mode) != 0U))
+    {
+        WG_COM_V2_SET_DATA_UINT(old_power_mode, wg_com_v2_ctrl.SetPowerMode);
+        WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.MpptSwitch);
+        power_mode = old_power_mode;
+        mppt_switch = 0U;
+        changed = 1U;
+    }
+    if((mppt_switch != 0U) &&
+       ((wg_com_v2_mode_blocks_mppt(old_power_mode) != 0U) ||
+        (wg_com_v2_mode_blocks_mppt(power_mode) != 0U)))
+    {
+        WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.MpptSwitch);
+        mppt_switch = 0U;
+        changed = 1U;
+    }
 
     if(writes_mppt_switch != 0)
     {
@@ -393,20 +416,55 @@ static uint8_t normalize_mode_control_state(uint16_t addr,
         if(boot_time_b != 0)
         {
             WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetBootTimeB);
-            changed = 1;
+            changed = 1U;
         }
         if(soft_start_a != 0)
         {
             WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetOnCurrStartTimeA);
-            changed = 1;
+            changed = 1U;
         }
     }
 
     if(power_mode == eSET_STANDARD_MODE)
     {
-        WG_COM_V2_SET_DATA_UINT(1, wg_com_v2_ctrl.BatModeFR);
-        WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetOnCurrStartTimeA);
-        WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetOnCurrStartTimeB);
+        if(bat_mode_fr != 1U)
+        {
+            WG_COM_V2_SET_DATA_UINT(1, wg_com_v2_ctrl.BatModeFR);
+            changed = 1U;
+        }
+        if(mppt_switch != 0U)
+        {
+            WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.MpptSwitch);
+            changed = 1U;
+        }
+        if(sleep_mode != 0U)
+        {
+            WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SleepModeOnOff);
+            changed = 1U;
+        }
+        if(soft_start_a != 0U)
+        {
+            WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetOnCurrStartTimeA);
+            changed = 1U;
+        }
+        if(soft_start_b != 0U)
+        {
+            WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetOnCurrStartTimeB);
+            changed = 1U;
+        }
+    }
+    else if(power_mode == eSET_CUSTOM_MODE)
+    {
+        if(mppt_switch != 0U)
+        {
+            WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.MpptSwitch);
+            changed = 1U;
+        }
+        if(sleep_mode != 0U)
+        {
+            WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SleepModeOnOff);
+            changed = 1U;
+        }
     }
 
     if(power_mode != eSET_BAT_MODE)
@@ -416,19 +474,20 @@ static uint8_t normalize_mode_control_state(uint16_t addr,
 
     WG_COM_V2_GET_DATA_UINT(power_mode, wg_com_v2_ctrl.SetPowerMode);
     WG_COM_V2_GET_DATA_UINT(mppt_switch, wg_com_v2_ctrl.MpptSwitch);
+    WG_COM_V2_GET_DATA_UINT(sleep_mode, wg_com_v2_ctrl.SleepModeOnOff);
     WG_COM_V2_GET_DATA_UINT(soft_start_a, wg_com_v2_ctrl.SetOnCurrStartTimeA);
     WG_COM_V2_GET_DATA_UINT(soft_start_b, wg_com_v2_ctrl.SetOnCurrStartTimeB);
 
     if((old_power_mode != power_mode) ||
        (old_mppt_switch != mppt_switch) ||
+       (old_sleep_mode != sleep_mode) ||
        (old_soft_start_a != soft_start_a) ||
        (old_soft_start_b != soft_start_b))
     {
-        changed = 1;
+        changed = 1U;
     }
     return changed;
 }
-
 float wg_com_v2_get_data_uint(float user_data, void *wg_com_v2_data)
 {
     uint16_t litend_uint16 = get_uint16((uint8_t *)wg_com_v2_data);

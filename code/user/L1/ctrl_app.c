@@ -43,6 +43,11 @@ static float mppt_vin_flt = 0.0f;
 static float mppt_pin_flt = 0.0f;
 //uint8_t mppt_mode = 1;
 
+static uint8_t ctrl_app_relative_ovp_enable(void)
+{
+    return (get_wg_com_v2_data.com_ctrl.SetPowerMode == eSET_CUSTOM_MODE) ? 0U : 1U;
+}
+
 static void ctrl_app_force_pwm_off(void)
 {
     for (uint8_t i = 0; i < BUCK_BOOST_L_LOOP_NUM; i++)
@@ -437,7 +442,8 @@ void RAMFUNC ctrl_app_run(void)
 
     if(ctrl_mode == ADDRS_FORWARD)
     {
-        if(rvs12 > (charge_state_data.SetOutVolt+2.0f))
+        if((ctrl_app_relative_ovp_enable() != 0U) &&
+           (rvs12 > (charge_state_data.SetOutVolt+2.0f)))
         {
             if(++fault_delay >= 72){
                     fault_delay = 0;
@@ -458,7 +464,8 @@ void RAMFUNC ctrl_app_run(void)
     }
     else if(ctrl_mode == ADDRS_BACKWARD)
     {
-        if(fvs48 > (charge_state_data.SetOutVolt+2.0f))
+        if((ctrl_app_relative_ovp_enable() != 0U) &&
+           (fvs48 > (charge_state_data.SetOutVolt+2.0f)))
         {
             if(++fault_delay >= 72){
                 fault_delay = 0;

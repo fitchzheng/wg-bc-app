@@ -39,8 +39,15 @@ static uint8_t eeprom_autosys_last_power_on = 0xFFU;
 #define EEPROM_FACTORY_FLASH_PAGE          (FLASH_LOGICAL_PAGE_COUNT - 1U)
 #define EEPROM_FACTORY_FLASH_MAGIC         0x42434647UL
 #define EEPROM_FACTORY_FLASH_VERSION       1UL
+#define EEPROM_FACTORY_FLASH_OFFSET        0x200U
 #define EEPROM_FACTORY_FLASH_HEADER_WORDS  4U
+#define EEPROM_FACTORY_FLASH_HEADER_SIZE   (EEPROM_FACTORY_FLASH_HEADER_WORDS * 4U)
 #define EEPROM_FACTORY_FLASH_PAYLOAD_SIZE  (4U * EE_24CXX_PAGE_SIZE)
+#define EEPROM_FACTORY_FLASH_TOTAL_SIZE    (EEPROM_FACTORY_FLASH_HEADER_SIZE + EEPROM_FACTORY_FLASH_PAYLOAD_SIZE)
+
+#if ((EEPROM_FACTORY_FLASH_OFFSET < 0x200U) || ((EEPROM_FACTORY_FLASH_OFFSET + EEPROM_FACTORY_FLASH_TOTAL_SIZE) > FLASH_LOGICAL_PAGE_SIZE))
+#error "EEPROM factory backup overlaps IAP metadata or exceeds flash page"
+#endif
 
 #define EEPROM_FACTORY_STEP_POWER_OFF       1U
 #define EEPROM_FACTORY_STEP_EXT_BACKUP      2U
@@ -925,14 +932,39 @@ static uint32_t eeprom_factory_flash_base_addr(void)
     return FLASH_USER_BASE_ADDR + (EEPROM_FACTORY_FLASH_PAGE * FLASH_LOGICAL_PAGE_SIZE);
 }
 
-static void eeprom_factory_flash_program_word(uint32_t offset, uint32_t value)
+static uint32_t eeprom_factory_flash_storage_addr(void)
 {
-    EFM_ProgramWord(eeprom_factory_flash_base_addr() + offset, value);
+    return eeprom_factory_flash_base_addr() + EEPROM_FACTORY_FLASH_OFFSET;
 }
 
-static uint32_t eeprom_factory_flash_read_word(uint32_t offset)
+static uint32_t eeprom_factory_flash_storage_read_word(uint32_t offset)
 {
-    return *(volatile uint32_t *)(eeprom_factory_flash_base_addr() + offset);
+    return *(volatile uint32_t *)(eeprom_factory_flash_storage_addr() + offset);
+}
+
+static void eeprom_factory_flash_program_bytes(uint32_t offset, const uint8_t *data, uint32_t len)
+{
+    uint32_t pos = 0U;
+
+    while(pos < len)
+    {
+        uint32_t word = 0xFFFFFFFFUL;
+        uint8_t i;
+
+        for(i = 0U; (i < 4U) && ((pos + i) < len); i++)
+        {
+            word &= ~((uint32_t)0xFFU << (8U * i));
+            word |= ((uint32_t)data[pos + i] << (8U * i));
+        }
+
+        EFM_ProgramWord(eeprom_factory_flash_base_addr() + offset + pos, word);
+        pos += 4U;
+    }
+}
+
+static void eeprom_factory_flash_program_u32(uint32_t offset, uint32_t value)
+{
+    EFM_ProgramWord(eeprom_factory_flash_base_addr() + offset, value);
 }
 
 static uint32_t eeprom_factory_external_backup_checksum(void)
@@ -958,8 +990,8 @@ static uint32_t eeprom_factory_external_backup_checksum(void)
 
 static uint32_t eeprom_factory_flash_payload_checksum(void)
 {
-    const uint8_t *payload = (const uint8_t *)(eeprom_factory_flash_base_addr() +
-                                               (EEPROM_FACTORY_FLASH_HEADER_WORDS * sizeof(uint32_t)));
+    const uint8_t *payload = (const uint8_t *)(eeprom_factory_flash_storage_addr() +
+                                               EEPROM_FACTORY_FLASH_HEADER_SIZE);
 
     return eeprom_factory_backup_checksum(payload, EEPROM_FACTORY_FLASH_PAYLOAD_SIZE);
 }
@@ -967,58 +999,47 @@ static uint32_t eeprom_factory_flash_payload_checksum(void)
 static void eeprom_factory_flash_program_payload(void)
 {
     uint16_t addrs[4] = {P00_BACKUP_ADDR, P02_BACKUP_ADDR, P03_BACKUP_1_ADDR, P03_BACKUP_ADDR};
-    uint32_t flash_offset = EEPROM_FACTORY_FLASH_HEADER_WORDS * sizeof(uint32_t);
+    uint32_t flash_offset = EEPROM_FACTORY_FLASH_OFFSET + EEPROM_FACTORY_FLASH_HEADER_SIZE;
     uint8_t i;
-    uint16_t j;
 
     for(i = 0; i < 4U; i++)
     {
         IICx_Read_Byte(addrs[i], eeprom_page_read_data, EE_24CXX_PAGE_SIZE);
-        for(j = 0; j < EE_24CXX_PAGE_SIZE; j += 4U)
-        {
-            uint32_t word = ((uint32_t)eeprom_page_read_data[j]) |
-                            ((uint32_t)eeprom_page_read_data[j + 1U] << 8) |
-                            ((uint32_t)eeprom_page_read_data[j + 2U] << 16) |
-                            ((uint32_t)eeprom_page_read_data[j + 3U] << 24);
-            eeprom_factory_flash_program_word(flash_offset, word);
-            flash_offset += 4U;
-        }
+        eeprom_factory_flash_program_bytes(flash_offset, eeprom_page_read_data, EE_24CXX_PAGE_SIZE);
+        flash_offset += EE_24CXX_PAGE_SIZE;
     }
 }
 
 static uint8_t eeprom_save_factory_backup_internal_verified(void)
 {
+    uint8_t preserve[EEPROM_FACTORY_FLASH_OFFSET];
     uint32_t checksum = eeprom_factory_external_backup_checksum();
 
     app_debug_event_push(APP_DBG_EVT_WRITE_BEGIN, APP_DBG_AREA_FACTORY, 0xFE,
                          (uint8_t)get_wg_com_v2_data.com_ctrl.SetPowerMode,
                          0, APP_DBG_RESULT_START, (uint8_t)EEPROM_FACTORY_FLASH_PAGE);
 
-    if(!bsp_flash_erase_page(EEPROM_FACTORY_FLASH_PAGE))
-    {
-        app_debug_event_push(APP_DBG_EVT_VERIFY_FAIL, APP_DBG_AREA_FACTORY, 0xFE,
-                             (uint8_t)get_wg_com_v2_data.com_ctrl.SetPowerMode,
-                             0, APP_DBG_RESULT_FAIL, (uint8_t)EEPROM_FACTORY_FLASH_PAGE);
-        return 0;
-    }
+    memcpy(preserve, (const uint8_t *)eeprom_factory_flash_base_addr(), EEPROM_FACTORY_FLASH_OFFSET);
 
     EFM_REG_Unlock();
     EFM_FWMC_Cmd(ENABLE);
     (void)EFM_SingleSectorOperateCmd(EEPROM_FACTORY_FLASH_PAGE, ENABLE);
 
-    eeprom_factory_flash_program_word(0U, EEPROM_FACTORY_FLASH_MAGIC);
-    eeprom_factory_flash_program_word(4U, EEPROM_FACTORY_FLASH_VERSION);
-    eeprom_factory_flash_program_word(8U, EEPROM_FACTORY_FLASH_PAYLOAD_SIZE);
-    eeprom_factory_flash_program_word(12U, checksum);
+    EFM_SectorErase(eeprom_factory_flash_base_addr());
+    eeprom_factory_flash_program_bytes(0U, preserve, EEPROM_FACTORY_FLASH_OFFSET);
+    eeprom_factory_flash_program_u32(EEPROM_FACTORY_FLASH_OFFSET + 0U, EEPROM_FACTORY_FLASH_MAGIC);
+    eeprom_factory_flash_program_u32(EEPROM_FACTORY_FLASH_OFFSET + 4U, EEPROM_FACTORY_FLASH_VERSION);
+    eeprom_factory_flash_program_u32(EEPROM_FACTORY_FLASH_OFFSET + 8U, EEPROM_FACTORY_FLASH_PAYLOAD_SIZE);
+    eeprom_factory_flash_program_u32(EEPROM_FACTORY_FLASH_OFFSET + 12U, checksum);
     eeprom_factory_flash_program_payload();
 
     (void)EFM_SingleSectorOperateCmd(EEPROM_FACTORY_FLASH_PAGE, DISABLE);
     EFM_REG_Lock();
 
-    if((eeprom_factory_flash_read_word(0U) != EEPROM_FACTORY_FLASH_MAGIC) ||
-       (eeprom_factory_flash_read_word(4U) != EEPROM_FACTORY_FLASH_VERSION) ||
-       (eeprom_factory_flash_read_word(8U) != EEPROM_FACTORY_FLASH_PAYLOAD_SIZE) ||
-       (eeprom_factory_flash_read_word(12U) != checksum) ||
+    if((eeprom_factory_flash_storage_read_word(0U) != EEPROM_FACTORY_FLASH_MAGIC) ||
+       (eeprom_factory_flash_storage_read_word(4U) != EEPROM_FACTORY_FLASH_VERSION) ||
+       (eeprom_factory_flash_storage_read_word(8U) != EEPROM_FACTORY_FLASH_PAYLOAD_SIZE) ||
+       (eeprom_factory_flash_storage_read_word(12U) != checksum) ||
        (eeprom_factory_flash_payload_checksum() != checksum))
     {
         app_debug_event_push(APP_DBG_EVT_VERIFY_FAIL, APP_DBG_AREA_FACTORY, 0xFE,
@@ -1198,16 +1219,16 @@ static uint8_t eeprom_factory_restore_internal_to_runtime(void)
 {
     const uint8_t *payload;
 
-    if((eeprom_factory_flash_read_word(0U) != EEPROM_FACTORY_FLASH_MAGIC) ||
-       (eeprom_factory_flash_read_word(4U) != EEPROM_FACTORY_FLASH_VERSION) ||
-       (eeprom_factory_flash_read_word(8U) != EEPROM_FACTORY_FLASH_PAYLOAD_SIZE) ||
-       (eeprom_factory_flash_payload_checksum() != eeprom_factory_flash_read_word(12U)))
+    if((eeprom_factory_flash_storage_read_word(0U) != EEPROM_FACTORY_FLASH_MAGIC) ||
+       (eeprom_factory_flash_storage_read_word(4U) != EEPROM_FACTORY_FLASH_VERSION) ||
+       (eeprom_factory_flash_storage_read_word(8U) != EEPROM_FACTORY_FLASH_PAYLOAD_SIZE) ||
+       (eeprom_factory_flash_payload_checksum() != eeprom_factory_flash_storage_read_word(12U)))
     {
         return 0;
     }
 
-    payload = (const uint8_t *)(eeprom_factory_flash_base_addr() +
-                                (EEPROM_FACTORY_FLASH_HEADER_WORDS * sizeof(uint32_t)));
+    payload = (const uint8_t *)(eeprom_factory_flash_storage_addr() +
+                                EEPROM_FACTORY_FLASH_HEADER_SIZE);
 
     memcpy((uint8_t *)&eeprom_page_read_data, payload, EE_24CXX_PAGE_SIZE);
     if((eeprom_page_read_data[1] != ((EEROM_INIT_DATA & 0xff00) >> 8)) ||
@@ -1433,7 +1454,7 @@ static uint16_t eeprom_profile_addr_from_ctrl(uint8_t is_a_port, uint16_t bat_ty
 static uint8_t eeprom_profile_type_from_ctrl(uint16_t bat_type)
 {
     uint8_t type = (uint8_t)((bat_type & 0xff00) >> 8);
-    if(type == eBAT_LA_GEL)
+    if((type == eBAT_LA_GEL) || (type == eBAT_AUTOSYS))
     {
         type = eBAT_TYPE_AGM;
     }
@@ -1443,6 +1464,7 @@ static uint8_t eeprom_profile_type_from_ctrl(uint16_t bat_type)
     }
     return type;
 }
+
 
 static uint8_t eeprom_profile_bat_sys_from_ctrl(uint16_t sys)
 {
@@ -1542,6 +1564,30 @@ static uint16_t eeprom_float_to_raw(float value, void *wg_field)
 static float eeprom_raw_to_float(uint16_t value, void *wg_field)
 {
     return ((float)value) * get_unit_for_addr(wg_field);
+}
+static uint8_t eeprom_profile_is_autosys_lfp_default(uint8_t is_a_port,
+                                                     uint16_t bat_type,
+                                                     const eeprom_system_profile_t *profile)
+{
+    uint8_t sys = eeprom_profile_bat_sys_from_ctrl(bat_type & 0x00FF);
+    uint8_t raw_type = (uint8_t)((bat_type & 0xff00) >> 8);
+    const BAT_MODE_CONFIG_T *cfg;
+
+    if((is_a_port == 0U) || (raw_type != eBAT_AUTOSYS) ||
+       (profile == NULL) || (sys >= eBAT_SYS_VOLT_MAX))
+    {
+        return 0U;
+    }
+
+    cfg = &Bat_Sys_Volt_Config[sys][eBAT_TYPE_LFP];
+    if((profile->SetVolt == eeprom_float_to_raw(cfg->OutVoltDefault, (void *)&wg_com_v2_param.SetInpVolt)) &&
+       (profile->SetOVP == eeprom_float_to_raw(cfg->SetOVP, (void *)&wg_com_v2_param.SetInpOVP)) &&
+       (profile->SetOVPRecover == eeprom_float_to_raw(cfg->SetOVPRecover, (void *)&wg_com_v2_param.SetInpOVPRecover)))
+    {
+        return 1U;
+    }
+
+    return 0U;
 }
 
 static uint16_t eeprom_get_profile_raw(void *wg_field)
@@ -1663,6 +1709,13 @@ static uint8_t eeprom_profile_sanitize(uint8_t is_a_port,
     volt_min = EEPROM_PROFILE_BAT_VOLT_MIN;
     volt_max = EEPROM_PROFILE_BAT_VOLT_MAX;
     eeprom_profile_fill_default(&default_profile, is_a_port, bat_type);
+
+    if(eeprom_profile_is_autosys_lfp_default(is_a_port, bat_type, profile) != 0U)
+    {
+        *profile = default_profile;
+        if(fixed != NULL) *fixed = 1;
+        return 1;
+    }
 
     if(!eeprom_profile_in_range(eeprom_raw_to_float(profile->SetVolt, is_a_port ? (void *)&wg_com_v2_param.SetInpVolt : (void *)&wg_com_v2_param.SetOutVolt), volt_min, volt_max))
     {
