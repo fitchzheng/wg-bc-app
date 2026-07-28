@@ -1274,7 +1274,7 @@ static uint8_t eeprom_factory_restore_app_defaults_verified(void)
     WG_COM_V2_SET_DATA_UINT((('W'<<8)+'G'), wg_com_v2_product_info.ProductName[0]);
     WG_COM_V2_SET_DATA_UINT((('-'<<8)+'B'), wg_com_v2_product_info.ProductName[1]);
     WG_COM_V2_SET_DATA_UINT((('C'<<8)+'1'), wg_com_v2_product_info.ProductName[2]);
-    WG_COM_V2_SET_DATA_UINT((('5'<<8)+'0'), wg_com_v2_product_info.ProductName[3]);
+    WG_COM_V2_SET_DATA_UINT((('2'<<8)+'0'), wg_com_v2_product_info.ProductName[3]);
     WG_COM_V2_SET_DATA_UINT((('0'<<8)+'M'), wg_com_v2_product_info.ProductName[4]);
     for(uint8_t i = 5; i < 10; i++)
     {
@@ -2511,7 +2511,7 @@ void eeprom_cfg_init(void)
             WG_COM_V2_SET_DATA_UINT((('W'<<8)+'G'),wg_com_v2_product_info.ProductName[0]);
             WG_COM_V2_SET_DATA_UINT((('-'<<8)+'B'),wg_com_v2_product_info.ProductName[1]);
             WG_COM_V2_SET_DATA_UINT((('C'<<8)+'1'),wg_com_v2_product_info.ProductName[2]);
-            WG_COM_V2_SET_DATA_UINT((('5'<<8)+'0'),wg_com_v2_product_info.ProductName[3]);
+            WG_COM_V2_SET_DATA_UINT((('2'<<8)+'0'),wg_com_v2_product_info.ProductName[3]);
             WG_COM_V2_SET_DATA_UINT((('0'<<8)+'M'),wg_com_v2_product_info.ProductName[4]);
             WG_COM_V2_SET_DATA_UINT(((' '<<8)+' '),wg_com_v2_product_info.ProductName[5]);
             WG_COM_V2_SET_DATA_UINT(((' '<<8)+' '),wg_com_v2_product_info.ProductName[6]);

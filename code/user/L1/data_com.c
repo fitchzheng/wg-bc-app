@@ -34,23 +34,23 @@ REG_SHELL_VAR(open_loop_mode, open_loop_mode, SHELL_UINT8, 0xFFu, 0u, NULL, SHEL
 #endif
 #endif
 
-// 核心归一化函数
+// 核心归一化函�?
 static void normalize_to_big_endian_bcd(float value, float gain, uint8_t *p_output)
 {
     uint16_t raw = (uint16_t)(value * gain); // 放大
     uint16_t bcd = DEC_TO_BCD_16(raw);       // 转BCD编码
 
     // 写入大端格式，高字节在前
-    p_output[0] = (bcd >> 8) & 0xFF; // 高8位
-    p_output[1] = bcd & 0xFF;        // 低8位
+    p_output[0] = (bcd >> 8) & 0xFF; // �?�?
+    p_output[1] = bcd & 0xFF;        // �?�?
 }
 
 // 核心解码函数
 static float decode_from_big_endian_bcd(uint8_t *p_input, float gain)
 {
-    uint16_t bcd = ((uint16_t)p_input[0] << 8) | (uint16_t)p_input[1]; // 大端拼成16位
-    uint16_t dec = BCD_TO_DEC_16(bcd);                                 // BCD转成十进制
-    return ((float)dec) * gain;                                        // 还原浮点数
+    uint16_t bcd = ((uint16_t)p_input[0] << 8) | (uint16_t)p_input[1]; // 大端拼成16�?
+    uint16_t dec = BCD_TO_DEC_16(bcd);                                 // BCD转成十进�?
+    return ((float)dec) * gain;                                        // 还原浮点�?
 }
 
 float data_com_get_rvs12_lmt(void)
@@ -254,10 +254,10 @@ void data_com_init(void)
     WG_COM_V2_SET_DATA_UINT((('0'<<8)+'0'),wg_com_v2_product_info.SnSerial[8]);
     WG_COM_V2_SET_DATA_UINT((('0'<<8)+'0'),wg_com_v2_product_info.SnSerial[9]);
     WG_COM_V2_SET_DATA_UINT((('W'<<8)+'G'),wg_com_v2_product_info.ProductName[0]);
-    WG_COM_V2_SET_DATA_UINT((('-'<<8)+'C'),wg_com_v2_product_info.ProductName[1]);
-    WG_COM_V2_SET_DATA_UINT((('1'<<8)+'5'),wg_com_v2_product_info.ProductName[2]);
-    WG_COM_V2_SET_DATA_UINT((('0'<<8)+'0'),wg_com_v2_product_info.ProductName[3]);
-    WG_COM_V2_SET_DATA_UINT((('B'<<8)+'M'),wg_com_v2_product_info.ProductName[4]);
+    WG_COM_V2_SET_DATA_UINT((('-'<<8)+'B'),wg_com_v2_product_info.ProductName[1]);
+    WG_COM_V2_SET_DATA_UINT((('C'<<8)+'1'),wg_com_v2_product_info.ProductName[2]);
+    WG_COM_V2_SET_DATA_UINT((('2'<<8)+'0'),wg_com_v2_product_info.ProductName[3]);
+    WG_COM_V2_SET_DATA_UINT((('0'<<8)+'M'),wg_com_v2_product_info.ProductName[4]);
     WG_COM_V2_SET_DATA_UINT(((' '<<8)+' '),wg_com_v2_product_info.ProductName[5]);
     WG_COM_V2_SET_DATA_UINT(((' '<<8)+' '),wg_com_v2_product_info.ProductName[6]);
     WG_COM_V2_SET_DATA_UINT(((' '<<8)+' '),wg_com_v2_product_info.ProductName[7]);
@@ -294,7 +294,7 @@ void data_com_read_mode(void)
     WG_COM_V2_SET_DATA_UINT((('W'<<8)+'G'),wg_com_v2_product_info.ProductName[0]);
     WG_COM_V2_SET_DATA_UINT((('-'<<8)+'B'),wg_com_v2_product_info.ProductName[1]);
     WG_COM_V2_SET_DATA_UINT((('C'<<8)+'1'),wg_com_v2_product_info.ProductName[2]);
-    WG_COM_V2_SET_DATA_UINT((('5'<<8)+'0'),wg_com_v2_product_info.ProductName[3]);
+    WG_COM_V2_SET_DATA_UINT((('2'<<8)+'0'),wg_com_v2_product_info.ProductName[3]);
     WG_COM_V2_SET_DATA_UINT((('0'<<8)+'M'),wg_com_v2_product_info.ProductName[4]);
     WG_COM_V2_SET_DATA_UINT(((' '<<8)+' '),wg_com_v2_product_info.ProductName[5]);
     WG_COM_V2_SET_DATA_UINT(((' '<<8)+' '),wg_com_v2_product_info.ProductName[6]);

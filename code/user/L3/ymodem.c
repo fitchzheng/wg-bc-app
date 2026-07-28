@@ -34,7 +34,7 @@ uint32_t ymodem_state_next = YMODEM_STA_INIT;
 
 uint8_t usart_link = 0;
 
-// 声明 DMA 环形缓冲（使用 volatile 防止优化丢读）
+// 声明 DMA 环形缓冲（使�?volatile 防止优化丢读�?
 extern volatile uint8_t usart2_rx_buffer[];
 extern volatile uint8_t usart0_rx_buffer[];
 extern uint32_t dma_transfer_number_get(uint32_t periph, uint8_t channel);
@@ -44,11 +44,11 @@ ymodem_frame_stx_t ymodem_frame_stx;
 //static uint16_t flash_page_2k = 0;
 //static uint32_t code_size_byte = 0;
 
-// 空闲判定阈值：连续空闲 50ms 视为当前帧接收完成
+// 空闲判定阈值：连续空闲 50ms 视为当前帧接收完�?
 #undef YMODEM_IDLE_GAP_MS
 #define YMODEM_IDLE_GAP_MS 50U
 
-// 回复发送队列（按 200ms 间隔发送）
+// 回复发送队列（�?200ms 间隔发送）
 static uint8_t reply_fifo[4];
 static uint8_t reply_head[2], reply_tail[2], reply_len[2];
 static uint16_t reply_wait_ms[2];
@@ -75,7 +75,7 @@ typedef struct
 //           ((in & 0x000000FF) << 24);  // Move byte 0 to byte 3
 //}
 
-// 安全增加计数器（防止溢出）
+// 安全增加计数器（防止溢出�?
 static inline void safe_increment(uint32_t *counter, uint32_t max)
 {
     if (*counter < max)
@@ -93,7 +93,7 @@ static inline void ymodem_queue_reply(uint8_t c,uint8_t port_com)
     }
 }
 static uint32_t ymodem_usart0_delay = 0;
-// 实际发送一个待回复字节（printf），并启动下一次 50ms 间隔计时
+// 实际发送一个待回复字节（printf），并启动下一�?50ms 间隔计时
 static inline void ymodem_tx_reply_tick(uint8_t port_com)
 {
     if (reply_len[port_com] == 0)
@@ -105,12 +105,12 @@ static inline void ymodem_tx_reply_tick(uint8_t port_com)
         return;
     }
 
-    // 发送队首
+    // 发送队�?
     uint8_t c = reply_fifo[reply_head[port_com]];
     reply_head[port_com] = (uint8_t)((reply_head[port_com] + 1) % sizeof(reply_fifo));
     reply_len[port_com]--;
 
-    // 发送
+    // 发�?
     if (port_com == OUTPUT_USART0)
     {
         gpio_set_re(1);
@@ -131,7 +131,7 @@ static inline void ymodem_tx_reply_tick(uint8_t port_com)
         usart2_printf("%c", c);
     }
 
-    // 设置下一条回复的最小间隔 50ms
+    // 设置下一条回复的最小间�?50ms
     reply_wait_ms[port_com] = 200;
 }
 
@@ -142,7 +142,7 @@ static inline void ymodem_send_nak(uint8_t port_com)
     // ymodem_update_time_dn_cnt = 0;
 }
 
-// ========== 补回缺失的静态全局变量与前置声明 ==========
+// ========== 补回缺失的静态全局变量与前置声�?==========
 static uint8_t recv_buffer[2][YMODEM_BUFFER_SIZE];
 static uint16_t recv_index[2];
 static uint8_t  up_data = 0;
@@ -221,7 +221,7 @@ static uint32_t ymodem_swap_endian_u32(uint32_t in)
 
 uint8_t ymodem_request_can_ota(uint32_t image_size, uint32_t image_crc32)
 {
-    const char product[] = "WG-BC1500M";
+    const char product[] = "WG-BC1200M";
     iap_meta_t meta;
     uint16_t crc_data;
 
@@ -405,7 +405,7 @@ uint8_t get_up_data_flag(void)
 
 //static void ymodem_wait_reply(void)
 //{
-//    // 等待回复状态
+//    // 等待回复状�?
 //    if (reply_len == 0)
 //    {
 //        ymodem_state = ymodem_state_next;
@@ -415,7 +415,7 @@ uint8_t get_up_data_flag(void)
 static void ymodem_wait_data(void)
 {
     static uint8_t updating_flag = 0;
-    // 等待数据状态
+    // 等待数据状�?
     for(uint16_t i = 0;i < 2;i++)
     {
         if(updating_flag == 1)

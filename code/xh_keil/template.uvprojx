@@ -50,7 +50,7 @@
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
           <OutputDirectory>.\output\debug\nboot\</OutputDirectory>
-          <OutputName>WG-BC1500M_20260617_NBOOT_APP</OutputName>
+          <OutputName>WG-BC1200M_20260728_NBOOT_APP</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
@@ -1151,7 +1151,7 @@
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
           <OutputDirectory>.\output\debug\rv\</OutputDirectory>
-          <OutputName>WG-BC1500M_-1200M20260721_BOOT_APP_RV</OutputName>
+          <OutputName>WG-BC1200M_20260728_APP_RV</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
@@ -2252,7 +2252,7 @@
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
           <OutputDirectory>.\output\debug\cm\</OutputDirectory>
-          <OutputName>WG-BC1500M_20260618_BOOT_APP_CM</OutputName>
+          <OutputName>WG-BC1200M_20260728_APP_CM</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
@@ -3235,7 +3235,7 @@
                   <RVCTZI>0</RVCTZI>
                   <RVCTOtherData>0</RVCTOtherData>
                   <ModuleSelection>0</ModuleSelection>
-                  <IncludeInBuild>0</IncludeInBuild>
+                  <IncludeInBuild>1</IncludeInBuild>
                   <AlwaysBuild>0</AlwaysBuild>
                   <GenerateAssemblyFile>0</GenerateAssemblyFile>
                   <AssembleAssemblyFile>0</AssembleAssemblyFile>

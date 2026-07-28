@@ -48,6 +48,7 @@ static uint8_t mppt_return_state_valid = 0;
 static uint16_t mppt_return_power_mode = eSET_BAT_MODE;
 static uint16_t mppt_return_bat_mode_fr = 0;
 static uint16_t mppt_return_sleep_mode = 0;
+static uint16_t mppt_return_charge_mode = eSET_MANUAL_MODE;
 static uint16_t mppt_return_boot_time_a = 0;
 static uint16_t mppt_return_boot_time_b = 0;
 static uint16_t mppt_return_soft_start_a = 0;
@@ -214,6 +215,16 @@ static uint16_t get_dynamic_up_lmt_for_addr(void *p, const wg_com_v2_data_lmt_ma
     return lmt->up_lmt;
 }
 
+static uint16_t wg_com_v2_mppt_return_charge_mode(uint16_t charge_mode)
+{
+    if((charge_mode == eSET_AUTO_MODE) || (charge_mode == eSET_MANUAL_MODE))
+    {
+        return charge_mode;
+    }
+
+    return eSET_MANUAL_MODE;
+}
+
 static void wg_com_v2_note_non_mppt_control_state_with_sleep(uint16_t power_mode, uint16_t bat_mode_fr, uint16_t sleep_mode)
 {
     if((power_mode < eSET_MODE_MAX) && (power_mode != eMPPT_MODE))
@@ -227,6 +238,8 @@ static void wg_com_v2_note_non_mppt_control_state_with_sleep(uint16_t power_mode
             WG_COM_V2_GET_DATA_UINT(bat_return_type_b, wg_com_v2_ctrl.OutBatyType);
             bat_return_type_valid = 1U;
             eeprom_save_mppt_return_battery_types(bat_return_type_a, bat_return_type_b);
+            WG_COM_V2_GET_DATA_UINT(mppt_return_charge_mode, wg_com_v2_ctrl.SetChargMode);
+            mppt_return_charge_mode = wg_com_v2_mppt_return_charge_mode(mppt_return_charge_mode);
             WG_COM_V2_GET_DATA_UINT(mppt_return_boot_time_a, wg_com_v2_ctrl.SetBootTimeA);
             WG_COM_V2_GET_DATA_UINT(mppt_return_boot_time_b, wg_com_v2_ctrl.SetBootTimeB);
             WG_COM_V2_GET_DATA_UINT(mppt_return_soft_start_a, wg_com_v2_ctrl.SetOnCurrStartTimeA);
@@ -234,6 +247,7 @@ static void wg_com_v2_note_non_mppt_control_state_with_sleep(uint16_t power_mode
         }
         else
         {
+            mppt_return_charge_mode = eSET_MANUAL_MODE;
             mppt_return_boot_time_a = 0;
             mppt_return_boot_time_b = 0;
             mppt_return_soft_start_a = 0;
@@ -321,6 +335,8 @@ void wg_com_v2_exit_mppt_control_state(void)
             WG_COM_V2_SET_DATA_UINT(bat_return_type_a, wg_com_v2_ctrl.InpBatyType);
             WG_COM_V2_SET_DATA_UINT(bat_return_type_b, wg_com_v2_ctrl.OutBatyType);
         }
+        WG_COM_V2_SET_DATA_UINT(wg_com_v2_mppt_return_charge_mode(mppt_return_charge_mode),
+                                wg_com_v2_ctrl.SetChargMode);
         WG_COM_V2_SET_DATA_UINT(mppt_return_boot_time_a, wg_com_v2_ctrl.SetBootTimeA);
         WG_COM_V2_SET_DATA_UINT(mppt_return_boot_time_b, wg_com_v2_ctrl.SetBootTimeB);
         WG_COM_V2_SET_DATA_UINT(mppt_return_soft_start_a, wg_com_v2_ctrl.SetOnCurrStartTimeA);
