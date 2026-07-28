@@ -170,7 +170,7 @@ void McanSampleTx(void)
 
 
 
-//检测是否接收到新数据
+//检测是否接收到新数�?
 uint8_t bsp_can_rev_check(void)
 {
     if (MCAN_GetStatus(MCAN_UNIT, MCAN_FLAG_RX_FIFO1_NEW_MSG) == SET) 
@@ -186,16 +186,16 @@ uint8_t bsp_can_get_msg(stc_mcan_rx_msg_t* stcRxMsg)
     return MCAN_GetRxMsg(MCAN_UNIT, MCAN_RX_FIFO1,stcRxMsg);
 
 }
-//CAN接收数据处理，用于测试，将接收到的数据修改一下再发送回去
+//CAN接收数据处理，用于测试，将接收到的数据修改一下再发送回�?
 //stcRxMsg  接收数据指针
-//stcTxMsg  发送数据指针
+//stcTxMsg  发送数据指�?
 void can_data_process(stc_mcan_tx_msg_t *stcTxMsg,stc_mcan_rx_msg_t* stcRxMsg)
 {
     stcTxMsg->ID = stcRxMsg->ID + 1; //ID+1
-    stcTxMsg->IDE = stcRxMsg->IDE;   //帧格式不变
+    stcTxMsg->IDE = stcRxMsg->IDE;   //帧格式不�?
     stcTxMsg->DLC = stcRxMsg->DLC;   //数据长度不变
     stcTxMsg->RTR = stcRxMsg->RTR;
-    stcTxMsg->au8Data[0] = stcRxMsg->au8Data[0] + 1;  //前两个数据+1
+    stcTxMsg->au8Data[0] = stcRxMsg->au8Data[0] + 1;  //前两个数�?1
     stcTxMsg->au8Data[1] = stcRxMsg->au8Data[1] + 1;
     MCAN_AddMsgToTxFifoQueue(MCAN_UNIT, stcTxMsg);
 }
@@ -205,7 +205,7 @@ void can_data_process(stc_mcan_tx_msg_t *stcTxMsg,stc_mcan_rx_msg_t* stcRxMsg)
 void can_test(void)
 {
     stc_mcan_tx_msg_t stcTxMsg={0}; //发送数据结构体
-    stc_mcan_rx_msg_t stcRxMsg={0}; //接收数据结构体
+    stc_mcan_rx_msg_t stcRxMsg={0}; //接收数据结构�?
     if(bsp_can_rev_check()) //是否有收到新数据
     {
         if(bsp_can_get_msg(&stcRxMsg) == LL_OK) //获取数据
@@ -294,7 +294,9 @@ int bsp_can_rx(uint32_t *p_raw, uint8_t *p_data)
         }
 
 #if(CAN_ON_OFF == 2)
-        if ((stcRxMsg.IDE == 0U) && (stcRxMsg.DLC == MCAN_DLC8))
+        if ((stcRxMsg.DLC == MCAN_DLC8) &&
+            (((stcRxMsg.IDE == 0U)) ||
+             ((stcRxMsg.IDE == 1U) && (stcRxMsg.ID == 0x1C510000UL))))
 #else
         if ((stcRxMsg.IDE == 1U) && (stcRxMsg.DLC == MCAN_DLC8))
 #endif

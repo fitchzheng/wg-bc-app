@@ -4,6 +4,7 @@
 #include "stdint.h"
 #include "string.h"
 #include <stdarg.h>
+#include "stdio.h"
 #include "bsp_dma.h"
 #include "get_com_data.h"
 #include "eeprom_cfg.h"
@@ -15,7 +16,8 @@
 extern uint32_t systemtime;
 
 static uint8_t host_addr = WG_COM_V2_HOST_ADDR;
-static uint8_t wg_com_v2_is_accepted_addr(uint8_t rx_addr);
+static usart_output_port_t wg_com_v2_active_port = OUTPUT_USART0;
+static uint8_t wg_com_v2_is_accepted_addr(usart_output_port_t port, uint8_t rx_addr);
 
 static uint8_t wg_com_tx_buffer[WG_COM_V2_BUFFER_SIZE];
 static uint32_t wg_com_tx_buffer_cnt = 0;
@@ -29,6 +31,10 @@ static uint32_t wg_com_v2_parallel_broadcast_reply_due_ms = 0UL;
 
 static uint8_t wg_com_rx_buffer[WG_COM_V2_BUFFER_SIZE];
 static uint32_t wg_com_rx_buffer_cnt = 0;
+static uint8_t wg_com_usart2_rx_buffer[WG_COM_V2_BUFFER_SIZE];
+static uint32_t wg_com_usart2_rx_buffer_cnt = 0;
+static uint8_t wg_com_usart0_rx_buffer[WG_COM_V2_BUFFER_SIZE];
+static uint32_t wg_com_usart0_rx_buffer_cnt = 0;
 
 wg_com_v2_product_info_t wg_com_v2_product_info;
 wg_com_v2_realtime_data_t wg_com_v2_realtime_data;
@@ -638,9 +644,12 @@ static const addr_region_t *find_addr_region(uint16_t addr, uint16_t count)
 static uint8_t unified_read(uint16_t addr, uint16_t count, uint8_t *data)
 {
 #if (APP_PARALLEL_RS485_FEATURES == 1)
-    if (parallel_mode_read_registers(addr, count, data) != 0U)
+    if (wg_com_v2_active_port != OUTPUT_USART2)
     {
-        return 1U;
+        if (parallel_mode_read_registers(addr, count, data) != 0U)
+        {
+            return 1U;
+        }
     }
 #endif
 
@@ -666,9 +675,12 @@ static uint8_t unified_read(uint16_t addr, uint16_t count, uint8_t *data)
 static uint8_t unified_write(uint16_t addr, uint16_t count, const uint8_t *data)
 {
 #if (APP_PARALLEL_RS485_FEATURES == 1)
-    if (parallel_mode_write_registers(addr, count, data) != 0U)
+    if (wg_com_v2_active_port != OUTPUT_USART2)
     {
-        return 1U;
+        if (parallel_mode_write_registers(addr, count, data) != 0U)
+        {
+            return 1U;
+        }
     }
 #endif
 
@@ -1103,6 +1115,7 @@ void usart0_printf(const char *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
+    g_output_port = OUTPUT_USART0;
     usart_light_printf(OUTPUT_USART0, fmt, args);
     va_end(args);
 }
@@ -1111,6 +1124,7 @@ void usart2_printf(const char *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
+    g_output_port = OUTPUT_USART2;
     usart_light_printf(OUTPUT_USART2, fmt, args);
     va_end(args);
 }
@@ -1292,6 +1306,15 @@ static void wg_com_v2_parallel_schedule_broadcast_reply(void)
 #endif
 void process_usart_dma_input(const usart_dma_port_t *port)
 {
+    uint8_t *rx_buffer = wg_com_usart2_rx_buffer;
+    uint32_t *rx_buffer_cnt = &wg_com_usart2_rx_buffer_cnt;
+
+    if (port->USARTx == OUTPUT_USART0)
+    {
+        rx_buffer = wg_com_usart0_rx_buffer;
+        rx_buffer_cnt = &wg_com_usart0_rx_buffer_cnt;
+    }
+
     if((USART_GetStatus(CM_USART1, USART_FLAG_FRAME_ERR) == 1) && (port->USARTx == OUTPUT_USART0))
     {
         USART_SetFirstBit(CM_USART1, USART_CR1_CFE);
@@ -1302,10 +1325,11 @@ void process_usart_dma_input(const usart_dma_port_t *port)
         uint8_t rx_data = port->dma_buffer[port->buffer_size - *(port->rx_cnt)];
         (*(port->rx_cnt))--;
         (*(port->rx_cnt)) = (*(port->rx_cnt) == 0) ? port->buffer_size : (*(port->rx_cnt));
-        wg_com_rx_buffer[wg_com_rx_buffer_cnt++] = rx_data;
-        if (wg_com_rx_buffer_cnt >= WG_COM_V2_BUFFER_SIZE)
+        rx_buffer[*rx_buffer_cnt] = rx_data;
+        (*rx_buffer_cnt)++;
+        if (*rx_buffer_cnt >= WG_COM_V2_BUFFER_SIZE)
         {
-            wg_com_rx_buffer_cnt = 0;
+            *rx_buffer_cnt = 0;
         }
         if((port->USARTx == OUTPUT_USART2) && 
           ((usart_dma_bt_buf.rx_step == 1) || 
@@ -1325,12 +1349,16 @@ void process_usart_dma_input(const usart_dma_port_t *port)
     {
         *(port->is_rx_flag) = 0;
 
-        if (wg_com_rx_buffer_cnt < MODBUS_MIN_FRAME_LEN)
+        if (*rx_buffer_cnt < MODBUS_MIN_FRAME_LEN)
         {
-            memset(wg_com_rx_buffer, 0, sizeof(wg_com_rx_buffer));
-            wg_com_rx_buffer_cnt = 0;
+            memset(rx_buffer, 0, WG_COM_V2_BUFFER_SIZE);
+            *rx_buffer_cnt = 0;
             return;
         }
+
+        memset(wg_com_rx_buffer, 0, sizeof(wg_com_rx_buffer));
+        (void)memcpy(wg_com_rx_buffer, rx_buffer, *rx_buffer_cnt);
+        wg_com_rx_buffer_cnt = *rx_buffer_cnt;
 
         uint16_t *rx_crc = (uint16_t *)&wg_com_rx_buffer[wg_com_rx_buffer_cnt - 2];
         uint16_t cal_crc = ModBusCRC16(wg_com_rx_buffer, wg_com_rx_buffer_cnt - 2);
@@ -1353,7 +1381,7 @@ void process_usart_dma_input(const usart_dma_port_t *port)
         }
 
         if ((*rx_crc == cal_crc) &&
-            (wg_com_v2_is_accepted_addr(wg_com_rx_buffer[0]) != 0U))
+            (wg_com_v2_is_accepted_addr(port->USARTx, wg_com_rx_buffer[0]) != 0U))
         {
             uint8_t is_broadcast = (wg_com_rx_buffer[0] == WG_COM_V2_BROADCAST_ADDR) ? 1U : 0U;
             uint8_t cmd = wg_com_rx_buffer[1];
@@ -1380,7 +1408,9 @@ void process_usart_dma_input(const usart_dma_port_t *port)
 #endif
                )
             {
+                wg_com_v2_active_port = port->USARTx;
                 process_command();
+                wg_com_v2_active_port = OUTPUT_USART0;
             }
 
 #if (APP_PARALLEL_RS485_FEATURES == 1)
@@ -1434,6 +1464,8 @@ void process_usart_dma_input(const usart_dma_port_t *port)
             }
         }
 
+        memset(rx_buffer, 0, WG_COM_V2_BUFFER_SIZE);
+        *rx_buffer_cnt = 0;
         memset(wg_com_rx_buffer, 0, sizeof(wg_com_rx_buffer));
         wg_com_rx_buffer_cnt = 0;
     }
@@ -1509,19 +1541,22 @@ void process_usart_dma_input(const usart_dma_port_t *port)
         }
     }
 }
-static uint8_t wg_com_v2_is_accepted_addr(uint8_t rx_addr)
+static uint8_t wg_com_v2_is_accepted_addr(usart_output_port_t port, uint8_t rx_addr)
 {
 #if (APP_PARALLEL_RS485_FEATURES == 1)
     uint8_t runtime_addr = 0U;
 
-    runtime_addr = parallel_mode_get_rs485_runtime_addr();
-    if (runtime_addr != 0U)
+    if (port == OUTPUT_USART0)
     {
-        if ((rx_addr == runtime_addr) || (rx_addr == WG_COM_V2_BROADCAST_ADDR))
+        runtime_addr = parallel_mode_get_rs485_runtime_addr();
+        if (runtime_addr != 0U)
         {
-            return 1U;
+            if ((rx_addr == runtime_addr) || (rx_addr == WG_COM_V2_BROADCAST_ADDR))
+            {
+                return 1U;
+            }
+            return 0U;
         }
-        return 0U;
     }
 #endif
 
@@ -1696,6 +1731,14 @@ void get_bt_data_run(void)
 }
 
 REG_TASK(10, get_bt_data_run)
+
+
+
+
+
+
+
+
 
 
 
