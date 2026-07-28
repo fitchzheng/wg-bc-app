@@ -443,14 +443,39 @@ static uint8_t normalize_mode_control_state(uint16_t addr,
 
     if(power_mode == eSET_STANDARD_MODE)
     {
-        WG_COM_V2_SET_DATA_UINT(1, wg_com_v2_ctrl.BatModeFR);
-        WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetOnCurrStartTimeA);
-        WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetOnCurrStartTimeB);
+        if(bat_mode_fr != 1U)
+        {
+            WG_COM_V2_SET_DATA_UINT(1, wg_com_v2_ctrl.BatModeFR);
+            changed = 1U;
+        }
+        if(mppt_switch != 0U)
+        {
+            WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.MpptSwitch);
+            changed = 1U;
+        }
+        if(sleep_mode != 0U)
+        {
+            WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SleepModeOnOff);
+            changed = 1U;
+        }
+        if(soft_start_a != 0U)
+        {
+            WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetOnCurrStartTimeA);
+            changed = 1U;
+        }
+        if(soft_start_b != 0U)
+        {
+            WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetOnCurrStartTimeB);
+            changed = 1U;
+        }
     }
-
-    if(power_mode != eSET_BAT_MODE)
+    else if(power_mode != eSET_BAT_MODE)
     {
-        WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SleepModeOnOff);
+        if(sleep_mode != 0U)
+        {
+            WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SleepModeOnOff);
+            changed = 1U;
+        }
     }
 
     WG_COM_V2_GET_DATA_UINT(power_mode, wg_com_v2_ctrl.SetPowerMode);
