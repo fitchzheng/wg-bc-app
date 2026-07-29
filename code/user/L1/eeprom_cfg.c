@@ -1607,6 +1607,8 @@ static uint8_t eeprom_profile_in_range(float value, float min, float max)
 
 #define EEPROM_PROFILE_BAT_VOLT_MIN 8.00f
 #define EEPROM_PROFILE_BAT_VOLT_MAX 62.00f
+#define EEPROM_BAT_PROFILE_DEFAULT_CHARGE_LED_CURR 20.00f
+#define EEPROM_BAT_PROFILE_DEFAULT_FULL_LED_CURR   19.50f
 
 static const BAT_MODE_CONFIG_T eeprom_dcdc_basic_default_cfg = {
     BASIC_BAT_SYS_12V_MAX_OUT_VOLT,
@@ -1637,6 +1639,8 @@ static void eeprom_profile_fill_default(eeprom_system_profile_t *profile, uint8_
     uint8_t raw_type = (uint8_t)((bat_type & 0xff00) >> 8);
     uint8_t type = eeprom_profile_type_from_ctrl(bat_type);
     const BAT_MODE_CONFIG_T *cfg = NULL;
+    float default_charge_led_curr = 0.0f;
+    float default_full_led_curr = 0.0f;
 
     memset((uint8_t *)profile, 0xFF, sizeof(*profile));
     profile->is_writed = EEPROM_SYS_PROFILE_INIT_DATA;
@@ -1654,6 +1658,14 @@ static void eeprom_profile_fill_default(eeprom_system_profile_t *profile, uint8_
         cfg = &Bat_Sys_Volt_Config[sys][type];
     }
 
+    default_charge_led_curr = cfg->SetChargLedCurr;
+    default_full_led_curr = cfg->SetFullLedCurr;
+    if(raw_type != eBAT_DCDC)
+    {
+        default_charge_led_curr = EEPROM_BAT_PROFILE_DEFAULT_CHARGE_LED_CURR;
+        default_full_led_curr = EEPROM_BAT_PROFILE_DEFAULT_FULL_LED_CURR;
+    }
+
     profile->SetVolt = eeprom_float_to_raw(cfg->OutVoltDefault, is_a_port ? (void *)&wg_com_v2_param.SetInpVolt : (void *)&wg_com_v2_param.SetOutVolt);
     profile->SetCurr = eeprom_float_to_raw(cfg->OutCurrDefault, is_a_port ? (void *)&wg_com_v2_param.SetInpCurr : (void *)&wg_com_v2_param.SetOutCurr);
     profile->SetCurrPower = eeprom_float_to_raw((float)cfg->OutPowerDefault, is_a_port ? (void *)&wg_com_v2_param.SetInpCurrPower : (void *)&wg_com_v2_param.SetOutCurrPower);
@@ -1661,8 +1673,8 @@ static void eeprom_profile_fill_default(eeprom_system_profile_t *profile, uint8_
     profile->SetUvloRecover = eeprom_float_to_raw(cfg->SetUvloRecover, is_a_port ? (void *)&wg_com_v2_param.SetInpUvloRecover : (void *)&wg_com_v2_param.SetOutUvloRecover);
     profile->SetOVP = eeprom_float_to_raw(cfg->SetOVP, is_a_port ? (void *)&wg_com_v2_param.SetInpOVP : (void *)&wg_com_v2_param.SetOutOVP);
     profile->SetOVPRecover = eeprom_float_to_raw(cfg->SetOVPRecover, is_a_port ? (void *)&wg_com_v2_param.SetInpOVPRecover : (void *)&wg_com_v2_param.SetOutOVPRecover);
-    profile->SetChargLedCurr = eeprom_float_to_raw(cfg->SetChargLedCurr, is_a_port ? (void *)&wg_com_v2_param.SetInpChargLedCurr : (void *)&wg_com_v2_param.SetOutChargLedCurr);
-    profile->SetFullLedCurr = eeprom_float_to_raw(cfg->SetFullLedCurr, is_a_port ? (void *)&wg_com_v2_param.SetInpFullLedCurr : (void *)&wg_com_v2_param.SetOutFullLedCurr);
+    profile->SetChargLedCurr = eeprom_float_to_raw(default_charge_led_curr, is_a_port ? (void *)&wg_com_v2_param.SetInpChargLedCurr : (void *)&wg_com_v2_param.SetOutChargLedCurr);
+    profile->SetFullLedCurr = eeprom_float_to_raw(default_full_led_curr, is_a_port ? (void *)&wg_com_v2_param.SetInpFullLedCurr : (void *)&wg_com_v2_param.SetOutFullLedCurr);
     profile->AutoOpenVolt = eeprom_float_to_raw(is_a_port ? cfg->OpenVoltA : cfg->OpenVoltB, is_a_port ? (void *)&wg_com_v2_param.AuotForwardOpenVoltA : (void *)&wg_com_v2_param.AuotReverseOpenVoltB);
     profile->AutoVeerVolt = eeprom_float_to_raw(is_a_port ? cfg->VeerVoltA : 0.0f, (void *)&wg_com_v2_param.AuotForwardVeerVoltA);
     profile->AutoCloseVolt = eeprom_float_to_raw(is_a_port ? cfg->CloseVoltA : cfg->CloseVoltB, is_a_port ? (void *)&wg_com_v2_param.AuotForwardShutVoltA : (void *)&wg_com_v2_param.AuotReverseShutVoltB);
