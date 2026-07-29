@@ -50,6 +50,71 @@ usart_dma_bt_buf_t usart_dma_bt_buf;
 #define BT_DBG_STAGE_ERROR     6U
 #define BT_DBG(stage, result, value) app_debug_event_push(APP_DBG_EVT_BT_NAME, APP_DBG_AREA_BT, (stage), usart_dma_bt_buf.rx_step, usart_dma_bt_buf.buffer_size, (result), (value))
 
+static uint8_t wg_com_v2_is_modbus_cmd(uint8_t cmd)
+{
+    return ((cmd == WG_COM_V2_CMD_READ) ||
+            (cmd == WG_COM_V2_CMD_WRITE_DATA) ||
+            (cmd == WG_COM_V2_CMD_WRITE_STR)) ? 1U : 0U;
+}
+
+static void wg_com_v2_bt_cancel_name_session(void)
+{
+    if((usart_dma_bt_buf.rx_step == 1U) ||
+       (usart_dma_bt_buf.rx_step == 3U) ||
+       (usart_dma_bt_buf.rx_step == 0xffU))
+    {
+        BT_DBG(BT_DBG_STAGE_ERROR, APP_DBG_RESULT_FAIL, usart_dma_bt_buf.rx_step);
+        usart_dma_bt_buf.rx_step = 0U;
+        usart_dma_bt_buf.rx_data_step = 0U;
+        usart_dma_bt_buf.buffer_size = 0U;
+        memset((uint8_t*)usart_dma_bt_buf.usart_buf, 0, sizeof(usart_dma_bt_buf.usart_buf));
+    }
+}
+static CM_USART_TypeDef *wg_com_v2_get_usart_unit(usart_output_port_t port)
+{
+    if(port == OUTPUT_USART2)
+    {
+        return CM_USART2;
+    }
+
+    if(port == OUTPUT_USART0)
+    {
+        return CM_USART1;
+    }
+
+    return NULL;
+}
+
+static void wg_com_v2_recover_usart_rx_error(const usart_dma_port_t *port,
+                                             uint8_t *rx_buffer,
+                                             uint32_t *rx_buffer_cnt)
+{
+    CM_USART_TypeDef *usart = wg_com_v2_get_usart_unit(port->USARTx);
+    uint32_t err_flags = USART_FLAG_FRAME_ERR | USART_FLAG_OVERRUN |
+                         USART_FLAG_PARITY_ERR | USART_FLAG_LIN_ERR;
+
+    if((usart == NULL) ||
+       (USART_GetStatus(usart, err_flags) == 0U))
+    {
+        return;
+    }
+
+    USART_ClearStatus(usart, err_flags);
+    DMA_ChCmd(CM_DMA, port->dma_channel, DISABLE);
+    DMA_SetDestAddr(CM_DMA, port->dma_channel, (uint32_t)&port->dma_buffer[0]);
+    DMA_SetTransCount(CM_DMA, port->dma_channel, port->buffer_size);
+    DMA_ChCmd(CM_DMA, port->dma_channel, ENABLE);
+    *(port->rx_cnt) = port->buffer_size;
+    *(port->is_rx_flag) = 0U;
+    *(port->timeout) = systemtime;
+    *rx_buffer_cnt = 0U;
+    memset(rx_buffer, 0, WG_COM_V2_BUFFER_SIZE);
+
+    if(port->USARTx == OUTPUT_USART2)
+    {
+        wg_com_v2_bt_cancel_name_session();
+    }
+}
 static uint8_t mppt_return_state_valid = 0;
 static uint16_t mppt_return_power_mode = eSET_BAT_MODE;
 static uint16_t mppt_return_bat_mode_fr = 0;
@@ -1407,12 +1472,8 @@ void process_usart_dma_input(const usart_dma_port_t *port)
         rx_buffer = wg_com_usart0_rx_buffer;
         rx_buffer_cnt = &wg_com_usart0_rx_buffer_cnt;
     }
+    wg_com_v2_recover_usart_rx_error(port, rx_buffer, rx_buffer_cnt);
 
-    if((USART_GetStatus(CM_USART1, USART_FLAG_FRAME_ERR) == 1) && (port->USARTx == OUTPUT_USART0))
-    {
-        USART_SetFirstBit(CM_USART1, USART_CR1_CFE);
-        CM_USART1->CR1 |= USART_CR1_CFE;
-    }
     while (*(port->rx_cnt) != USARTX_RX_DMA_CNT(port->dma_channel))
     {
         uint8_t rx_data = port->dma_buffer[port->buffer_size - *(port->rx_cnt)];
@@ -1423,6 +1484,13 @@ void process_usart_dma_input(const usart_dma_port_t *port)
         if (*rx_buffer_cnt >= WG_COM_V2_BUFFER_SIZE)
         {
             *rx_buffer_cnt = 0;
+        }
+        if((port->USARTx == OUTPUT_USART2) &&
+           (*rx_buffer_cnt >= 2U) &&
+           ((rx_buffer[0] == host_addr) || (rx_buffer[0] == WG_COM_V2_BROADCAST_ADDR)) &&
+           (wg_com_v2_is_modbus_cmd(rx_buffer[1]) != 0U))
+        {
+            wg_com_v2_bt_cancel_name_session();
         }
         if((port->USARTx == OUTPUT_USART2) && 
           ((usart_dma_bt_buf.rx_step == 1) || 
@@ -1826,6 +1894,7 @@ void get_bt_data_run(void)
 }
 
 REG_TASK(10, get_bt_data_run)
+
 
 
 
