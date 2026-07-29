@@ -385,6 +385,11 @@ void wg_com_v2_exit_mppt_control_state(void)
     }
 }
 
+static uint8_t wg_com_v2_mode_blocks_mppt(uint16_t power_mode)
+{
+    return ((power_mode == eSET_STANDARD_MODE) || (power_mode == eSET_CUSTOM_MODE)) ? 1U : 0U;
+}
+
 static uint8_t normalize_mode_control_state(uint16_t addr,
                                             uint16_t count,
                                             uint16_t old_power_mode,
@@ -422,6 +427,25 @@ static uint8_t normalize_mode_control_state(uint16_t addr,
     WG_COM_V2_GET_DATA_UINT(boot_time_b, wg_com_v2_ctrl.SetBootTimeB);
     WG_COM_V2_GET_DATA_UINT(soft_start_a, wg_com_v2_ctrl.SetOnCurrStartTimeA);
     WG_COM_V2_GET_DATA_UINT(soft_start_b, wg_com_v2_ctrl.SetOnCurrStartTimeB);
+
+    if((writes_power_mode != 0U) &&
+       (power_mode == eMPPT_MODE) &&
+       (wg_com_v2_mode_blocks_mppt(old_power_mode) != 0U))
+    {
+        WG_COM_V2_SET_DATA_UINT(old_power_mode, wg_com_v2_ctrl.SetPowerMode);
+        WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.MpptSwitch);
+        power_mode = old_power_mode;
+        mppt_switch = 0U;
+        changed = 1U;
+    }
+    if((mppt_switch != 0U) &&
+       ((wg_com_v2_mode_blocks_mppt(old_power_mode) != 0U) ||
+        (wg_com_v2_mode_blocks_mppt(power_mode) != 0U)))
+    {
+        WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.MpptSwitch);
+        mppt_switch = 0U;
+        changed = 1U;
+    }
 
     if(writes_mppt_switch != 0)
     {

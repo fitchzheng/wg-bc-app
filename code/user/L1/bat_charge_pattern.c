@@ -7,6 +7,10 @@
 #include "get_com_data.h"
 static ADC_CHECK_ADDRS_E check_state = ADDRS_IDLE;
 static uint16_t StateCharge = eFORWARD;
+#define ACC_RTM_PROTECT_NONE 0U
+#define ACC_RTM_PROTECT_ACC  1U
+#define ACC_RTM_PROTECT_RTM  2U
+static uint8_t acc_rtm_protect_side = ACC_RTM_PROTECT_NONE;
 void auto_charge_mode(void)
 {
     static uint8_t StateModelFlag;
@@ -168,18 +172,31 @@ void get_protect_data(void)
 
     uint8_t acc_is_on = (Acc_val > ACC_VEER_VOUL) ? 1U : 0U;
     uint8_t rtm_is_on = (Rtm_val > RTM_VEER_VOUL) ? 1U : 0U;
-    uint8_t single_acc_rtm_on = (((acc_is_on != 0U) && (rtm_is_on == 0U)) ||
-                                 ((acc_is_on == 0U) && (rtm_is_on != 0U))) ? 1U : 0U;
+
+    if((acc_is_on != 0U) && (rtm_is_on != 0U))
+    {
+        acc_rtm_protect_side = ACC_RTM_PROTECT_NONE;
+    }
+    else if((acc_is_on != 0U) && (rtm_is_on == 0U))
+    {
+        acc_rtm_protect_side = ACC_RTM_PROTECT_ACC;
+    }
+    else if((acc_is_on == 0U) && (rtm_is_on != 0U))
+    {
+        acc_rtm_protect_side = ACC_RTM_PROTECT_RTM;
+    }
 
     charge_state_data.protect_data.protect_item_acc.val = Acc_val;
     charge_state_data.protect_data.protect_item_acc.limit = ACC_EXIT_VEER_VOUL;
     charge_state_data.protect_data.protect_item_acc.recover = ACC_VEER_VOUL;
-    charge_state_data.protect_data.protect_item_acc.enable = ((single_acc_rtm_on != 0U) && (acc_is_on != 0U)) ? 1U : 0U;
+    charge_state_data.protect_data.protect_item_acc.enable =
+        (acc_rtm_protect_side == ACC_RTM_PROTECT_ACC) ? 1U : 0U;
 
     charge_state_data.protect_data.protect_item_rtm.val = Rtm_val;
     charge_state_data.protect_data.protect_item_rtm.limit = RTM_EXIT_VEER_VOUL;
     charge_state_data.protect_data.protect_item_rtm.recover = RTM_VEER_VOUL;
-    charge_state_data.protect_data.protect_item_rtm.enable = ((single_acc_rtm_on != 0U) && (rtm_is_on != 0U)) ? 1U : 0U;
+    charge_state_data.protect_data.protect_item_rtm.enable =
+        (acc_rtm_protect_side == ACC_RTM_PROTECT_RTM) ? 1U : 0U;
 
     switch(StateCharge)
     {
