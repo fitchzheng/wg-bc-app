@@ -1401,6 +1401,7 @@ void process_usart_dma_input(const usart_dma_port_t *port)
 #endif
 
             if ((is_broadcast == 0U) ||
+                (port->USARTx == OUTPUT_USART2) ||
                 (cmd == WG_COM_V2_CMD_WRITE_DATA) ||
                 (cmd == WG_COM_V2_CMD_WRITE_STR)
 #if (APP_PARALLEL_RS485_FEATURES == 1)
@@ -1429,7 +1430,8 @@ void process_usart_dma_input(const usart_dma_port_t *port)
             }
 #endif
 
-            if (is_broadcast != 0U)
+            if ((is_broadcast != 0U) &&
+                (port->USARTx == OUTPUT_USART0))
             {
                 wg_com_tx_buffer_cnt = 0U;
             }

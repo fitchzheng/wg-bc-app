@@ -166,15 +166,20 @@ void get_protect_data(void)
     AuotOpenVoltB = get_wg_com_v2_data.com_param.AuotReverseOpenVoltB;
     AuotCloseVoltB = get_wg_com_v2_data.com_param.AuotReverseShutVoltB;
 
+    uint8_t acc_is_on = (Acc_val > ACC_VEER_VOUL) ? 1U : 0U;
+    uint8_t rtm_is_on = (Rtm_val > RTM_VEER_VOUL) ? 1U : 0U;
+    uint8_t single_acc_rtm_on = (((acc_is_on != 0U) && (rtm_is_on == 0U)) ||
+                                 ((acc_is_on == 0U) && (rtm_is_on != 0U))) ? 1U : 0U;
+
     charge_state_data.protect_data.protect_item_acc.val = Acc_val;
     charge_state_data.protect_data.protect_item_acc.limit = ACC_EXIT_VEER_VOUL;
     charge_state_data.protect_data.protect_item_acc.recover = ACC_VEER_VOUL;
-    charge_state_data.protect_data.protect_item_acc.enable = (get_wg_com_v2_data.BatModeFRState == 0) ? ((get_check_state_data() == ADDRS_FORWARD) ? 1 : 0) : 0;
+    charge_state_data.protect_data.protect_item_acc.enable = ((single_acc_rtm_on != 0U) && (acc_is_on != 0U)) ? 1U : 0U;
 
     charge_state_data.protect_data.protect_item_rtm.val = Rtm_val;
     charge_state_data.protect_data.protect_item_rtm.limit = RTM_EXIT_VEER_VOUL;
     charge_state_data.protect_data.protect_item_rtm.recover = RTM_VEER_VOUL;
-    charge_state_data.protect_data.protect_item_rtm.enable = (get_wg_com_v2_data.BatModeFRState == 0) ? ((get_check_state_data() == ADDRS_BACKWARD) ? 1 : 0) : 0;
+    charge_state_data.protect_data.protect_item_rtm.enable = ((single_acc_rtm_on != 0U) && (rtm_is_on != 0U)) ? 1U : 0U;
 
     switch(StateCharge)
     {

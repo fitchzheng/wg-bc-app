@@ -57,7 +57,7 @@ static void led_func(void)
         break;
 
     default:
-        // Unknown mode â€” leave all LEDs off
+        // Unknown mode â€?leave all LEDs off
         break;
     }
 }
@@ -79,6 +79,22 @@ static void handle_fault_mode(void)
 
 static uint32_t ChgCurrLedRednDelay = 0;
 static uint32_t ChgCurrLedGreenDelay = 0;
+static void handle_dcdc_mode(float ilv, float chg_curr, float full_curr)
+{
+    static uint8_t is_green = 0U;
+
+    if (ilv > chg_curr)
+    {
+        is_green = 0U;
+    }
+    else if (ilv < full_curr)
+    {
+        is_green = 1U;
+    }
+
+    led_ctrl_set_led(is_green ? LED_CTRL_BLED_GREEN : LED_CTRL_BLED_RED, 1);
+}
+
 // Forward mode charging logic (constant on)
 static void handle_forward_mode(float ilv, float chg_curr, float full_curr)
 {
@@ -171,6 +187,7 @@ static void bled_func(void)
 //    float ihv = fabsf(get_show_ihv_show());
 //    float ilv = fabsf(get_show_ilv_show());
     float curr = 0.0f;
+    uint16_t bat_type = 0U;
 
     float ilv_chg_led_curr = 0.0f; 
     float ilv_full_led_curr = 0.0f;
@@ -178,10 +195,18 @@ static void bled_func(void)
         curr = fabsf(get_show_ihv_show());
         ilv_chg_led_curr = get_wg_com_v2_data.com_param.SetInpChargLedCurr;
         ilv_full_led_curr = get_wg_com_v2_data.com_param.SetInpFullLedCurr;
+        bat_type = get_wg_com_v2_data.com_ctrl.InpBatyType;
     }else{
         curr = fabsf(get_show_ilv_show());
         ilv_chg_led_curr = get_wg_com_v2_data.com_param.SetOutChargLedCurr;
         ilv_full_led_curr = get_wg_com_v2_data.com_param.SetOutFullLedCurr;
+        bat_type = get_wg_com_v2_data.com_ctrl.OutBatyType;
+    }
+
+    if (((bat_type & 0xFF00U) >> 8) == eBAT_DCDC)
+    {
+        handle_dcdc_mode(curr, ilv_chg_led_curr, ilv_full_led_curr);
+        return;
     }
 
     handle_forward_mode(curr, ilv_chg_led_curr, ilv_full_led_curr);

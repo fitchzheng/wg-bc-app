@@ -1433,7 +1433,8 @@ static uint16_t eeprom_profile_addr_from_ctrl(uint8_t is_a_port, uint16_t bat_ty
 static uint8_t eeprom_profile_type_from_ctrl(uint16_t bat_type)
 {
     uint8_t type = (uint8_t)((bat_type & 0xff00) >> 8);
-    if(type == eBAT_LA_GEL)
+    if((type == eBAT_LA_GEL) ||
+       (type == eBAT_AUTOSYS))
     {
         type = eBAT_TYPE_AGM;
     }
@@ -1585,6 +1586,58 @@ static const BAT_MODE_CONFIG_T eeprom_dcdc_basic_default_cfg = {
     BASIC_BAT_SYS_12V_DEFAULT_POWER_VOLT
 };
 
+#define EEPROM_DCDC_LED_CHARGE_RATIO 0.95f
+#define EEPROM_DCDC_LED_FULL_OFFSET  1.00f
+
+static float eeprom_dcdc_charge_led_from_curr(float curr)
+{
+    return curr * EEPROM_DCDC_LED_CHARGE_RATIO;
+}
+
+static float eeprom_dcdc_full_led_from_charge(float charge_curr)
+{
+    float full_curr = charge_curr - EEPROM_DCDC_LED_FULL_OFFSET;
+
+    if(full_curr < 0.0f)
+    {
+        full_curr = 0.0f;
+    }
+
+    return full_curr;
+}
+
+static void eeprom_profile_set_dcdc_led_curr(eeprom_system_profile_t *profile, uint8_t is_a_port)
+{
+    float set_curr = eeprom_raw_to_float(profile->SetCurr,
+                                         is_a_port ? (void *)&wg_com_v2_param.SetInpCurr : (void *)&wg_com_v2_param.SetOutCurr);
+    float charge_curr = eeprom_dcdc_charge_led_from_curr(set_curr);
+    float full_curr = eeprom_dcdc_full_led_from_charge(charge_curr);
+
+    profile->SetChargLedCurr = eeprom_float_to_raw(charge_curr,
+                                                   is_a_port ? (void *)&wg_com_v2_param.SetInpChargLedCurr : (void *)&wg_com_v2_param.SetOutChargLedCurr);
+    profile->SetFullLedCurr = eeprom_float_to_raw(full_curr,
+                                                  is_a_port ? (void *)&wg_com_v2_param.SetInpFullLedCurr : (void *)&wg_com_v2_param.SetOutFullLedCurr);
+}
+
+static uint8_t eeprom_profile_dcdc_led_is_old_default(const eeprom_system_profile_t *profile, uint8_t is_a_port)
+{
+    float charge_curr = eeprom_raw_to_float(profile->SetChargLedCurr,
+                                            is_a_port ? (void *)&wg_com_v2_param.SetInpChargLedCurr : (void *)&wg_com_v2_param.SetOutChargLedCurr);
+    float full_curr = eeprom_raw_to_float(profile->SetFullLedCurr,
+                                          is_a_port ? (void *)&wg_com_v2_param.SetInpFullLedCurr : (void *)&wg_com_v2_param.SetOutFullLedCurr);
+    uint8_t is_old_default = 0U;
+
+    if((charge_curr > (BASIC_BAT_SYS_12V_SET_LED_CHAR_CURR - 0.01f)) &&
+       (charge_curr < (BASIC_BAT_SYS_12V_SET_LED_CHAR_CURR + 0.01f)) &&
+       (full_curr > (BASIC_BAT_SYS_12V_SET_LED_FULL_CURR - 0.01f)) &&
+       (full_curr < (BASIC_BAT_SYS_12V_SET_LED_FULL_CURR + 0.01f)))
+    {
+        is_old_default = 1U;
+    }
+
+    return is_old_default;
+}
+
 static void eeprom_profile_fill_default(eeprom_system_profile_t *profile, uint8_t is_a_port, uint16_t bat_type)
 {
     uint8_t sys = eeprom_profile_bat_sys_from_ctrl(bat_type & 0x00FF);
@@ -1617,6 +1670,10 @@ static void eeprom_profile_fill_default(eeprom_system_profile_t *profile, uint8_
     profile->SetOVPRecover = eeprom_float_to_raw(cfg->SetOVPRecover, is_a_port ? (void *)&wg_com_v2_param.SetInpOVPRecover : (void *)&wg_com_v2_param.SetOutOVPRecover);
     profile->SetChargLedCurr = eeprom_float_to_raw(cfg->SetChargLedCurr, is_a_port ? (void *)&wg_com_v2_param.SetInpChargLedCurr : (void *)&wg_com_v2_param.SetOutChargLedCurr);
     profile->SetFullLedCurr = eeprom_float_to_raw(cfg->SetFullLedCurr, is_a_port ? (void *)&wg_com_v2_param.SetInpFullLedCurr : (void *)&wg_com_v2_param.SetOutFullLedCurr);
+    if(raw_type == eBAT_DCDC)
+    {
+        eeprom_profile_set_dcdc_led_curr(profile, is_a_port);
+    }
     profile->AutoOpenVolt = eeprom_float_to_raw(is_a_port ? cfg->OpenVoltA : cfg->OpenVoltB, is_a_port ? (void *)&wg_com_v2_param.AuotForwardOpenVoltA : (void *)&wg_com_v2_param.AuotReverseOpenVoltB);
     profile->AutoVeerVolt = eeprom_float_to_raw(is_a_port ? cfg->VeerVoltA : 0.0f, (void *)&wg_com_v2_param.AuotForwardVeerVoltA);
     profile->AutoCloseVolt = eeprom_float_to_raw(is_a_port ? cfg->CloseVoltA : cfg->CloseVoltB, is_a_port ? (void *)&wg_com_v2_param.AuotForwardShutVoltA : (void *)&wg_com_v2_param.AuotReverseShutVoltB);
@@ -1689,28 +1746,33 @@ static uint8_t eeprom_profile_sanitize(uint8_t is_a_port,
         profile->SetUvloRecover = default_profile.SetUvloRecover;
         if(fixed != NULL) *fixed = 1;
     }
-    if(!is_a_port)
+    if(!eeprom_profile_in_range(eeprom_raw_to_float(profile->SetOVP, is_a_port ? (void *)&wg_com_v2_param.SetInpOVP : (void *)&wg_com_v2_param.SetOutOVP), volt_min, volt_max))
     {
-        if(!eeprom_profile_in_range(eeprom_raw_to_float(profile->SetOVP, (void *)&wg_com_v2_param.SetOutOVP), volt_min, volt_max))
-        {
-            profile->SetOVP = default_profile.SetOVP;
-            if(fixed != NULL) *fixed = 1;
-        }
-        if(!eeprom_profile_in_range(eeprom_raw_to_float(profile->SetOVPRecover, (void *)&wg_com_v2_param.SetOutOVPRecover), volt_min, volt_max))
-        {
-            profile->SetOVPRecover = default_profile.SetOVPRecover;
-            if(fixed != NULL) *fixed = 1;
-        }
-    }
-    if(!eeprom_profile_in_range(eeprom_raw_to_float(profile->SetChargLedCurr, is_a_port ? (void *)&wg_com_v2_param.SetInpChargLedCurr : (void *)&wg_com_v2_param.SetOutChargLedCurr), 0.0f, cfg->OutCurrMax))
-    {
-        profile->SetChargLedCurr = default_profile.SetChargLedCurr;
+        profile->SetOVP = default_profile.SetOVP;
         if(fixed != NULL) *fixed = 1;
     }
-    if(!eeprom_profile_in_range(eeprom_raw_to_float(profile->SetFullLedCurr, is_a_port ? (void *)&wg_com_v2_param.SetInpFullLedCurr : (void *)&wg_com_v2_param.SetOutFullLedCurr), 0.0f, cfg->OutCurrMax))
+    if(!eeprom_profile_in_range(eeprom_raw_to_float(profile->SetOVPRecover, is_a_port ? (void *)&wg_com_v2_param.SetInpOVPRecover : (void *)&wg_com_v2_param.SetOutOVPRecover), volt_min, volt_max))
     {
-        profile->SetFullLedCurr = default_profile.SetFullLedCurr;
+        profile->SetOVPRecover = default_profile.SetOVPRecover;
         if(fixed != NULL) *fixed = 1;
+    }
+    if((raw_type == eBAT_DCDC) && (eeprom_profile_dcdc_led_is_old_default(profile, is_a_port) != 0U))
+    {
+        eeprom_profile_set_dcdc_led_curr(profile, is_a_port);
+        if(fixed != NULL) *fixed = 1;
+    }
+    else
+    {
+        if(!eeprom_profile_in_range(eeprom_raw_to_float(profile->SetChargLedCurr, is_a_port ? (void *)&wg_com_v2_param.SetInpChargLedCurr : (void *)&wg_com_v2_param.SetOutChargLedCurr), 0.0f, cfg->OutCurrMax))
+        {
+            profile->SetChargLedCurr = default_profile.SetChargLedCurr;
+            if(fixed != NULL) *fixed = 1;
+        }
+        if(!eeprom_profile_in_range(eeprom_raw_to_float(profile->SetFullLedCurr, is_a_port ? (void *)&wg_com_v2_param.SetInpFullLedCurr : (void *)&wg_com_v2_param.SetOutFullLedCurr), 0.0f, cfg->OutCurrMax))
+        {
+            profile->SetFullLedCurr = default_profile.SetFullLedCurr;
+            if(fixed != NULL) *fixed = 1;
+        }
     }
     if(!eeprom_profile_in_range(eeprom_raw_to_float(profile->AutoOpenVolt, is_a_port ? (void *)&wg_com_v2_param.AuotForwardOpenVoltA : (void *)&wg_com_v2_param.AuotReverseOpenVoltB), volt_min, volt_max))
     {

@@ -68,7 +68,7 @@
 /* Parallel preparation layer. CAN/RS485 only negotiate readiness; real current
  * sharing is handled by local droop control. */
 #ifndef APP_PARALLEL_MODE_FEATURES
-#define APP_PARALLEL_MODE_FEATURES 0
+#define APP_PARALLEL_MODE_FEATURES 1
 #endif
 
 #ifndef APP_PARALLEL_CAN_FEATURES
@@ -91,6 +91,7 @@
 #endif
 
 #endif
+
 
 
 
