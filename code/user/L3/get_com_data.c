@@ -201,67 +201,67 @@ void get_wg_com_data_fast_rum(void)
 void get_wg_com_data_rum(void)
 {
     normalize_exclusive_power_mode();
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.BatModeFRState, wg_com_v2_ctrl.BatModeFR);                                                // 上位机设置正反向状态    // P01实时数据区
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.InpVolt,wg_com_v2_realtime_data.InpVolt);                               // A端电压
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.InpCurr,wg_com_v2_realtime_data.InpCurr);                               // A端电流
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.InpCurrPower,wg_com_v2_realtime_data.InpCurrPower);                     // A端功率
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.OutVolt,wg_com_v2_realtime_data.OutVolt);                               // B端电压
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.OutCurr,wg_com_v2_realtime_data.OutCurr);                               // B端电流
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.OutCurrPower,wg_com_v2_realtime_data.OutCurrPower);                     // B端功率
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.BatModeFRState, wg_com_v2_ctrl.BatModeFR);                                                // 上位机设置正反向状�?   // P01实时数据�?
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.InpVolt,wg_com_v2_realtime_data.InpVolt);                               // A端电�?
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.InpCurr,wg_com_v2_realtime_data.InpCurr);                               // A端电�?
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.InpCurrPower,wg_com_v2_realtime_data.InpCurrPower);                     // A端功�?
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.OutVolt,wg_com_v2_realtime_data.OutVolt);                               // B端电�?
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.OutCurr,wg_com_v2_realtime_data.OutCurr);                               // B端电�?
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.OutCurrPower,wg_com_v2_realtime_data.OutCurrPower);                     // B端功�?
     WG_COM_V2_GET_DATA_INT(get_wg_com_v2_data.com_realtime_data.InsideTemp,wg_com_v2_realtime_data.InsideTemp);                          // 内部温度
     WG_COM_V2_GET_DATA_INT(get_wg_com_v2_data.com_realtime_data.OutsideTemp,wg_com_v2_realtime_data.OutsideTemp);                        // 外部温度
     WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.PowerMode,wg_com_v2_realtime_data.PowerMode);                           // 电源模式
     WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.ChargMode,wg_com_v2_realtime_data.ChargMode);                           // 充电模式
     WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.FaultSign,wg_com_v2_realtime_data.FaultSign);                           // 故障信号
     WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.AlarmSign,wg_com_v2_realtime_data.AlarmSign);                           // 告警信号
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.CompensationVoltA,wg_com_v2_realtime_data.CompensationVoltA);           // A端补偿
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.CompensationVoltB,wg_com_v2_realtime_data.CompensationVoltB);           // B端补偿
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.CompensationVoltA,wg_com_v2_realtime_data.CompensationVoltA);           // A端补�?
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.CompensationVoltB,wg_com_v2_realtime_data.CompensationVoltB);           // B端补�?
     WG_COM_V2_GET_DATA_INT(get_wg_com_v2_data.com_realtime_data.Temp2,wg_com_v2_realtime_data.Temp2);                                    // 器件温度2
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.StateCharge,wg_com_v2_realtime_data.StateCharge);                       // 充电状态
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.StateCharge,wg_com_v2_realtime_data.StateCharge);                       // 充电状�?
     WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.ADDVolt,wg_com_v2_realtime_data.ADDVolt);                               // ADD辅源电压
     // P02控制设置
     WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.FactoryReset,wg_com_v2_ctrl.FactoryReset);                                       // 恢复出厂设置
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.PowerOnOff,wg_com_v2_ctrl.PowerOnOff);                                           // 开关机状态
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.PowerOnOff,wg_com_v2_ctrl.PowerOnOff);                                           // 开关机状�?
     WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.SetPowerMode,wg_com_v2_ctrl.SetPowerMode);                                       // 电源模式
     WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.SetChargMode,wg_com_v2_ctrl.SetChargMode);                                       // 充电模式
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.InpBatyType,wg_com_v2_ctrl.InpBatyType);                                         // A端电池类型，高位类型，低位电压
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.OutBatyType,wg_com_v2_ctrl.OutBatyType);                                         // B端电池类型，高位类型，低位电压
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.SetBootTimeA,wg_com_v2_ctrl.SetBootTimeA);                                       // A端开机时间
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.SetBootTimeB,wg_com_v2_ctrl.SetBootTimeB);                                       // B端开机时间
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.InpBatyType,wg_com_v2_ctrl.InpBatyType);                                         // A端电池类型，高位类型，低位电�?
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.OutBatyType,wg_com_v2_ctrl.OutBatyType);                                         // B端电池类型，高位类型，低位电�?
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.SetBootTimeA,wg_com_v2_ctrl.SetBootTimeA);                                       // A端开机时�?
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.SetBootTimeB,wg_com_v2_ctrl.SetBootTimeB);                                       // B端开机时�?
     WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.SetOnCurrStartTimeA,wg_com_v2_ctrl.SetOnCurrStartTimeA);                         // A端开机电流软起动时间
     WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.SetOnCurrStartTimeB,wg_com_v2_ctrl.SetOnCurrStartTimeB);                         // B端开机电流软起动时间
     WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.ZeroCurrCalibration,wg_com_v2_ctrl.ZeroCurrCalibration);                         // 端零电流校准
     WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.ResetFactoryData,wg_com_v2_ctrl.ResetFactoryData);                               // 恢复厂家数据
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.BatModeFR,wg_com_v2_ctrl.BatModeFR);                                             // 电池模式正反向切换
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.BatModeFR,wg_com_v2_ctrl.BatModeFR);                                             // 电池模式正反向切�?
     WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.MpptSwitch,wg_com_v2_ctrl.MpptSwitch);                                           // 40D MPPT mode switch
     WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.SleepModeOnOff,wg_com_v2_ctrl.SleepModeOnOff);                                   // 40E sleep mode switch
-    // P03设置参数区
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetInpVolt,wg_com_v2_param.SetInpVolt);                                         // A端电压
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetInpCurr,wg_com_v2_param.SetInpCurr);                                         // A端电流
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetInpCurrPower,wg_com_v2_param.SetInpCurrPower);                               // A端功率
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetOutVolt,wg_com_v2_param.SetOutVolt);                                         // B端电压
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetOutCurr,wg_com_v2_param.SetOutCurr);                                         // B端电流
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetOutCurrPower,wg_com_v2_param.SetOutCurrPower);                               // B端功率
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetInpUvlo,wg_com_v2_param.SetInpUvlo);                                         // A端欠压保护
+    // P03设置参数�?
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetInpVolt,wg_com_v2_param.SetInpVolt);                                         // A端电�?
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetInpCurr,wg_com_v2_param.SetInpCurr);                                         // A端电�?
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetInpCurrPower,wg_com_v2_param.SetInpCurrPower);                               // A端功�?
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetOutVolt,wg_com_v2_param.SetOutVolt);                                         // B端电�?
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetOutCurr,wg_com_v2_param.SetOutCurr);                                         // B端电�?
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetOutCurrPower,wg_com_v2_param.SetOutCurrPower);                               // B端功�?
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetInpUvlo,wg_com_v2_param.SetInpUvlo);                                         // A端欠压保�?
     
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetInpUvloRecover,wg_com_v2_param.SetInpUvloRecover);                           // A端欠压保护恢复
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetInpOVP,wg_com_v2_param.SetInpOVP);                                           // A端过压保护
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetInpOVPRecover,wg_com_v2_param.SetInpOVPRecover);                             // A端过压保护恢复
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetOutUvlo,wg_com_v2_param.SetOutUvlo);                                         // B端欠压保护
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetOutUvloRecover,wg_com_v2_param.SetOutUvloRecover);                           // B端欠压保护恢复
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetOutOVP,wg_com_v2_param.SetOutOVP);                                           // B端过压保护
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetOutOVPRecover,wg_com_v2_param.SetOutOVPRecover);                             // B端过压保护恢复
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetInpUvloRecover,wg_com_v2_param.SetInpUvloRecover);                           // A端欠压保护恢�?
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetInpOVP,wg_com_v2_param.SetInpOVP);                                           // A端过压保�?
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetInpOVPRecover,wg_com_v2_param.SetInpOVPRecover);                             // A端过压保护恢�?
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetOutUvlo,wg_com_v2_param.SetOutUvlo);                                         // B端欠压保�?
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetOutUvloRecover,wg_com_v2_param.SetOutUvloRecover);                           // B端欠压保护恢�?
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetOutOVP,wg_com_v2_param.SetOutOVP);                                           // B端过压保�?
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetOutOVPRecover,wg_com_v2_param.SetOutOVPRecover);                             // B端过压保护恢�?
     WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetInsideTemp,wg_com_v2_param.SetInsideTemp);                                   // 内部温度
     WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetOutsideTemp,wg_com_v2_param.SetOutsideTemp);                                 // 外部温度
     WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetInpChargLedCurr,wg_com_v2_param.SetInpChargLedCurr);                         // A端充电指示灯电流
     WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetInpFullLedCurr,wg_com_v2_param.SetInpFullLedCurr);                           // A端充满指示灯电流
     WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetOutChargLedCurr,wg_com_v2_param.SetOutChargLedCurr);                         // B端充电指示灯电流
     WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetOutFullLedCurr,wg_com_v2_param.SetOutFullLedCurr);                           // B端充满指示灯电流
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.AuotForwardOpenVoltA,wg_com_v2_param.AuotForwardOpenVoltA);                     // 自动模式正向A端开启电压
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.AuotForwardOpenVoltA,wg_com_v2_param.AuotForwardOpenVoltA);                     // 自动模式正向A端开启电�?
     WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.AuotForwardVeerVoltA,wg_com_v2_param.AuotForwardVeerVoltA);                     // 自动模式正向转向A电压
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.AuotForwardShutVoltA,wg_com_v2_param.AuotForwardShutVoltA);                     // 自动模式正向A端关闭电压
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.AuotReverseOpenVoltB,wg_com_v2_param.AuotReverseOpenVoltB);                     // 自动模式反向B端开启电压
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.AuotReverseShutVoltB,wg_com_v2_param.AuotReverseShutVoltB);                     // 自动模式反向B端关闭电压
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.AuotForwardShutVoltA,wg_com_v2_param.AuotForwardShutVoltA);                     // 自动模式正向A端关闭电�?
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.AuotReverseOpenVoltB,wg_com_v2_param.AuotReverseOpenVoltB);                     // 自动模式反向B端开启电�?
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.AuotReverseShutVoltB,wg_com_v2_param.AuotReverseShutVoltB);                     // 自动模式反向B端关闭电�?
     WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetTemp2,wg_com_v2_param.SetTemp2);                                             // 内部温度
     if(get_wg_com_v2_data.com_realtime_data.PowerMode != get_wg_com_v2_data.com_ctrl.SetPowerMode)
     {
@@ -273,7 +273,7 @@ void get_wg_com_data_rum(void)
 uint8_t float_equal(float x, float y) {
     if(fabsf(x - y) < 1e-6f)
     {
-        return 0;   // 使用单精度 fabsf 更高效
+        return 0;   // 使用单精�?fabsf 更高�?
     }
     return 1;
 }
@@ -479,21 +479,25 @@ static void ovp_uvp_rande_limt(void)
 void boot_time_delay_run(void)
 {
     static uint16_t TimeDelay = 0;
-    if(charge_state_data.Boot_Time_Delay.SetBootTime <= 1)
+    uint16_t target_delay_ticks;
+
+    if(charge_state_data.Boot_Time_Delay.SetBootTime == 0)
     {
+        TimeDelay = 0;
+        charge_state_data.Boot_Time_Delay.BootTimeDelay = 0;
         charge_state_data.Boot_Time_Delay.SetBootTimeFlag = 1;
         return;
     }
+
+    target_delay_ticks = (uint16_t)((charge_state_data.Boot_Time_Delay.SetBootTime * 10U) - 6U);
+
     if(charge_state_data.Boot_Time_Delay.SetBootTimeFlag == 0)
     {
-        if(++TimeDelay >= 10)
+        if(++TimeDelay >= target_delay_ticks)
         {
             TimeDelay = 0;
-            if(++charge_state_data.Boot_Time_Delay.BootTimeDelay > (charge_state_data.Boot_Time_Delay.SetBootTime-1))
-            {
-                charge_state_data.Boot_Time_Delay.BootTimeDelay = 0;
-                charge_state_data.Boot_Time_Delay.SetBootTimeFlag = 1;
-            }
+            charge_state_data.Boot_Time_Delay.BootTimeDelay = 0;
+            charge_state_data.Boot_Time_Delay.SetBootTimeFlag = 1;
         }
     }
     else

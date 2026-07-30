@@ -6,6 +6,11 @@
 #include "rvc_message_handler.h"
 #include "eeprom_cfg.h"
 
+#define BAT_MPPT_CURR_DEFAULT 80.00f
+#define BAT_MPPT_CURR_MAX     85.00f
+#define BAT_MPPT_POWER_DEFAULT 2000U
+#define BAT_MPPT_POWER_MAX     2500U
+
 static uint32_t FloatChargingDelay = 0;
 static uint32_t PrechargeDelay = 0;
 static uint32_t ChargeCVDelay = 0;
@@ -518,10 +523,26 @@ void bat_b_arguments_limi(void)
         LIMIT_MAX_MIN(Bat_Sys_Volt_Config[(BatTypeB&0x00FF)][((BatTypeB&0xff00)>>8)].OutVoltMax,Bat_Sys_Volt_Config[(BatTypeB&0x00FF)][((BatTypeB&0xff00)>>8)].OutVoltMin,Bat_Sys_Volt_Config[(BatTypeB&0x00FF)][((BatTypeB&0xff00)>>8)].OutVoltDefault,get_wg_com_v2_data.com_param.SetOutVolt);
         if(float_equal(verify_data,get_wg_com_v2_data.com_param.SetOutVolt) == 1){WG_COM_V2_SET_DATA_UINT(get_wg_com_v2_data.com_param.SetOutVolt, wg_com_v2_param.SetOutVolt);}
         verify_data = get_wg_com_v2_data.com_param.SetOutCurr;
-        LIMIT_MAX_MIN(Bat_Sys_Volt_Config[(BatTypeB&0x00FF)][((BatTypeB&0xff00)>>8)].OutCurrMax,Bat_Sys_Volt_Config[(BatTypeB&0x00FF)][((BatTypeB&0xff00)>>8)].OutCurrMin,Bat_Sys_Volt_Config[(BatTypeB&0x00FF)][((BatTypeB&0xff00)>>8)].OutCurrDefault,get_wg_com_v2_data.com_param.SetOutCurr);
+        if((get_wg_com_v2_data.com_ctrl.SetPowerMode == eMPPT_MODE) ||
+           (get_wg_com_v2_data.com_ctrl.MpptSwitch != 0U))
+        {
+            LIMIT_MAX_MIN(BAT_MPPT_CURR_MAX,Bat_Sys_Volt_Config[(BatTypeB&0x00FF)][((BatTypeB&0xff00)>>8)].OutCurrMin,BAT_MPPT_CURR_DEFAULT,get_wg_com_v2_data.com_param.SetOutCurr);
+        }
+        else
+        {
+            LIMIT_MAX_MIN(Bat_Sys_Volt_Config[(BatTypeB&0x00FF)][((BatTypeB&0xff00)>>8)].OutCurrMax,Bat_Sys_Volt_Config[(BatTypeB&0x00FF)][((BatTypeB&0xff00)>>8)].OutCurrMin,Bat_Sys_Volt_Config[(BatTypeB&0x00FF)][((BatTypeB&0xff00)>>8)].OutCurrDefault,get_wg_com_v2_data.com_param.SetOutCurr);
+        }
         if(float_equal(verify_data,get_wg_com_v2_data.com_param.SetOutCurr) == 1){WG_COM_V2_SET_DATA_UINT(get_wg_com_v2_data.com_param.SetOutCurr, wg_com_v2_param.SetOutCurr);}
         verify_data = get_wg_com_v2_data.com_param.SetOutCurrPower;
-        LIMIT_MAX_MIN(Bat_Sys_Volt_Config[(BatTypeB&0x00FF)][((BatTypeB&0xff00)>>8)].OutPowerMax,Bat_Sys_Volt_Config[(BatTypeB&0x00FF)][((BatTypeB&0xff00)>>8)].OutPowerMin,Bat_Sys_Volt_Config[(BatTypeB&0x00FF)][((BatTypeB&0xff00)>>8)].OutPowerDefault,get_wg_com_v2_data.com_param.SetOutCurrPower);
+        if((get_wg_com_v2_data.com_ctrl.SetPowerMode == eMPPT_MODE) ||
+           (get_wg_com_v2_data.com_ctrl.MpptSwitch != 0U))
+        {
+            LIMIT_MAX_MIN(BAT_MPPT_POWER_MAX,Bat_Sys_Volt_Config[(BatTypeB&0x00FF)][((BatTypeB&0xff00)>>8)].OutPowerMin,BAT_MPPT_POWER_DEFAULT,get_wg_com_v2_data.com_param.SetOutCurrPower);
+        }
+        else
+        {
+            LIMIT_MAX_MIN(Bat_Sys_Volt_Config[(BatTypeB&0x00FF)][((BatTypeB&0xff00)>>8)].OutPowerMax,Bat_Sys_Volt_Config[(BatTypeB&0x00FF)][((BatTypeB&0xff00)>>8)].OutPowerMin,Bat_Sys_Volt_Config[(BatTypeB&0x00FF)][((BatTypeB&0xff00)>>8)].OutPowerDefault,get_wg_com_v2_data.com_param.SetOutCurrPower);
+        }
         if(float_equal(verify_data,get_wg_com_v2_data.com_param.SetOutCurrPower) == 1){WG_COM_V2_SET_DATA_UINT(get_wg_com_v2_data.com_param.SetOutCurrPower, wg_com_v2_param.SetOutCurrPower);}
         verify_data = get_wg_com_v2_data.com_param.AuotReverseOpenVoltB;
         LIMIT_MAX_MIN((Bat_Sys_Volt_Config[(BatTypeB&0x00FF)][((BatTypeB&0xff00)>>8)].OpenVoltB+2.0f),(Bat_Sys_Volt_Config[(BatTypeB&0x00FF)][((BatTypeB&0xff00)>>8)].OpenVoltB-2.0f),Bat_Sys_Volt_Config[(BatTypeB&0x00FF)][((BatTypeB&0xff00)>>8)].OpenVoltB,get_wg_com_v2_data.com_param.AuotReverseOpenVoltB);
@@ -665,9 +686,9 @@ void BattChargingCurve(charge_state_data_t *bat_charge_data,uint8_t soft_flag)
     float OutVolt = 0.0f;               // 显示输出电压
     float OutCurr = 0.0f;               // 显示输出电流
     float ChargeVolt = 0.0f;            // 充电电压
-    float PrechargeVolt = 0.0f;         // 预充电电压
-    float SetOutChargLedCurr = 0.0f;    // 设置输出充电指示灯电流
-    float SetOutFullLedCurr = 0.0f;     // 设置输出充满指示灯电流
+    float PrechargeVolt = 0.0f;         // 预充电电�?
+    float SetOutChargLedCurr = 0.0f;    // 设置输出充电指示灯电�?
+    float SetOutFullLedCurr = 0.0f;     // 设置输出充满指示灯电�?
     uint16_t OutPower = 0;              // 显示输出功率
     uint16_t SetOutCurrPower;           // 设置输出功率
     uint8_t bat_step = 0;
@@ -681,8 +702,8 @@ void BattChargingCurve(charge_state_data_t *bat_charge_data,uint8_t soft_flag)
     {
 //        OutVolt = fabsf(get_show_fvs48_show());
 //        OutCurr = fabsf(get_show_ihv_show());
-        OutVolt = get_wg_com_v2_data.com_realtime_data.InpVolt;     // A端电压
-        OutCurr = get_wg_com_v2_data.com_realtime_data.InpCurr;     // A端电流
+        OutVolt = get_wg_com_v2_data.com_realtime_data.InpVolt;     // A端电�?
+        OutCurr = get_wg_com_v2_data.com_realtime_data.InpCurr;     // A端电�?
         SetOutCurrPower = get_wg_com_v2_data.com_param.SetInpCurrPower;
         SetOutChargLedCurr = get_wg_com_v2_data.com_param.SetInpChargLedCurr;
         SetOutFullLedCurr = get_wg_com_v2_data.com_param.SetInpFullLedCurr;
@@ -719,8 +740,8 @@ void BattChargingCurve(charge_state_data_t *bat_charge_data,uint8_t soft_flag)
     {
 //        OutVolt = fabsf(get_show_rvs12_show());
 //        OutCurr = fabsf(get_show_ilv_show());
-        OutVolt = get_wg_com_v2_data.com_realtime_data.OutVolt;     // B端电压
-        OutCurr = get_wg_com_v2_data.com_realtime_data.OutCurr;     // B端电流
+        OutVolt = get_wg_com_v2_data.com_realtime_data.OutVolt;     // B端电�?
+        OutCurr = get_wg_com_v2_data.com_realtime_data.OutCurr;     // B端电�?
         SetOutCurrPower = get_wg_com_v2_data.com_param.SetOutCurrPower;
         SetOutChargLedCurr = get_wg_com_v2_data.com_param.SetOutChargLedCurr;
         SetOutFullLedCurr = get_wg_com_v2_data.com_param.SetOutFullLedCurr;
@@ -817,7 +838,7 @@ void BattChargingCurve(charge_state_data_t *bat_charge_data,uint8_t soft_flag)
                     if(++FloatChargingDelay >= TIME_CNT_BAT_TYPE_200MS_IN_10MS)
                     {
                         FloatChargingDelay = 0;
-                        bat_charge_data->SetCharState = eFLOAT_CHARGE;    // 浮充电模式
+                        bat_charge_data->SetCharState = eFLOAT_CHARGE;    // 浮充电模�?
                     }
                     ChargeCVDelay = 0;
                     ChargeCCDelay = 0;
@@ -850,7 +871,7 @@ void BattChargingCurve(charge_state_data_t *bat_charge_data,uint8_t soft_flag)
                 if(++PrechargeDelay >= TIME_CNT_BAT_TYPE_200MS_IN_10MS)
                 {
                     PrechargeDelay = 0;
-                    bat_charge_data->SetCharState = ePRE_CHARGE;    // 预充电模式
+                    bat_charge_data->SetCharState = ePRE_CHARGE;    // 预充电模�?
                 }
                 FloatChargingDelay = 0;
                 ChargeCVDelay = 0;
@@ -883,13 +904,13 @@ void BattChargingCurve(charge_state_data_t *bat_charge_data,uint8_t soft_flag)
 					break;
 			}
             break;
-		case 2:  // 锂电池
+		case 2:  // 锂电�?
 			// 判断电流是否曾经达到过设置值的 90%
 			if (OutCurr >= (bat_charge_data->SetOutCurr * 0.90f)) { 
                 if(++CurrentReached90PercentDelay >= TIME_CNT_BAT_TYPE_200MS_IN_10MS)
                 {
                     CurrentReached90PercentDelay = 0;
-                    bat_charge_data->bat_state.sucCurrentReached90Percent = 1;             // 电流达到或超过 90% 时，置位标志
+                    bat_charge_data->bat_state.sucCurrentReached90Percent = 1;             // 电流达到或超�?90% 时，置位标志
                 }
 			}else{
                 CurrentReached90PercentDelay = 0;
@@ -899,12 +920,12 @@ void BattChargingCurve(charge_state_data_t *bat_charge_data,uint8_t soft_flag)
                 if(++PowerReached90PercentDelay >= TIME_CNT_BAT_TYPE_200MS_IN_10MS)
                 {
                     PowerReached90PercentDelay = 0;
-                    bat_charge_data->bat_state.sucPowerReached90Percent = 1;             // 功率达到或超过 90% 时，置位标志
+                    bat_charge_data->bat_state.sucPowerReached90Percent = 1;             // 功率达到或超�?90% 时，置位标志
                 }
 			}else{
                 PowerReached90PercentDelay = 0;
             }
-			// 如果电流曾经达到过 90% 并且电流小于 1.5A，且电压大于设置电压的 90%，则标记为充满
+			// 如果电流曾经达到�?90% 并且电流小于 1.5A，且电压大于设置电压�?90%，则标记为充�?
 			if ((!bat_charge_data->bat_state.LithiumBatOnOff)                          // 没有充满 
 			&& ((bat_charge_data->bat_state.sucCurrentReached90Percent)||(bat_charge_data->bat_state.sucPowerReached90Percent))                // 是否大电流充电过
 			&&  (OutVolt > (bat_charge_data->SetOutVolt * 0.95f))    // 输出电压是否大于设置电压95%
@@ -913,7 +934,7 @@ void BattChargingCurve(charge_state_data_t *bat_charge_data,uint8_t soft_flag)
 				if(++LiBatFullDelay >= TIME_CNT_BAT_TYPE_1M_IN_10MS)
 				{
                     LiBatFullDelay = 0;
-					bat_charge_data->bat_state.LithiumBatOnOff = 1; // 符合条件，标记充满
+					bat_charge_data->bat_state.LithiumBatOnOff = 1; // 符合条件，标记充�?
 				}
                 ChargeCVDelay = 0;
                 ChargeCCDelay = 0;                
@@ -937,7 +958,7 @@ void BattChargingCurve(charge_state_data_t *bat_charge_data,uint8_t soft_flag)
                     if(++PrechargeDelay >= TIME_CNT_BAT_TYPE_200MS_IN_10MS)
                     {
                         PrechargeDelay = 0;
-                        bat_charge_data->SetCharState = ePRE_CHARGE;    // 预充电模式
+                        bat_charge_data->SetCharState = ePRE_CHARGE;    // 预充电模�?
                     }
                     ChargeCVDelay = 0;
                     ChargeCCDelay = 0;
@@ -1080,8 +1101,8 @@ void init_mppt_mode_parameter(void)
     if((BatTypeB&0x00FF) < eBAT_SYS_VOLT_MAX)
     {
         BatSetOutVolt      = Bat_Sys_Volt_Config[(BatTypeB&0x00FF)][((BatTypeB&0xff00)>>8)].OutVoltDefault;
-        BatSetOutCurr      = Bat_Sys_Volt_Config[(BatTypeB&0x00FF)][((BatTypeB&0xff00)>>8)].OutCurrDefault;
-        BatSetOutCurrPower = Bat_Sys_Volt_Config[(BatTypeB&0x00FF)][((BatTypeB&0xff00)>>8)].OutPowerDefault;
+        BatSetOutCurr      = BAT_MPPT_CURR_DEFAULT;
+        BatSetOutCurrPower = BAT_MPPT_POWER_DEFAULT;
         SetOutChargCurr    = Bat_Sys_Volt_Config[(BatTypeB&0x00FF)][((BatTypeB&0xff00)>>8)].SetChargLedCurr;
         SetOutFullCurr     = Bat_Sys_Volt_Config[(BatTypeB&0x00FF)][((BatTypeB&0xff00)>>8)].SetFullLedCurr;
         SetUvloB           = Bat_Sys_Volt_Config[(BatTypeB&0x00FF)][((BatTypeB&0xff00)>>8)].SetUvlo;
@@ -1100,8 +1121,8 @@ void init_mppt_mode_parameter(void)
     }
 
     BatSetInpVolt      = 12.00f;
-    BatSetInpCurr      = 85.00f;
-    BatSetInpCurrPower = 1200.00f;                 
+    BatSetInpCurr      = BAT_MPPT_CURR_DEFAULT;
+    BatSetInpCurrPower = BAT_MPPT_POWER_DEFAULT;                 
     AuotOpenVoltA      = 13.60f;
     AuotVeerVoltA      = 12.00f;
     AuotCloseVoltA     = 13.00f;

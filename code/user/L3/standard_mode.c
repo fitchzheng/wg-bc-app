@@ -8,6 +8,10 @@ standard_charge_status_t standard_charge_status;
 static uint8_t standard_profile_initialized = 0;
 static uint16_t standard_last_out_sys = eSTANDARD_SYS_VOLT_MAX;
 
+#define STANDARD_MODE_A_POWER_DEFAULT     1300U
+#define STANDARD_MODE_A_POWER_OLD_DEFAULT 1200U
+#define STANDARD_MODE_A_POWER_FACTORY_DEFAULT 1500U
+
 const STANDARD_MODE_CONFIG_T Bat_Standard_Sys_Volt_Config[eSTANDARD_SYS_VOLT_MAX] = {
     [eSTANDARD_SYS_12V] = {
                     .OutVoltMax      = STANDARD_BAT_SYS_12V_MAX_OUT_VOLT,
@@ -269,6 +273,14 @@ void init_standard_mode_parameter(void)
     {
         standard_profile_initialized = 1;
         standard_last_out_sys = out_sys;
+        if((get_wg_com_v2_data.com_param.SetInpCurrPower == STANDARD_MODE_A_POWER_OLD_DEFAULT) ||
+           (get_wg_com_v2_data.com_param.SetInpCurrPower == STANDARD_MODE_A_POWER_FACTORY_DEFAULT))
+        {
+            WG_COM_V2_SET_DATA_UINT(STANDARD_MODE_A_POWER_DEFAULT, wg_com_v2_param.SetInpCurrPower);
+            get_wg_com_v2_data.com_param.SetInpCurrPower = STANDARD_MODE_A_POWER_DEFAULT;
+            (void)eeprom_commit_current_pages_for_range((uint16_t)(WG_COM_V2_PARAM_ADDR + (EEPROM_PARAM_CAL_SIZE / 2U)),
+                                                        (uint16_t)(EEPROM_PARAM_USER_SIZE / 2U));
+        }
         return;
     }
 
@@ -285,7 +297,7 @@ void init_standard_mode_parameter(void)
 
     BatSetInpVolt      = Bat_Standard_Sys_Volt_Config[eSTANDARD_SYS_12V].OutVoltDefault;
     BatSetInpCurr      = 125.00f;
-    BatSetInpCurrPower = Bat_Standard_Sys_Volt_Config[eSTANDARD_SYS_12V].OutPowerDefault;
+    BatSetInpCurrPower = STANDARD_MODE_A_POWER_DEFAULT;
     SetUvloA           = STANDARD_BAT_SYS_SET_UVLO;
     SetUvloRecoverA    = STANDARD_BAT_SYS_SET_UVLORECOVER;
     SetOVPA            = STANDARD_BAT_SYS_SET_OVP;

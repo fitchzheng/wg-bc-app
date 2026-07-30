@@ -35,7 +35,13 @@ static uint8_t eeprom_autosys_last_power_on = 0xFFU;
 #define EEPROM_PROFILE_RESERVED_USER    0xA5U
 #define EEPROM_PROFILE_TIME_MAX         180U
 #define EEPROM_MPPT_RETURN_MAGIC        0x4D52U
-#define EEPROM_MPPT_RETURN_VERSION      2U
+#define EEPROM_MPPT_RETURN_VERSION      3U
+#define EEPROM_MPPT_CURR_DEFAULT       80.00f
+#define EEPROM_MPPT_CURR_MAX           85.00f
+#define EEPROM_MPPT_POWER_DEFAULT      2000U
+#define EEPROM_MPPT_POWER_MAX          2500U
+#define EEPROM_MPPT_CURR_DEFAULT_RAW   8000U
+#define EEPROM_MPPT_CURR_MAX_RAW       8500U
 #define EEPROM_FACTORY_FLASH_PAGE          (FLASH_LOGICAL_PAGE_COUNT - 1U)
 #define EEPROM_FACTORY_FLASH_MAGIC         0x42434647UL
 #define EEPROM_FACTORY_FLASH_VERSION       1UL
@@ -66,6 +72,8 @@ typedef struct
     uint16_t bat_type_b;
     uint16_t boot_time_a;
     uint16_t soft_start_b;
+    uint16_t out_curr;
+    uint16_t out_power;
     uint16_t checksum;
 } eeprom_mppt_return_battery_t;
 
@@ -501,6 +509,7 @@ static uint8_t eeprom_param_fix_safe_temperatures(wg_com_v2_param_t *param)
     return fixed;
 }
 
+
 static uint8_t eeprom_write_page_verify(uint16_t addr)
 {
 #if (APP_DEBUG_EVENT_FEATURES == 1)
@@ -555,7 +564,9 @@ static uint16_t eeprom_mppt_return_checksum(const eeprom_mppt_return_battery_t *
                       snapshot->bat_type_a +
                       snapshot->bat_type_b +
                       snapshot->boot_time_a +
-                      snapshot->soft_start_b);
+                      snapshot->soft_start_b +
+                      snapshot->out_curr +
+                      snapshot->out_power);
 }
 
 void eeprom_save_mppt_return_battery_types(uint16_t bat_type_a, uint16_t bat_type_b)
@@ -564,6 +575,8 @@ void eeprom_save_mppt_return_battery_types(uint16_t bat_type_a, uint16_t bat_typ
     eeprom_mppt_return_battery_t old_snapshot;
     uint16_t boot_time_a = 0;
     uint16_t soft_start_b = 0;
+    uint16_t out_curr = EEPROM_MPPT_CURR_DEFAULT_RAW;
+    uint16_t out_power = EEPROM_MPPT_POWER_DEFAULT;
 
     if(!eeprom_bat_type_is_valid(bat_type_a) || !eeprom_bat_type_is_valid(bat_type_b))
     {
@@ -582,6 +595,18 @@ void eeprom_save_mppt_return_battery_types(uint16_t bat_type_a, uint16_t bat_typ
     {
         boot_time_a = old_snapshot.boot_time_a;
         soft_start_b = old_snapshot.soft_start_b;
+        if((old_snapshot.out_curr != 0U) &&
+           (old_snapshot.out_curr != 0xFFFFU) &&
+           (old_snapshot.out_curr <= EEPROM_MPPT_CURR_MAX_RAW))
+        {
+            out_curr = old_snapshot.out_curr;
+        }
+        if((old_snapshot.out_power != 0U) &&
+           (old_snapshot.out_power != 0xFFFFU) &&
+           (old_snapshot.out_power <= EEPROM_MPPT_POWER_MAX))
+        {
+            out_power = old_snapshot.out_power;
+        }
     }
 
     snapshot.magic = EEPROM_MPPT_RETURN_MAGIC;
@@ -590,6 +615,12 @@ void eeprom_save_mppt_return_battery_types(uint16_t bat_type_a, uint16_t bat_typ
     snapshot.bat_type_b = bat_type_b;
     snapshot.boot_time_a = boot_time_a;
     snapshot.soft_start_b = soft_start_b;
+    snapshot.out_curr = out_curr;
+    snapshot.out_power = out_power;
+    snapshot.out_curr = out_curr;
+    snapshot.out_power = out_power;
+    snapshot.out_curr = out_curr;
+    snapshot.out_power = out_power;
     snapshot.checksum = eeprom_mppt_return_checksum(&snapshot);
 
     memset((uint8_t *)&eeprom_page_read_data, 0xFF, sizeof(eeprom_page_read_data));
@@ -625,6 +656,8 @@ static uint8_t eeprom_save_mppt_timing(uint16_t boot_time_a, uint16_t soft_start
         snapshot.version = EEPROM_MPPT_RETURN_VERSION;
         snapshot.bat_type_a = get_wg_com_v2_data.com_ctrl.InpBatyType;
         snapshot.bat_type_b = get_wg_com_v2_data.com_ctrl.OutBatyType;
+        snapshot.out_curr = EEPROM_MPPT_CURR_DEFAULT_RAW;
+        snapshot.out_power = EEPROM_MPPT_POWER_DEFAULT;
         if(!eeprom_bat_type_is_valid(snapshot.bat_type_a))
         {
             snapshot.bat_type_a = (uint16_t)((eBAT_LA_AGM << 8) | eSYS_12V);
@@ -672,6 +705,80 @@ static uint8_t eeprom_load_mppt_timing(uint16_t *boot_time_a, uint16_t *soft_sta
     return 1;
 }
 
+static uint8_t eeprom_save_mppt_output_limits(uint16_t out_curr, uint16_t out_power)
+{
+    eeprom_mppt_return_battery_t snapshot;
+    eeprom_mppt_return_battery_t old_snapshot;
+
+    if((out_curr > EEPROM_MPPT_CURR_MAX_RAW) ||
+       (out_power > EEPROM_MPPT_POWER_MAX))
+    {
+        return 0;
+    }
+
+    IICx_Read_Byte(eeprom_profile_page_to_addr(EEPROM_PAGE_MPPT_PROFILE_BASE),
+                   (uint8_t *)eeprom_page_read_data,
+                   sizeof(eeprom_page_read_data));
+    memcpy((uint8_t *)&old_snapshot, (uint8_t *)eeprom_page_read_data, sizeof(old_snapshot));
+    if((old_snapshot.magic == EEPROM_MPPT_RETURN_MAGIC) &&
+       (old_snapshot.version == EEPROM_MPPT_RETURN_VERSION) &&
+       (old_snapshot.checksum == eeprom_mppt_return_checksum(&old_snapshot)) &&
+       eeprom_bat_type_is_valid(old_snapshot.bat_type_a) &&
+       eeprom_bat_type_is_valid(old_snapshot.bat_type_b))
+    {
+        snapshot = old_snapshot;
+    }
+    else
+    {
+        snapshot.magic = EEPROM_MPPT_RETURN_MAGIC;
+        snapshot.version = EEPROM_MPPT_RETURN_VERSION;
+        snapshot.bat_type_a = get_wg_com_v2_data.com_ctrl.InpBatyType;
+        snapshot.bat_type_b = get_wg_com_v2_data.com_ctrl.OutBatyType;
+        snapshot.boot_time_a = 0;
+        snapshot.soft_start_b = 0;
+    }
+
+    snapshot.checksum = eeprom_mppt_return_checksum(&snapshot);
+
+    memset((uint8_t *)&eeprom_page_read_data, 0xFF, sizeof(eeprom_page_read_data));
+    memcpy((uint8_t *)&eeprom_page_read_data, (uint8_t *)&snapshot, sizeof(snapshot));
+    return eeprom_write_page_verify(eeprom_profile_page_to_addr(EEPROM_PAGE_MPPT_PROFILE_BASE));
+}
+
+static uint8_t eeprom_load_mppt_output_limits(uint16_t *out_curr, uint16_t *out_power)
+{
+    eeprom_mppt_return_battery_t snapshot;
+
+    if((out_curr == NULL) || (out_power == NULL))
+    {
+        return 0;
+    }
+
+    IICx_Read_Byte(eeprom_profile_page_to_addr(EEPROM_PAGE_MPPT_PROFILE_BASE),
+                   (uint8_t *)eeprom_page_read_data,
+                   sizeof(eeprom_page_read_data));
+    memcpy((uint8_t *)&snapshot, (uint8_t *)eeprom_page_read_data, sizeof(snapshot));
+
+    if((snapshot.magic != EEPROM_MPPT_RETURN_MAGIC) ||
+       (snapshot.version != EEPROM_MPPT_RETURN_VERSION) ||
+       (snapshot.checksum != eeprom_mppt_return_checksum(&snapshot)) ||
+       (snapshot.out_curr <= 100U) ||
+       (snapshot.out_curr == 0xFFFFU) ||
+       (snapshot.out_curr > EEPROM_MPPT_CURR_MAX_RAW) ||
+       (snapshot.out_power == 0U) ||
+       (snapshot.out_power == 0xFFFFU) ||
+       (snapshot.out_power == 1200U) ||
+       (snapshot.out_power > EEPROM_MPPT_POWER_MAX))
+    {
+        *out_curr = EEPROM_MPPT_CURR_DEFAULT_RAW;
+        *out_power = EEPROM_MPPT_POWER_DEFAULT;
+        return 0;
+    }
+
+    *out_curr = snapshot.out_curr;
+    *out_power = snapshot.out_power;
+    return 1;
+}
 uint8_t eeprom_load_mppt_return_battery_types(uint16_t *bat_type_a, uint16_t *bat_type_b)
 {
     eeprom_mppt_return_battery_t snapshot;
@@ -1335,7 +1442,7 @@ static uint8_t eeprom_factory_restore_app_defaults_verified(void)
     }
     WG_COM_V2_SET_DATA_UINT(12.0f, wg_com_v2_param.SetInpVolt);
     WG_COM_V2_SET_DATA_UINT(125.0f, wg_com_v2_param.SetInpCurr);
-    WG_COM_V2_SET_DATA_UINT(1500.0f, wg_com_v2_param.SetInpCurrPower);
+    WG_COM_V2_SET_DATA_UINT(1300.0f, wg_com_v2_param.SetInpCurrPower);
     WG_COM_V2_SET_DATA_UINT(12.0f, wg_com_v2_param.SetOutVolt);
     WG_COM_V2_SET_DATA_UINT(125.0f, wg_com_v2_param.SetOutCurr);
     WG_COM_V2_SET_DATA_UINT(1500.0f, wg_com_v2_param.SetOutCurrPower);
@@ -1347,8 +1454,8 @@ static uint8_t eeprom_factory_restore_app_defaults_verified(void)
     WG_COM_V2_SET_DATA_UINT(11.0f, wg_com_v2_param.SetOutUvloRecover);
     WG_COM_V2_SET_DATA_UINT(61.5f, wg_com_v2_param.SetOutOVP);
     WG_COM_V2_SET_DATA_UINT(60.0f, wg_com_v2_param.SetOutOVPRecover);
-    WG_COM_V2_SET_DATA_INT(120.0f, wg_com_v2_param.SetInsideTemp);
-    WG_COM_V2_SET_DATA_INT(120.0f, wg_com_v2_param.SetOutsideTemp);
+    WG_COM_V2_SET_DATA_INT(115.0f, wg_com_v2_param.SetInsideTemp);
+    WG_COM_V2_SET_DATA_INT(115.0f, wg_com_v2_param.SetOutsideTemp);
     WG_COM_V2_SET_DATA_UINT(100.0f, wg_com_v2_param.SetInpChargLedCurr);
     WG_COM_V2_SET_DATA_UINT(99.0f, wg_com_v2_param.SetInpFullLedCurr);
     WG_COM_V2_SET_DATA_UINT(100.0f, wg_com_v2_param.SetOutChargLedCurr);
@@ -1358,7 +1465,7 @@ static uint8_t eeprom_factory_restore_app_defaults_verified(void)
     WG_COM_V2_SET_DATA_UINT(13.00f, wg_com_v2_param.AuotForwardShutVoltA);
     WG_COM_V2_SET_DATA_UINT(12.50f, wg_com_v2_param.AuotReverseOpenVoltB);
     WG_COM_V2_SET_DATA_UINT(12.00f, wg_com_v2_param.AuotReverseShutVoltB);
-    WG_COM_V2_SET_DATA_INT(105.0f, wg_com_v2_param.SetTemp2);
+    WG_COM_V2_SET_DATA_INT(95.0f, wg_com_v2_param.SetTemp2);
 
     return eeprom_factory_restore_current_from_runtime_verified();
 }
@@ -1693,6 +1800,8 @@ static uint8_t eeprom_profile_sanitize(uint8_t is_a_port,
     eeprom_system_profile_t default_profile;
     float volt_min;
     float volt_max;
+    float curr_max;
+    uint16_t power_max;
 
     if(fixed != NULL)
     {
@@ -1719,19 +1828,45 @@ static uint8_t eeprom_profile_sanitize(uint8_t is_a_port,
 
     volt_min = EEPROM_PROFILE_BAT_VOLT_MIN;
     volt_max = EEPROM_PROFILE_BAT_VOLT_MAX;
+    curr_max = cfg->OutCurrMax;
+    power_max = cfg->OutPowerMax;
     eeprom_profile_fill_default(&default_profile, is_a_port, bat_type);
+
+    if((is_a_port == 0U) && (get_wg_com_v2_data.com_ctrl.SetPowerMode == eMPPT_MODE))
+    {
+        if((eeprom_profile_in_range(eeprom_raw_to_float(profile->SetCurr, (void *)&wg_com_v2_param.SetOutCurr), cfg->OutCurrDefault - 0.01f, cfg->OutCurrDefault + 0.01f)) &&
+           (profile->SetCurrPower == cfg->OutPowerDefault))
+        {
+            profile->SetCurr = eeprom_float_to_raw(EEPROM_MPPT_CURR_DEFAULT, (void *)&wg_com_v2_param.SetOutCurr);
+            profile->SetCurrPower = EEPROM_MPPT_POWER_DEFAULT;
+            if(fixed != NULL) *fixed = 1;
+        }
+        default_profile.SetCurr = eeprom_float_to_raw(EEPROM_MPPT_CURR_DEFAULT, (void *)&wg_com_v2_param.SetOutCurr);
+        default_profile.SetCurrPower = EEPROM_MPPT_POWER_DEFAULT;
+        curr_max = EEPROM_MPPT_CURR_MAX;
+        power_max = EEPROM_MPPT_POWER_MAX;
+    }
+    else if((is_a_port == 0U) &&
+            (get_wg_com_v2_data.com_ctrl.SetPowerMode != eMPPT_MODE) &&
+            (eeprom_profile_in_range(eeprom_raw_to_float(profile->SetCurr, (void *)&wg_com_v2_param.SetOutCurr), EEPROM_MPPT_CURR_DEFAULT - 0.01f, EEPROM_MPPT_CURR_DEFAULT + 0.01f)) &&
+            (profile->SetCurrPower == EEPROM_MPPT_POWER_DEFAULT))
+    {
+        profile->SetCurr = default_profile.SetCurr;
+        profile->SetCurrPower = default_profile.SetCurrPower;
+        if(fixed != NULL) *fixed = 1;
+    }
 
     if(!eeprom_profile_in_range(eeprom_raw_to_float(profile->SetVolt, is_a_port ? (void *)&wg_com_v2_param.SetInpVolt : (void *)&wg_com_v2_param.SetOutVolt), volt_min, volt_max))
     {
         profile->SetVolt = default_profile.SetVolt;
         if(fixed != NULL) *fixed = 1;
     }
-    if(!eeprom_profile_in_range(eeprom_raw_to_float(profile->SetCurr, is_a_port ? (void *)&wg_com_v2_param.SetInpCurr : (void *)&wg_com_v2_param.SetOutCurr), cfg->OutCurrMin, cfg->OutCurrMax))
+    if(!eeprom_profile_in_range(eeprom_raw_to_float(profile->SetCurr, is_a_port ? (void *)&wg_com_v2_param.SetInpCurr : (void *)&wg_com_v2_param.SetOutCurr), cfg->OutCurrMin, curr_max))
     {
         profile->SetCurr = default_profile.SetCurr;
         if(fixed != NULL) *fixed = 1;
     }
-    if((profile->SetCurrPower < cfg->OutPowerMin) || (profile->SetCurrPower > cfg->OutPowerMax))
+    if((profile->SetCurrPower < cfg->OutPowerMin) || (profile->SetCurrPower > power_max))
     {
         profile->SetCurrPower = default_profile.SetCurrPower;
         if(fixed != NULL) *fixed = 1;
@@ -2045,9 +2180,11 @@ static uint8_t eeprom_profile_write_mppt_b_snapshot(uint16_t bat_type,
     }
 
     eeprom_profile_read_or_init(0, bat_type, &merged);
+    if(!eeprom_save_mppt_output_limits(profile->SetCurr, profile->SetCurrPower))
+    {
+        return 0;
+    }
     merged.SetVolt = profile->SetVolt;
-    merged.SetCurr = profile->SetCurr;
-    merged.SetCurrPower = profile->SetCurrPower;
     merged.SetUvlo = profile->SetUvlo;
     merged.SetUvloRecover = profile->SetUvloRecover;
     merged.SetOVP = profile->SetOVP;
@@ -2090,12 +2227,12 @@ static void eeprom_refresh_control_cache(void)
 
 void eeprom_apply_mppt_fixed_input_params(void)
 {
-    const float inp_curr = 125.00f;
+    const float inp_curr = EEPROM_MPPT_CURR_DEFAULT;
     const float inp_charge_led = inp_curr * 0.15f;
 
     WG_COM_V2_SET_DATA_UINT(12.00f, wg_com_v2_param.SetInpVolt);
     WG_COM_V2_SET_DATA_UINT(inp_curr, wg_com_v2_param.SetInpCurr);
-    WG_COM_V2_SET_DATA_UINT(1500.00f, wg_com_v2_param.SetInpCurrPower);
+    WG_COM_V2_SET_DATA_UINT(EEPROM_MPPT_POWER_DEFAULT, wg_com_v2_param.SetInpCurrPower);
     WG_COM_V2_SET_DATA_UINT(10.00f, wg_com_v2_param.SetInpUvlo);
     WG_COM_V2_SET_DATA_UINT(11.00f, wg_com_v2_param.SetInpUvloRecover);
     WG_COM_V2_SET_DATA_UINT(62.00f, wg_com_v2_param.SetInpOVP);
@@ -2112,6 +2249,8 @@ uint8_t eeprom_apply_mppt_mode_profile(void)
     uint16_t bat_type;
     uint16_t mppt_boot_time_a = 0;
     uint16_t mppt_soft_start_b = 0;
+    uint16_t mppt_out_curr = 0;
+    uint16_t mppt_out_power = 0;
     eeprom_system_profile_t profile;
 
     eeprom_refresh_control_cache();
@@ -2124,6 +2263,13 @@ uint8_t eeprom_apply_mppt_mode_profile(void)
 
     eeprom_profile_read_or_init(0, bat_type, &profile);
     eeprom_mppt_profile_apply(&profile);
+    if(eeprom_load_mppt_output_limits(&mppt_out_curr, &mppt_out_power) == 0U)
+    {
+        mppt_out_curr = EEPROM_MPPT_CURR_DEFAULT_RAW;
+        mppt_out_power = EEPROM_MPPT_POWER_DEFAULT;
+    }
+    eeprom_set_profile_raw((void *)&wg_com_v2_param.SetOutCurr, mppt_out_curr);
+    eeprom_set_profile_raw((void *)&wg_com_v2_param.SetOutCurrPower, mppt_out_power);
     eeprom_apply_mppt_fixed_input_params();
     if(eeprom_load_mppt_timing(&mppt_boot_time_a, &mppt_soft_start_b) != 0U)
     {
@@ -2649,7 +2795,7 @@ void eeprom_cfg_init(void)
             }
             WG_COM_V2_SET_DATA_UINT(12.0f, wg_com_v2_param.SetInpVolt);
             WG_COM_V2_SET_DATA_UINT(125.0f, wg_com_v2_param.SetInpCurr);
-            WG_COM_V2_SET_DATA_UINT(1500.0f, wg_com_v2_param.SetInpCurrPower);
+            WG_COM_V2_SET_DATA_UINT(1300.0f, wg_com_v2_param.SetInpCurrPower);
             WG_COM_V2_SET_DATA_UINT(12.0f, wg_com_v2_param.SetOutVolt);
             WG_COM_V2_SET_DATA_UINT(125.0f, wg_com_v2_param.SetOutCurr);
             WG_COM_V2_SET_DATA_UINT(1500.0f, wg_com_v2_param.SetOutCurrPower);
@@ -2661,8 +2807,8 @@ void eeprom_cfg_init(void)
             WG_COM_V2_SET_DATA_UINT(11.0f, wg_com_v2_param.SetOutUvloRecover);
             WG_COM_V2_SET_DATA_UINT(61.5f, wg_com_v2_param.SetOutOVP);
             WG_COM_V2_SET_DATA_UINT(60.0f, wg_com_v2_param.SetOutOVPRecover);
-            WG_COM_V2_SET_DATA_INT(120.0f, wg_com_v2_param.SetInsideTemp);
-            WG_COM_V2_SET_DATA_INT(120.0f, wg_com_v2_param.SetOutsideTemp);
+            WG_COM_V2_SET_DATA_INT(115.0f, wg_com_v2_param.SetInsideTemp);
+            WG_COM_V2_SET_DATA_INT(115.0f, wg_com_v2_param.SetOutsideTemp);
             WG_COM_V2_SET_DATA_UINT(100.0f, wg_com_v2_param.SetInpChargLedCurr);
             WG_COM_V2_SET_DATA_UINT(99.0f, wg_com_v2_param.SetInpFullLedCurr);
             WG_COM_V2_SET_DATA_UINT(100.0f, wg_com_v2_param.SetOutChargLedCurr);
@@ -2672,7 +2818,7 @@ void eeprom_cfg_init(void)
             WG_COM_V2_SET_DATA_UINT(13.00f, wg_com_v2_param.AuotForwardShutVoltA);
             WG_COM_V2_SET_DATA_UINT(12.50f, wg_com_v2_param.AuotReverseOpenVoltB);
             WG_COM_V2_SET_DATA_UINT(12.00f, wg_com_v2_param.AuotReverseShutVoltB);
-            WG_COM_V2_SET_DATA_INT(105.0f, wg_com_v2_param.SetTemp2);
+            WG_COM_V2_SET_DATA_INT(95.0f, wg_com_v2_param.SetTemp2);
 
             memcpy((uint8_t *)&eeprom_wg_com_v2_param.wg_com_v2_param,
                    (uint8_t *)&wg_com_v2_param,

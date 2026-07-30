@@ -272,9 +272,40 @@ const wg_com_v2_data_lmt_map_t *get_lmt_for_addr(void *p)
     return NULL;
 }
 
+#define STANDARD_MODE_A_POWER_MAX 1500U
+#define MPPT_MODE_CURR_MAX_RAW 8500U
+#define MPPT_MODE_POWER_MAX 2500U
+
+static uint8_t wg_com_v2_mppt_limits_active(void)
+{
+    uint16_t power_mode = get_uint16((uint8_t *)&wg_com_v2_ctrl.SetPowerMode);
+    uint16_t mppt_switch = get_uint16((uint8_t *)&wg_com_v2_ctrl.MpptSwitch);
+
+    return ((power_mode == eMPPT_MODE) || (mppt_switch != 0U)) ? 1U : 0U;
+}
 static uint16_t get_dynamic_up_lmt_for_addr(void *p, const wg_com_v2_data_lmt_map_t *lmt)
 {
     uint16_t power_mode = get_uint16((uint8_t *)&wg_com_v2_ctrl.SetPowerMode);
+
+    if((p == (void *)&wg_com_v2_param.SetInpCurrPower) &&
+       (power_mode == eSET_STANDARD_MODE))
+    {
+        return STANDARD_MODE_A_POWER_MAX;
+    }
+
+    if(((p == (void *)&wg_com_v2_param.SetInpCurr) ||
+        (p == (void *)&wg_com_v2_param.SetOutCurr)) &&
+       (wg_com_v2_mppt_limits_active() != 0U))
+    {
+        return MPPT_MODE_CURR_MAX_RAW;
+    }
+
+    if(((p == (void *)&wg_com_v2_param.SetInpCurrPower) ||
+        (p == (void *)&wg_com_v2_param.SetOutCurrPower)) &&
+       (wg_com_v2_mppt_limits_active() != 0U))
+    {
+        return MPPT_MODE_POWER_MAX;
+    }
 
     if(((p == (void *)&wg_com_v2_param.SetInpCurrPower) ||
         (p == (void *)&wg_com_v2_param.SetOutCurrPower)) &&
@@ -531,7 +562,7 @@ static uint8_t normalize_mode_control_state(uint16_t addr,
                 wg_com_v2_enter_mppt_control_state();
             }
         }
-        else if((old_mppt_switch == 1) || (power_mode == eMPPT_MODE))
+        else if((old_mppt_switch == 1) || (wg_com_v2_mppt_limits_active() != 0U))
         {
             wg_com_v2_exit_mppt_control_state();
         }
@@ -675,7 +706,7 @@ float wg_com_v2_get_data_int(float user_data, void *wg_com_v2_data)
     {
         if (lmt_map != NULL)
         {
-            UP_DN_LMT(litend_int16, (int16_t)lmt_map->up_lmt, (int16_t)lmt_map->dn_lmt);
+            UP_DN_LMT(litend_int16, (int16_t)get_dynamic_up_lmt_for_addr(wg_com_v2_data, lmt_map), (int16_t)lmt_map->dn_lmt);
             set_int16((uint8_t *)wg_com_v2_data, litend_int16);
         }
         user_data = litend_int16 * unit;
@@ -715,7 +746,7 @@ void wg_com_v2_set_data_int(float user_data, void *wg_com_v2_data)
 
     if (lmt_map != NULL)
     {
-        UP_DN_LMT(act_data_temp, (int16_t)lmt_map->up_lmt, (int16_t)lmt_map->dn_lmt);
+        UP_DN_LMT(act_data_temp, (int16_t)get_dynamic_up_lmt_for_addr(wg_com_v2_data, lmt_map), (int16_t)lmt_map->dn_lmt);
     }
 
     set_uint16((uint8_t *)wg_com_v2_data, (uint16_t)act_data_temp);

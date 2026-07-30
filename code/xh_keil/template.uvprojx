@@ -953,11 +953,6 @@
               <FilePath>..\user\L3\pid.c</FilePath>
             </File>
             <File>
-              <FileName>shell.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\user\L3\shell.c</FilePath>
-            </File>
-            <File>
               <FileName>perf.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\user\L3\perf.c</FilePath>
@@ -1016,11 +1011,6 @@
               <FileName>comm.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\user\L3\comm.c</FilePath>
-            </File>
-            <File>
-              <FileName>scope.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\user\L3\scope.c</FilePath>
             </File>
             <File>
               <FileName>rvc_address.c</FileName>
@@ -1151,7 +1141,7 @@
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
           <OutputDirectory>.\output\debug\rv\</OutputDirectory>
-          <OutputName>WG-BC1200M_20260729_APP_RV</OutputName>
+          <OutputName>WG-BC1200M_20260730_APP_RV</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
@@ -2054,11 +2044,6 @@
               <FilePath>..\user\L3\pid.c</FilePath>
             </File>
             <File>
-              <FileName>shell.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\user\L3\shell.c</FilePath>
-            </File>
-            <File>
               <FileName>perf.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\user\L3\perf.c</FilePath>
@@ -2117,11 +2102,6 @@
               <FileName>comm.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\user\L3\comm.c</FilePath>
-            </File>
-            <File>
-              <FileName>scope.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\user\L3\scope.c</FilePath>
             </File>
             <File>
               <FileName>rvc_address.c</FileName>
@@ -2252,7 +2232,7 @@
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
           <OutputDirectory>.\output\debug\cm\</OutputDirectory>
-          <OutputName>WG-BC1200M_20260729_APP_CM</OutputName>
+          <OutputName>WG-BC1200M_20260730_APP_CM</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
@@ -3155,11 +3135,6 @@
               <FilePath>..\user\L3\pid.c</FilePath>
             </File>
             <File>
-              <FileName>shell.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\user\L3\shell.c</FilePath>
-            </File>
-            <File>
               <FileName>perf.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\user\L3\perf.c</FilePath>
@@ -3218,11 +3193,6 @@
               <FileName>comm.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\user\L3\comm.c</FilePath>
-            </File>
-            <File>
-              <FileName>scope.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\user\L3\scope.c</FilePath>
             </File>
             <File>
               <FileName>rvc_address.c</FileName>

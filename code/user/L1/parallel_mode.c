@@ -127,6 +127,19 @@ typedef struct
 
 static parallel_node_t parallel_nodes[PARALLEL_MAX_NODE_COUNT];
 
+#if (APP_PARALLEL_CAN_FEATURES != 1)
+static void parallel_can_feature_off_keep_refs(void)
+{
+    (void)parallel_can_poll_tick;
+    (void)parallel_can_run_request_phase;
+    (void)parallel_can_sync_index;
+    (void)parallel_can_prepare_ok_sent;
+    (void)parallel_can_uid_announce_sent_mask;
+    (void)parallel_can_param_sync_mask_low;
+    (void)parallel_can_param_sync_mask_high;
+}
+#endif
+
 #define parallel_get_state() \
     ((uint16_t)(parallel_status.status_role & 0x00FFU))
 #define parallel_get_role() \
@@ -2203,11 +2216,13 @@ void parallel_mode_on_rvc_rx(uint32_t dgn, const uint8_t *data, uint8_t len, uin
         return;
     }
 
+#if (APP_PARALLEL_CAN_FEATURES == 1)
     if (dgn == PARALLEL_CAN_DGN_PARAM_SYNC)
     {
         parallel_can_apply_param_sync_item(data);
         return;
     }
+#endif
 
     if ((source_addr < PARALLEL_CAN_TEMP_ADDR_MASTER) ||
         (source_addr >= (PARALLEL_CAN_TEMP_ADDR_MASTER + PARALLEL_MAX_NODE_COUNT)))
@@ -2269,9 +2284,9 @@ void parallel_mode_on_rvc_rx(uint32_t dgn, const uint8_t *data, uint8_t len, uin
     }
 }
 
+#if (APP_PARALLEL_CAN_FEATURES == 1)
 static void parallel_can_send_periodic_status(void)
 {
-#if (APP_PARALLEL_CAN_FEATURES == 1)
     uint8_t data[8];
 
     if (parallel_can_pc_control_seen == 0U)
@@ -2292,12 +2307,10 @@ static void parallel_can_send_periodic_status(void)
     {
         (void)parallel_can_send_dgn(PARALLEL_CAN_DGN_PARAM_SUMMARY, data);
     }
-#endif
 }
 
 static void parallel_can_uid_announce_10ms(void)
 {
-#if (APP_PARALLEL_CAN_FEATURES == 1)
     uint16_t slot_ticks;
     uint8_t round;
     uint8_t slot;
@@ -2328,8 +2341,8 @@ static void parallel_can_uid_announce_10ms(void)
                                           parallel_status.uid32);
         parallel_can_uid_announce_sent_mask |= round_mask;
     }
-#endif
 }
+#endif
 
 static void parallel_can_run_10ms(void)
 {
@@ -2434,6 +2447,8 @@ static void parallel_can_run_10ms(void)
             parallel_can_sync_index = 0U;
         }
     }
+#else
+    parallel_can_feature_off_keep_refs();
 #endif
 }
 
