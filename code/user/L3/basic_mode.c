@@ -168,10 +168,10 @@ void init_basic_mode_parameter(void)
         return;
     }
 
-    WG_COM_V2_GET_DATA_UINT(SetBootTimeA, wg_com_v2_ctrl.SetBootTimeA);
-    WG_COM_V2_GET_DATA_UINT(SetBootTimeB, wg_com_v2_ctrl.SetBootTimeB);
-    WG_COM_V2_GET_DATA_UINT(SetOnCurrStartTimeA, wg_com_v2_ctrl.SetOnCurrStartTimeA);
-    WG_COM_V2_GET_DATA_UINT(SetOnCurrStartTimeB, wg_com_v2_ctrl.SetOnCurrStartTimeB);
+    SetBootTimeA = 0U;
+    SetBootTimeB = 0U;
+    SetOnCurrStartTimeA = 0U;
+    SetOnCurrStartTimeB = 0U;
 
     BatTypeB = (eBAT_DCDC<<8) + eSYS_10_60V;
     BatTypeA = (eBAT_DCDC<<8) + eSYS_10_60V;

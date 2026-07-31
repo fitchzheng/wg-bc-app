@@ -176,6 +176,8 @@ extern uint8_t eeprom_apply_standard_mode_profile(void);
 extern uint8_t eeprom_apply_basic_mode_profile(void);
 extern uint8_t eeprom_save_current_mode_profile(void);
 extern uint8_t eeprom_save_current_timing_profile(void);
+extern uint8_t eeprom_clear_settings_to_app_defaults(void);
+extern uint8_t eeprom_clear_calibration_to_app_defaults(void);
 extern void eeprom_save_mppt_return_battery_types(uint16_t bat_type_a, uint16_t bat_type_b);
 extern uint8_t eeprom_load_mppt_return_battery_types(uint16_t *bat_type_a, uint16_t *bat_type_b);
 extern void eeprom_request_current_profile_save(void);

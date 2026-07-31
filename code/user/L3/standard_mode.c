@@ -113,6 +113,10 @@ static void standard_apply_out_sys_defaults(uint16_t sys)
     WG_COM_V2_SET_DATA_UINT(Bat_Standard_Sys_Volt_Config[sys].OutPowerDefault, wg_com_v2_param.SetOutCurrPower);
     WG_COM_V2_SET_DATA_UINT(Bat_Standard_Sys_Volt_Config[sys].SetChargLedCurr, wg_com_v2_param.SetOutChargLedCurr);
     WG_COM_V2_SET_DATA_UINT(Bat_Standard_Sys_Volt_Config[sys].SetFullLedCurr, wg_com_v2_param.SetOutFullLedCurr);
+    WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetBootTimeA);
+    WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetBootTimeB);
+    WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetOnCurrStartTimeA);
+    WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetOnCurrStartTimeB);
     get_wg_com_v2_data.com_param.SetOutVolt = Bat_Standard_Sys_Volt_Config[sys].OutVoltDefault;
     get_wg_com_v2_data.com_param.SetOutCurr = Bat_Standard_Sys_Volt_Config[sys].OutCurrDefault;
     get_wg_com_v2_data.com_param.SetOutCurrPower = Bat_Standard_Sys_Volt_Config[sys].OutPowerDefault;
@@ -293,6 +297,10 @@ void init_standard_mode_parameter(void)
     SetInpFullCurr     = Bat_Standard_Sys_Volt_Config[eSTANDARD_SYS_12V].SetFullLedCurr;
 
     WG_COM_V2_SET_DATA_UINT(((eBAT_DCDC<<8) + eSYS_10_60V),  wg_com_v2_ctrl.InpBatyType);
+    WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetBootTimeA);
+    WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetBootTimeB);
+    WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetOnCurrStartTimeA);
+    WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetOnCurrStartTimeB);
 
     WG_COM_V2_SET_DATA_UINT(SetUvloA, wg_com_v2_param.SetInpUvlo);
     WG_COM_V2_SET_DATA_UINT(SetUvloRecoverA, wg_com_v2_param.SetInpUvloRecover);

@@ -7,6 +7,13 @@
 #define TIME_CNT_BAT_TYPE_200MS_IN_10MS (20)
 #define TIME_CNT_BAT_TYPE_1M_IN_10MS (60*100)
 
+#define BAT_MPPT_CURR_DEFAULT        100.00f
+#define BAT_MPPT_CURR_MAX_RAW        10000U
+#define BAT_MPPT_POWER_DEFAULT       2500U
+#define BAT_MPPT_POWER_MAX           3000U
+#define BAT_DCDC_POWER_MAX           2000U
+#define BAT_SCAP_POWER_MAX           1500U
+
 // 电池模式
 #define BAT_SYS_12V_AGM_MAX_OUT_VOLT                    15.00f
 #define BAT_SYS_12V_AGM_MIN_OUT_VOLT                    10.00f
@@ -327,26 +334,26 @@
 
 typedef struct
 {
-    float OutVoltMax;         // 输出最大电压
-    float OutVoltMin;         // 输出最小电压
-    float OutVoltDefault;     // 输出电压默认值
-    float OutCurrMax;         // 输出最大电流
-    float OutCurrMin;         // 输出最小电流
-    float OutCurrDefault;     // 输出电流默认值
+    float OutVoltMax;         // 输出最大电�?
+    float OutVoltMin;         // 输出最小电�?
+    float OutVoltDefault;     // 输出电压默认�?
+    float OutCurrMax;         // 输出最大电�?
+    float OutCurrMin;         // 输出最小电�?
+    float OutCurrDefault;     // 输出电流默认�?
     float OpenVoltA;          // 自动模式下正向开电压
-    float CloseVoltA;         // 自动模式下正向关闭电压
-    float VeerVoltA;          // 自动模式下正向转向电压
+    float CloseVoltA;         // 自动模式下正向关闭电�?
+    float VeerVoltA;          // 自动模式下正向转向电�?
     float OpenVoltB;          // 自动模式下反向开电压
-    float CloseVoltB;         // 自动模式下反向关闭电压
+    float CloseVoltB;         // 自动模式下反向关闭电�?
     float SetChargLedCurr;
     float SetFullLedCurr;
     float SetUvlo;
     float SetUvloRecover;
     float SetOVP;
     float SetOVPRecover;
-    uint16_t OutPowerMax;        // 输出最大功率
-    uint16_t OutPowerMin;        // 输出最小功率
-    uint16_t OutPowerDefault; // 输出功率默认值
+    uint16_t OutPowerMax;        // 输出最大功�?
+    uint16_t OutPowerMin;        // 输出最小功�?
+    uint16_t OutPowerDefault; // 输出功率默认�?
 
 } BAT_MODE_CONFIG_T;
 

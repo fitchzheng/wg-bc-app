@@ -113,16 +113,7 @@ static void normalize_exclusive_power_mode(void)
             wg_com_v2_enter_mppt_control_state();
             request_update_parameter();
         }
-        if(boot_time_b != 0U)
-        {
-            WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetBootTimeB);
-            request_update_parameter();
-        }
-        if(soft_start_a != 0U)
-        {
-            WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetOnCurrStartTimeA);
-            request_update_parameter();
-        }
+
     }
     else if(power_mode == eMPPT_MODE)
     {
@@ -136,14 +127,7 @@ static void normalize_exclusive_power_mode(void)
             WG_COM_V2_SET_DATA_UINT(1, wg_com_v2_ctrl.BatModeFR);
             bat_mode_fr = 1U;
         }
-        if(soft_start_a != 0U)
-        {
-            WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetOnCurrStartTimeA);
-        }
-        if(soft_start_b != 0U)
-        {
-            WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetOnCurrStartTimeB);
-        }
+
         normalize_note_non_mppt_if_changed(power_mode, 1U, 0U);
     }
     else
