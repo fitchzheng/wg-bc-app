@@ -181,6 +181,10 @@ extern uint8_t eeprom_load_mppt_return_battery_types(uint16_t *bat_type_a, uint1
 extern void eeprom_request_current_profile_save(void);
 extern void eeprom_note_battery_profile_reload_pending(void);
 extern uint8_t eeprom_commit_current_pages_for_range(uint16_t addr, uint16_t count);
+#if (APP_EEPROM_CLEAR_RS485_FEATURES == 1)
+extern uint8_t eeprom_clear_settings_to_app_defaults(void);
+extern uint8_t eeprom_clear_calibration_to_app_defaults(void);
+#endif
 extern uint16_t eeprom_profile_calc_page(uint8_t port, uint8_t type_index, uint8_t volt_index);
 extern uint16_t eeprom_profile_page_to_addr(uint16_t page);
 extern uint16_t eeprom_profile_checksum16(const uint8_t *data, uint16_t len);

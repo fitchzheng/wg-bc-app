@@ -35,7 +35,10 @@ static uint8_t eeprom_autosys_last_power_on = 0xFFU;
 #define EEPROM_PROFILE_RESERVED_USER    0xA5U
 #define EEPROM_PROFILE_TIME_MAX         180U
 #define EEPROM_MPPT_RETURN_MAGIC        0x4D52U
-#define EEPROM_MPPT_RETURN_VERSION      3U
+#define EEPROM_MPPT_RETURN_VERSION      5U
+#define EEPROM_MPPT_RETURN_VERSION_OLD  4U
+#define EEPROM_MPPT_RETURN_VERSION_OLDER 3U
+#define EEPROM_MPPT_TIME_DEFAULT        5U
 #define EEPROM_MPPT_CURR_DEFAULT       80.00f
 #define EEPROM_MPPT_CURR_MAX           85.00f
 #define EEPROM_MPPT_POWER_DEFAULT      2000U
@@ -71,11 +74,26 @@ typedef struct
     uint16_t bat_type_a;
     uint16_t bat_type_b;
     uint16_t boot_time_a;
+    uint16_t boot_time_b;
+    uint16_t soft_start_a;
     uint16_t soft_start_b;
     uint16_t out_curr;
     uint16_t out_power;
     uint16_t checksum;
 } eeprom_mppt_return_battery_t;
+
+typedef struct
+{
+    uint16_t magic;
+    uint16_t version;
+    uint16_t bat_type_a;
+    uint16_t bat_type_b;
+    uint16_t boot_time_a;
+    uint16_t soft_start_b;
+    uint16_t out_curr;
+    uint16_t out_power;
+    uint16_t checksum;
+} eeprom_mppt_return_battery_legacy_t;
 
 #if (APP_DEBUG_EVENT_FEATURES == 1)
 
@@ -558,7 +576,24 @@ static uint16_t eeprom_mppt_return_checksum(const eeprom_mppt_return_battery_t *
     {
         return 0xFFFFU;
     }
+    return (uint16_t)(snapshot->magic +
+                      snapshot->version +
+                      snapshot->bat_type_a +
+                      snapshot->bat_type_b +
+                      snapshot->boot_time_a +
+                      snapshot->boot_time_b +
+                      snapshot->soft_start_a +
+                      snapshot->soft_start_b +
+                      snapshot->out_curr +
+                      snapshot->out_power);
+}
 
+static uint16_t eeprom_mppt_return_legacy_checksum(const eeprom_mppt_return_battery_legacy_t *snapshot)
+{
+    if(snapshot == NULL)
+    {
+        return 0xFFFFU;
+    }
     return (uint16_t)(snapshot->magic +
                       snapshot->version +
                       snapshot->bat_type_a +
@@ -569,138 +604,214 @@ static uint16_t eeprom_mppt_return_checksum(const eeprom_mppt_return_battery_t *
                       snapshot->out_power);
 }
 
+static uint8_t eeprom_mppt_return_version_is_supported(uint16_t version)
+{
+    return (version == EEPROM_MPPT_RETURN_VERSION) ? 1U : 0U;
+}
+
+static uint8_t eeprom_mppt_return_legacy_version_is_supported(uint16_t version)
+{
+    return ((version == EEPROM_MPPT_RETURN_VERSION_OLD) ||
+            (version == EEPROM_MPPT_RETURN_VERSION_OLDER)) ? 1U : 0U;
+}
+
+static uint8_t eeprom_mppt_return_legacy_uses_old_zero_time(const eeprom_mppt_return_battery_legacy_t *snapshot)
+{
+    if(snapshot == NULL)
+    {
+        return 0U;
+    }
+    return ((snapshot->version == EEPROM_MPPT_RETURN_VERSION_OLDER) &&
+            (snapshot->boot_time_a == 0U) &&
+            (snapshot->soft_start_b == 0U)) ? 1U : 0U;
+}
+
+static void eeprom_mppt_return_fill_defaults(eeprom_mppt_return_battery_t *snapshot)
+{
+    if(snapshot == NULL)
+    {
+        return;
+    }
+
+    snapshot->magic = EEPROM_MPPT_RETURN_MAGIC;
+    snapshot->version = EEPROM_MPPT_RETURN_VERSION;
+    snapshot->bat_type_a = get_wg_com_v2_data.com_ctrl.InpBatyType;
+    snapshot->bat_type_b = get_wg_com_v2_data.com_ctrl.OutBatyType;
+    snapshot->boot_time_a = EEPROM_MPPT_TIME_DEFAULT;
+    snapshot->boot_time_b = EEPROM_MPPT_TIME_DEFAULT;
+    snapshot->soft_start_a = EEPROM_MPPT_TIME_DEFAULT;
+    snapshot->soft_start_b = EEPROM_MPPT_TIME_DEFAULT;
+    snapshot->out_curr = EEPROM_MPPT_CURR_DEFAULT_RAW;
+    snapshot->out_power = EEPROM_MPPT_POWER_DEFAULT;
+
+    if(!eeprom_bat_type_is_valid(snapshot->bat_type_a))
+    {
+        snapshot->bat_type_a = (uint16_t)((eBAT_LA_AGM << 8) | eSYS_12V);
+    }
+    if(!eeprom_bat_type_is_valid(snapshot->bat_type_b))
+    {
+        snapshot->bat_type_b = (uint16_t)((eBAT_LI_LFP << 8) | eSYS_16V);
+    }
+}
+
+static uint8_t eeprom_mppt_return_load_snapshot(eeprom_mppt_return_battery_t *snapshot)
+{
+    eeprom_mppt_return_battery_t current_snapshot;
+    eeprom_mppt_return_battery_legacy_t legacy_snapshot;
+
+    if(snapshot == NULL)
+    {
+        return 0;
+    }
+
+    IICx_Read_Byte(eeprom_profile_page_to_addr(EEPROM_PAGE_MPPT_PROFILE_BASE),
+                   (uint8_t *)eeprom_page_read_data,
+                   sizeof(eeprom_page_read_data));
+
+    memcpy((uint8_t *)&current_snapshot, (uint8_t *)eeprom_page_read_data, sizeof(current_snapshot));
+    if((current_snapshot.magic == EEPROM_MPPT_RETURN_MAGIC) &&
+       (eeprom_mppt_return_version_is_supported(current_snapshot.version) != 0U) &&
+       (current_snapshot.checksum == eeprom_mppt_return_checksum(&current_snapshot)) &&
+       eeprom_bat_type_is_valid(current_snapshot.bat_type_a) &&
+       eeprom_bat_type_is_valid(current_snapshot.bat_type_b) &&
+       (current_snapshot.boot_time_a <= EEPROM_PROFILE_TIME_MAX) &&
+       (current_snapshot.boot_time_b <= EEPROM_PROFILE_TIME_MAX) &&
+       (current_snapshot.soft_start_a <= EEPROM_PROFILE_TIME_MAX) &&
+       (current_snapshot.soft_start_b <= EEPROM_PROFILE_TIME_MAX))
+    {
+        *snapshot = current_snapshot;
+        return 1;
+    }
+
+    memcpy((uint8_t *)&legacy_snapshot, (uint8_t *)eeprom_page_read_data, sizeof(legacy_snapshot));
+    if((legacy_snapshot.magic == EEPROM_MPPT_RETURN_MAGIC) &&
+       (eeprom_mppt_return_legacy_version_is_supported(legacy_snapshot.version) != 0U) &&
+       (legacy_snapshot.checksum == eeprom_mppt_return_legacy_checksum(&legacy_snapshot)) &&
+       eeprom_bat_type_is_valid(legacy_snapshot.bat_type_a) &&
+       eeprom_bat_type_is_valid(legacy_snapshot.bat_type_b) &&
+       (legacy_snapshot.boot_time_a <= EEPROM_PROFILE_TIME_MAX) &&
+       (legacy_snapshot.soft_start_b <= EEPROM_PROFILE_TIME_MAX))
+    {
+        eeprom_mppt_return_fill_defaults(snapshot);
+        snapshot->bat_type_a = legacy_snapshot.bat_type_a;
+        snapshot->bat_type_b = legacy_snapshot.bat_type_b;
+        if(eeprom_mppt_return_legacy_uses_old_zero_time(&legacy_snapshot) == 0U)
+        {
+            snapshot->boot_time_a = legacy_snapshot.boot_time_a;
+            snapshot->boot_time_b = legacy_snapshot.boot_time_a;
+            snapshot->soft_start_a = legacy_snapshot.soft_start_b;
+            snapshot->soft_start_b = legacy_snapshot.soft_start_b;
+        }
+        snapshot->out_curr = legacy_snapshot.out_curr;
+        snapshot->out_power = legacy_snapshot.out_power;
+        snapshot->checksum = eeprom_mppt_return_checksum(snapshot);
+        return 1;
+    }
+
+    return 0;
+}
+
+static uint8_t eeprom_mppt_return_write_snapshot(eeprom_mppt_return_battery_t *snapshot)
+{
+    if(snapshot == NULL)
+    {
+        return 0;
+    }
+
+    snapshot->version = EEPROM_MPPT_RETURN_VERSION;
+    snapshot->checksum = eeprom_mppt_return_checksum(snapshot);
+    memset((uint8_t *)&eeprom_page_read_data, 0xFF, sizeof(eeprom_page_read_data));
+    memcpy((uint8_t *)&eeprom_page_read_data, (uint8_t *)snapshot, sizeof(*snapshot));
+    return eeprom_write_page_verify(eeprom_profile_page_to_addr(EEPROM_PAGE_MPPT_PROFILE_BASE));
+}
+
 void eeprom_save_mppt_return_battery_types(uint16_t bat_type_a, uint16_t bat_type_b)
 {
     eeprom_mppt_return_battery_t snapshot;
-    eeprom_mppt_return_battery_t old_snapshot;
-    uint16_t boot_time_a = 0;
-    uint16_t soft_start_b = 0;
-    uint16_t out_curr = EEPROM_MPPT_CURR_DEFAULT_RAW;
-    uint16_t out_power = EEPROM_MPPT_POWER_DEFAULT;
 
     if(!eeprom_bat_type_is_valid(bat_type_a) || !eeprom_bat_type_is_valid(bat_type_b))
     {
         return;
     }
 
-    IICx_Read_Byte(eeprom_profile_page_to_addr(EEPROM_PAGE_MPPT_PROFILE_BASE),
-                   (uint8_t *)eeprom_page_read_data,
-                   sizeof(eeprom_page_read_data));
-    memcpy((uint8_t *)&old_snapshot, (uint8_t *)eeprom_page_read_data, sizeof(old_snapshot));
-    if((old_snapshot.magic == EEPROM_MPPT_RETURN_MAGIC) &&
-       (old_snapshot.version == EEPROM_MPPT_RETURN_VERSION) &&
-       (old_snapshot.checksum == eeprom_mppt_return_checksum(&old_snapshot)) &&
-       (old_snapshot.boot_time_a <= EEPROM_PROFILE_TIME_MAX) &&
-       (old_snapshot.soft_start_b <= EEPROM_PROFILE_TIME_MAX))
+    if(eeprom_mppt_return_load_snapshot(&snapshot) == 0U)
     {
-        boot_time_a = old_snapshot.boot_time_a;
-        soft_start_b = old_snapshot.soft_start_b;
-        if((old_snapshot.out_curr != 0U) &&
-           (old_snapshot.out_curr != 0xFFFFU) &&
-           (old_snapshot.out_curr <= EEPROM_MPPT_CURR_MAX_RAW))
-        {
-            out_curr = old_snapshot.out_curr;
-        }
-        if((old_snapshot.out_power != 0U) &&
-           (old_snapshot.out_power != 0xFFFFU) &&
-           (old_snapshot.out_power <= EEPROM_MPPT_POWER_MAX))
-        {
-            out_power = old_snapshot.out_power;
-        }
+        eeprom_mppt_return_fill_defaults(&snapshot);
     }
 
-    snapshot.magic = EEPROM_MPPT_RETURN_MAGIC;
-    snapshot.version = EEPROM_MPPT_RETURN_VERSION;
     snapshot.bat_type_a = bat_type_a;
     snapshot.bat_type_b = bat_type_b;
-    snapshot.boot_time_a = boot_time_a;
-    snapshot.soft_start_b = soft_start_b;
-    snapshot.out_curr = out_curr;
-    snapshot.out_power = out_power;
-    snapshot.out_curr = out_curr;
-    snapshot.out_power = out_power;
-    snapshot.out_curr = out_curr;
-    snapshot.out_power = out_power;
-    snapshot.checksum = eeprom_mppt_return_checksum(&snapshot);
-
-    memset((uint8_t *)&eeprom_page_read_data, 0xFF, sizeof(eeprom_page_read_data));
-    memcpy((uint8_t *)&eeprom_page_read_data, (uint8_t *)&snapshot, sizeof(snapshot));
-    (void)eeprom_write_page_verify(eeprom_profile_page_to_addr(EEPROM_PAGE_MPPT_PROFILE_BASE));
+    (void)eeprom_mppt_return_write_snapshot(&snapshot);
 }
 
-static uint8_t eeprom_save_mppt_timing(uint16_t boot_time_a, uint16_t soft_start_b)
+static uint8_t eeprom_save_mppt_timing_all(uint16_t boot_time_a,
+                                           uint16_t boot_time_b,
+                                           uint16_t soft_start_a,
+                                           uint16_t soft_start_b)
 {
     eeprom_mppt_return_battery_t snapshot;
-    eeprom_mppt_return_battery_t old_snapshot;
 
-    if((boot_time_a > EEPROM_PROFILE_TIME_MAX) || (soft_start_b > EEPROM_PROFILE_TIME_MAX))
+    if((boot_time_a > EEPROM_PROFILE_TIME_MAX) ||
+       (boot_time_b > EEPROM_PROFILE_TIME_MAX) ||
+       (soft_start_a > EEPROM_PROFILE_TIME_MAX) ||
+       (soft_start_b > EEPROM_PROFILE_TIME_MAX))
     {
         return 0;
     }
 
-    IICx_Read_Byte(eeprom_profile_page_to_addr(EEPROM_PAGE_MPPT_PROFILE_BASE),
-                   (uint8_t *)eeprom_page_read_data,
-                   sizeof(eeprom_page_read_data));
-    memcpy((uint8_t *)&old_snapshot, (uint8_t *)eeprom_page_read_data, sizeof(old_snapshot));
-    if((old_snapshot.magic == EEPROM_MPPT_RETURN_MAGIC) &&
-       (old_snapshot.version == EEPROM_MPPT_RETURN_VERSION) &&
-       (old_snapshot.checksum == eeprom_mppt_return_checksum(&old_snapshot)) &&
-       eeprom_bat_type_is_valid(old_snapshot.bat_type_a) &&
-       eeprom_bat_type_is_valid(old_snapshot.bat_type_b))
+    if(eeprom_mppt_return_load_snapshot(&snapshot) == 0U)
     {
-        snapshot = old_snapshot;
-    }
-    else
-    {
-        snapshot.magic = EEPROM_MPPT_RETURN_MAGIC;
-        snapshot.version = EEPROM_MPPT_RETURN_VERSION;
-        snapshot.bat_type_a = get_wg_com_v2_data.com_ctrl.InpBatyType;
-        snapshot.bat_type_b = get_wg_com_v2_data.com_ctrl.OutBatyType;
-        snapshot.out_curr = EEPROM_MPPT_CURR_DEFAULT_RAW;
-        snapshot.out_power = EEPROM_MPPT_POWER_DEFAULT;
-        if(!eeprom_bat_type_is_valid(snapshot.bat_type_a))
-        {
-            snapshot.bat_type_a = (uint16_t)((eBAT_LA_AGM << 8) | eSYS_12V);
-        }
-        if(!eeprom_bat_type_is_valid(snapshot.bat_type_b))
-        {
-            snapshot.bat_type_b = (uint16_t)((eBAT_LI_LFP << 8) | eSYS_16V);
-        }
+        eeprom_mppt_return_fill_defaults(&snapshot);
     }
 
     snapshot.boot_time_a = boot_time_a;
+    snapshot.boot_time_b = boot_time_b;
+    snapshot.soft_start_a = soft_start_a;
     snapshot.soft_start_b = soft_start_b;
-    snapshot.checksum = eeprom_mppt_return_checksum(&snapshot);
-
-    memset((uint8_t *)&eeprom_page_read_data, 0xFF, sizeof(eeprom_page_read_data));
-    memcpy((uint8_t *)&eeprom_page_read_data, (uint8_t *)&snapshot, sizeof(snapshot));
-    return eeprom_write_page_verify(eeprom_profile_page_to_addr(EEPROM_PAGE_MPPT_PROFILE_BASE));
+    return eeprom_mppt_return_write_snapshot(&snapshot);
 }
 
-static uint8_t eeprom_load_mppt_timing(uint16_t *boot_time_a, uint16_t *soft_start_b)
+static uint8_t eeprom_save_mppt_current_timing(void)
+{
+    uint16_t boot_time_a;
+    uint16_t boot_time_b;
+    uint16_t soft_start_a;
+    uint16_t soft_start_b;
+
+    WG_COM_V2_GET_DATA_UINT(boot_time_a, wg_com_v2_ctrl.SetBootTimeA);
+    WG_COM_V2_GET_DATA_UINT(boot_time_b, wg_com_v2_ctrl.SetBootTimeB);
+    WG_COM_V2_GET_DATA_UINT(soft_start_a, wg_com_v2_ctrl.SetOnCurrStartTimeA);
+    WG_COM_V2_GET_DATA_UINT(soft_start_b, wg_com_v2_ctrl.SetOnCurrStartTimeB);
+
+    return eeprom_save_mppt_timing_all(boot_time_a,
+                                       boot_time_b,
+                                       soft_start_a,
+                                       soft_start_b);
+}
+
+static uint8_t eeprom_load_mppt_timing(uint16_t *boot_time_a,
+                                       uint16_t *boot_time_b,
+                                       uint16_t *soft_start_a,
+                                       uint16_t *soft_start_b)
 {
     eeprom_mppt_return_battery_t snapshot;
 
-    if((boot_time_a == NULL) || (soft_start_b == NULL))
+    if((boot_time_a == NULL) ||
+       (boot_time_b == NULL) ||
+       (soft_start_a == NULL) ||
+       (soft_start_b == NULL))
     {
         return 0;
     }
 
-    IICx_Read_Byte(eeprom_profile_page_to_addr(EEPROM_PAGE_MPPT_PROFILE_BASE),
-                   (uint8_t *)eeprom_page_read_data,
-                   sizeof(eeprom_page_read_data));
-    memcpy((uint8_t *)&snapshot, (uint8_t *)eeprom_page_read_data, sizeof(snapshot));
-
-    if((snapshot.magic != EEPROM_MPPT_RETURN_MAGIC) ||
-       (snapshot.version != EEPROM_MPPT_RETURN_VERSION) ||
-       (snapshot.checksum != eeprom_mppt_return_checksum(&snapshot)) ||
-       (snapshot.boot_time_a > EEPROM_PROFILE_TIME_MAX) ||
-       (snapshot.soft_start_b > EEPROM_PROFILE_TIME_MAX))
+    if(eeprom_mppt_return_load_snapshot(&snapshot) == 0U)
     {
         return 0;
     }
 
     *boot_time_a = snapshot.boot_time_a;
+    *boot_time_b = snapshot.boot_time_b;
+    *soft_start_a = snapshot.soft_start_a;
     *soft_start_b = snapshot.soft_start_b;
     return 1;
 }
@@ -708,7 +819,6 @@ static uint8_t eeprom_load_mppt_timing(uint16_t *boot_time_a, uint16_t *soft_sta
 static uint8_t eeprom_save_mppt_output_limits(uint16_t out_curr, uint16_t out_power)
 {
     eeprom_mppt_return_battery_t snapshot;
-    eeprom_mppt_return_battery_t old_snapshot;
 
     if((out_curr > EEPROM_MPPT_CURR_MAX_RAW) ||
        (out_power > EEPROM_MPPT_POWER_MAX))
@@ -716,33 +826,14 @@ static uint8_t eeprom_save_mppt_output_limits(uint16_t out_curr, uint16_t out_po
         return 0;
     }
 
-    IICx_Read_Byte(eeprom_profile_page_to_addr(EEPROM_PAGE_MPPT_PROFILE_BASE),
-                   (uint8_t *)eeprom_page_read_data,
-                   sizeof(eeprom_page_read_data));
-    memcpy((uint8_t *)&old_snapshot, (uint8_t *)eeprom_page_read_data, sizeof(old_snapshot));
-    if((old_snapshot.magic == EEPROM_MPPT_RETURN_MAGIC) &&
-       (old_snapshot.version == EEPROM_MPPT_RETURN_VERSION) &&
-       (old_snapshot.checksum == eeprom_mppt_return_checksum(&old_snapshot)) &&
-       eeprom_bat_type_is_valid(old_snapshot.bat_type_a) &&
-       eeprom_bat_type_is_valid(old_snapshot.bat_type_b))
+    if(eeprom_mppt_return_load_snapshot(&snapshot) == 0U)
     {
-        snapshot = old_snapshot;
-    }
-    else
-    {
-        snapshot.magic = EEPROM_MPPT_RETURN_MAGIC;
-        snapshot.version = EEPROM_MPPT_RETURN_VERSION;
-        snapshot.bat_type_a = get_wg_com_v2_data.com_ctrl.InpBatyType;
-        snapshot.bat_type_b = get_wg_com_v2_data.com_ctrl.OutBatyType;
-        snapshot.boot_time_a = 0;
-        snapshot.soft_start_b = 0;
+        eeprom_mppt_return_fill_defaults(&snapshot);
     }
 
-    snapshot.checksum = eeprom_mppt_return_checksum(&snapshot);
-
-    memset((uint8_t *)&eeprom_page_read_data, 0xFF, sizeof(eeprom_page_read_data));
-    memcpy((uint8_t *)&eeprom_page_read_data, (uint8_t *)&snapshot, sizeof(snapshot));
-    return eeprom_write_page_verify(eeprom_profile_page_to_addr(EEPROM_PAGE_MPPT_PROFILE_BASE));
+    snapshot.out_curr = out_curr;
+    snapshot.out_power = out_power;
+    return eeprom_mppt_return_write_snapshot(&snapshot);
 }
 
 static uint8_t eeprom_load_mppt_output_limits(uint16_t *out_curr, uint16_t *out_power)
@@ -754,14 +845,7 @@ static uint8_t eeprom_load_mppt_output_limits(uint16_t *out_curr, uint16_t *out_
         return 0;
     }
 
-    IICx_Read_Byte(eeprom_profile_page_to_addr(EEPROM_PAGE_MPPT_PROFILE_BASE),
-                   (uint8_t *)eeprom_page_read_data,
-                   sizeof(eeprom_page_read_data));
-    memcpy((uint8_t *)&snapshot, (uint8_t *)eeprom_page_read_data, sizeof(snapshot));
-
-    if((snapshot.magic != EEPROM_MPPT_RETURN_MAGIC) ||
-       (snapshot.version != EEPROM_MPPT_RETURN_VERSION) ||
-       (snapshot.checksum != eeprom_mppt_return_checksum(&snapshot)) ||
+    if((eeprom_mppt_return_load_snapshot(&snapshot) == 0U) ||
        (snapshot.out_curr <= 100U) ||
        (snapshot.out_curr == 0xFFFFU) ||
        (snapshot.out_curr > EEPROM_MPPT_CURR_MAX_RAW) ||
@@ -779,6 +863,7 @@ static uint8_t eeprom_load_mppt_output_limits(uint16_t *out_curr, uint16_t *out_
     *out_power = snapshot.out_power;
     return 1;
 }
+
 uint8_t eeprom_load_mppt_return_battery_types(uint16_t *bat_type_a, uint16_t *bat_type_b)
 {
     eeprom_mppt_return_battery_t snapshot;
@@ -788,16 +873,7 @@ uint8_t eeprom_load_mppt_return_battery_types(uint16_t *bat_type_a, uint16_t *ba
         return 0;
     }
 
-    IICx_Read_Byte(eeprom_profile_page_to_addr(EEPROM_PAGE_MPPT_PROFILE_BASE),
-                   (uint8_t *)eeprom_page_read_data,
-                   sizeof(eeprom_page_read_data));
-    memcpy((uint8_t *)&snapshot, (uint8_t *)eeprom_page_read_data, sizeof(snapshot));
-
-    if((snapshot.magic != EEPROM_MPPT_RETURN_MAGIC) ||
-       (snapshot.version != EEPROM_MPPT_RETURN_VERSION) ||
-       (snapshot.checksum != eeprom_mppt_return_checksum(&snapshot)) ||
-       !eeprom_bat_type_is_valid(snapshot.bat_type_a) ||
-       !eeprom_bat_type_is_valid(snapshot.bat_type_b))
+    if(eeprom_mppt_return_load_snapshot(&snapshot) == 0U)
     {
         return 0;
     }
@@ -1784,8 +1860,8 @@ static void eeprom_profile_fill_default(eeprom_system_profile_t *profile, uint8_
     profile->AutoOpenVolt = eeprom_float_to_raw(is_a_port ? cfg->OpenVoltA : cfg->OpenVoltB, is_a_port ? (void *)&wg_com_v2_param.AuotForwardOpenVoltA : (void *)&wg_com_v2_param.AuotReverseOpenVoltB);
     profile->AutoVeerVolt = eeprom_float_to_raw(is_a_port ? cfg->VeerVoltA : 0.0f, (void *)&wg_com_v2_param.AuotForwardVeerVoltA);
     profile->AutoCloseVolt = eeprom_float_to_raw(is_a_port ? cfg->CloseVoltA : cfg->CloseVoltB, is_a_port ? (void *)&wg_com_v2_param.AuotForwardShutVoltA : (void *)&wg_com_v2_param.AuotReverseShutVoltB);
-    profile->SetBootTime = 0;
-    profile->SetOnCurrStartTime = 0;
+    profile->SetBootTime = 5U;
+    profile->SetOnCurrStartTime = 5U;
 }
 
 static uint8_t eeprom_profile_sanitize(uint8_t is_a_port,
@@ -2056,7 +2132,9 @@ static void eeprom_mppt_profile_apply(const eeprom_system_profile_t *profile)
 {
     eeprom_profile_apply(0, profile);
     eeprom_set_profile_raw((void *)&wg_com_v2_ctrl.SetBootTimeA, profile->SetBootTime);
-    eeprom_set_profile_raw((void *)&wg_com_v2_ctrl.SetBootTimeB, 0);
+    eeprom_set_profile_raw((void *)&wg_com_v2_ctrl.SetBootTimeB, profile->SetBootTime);
+    eeprom_set_profile_raw((void *)&wg_com_v2_ctrl.SetOnCurrStartTimeA, profile->SetOnCurrStartTime);
+    eeprom_set_profile_raw((void *)&wg_com_v2_ctrl.SetOnCurrStartTimeB, profile->SetOnCurrStartTime);
 }
 static void eeprom_profile_capture(uint8_t is_a_port, eeprom_system_profile_t *profile)
 {
@@ -2139,6 +2217,7 @@ static void eeprom_mppt_profile_capture(eeprom_system_profile_t *profile)
 {
     eeprom_profile_capture(0, profile);
     profile->SetBootTime = eeprom_get_profile_raw((void *)&wg_com_v2_ctrl.SetBootTimeA);
+    profile->SetOnCurrStartTime = eeprom_get_profile_raw((void *)&wg_com_v2_ctrl.SetOnCurrStartTimeB);
 }
 static uint8_t eeprom_profile_write_snapshot(uint8_t is_a_port,
                                              uint16_t bat_type,
@@ -2199,7 +2278,7 @@ static uint8_t eeprom_profile_write_mppt_b_snapshot(uint16_t bat_type,
     {
         return 0;
     }
-    return eeprom_save_mppt_timing(profile->SetBootTime, profile->SetOnCurrStartTime);
+    return eeprom_save_mppt_current_timing();
 }
 static void eeprom_refresh_control_cache(void)
 {
@@ -2248,6 +2327,8 @@ uint8_t eeprom_apply_mppt_mode_profile(void)
 {
     uint16_t bat_type;
     uint16_t mppt_boot_time_a = 0;
+    uint16_t mppt_boot_time_b = 0;
+    uint16_t mppt_soft_start_a = 0;
     uint16_t mppt_soft_start_b = 0;
     uint16_t mppt_out_curr = 0;
     uint16_t mppt_out_power = 0;
@@ -2271,11 +2352,14 @@ uint8_t eeprom_apply_mppt_mode_profile(void)
     eeprom_set_profile_raw((void *)&wg_com_v2_param.SetOutCurr, mppt_out_curr);
     eeprom_set_profile_raw((void *)&wg_com_v2_param.SetOutCurrPower, mppt_out_power);
     eeprom_apply_mppt_fixed_input_params();
-    if(eeprom_load_mppt_timing(&mppt_boot_time_a, &mppt_soft_start_b) != 0U)
+    if(eeprom_load_mppt_timing(&mppt_boot_time_a,
+                               &mppt_boot_time_b,
+                               &mppt_soft_start_a,
+                               &mppt_soft_start_b) != 0U)
     {
         WG_COM_V2_SET_DATA_UINT(mppt_boot_time_a, wg_com_v2_ctrl.SetBootTimeA);
-        WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetBootTimeB);
-        WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetOnCurrStartTimeA);
+        WG_COM_V2_SET_DATA_UINT(mppt_boot_time_b, wg_com_v2_ctrl.SetBootTimeB);
+        WG_COM_V2_SET_DATA_UINT(mppt_soft_start_a, wg_com_v2_ctrl.SetOnCurrStartTimeA);
         WG_COM_V2_SET_DATA_UINT(mppt_soft_start_b, wg_com_v2_ctrl.SetOnCurrStartTimeB);
     }
     return 1;
@@ -2341,12 +2425,8 @@ uint8_t eeprom_save_current_timing_profile(void)
             return eeprom_save_battery_mode_profiles();
 
         case eMPPT_MODE:
-            {
-                eeprom_system_profile_t profile;
+            return eeprom_save_mppt_current_timing();
 
-                eeprom_mppt_profile_capture(&profile);
-                return eeprom_profile_write_mppt_b_snapshot(get_wg_com_v2_data.com_ctrl.OutBatyType, &profile);
-            }
 
         default:
             return eeprom_save_current_mode_profile();
@@ -3045,6 +3125,101 @@ static uint8_t eeprom_write_all_current_pages(void)
     }
     return eeprom_write_p03_user_current();
 }
+
+#if (APP_EEPROM_CLEAR_RS485_FEATURES == 1)
+static void eeprom_fill_app_default_calibration(void)
+{
+    WG_COM_V2_SET_DATA_UINT(1.0f, wg_com_v2_param.InpVoltCalibrK);
+    WG_COM_V2_SET_DATA_UINT(0.0f, wg_com_v2_param.InpVoltCalibrB);
+    WG_COM_V2_SET_DATA_UINT(1.0f, wg_com_v2_param.InpCurrCalibrK);
+    WG_COM_V2_SET_DATA_UINT(0.0f, wg_com_v2_param.InpCurrCalibrB);
+    WG_COM_V2_SET_DATA_UINT(1.0f, wg_com_v2_param.InpShowVoltCalibrK);
+    WG_COM_V2_SET_DATA_UINT(0.0f, wg_com_v2_param.InpShowVoltCalibrB);
+    WG_COM_V2_SET_DATA_UINT(1.0f, wg_com_v2_param.InpShowCurrCalibrK);
+    WG_COM_V2_SET_DATA_UINT(0.0f, wg_com_v2_param.InpShowCurrCalibrB);
+    WG_COM_V2_SET_DATA_UINT(1.0f, wg_com_v2_param.OutVoltCalibrK);
+    WG_COM_V2_SET_DATA_UINT(0.0f, wg_com_v2_param.OutVoltCalibrB);
+    WG_COM_V2_SET_DATA_UINT(1.0f, wg_com_v2_param.OutCurrCalibrK);
+    WG_COM_V2_SET_DATA_UINT(0.0f, wg_com_v2_param.OutCurrCalibrB);
+    WG_COM_V2_SET_DATA_UINT(1.0f, wg_com_v2_param.OutShowVoltCalibrK);
+    WG_COM_V2_SET_DATA_UINT(0.0f, wg_com_v2_param.OutShowVoltCalibrB);
+    WG_COM_V2_SET_DATA_UINT(1.0f, wg_com_v2_param.OutShowCurrCalibrK);
+    WG_COM_V2_SET_DATA_UINT(0.0f, wg_com_v2_param.OutShowCurrCalibrB);
+    WG_COM_V2_SET_DATA_UINT(1.0f, wg_com_v2_param.AOutShowCurrCalibrK);
+    WG_COM_V2_SET_DATA_UINT(0.0f, wg_com_v2_param.AOutShowCurrCalibrB);
+    WG_COM_V2_SET_DATA_UINT(1.0f, wg_com_v2_param.BOutShowCurrCalibrK);
+    WG_COM_V2_SET_DATA_UINT(0.0f, wg_com_v2_param.BOutShowCurrCalibrB);
+    WG_COM_V2_SET_DATA_UINT(1.0f, wg_com_v2_param.VoltCompensationAK);
+    WG_COM_V2_SET_DATA_UINT(0.0f, wg_com_v2_param.VoltCompensationAB);
+    WG_COM_V2_SET_DATA_UINT(1.0f, wg_com_v2_param.VoltCompensationBK);
+    WG_COM_V2_SET_DATA_UINT(0.0f, wg_com_v2_param.VoltCompensationBB);
+    wg_com_v2_param.Retain10[0] = 0xFFFFU;
+    wg_com_v2_param.Retain10[1] = 0xFFFFU;
+}
+
+uint8_t eeprom_clear_calibration_to_app_defaults(void)
+{
+    eeprom_fill_app_default_calibration();
+    if(!eeprom_write_p03_cal_current())
+    {
+        return 0U;
+    }
+    update_trig &= (uint8_t)~0x04U;
+    get_wg_com_data_rum();
+    return 1U;
+}
+
+uint8_t eeprom_clear_settings_to_app_defaults(void)
+{
+    wg_com_v2_product_info_t saved_product_info;
+    uint8_t saved_cal[EEPROM_PARAM_CAL_SIZE];
+
+    memcpy((uint8_t *)&saved_product_info,
+           (uint8_t *)&wg_com_v2_product_info,
+           sizeof(saved_product_info));
+    memcpy(saved_cal, (uint8_t *)&wg_com_v2_param, EEPROM_PARAM_CAL_SIZE);
+
+    if(!eeprom_factory_restore_app_defaults_verified())
+    {
+        return 0U;
+    }
+
+    memcpy((uint8_t *)&wg_com_v2_product_info,
+           (uint8_t *)&saved_product_info,
+           sizeof(wg_com_v2_product_info));
+    memcpy((uint8_t *)&wg_com_v2_param, saved_cal, EEPROM_PARAM_CAL_SIZE);
+
+    if(!eeprom_write_p00_current())
+    {
+        return 0U;
+    }
+    if(!eeprom_write_p03_cal_current())
+    {
+        return 0U;
+    }
+    if(!eeprom_write_p02_current())
+    {
+        return 0U;
+    }
+    if(!eeprom_write_p03_user_current())
+    {
+        return 0U;
+    }
+    if(!eeprom_reset_battery_profile_pages_to_app_defaults(EEPROM_FACTORY_RESTORE_STEP_PROFILE_RESET))
+    {
+        return 0U;
+    }
+    if(!eeprom_factory_rebuild_current_mode_profile())
+    {
+        return 0U;
+    }
+
+    update_trig = 0U;
+    get_wg_com_data_rum();
+    request_update_parameter();
+    return 1U;
+}
+#endif
 
 uint8_t eeprom_commit_current_pages_for_range(uint16_t addr, uint16_t count)
 {

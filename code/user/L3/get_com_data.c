@@ -92,9 +92,6 @@ static void normalize_exclusive_power_mode(void)
     uint16_t bat_mode_fr = wg_raw_u16(&wg_com_v2_ctrl.BatModeFR);
     uint16_t mppt_switch = wg_raw_u16(&wg_com_v2_ctrl.MpptSwitch);
     uint16_t sleep_mode = wg_raw_u16(&wg_com_v2_ctrl.SleepModeOnOff);
-    uint16_t boot_time_b = wg_raw_u16(&wg_com_v2_ctrl.SetBootTimeB);
-    uint16_t soft_start_a = wg_raw_u16(&wg_com_v2_ctrl.SetOnCurrStartTimeA);
-    uint16_t soft_start_b = wg_raw_u16(&wg_com_v2_ctrl.SetOnCurrStartTimeB);
 
     if(mppt_switch == 1U)
     {
@@ -103,16 +100,6 @@ static void normalize_exclusive_power_mode(void)
            (sleep_mode != 0U))
         {
             wg_com_v2_enter_mppt_control_state();
-            request_update_parameter();
-        }
-        if(boot_time_b != 0U)
-        {
-            WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetBootTimeB);
-            request_update_parameter();
-        }
-        if(soft_start_a != 0U)
-        {
-            WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetOnCurrStartTimeA);
             request_update_parameter();
         }
     }
@@ -127,14 +114,6 @@ static void normalize_exclusive_power_mode(void)
         {
             WG_COM_V2_SET_DATA_UINT(1, wg_com_v2_ctrl.BatModeFR);
             bat_mode_fr = 1U;
-        }
-        if(soft_start_a != 0U)
-        {
-            WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetOnCurrStartTimeA);
-        }
-        if(soft_start_b != 0U)
-        {
-            WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetOnCurrStartTimeB);
         }
         normalize_note_non_mppt_if_changed(power_mode, 1U, 0U);
     }

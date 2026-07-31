@@ -1087,6 +1087,10 @@ void init_mppt_mode_parameter(void)
     float SetOutFullCurr  = 0.00f;
 
     uint16_t BatTypeB = get_wg_com_v2_data.com_ctrl.OutBatyType;
+    uint16_t SetBootTimeA = 5U;
+    uint16_t SetBootTimeB = 5U;
+    uint16_t SetOnCurrStartTimeA = 5U;
+    uint16_t SetOnCurrStartTimeB = 5U;
 
     if(eeprom_apply_mppt_mode_profile())
     {
@@ -1149,6 +1153,10 @@ void init_mppt_mode_parameter(void)
     WG_COM_V2_SET_DATA_UINT(SetUvloRecoverA, wg_com_v2_param.SetInpUvloRecover);
     WG_COM_V2_SET_DATA_UINT(SetOVPA, wg_com_v2_param.SetInpOVP);
     WG_COM_V2_SET_DATA_UINT(SetOVPRecoverA, wg_com_v2_param.SetInpOVPRecover);
+    WG_COM_V2_SET_DATA_UINT(SetBootTimeA, wg_com_v2_ctrl.SetBootTimeA);
+    WG_COM_V2_SET_DATA_UINT(SetBootTimeB, wg_com_v2_ctrl.SetBootTimeB);
+    WG_COM_V2_SET_DATA_UINT(SetOnCurrStartTimeA, wg_com_v2_ctrl.SetOnCurrStartTimeA);
+    WG_COM_V2_SET_DATA_UINT(SetOnCurrStartTimeB, wg_com_v2_ctrl.SetOnCurrStartTimeB);
 }
 
 

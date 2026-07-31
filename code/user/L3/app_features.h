@@ -79,6 +79,12 @@
 #define APP_PARALLEL_RS485_FEATURES 1
 #endif
 
+/* RS485-only service command for clearing APP EEPROM settings/calibration pages.
+ * Keep this off in releases that must not expose destructive service actions. */
+#ifndef APP_EEPROM_CLEAR_RS485_FEATURES
+#define APP_EEPROM_CLEAR_RS485_FEATURES 1
+#endif
+
 #if (APP_PARALLEL_MODE_FEATURES != 1)
 #undef APP_PARALLEL_CAN_FEATURES
 #define APP_PARALLEL_CAN_FEATURES 0

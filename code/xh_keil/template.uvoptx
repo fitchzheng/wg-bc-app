@@ -303,56 +303,7 @@
           <Name>UL2CM3(-S0 -C0 -P0 -FD1FFFC000 -FC8000 -FN1 -FF0HC32F334_128K -FS05000 -FL001A000 -FP0($$Device:HC32F334KATI$FlashARM\HC32F334_128K.FLM))</Name>
         </SetRegEntry>
       </TargetDriverDllRegistry>
-      <Breakpoint>
-        <Bp>
-          <Number>0</Number>
-          <Type>0</Type>
-          <LineNumber>1969</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>57924</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\user\L1\eeprom_cfg.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\WG_BC1500M__1200M20260703_BOOT_APP_RV\../user/L1/eeprom_cfg.c\1969</Expression>
-        </Bp>
-        <Bp>
-          <Number>1</Number>
-          <Type>0</Type>
-          <LineNumber>1968</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>57912</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\user\L1\eeprom_cfg.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\WG_BC1500M__1200M20260703_BOOT_APP_RV\../user/L1/eeprom_cfg.c\1968</Expression>
-        </Bp>
-        <Bp>
-          <Number>2</Number>
-          <Type>0</Type>
-          <LineNumber>1967</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>0</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>0</BreakIfRCount>
-          <Filename>..\user\L1\eeprom_cfg.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression></Expression>
-        </Bp>
-      </Breakpoint>
+      <Breakpoint/>
       <WatchWindow1>
         <Ww>
           <count>0</count>
@@ -418,7 +369,7 @@
       <DebugFlag>
         <trace>0</trace>
         <periodic>1</periodic>
-        <aLwin>0</aLwin>
+        <aLwin>1</aLwin>
         <aCover>0</aCover>
         <aSer1>0</aSer1>
         <aSer2>0</aSer2>
