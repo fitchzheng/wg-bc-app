@@ -892,6 +892,34 @@ uint8_t eeprom_load_mppt_return_battery_types(uint16_t *bat_type_a, uint16_t *ba
     *bat_type_a = snapshot.bat_type_a;
     *bat_type_b = snapshot.bat_type_b;
     return 1;
+}uint8_t eeprom_load_mppt_return_battery_state(uint16_t *bat_type_a,
+                                              uint16_t *bat_type_b,
+                                              uint16_t *boot_time_a,
+                                              uint16_t *boot_time_b,
+                                              uint16_t *soft_start_a,
+                                              uint16_t *soft_start_b)
+{
+    eeprom_mppt_return_battery_t snapshot;
+
+    if((bat_type_a == NULL) || (bat_type_b == NULL) ||
+       (boot_time_a == NULL) || (boot_time_b == NULL) ||
+       (soft_start_a == NULL) || (soft_start_b == NULL))
+    {
+        return 0;
+    }
+
+    if(eeprom_load_mppt_return_snapshot(&snapshot) == 0U)
+    {
+        return 0;
+    }
+
+    *bat_type_a = snapshot.bat_type_a;
+    *bat_type_b = snapshot.bat_type_b;
+    *boot_time_a = snapshot.boot_time_a;
+    *boot_time_b = snapshot.boot_time_b;
+    *soft_start_a = snapshot.soft_start_a;
+    *soft_start_b = snapshot.soft_start_b;
+    return 1;
 }
 static void eeprom_profile_prepare_header(eeprom_profile_header_t *header,
                                           uint8_t port,
