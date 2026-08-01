@@ -178,6 +178,12 @@ extern uint8_t eeprom_save_current_mode_profile(void);
 extern uint8_t eeprom_save_current_timing_profile(void);
 extern void eeprom_save_mppt_return_battery_types(uint16_t bat_type_a, uint16_t bat_type_b);
 extern uint8_t eeprom_load_mppt_return_battery_types(uint16_t *bat_type_a, uint16_t *bat_type_b);
+extern uint8_t eeprom_load_mppt_return_battery_state(uint16_t *bat_type_a,
+                                                     uint16_t *bat_type_b,
+                                                     uint16_t *boot_time_a,
+                                                     uint16_t *boot_time_b,
+                                                     uint16_t *soft_start_a,
+                                                     uint16_t *soft_start_b);
 extern void eeprom_request_current_profile_save(void);
 extern void eeprom_note_battery_profile_reload_pending(void);
 extern uint8_t eeprom_commit_current_pages_for_range(uint16_t addr, uint16_t count);
