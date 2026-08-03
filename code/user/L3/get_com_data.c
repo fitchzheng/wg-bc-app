@@ -8,6 +8,7 @@ state_control_data_t State_Control_Data;    // state control data
 static uint8_t force_update_parameter = 0;
 static uint8_t power_mode_changed_update = 0;
 static uint8_t out_baty_type_changed_update = 0;
+static uint8_t mode_control_timing_write_update = 0;
 static void ovp_uvp_rande_limt(void);
 static uint16_t wg_raw_u16(void *data)
 {
@@ -296,6 +297,18 @@ uint8_t consume_out_baty_type_changed_update(void)
 {
     uint8_t changed = out_baty_type_changed_update;
     out_baty_type_changed_update = 0;
+    return changed;
+}
+
+void note_mode_control_timing_write_update(void)
+{
+    mode_control_timing_write_update = 1U;
+}
+
+uint8_t consume_mode_control_timing_write_update(void)
+{
+    uint8_t changed = mode_control_timing_write_update;
+    mode_control_timing_write_update = 0U;
     return changed;
 }
 

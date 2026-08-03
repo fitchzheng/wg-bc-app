@@ -163,16 +163,37 @@ void init_basic_mode_parameter(void)
 
     uint16_t BatTypeA;
     uint16_t BatTypeB;
+    uint8_t power_mode_changed = consume_power_mode_changed_update();
+    uint8_t keep_written_timing = consume_mode_control_timing_write_update();
+    uint16_t written_boot_time_a = 0U;
+    uint16_t written_boot_time_b = 0U;
+    uint16_t written_soft_start_a = 0U;
+    uint16_t written_soft_start_b = 0U;
 
-    if((consume_power_mode_changed_update() == 0) && eeprom_apply_basic_mode_profile())
+    WG_COM_V2_GET_DATA_UINT(written_boot_time_a, wg_com_v2_ctrl.SetBootTimeA);
+    WG_COM_V2_GET_DATA_UINT(written_boot_time_b, wg_com_v2_ctrl.SetBootTimeB);
+    WG_COM_V2_GET_DATA_UINT(written_soft_start_a, wg_com_v2_ctrl.SetOnCurrStartTimeA);
+    WG_COM_V2_GET_DATA_UINT(written_soft_start_b, wg_com_v2_ctrl.SetOnCurrStartTimeB);
+
+    if((power_mode_changed == 0U) && eeprom_apply_basic_mode_profile())
     {
         return;
     }
 
-    SetBootTimeA = 0U;
-    SetBootTimeB = 0U;
-    SetOnCurrStartTimeA = 0U;
-    SetOnCurrStartTimeB = 0U;
+    if(keep_written_timing != 0U)
+    {
+        SetBootTimeA = written_boot_time_a;
+        SetBootTimeB = written_boot_time_b;
+        SetOnCurrStartTimeA = written_soft_start_a;
+        SetOnCurrStartTimeB = written_soft_start_b;
+    }
+    else
+    {
+        SetBootTimeA = 0U;
+        SetBootTimeB = 0U;
+        SetOnCurrStartTimeA = 0U;
+        SetOnCurrStartTimeB = 0U;
+    }
 
     BatTypeB = (eBAT_DCDC<<8) + eSYS_10_60V;
     BatTypeA = (eBAT_DCDC<<8) + eSYS_10_60V;

@@ -876,6 +876,26 @@ static uint8_t wg_com_v2_is_p03_user_range(uint16_t addr, uint16_t count)
     return ((write_start < user_end) && (write_end > user_start)) ? 1U : 0U;
 }
 
+static uint8_t wg_com_v2_is_p03_curr_power_field(const void *addr)
+{
+    return ((addr == (const void *)&wg_com_v2_param.SetInpCurr) ||
+            (addr == (const void *)&wg_com_v2_param.SetInpCurrPower) ||
+            (addr == (const void *)&wg_com_v2_param.SetOutCurr) ||
+            (addr == (const void *)&wg_com_v2_param.SetOutCurrPower)) ? 1U : 0U;
+}
+
+static void wg_com_v2_force_lmt_uint_for_save(void *addr)
+{
+    const wg_com_v2_data_lmt_map_t *map = get_lmt_for_addr(addr);
+    uint16_t raw_data = get_uint16((uint8_t *)addr);
+
+    if(map != NULL)
+    {
+        UP_DN_LMT(raw_data, get_dynamic_up_lmt_for_addr(addr, map), map->dn_lmt);
+        set_uint16((uint8_t *)addr, raw_data);
+    }
+}
+
 static void wg_com_v2_normalize_p03_user_for_save(uint16_t addr, uint16_t count)
 {
     uint32_t write_start = (uint32_t)addr;
@@ -908,7 +928,14 @@ static void wg_com_v2_normalize_p03_user_for_save(uint16_t addr, uint16_t count)
         }
 
         data_temp = 0.0f;
-        (void)wg_com_v2_get_data_uint(data_temp, lmt_map[i].addr);
+        if(wg_com_v2_is_p03_curr_power_field(lmt_map[i].addr) != 0U)
+        {
+            wg_com_v2_force_lmt_uint_for_save(lmt_map[i].addr);
+        }
+        else
+        {
+            (void)wg_com_v2_get_data_uint(data_temp, lmt_map[i].addr);
+        }
     }
 }
 static uint8_t unified_write(uint16_t addr, uint16_t count, const uint8_t *data)
@@ -1043,6 +1070,13 @@ static uint8_t unified_write(uint16_t addr, uint16_t count, const uint8_t *data)
     writes_mppt_profile_select = ((power_mode_changed != 0) ||
                                   (mppt_switch_changed != 0) ||
                                   (bat_type_changed != 0)) ? 1U : 0U;
+    if((writes_mppt_timing != 0U) &&
+       (power_mode_changed != 0U) &&
+       ((new_power_mode == eSET_STANDARD_MODE) ||
+        (new_power_mode == eSET_CUSTOM_MODE)))
+    {
+        note_mode_control_timing_write_update();
+    }
     if((writes_power_mode != 0) &&
        (old_power_mode != eSET_BAT_MODE) &&
        (new_power_mode == eSET_BAT_MODE))
@@ -1096,6 +1130,16 @@ static uint8_t unified_write(uint16_t addr, uint16_t count, const uint8_t *data)
     }
     WG_COM_V2_GET_DATA_UINT(new_power_mode, wg_com_v2_ctrl.SetPowerMode);
     WG_COM_V2_GET_DATA_UINT(new_mppt_switch, wg_com_v2_ctrl.MpptSwitch);
+    if((writes_mppt_timing != 0U) &&
+       (power_mode_changed != 0U) &&
+       ((new_power_mode == eSET_STANDARD_MODE) ||
+        (new_power_mode == eSET_CUSTOM_MODE)))
+    {
+        WG_COM_V2_SET_DATA_UINT(written_boot_time_a, wg_com_v2_ctrl.SetBootTimeA);
+        WG_COM_V2_SET_DATA_UINT(written_boot_time_b, wg_com_v2_ctrl.SetBootTimeB);
+        WG_COM_V2_SET_DATA_UINT(written_soft_start_a, wg_com_v2_ctrl.SetOnCurrStartTimeA);
+        WG_COM_V2_SET_DATA_UINT(written_soft_start_b, wg_com_v2_ctrl.SetOnCurrStartTimeB);
+    }
     if((new_power_mode == eMPPT_MODE) || (new_mppt_switch == 1U))
     {
         if(((power_mode_changed != 0) || (mppt_switch_changed != 0)) &&

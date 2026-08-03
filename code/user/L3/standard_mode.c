@@ -251,7 +251,17 @@ void init_standard_mode_parameter(void)
     uint16_t BatTypeB = get_wg_com_v2_data.com_ctrl.OutBatyType;
     uint8_t power_mode_changed = consume_power_mode_changed_update();
     uint8_t out_baty_type_changed = consume_out_baty_type_changed_update();
+    uint8_t keep_written_timing = consume_mode_control_timing_write_update();
+    uint16_t written_boot_time_a = 0U;
+    uint16_t written_boot_time_b = 0U;
+    uint16_t written_soft_start_a = 0U;
+    uint16_t written_soft_start_b = 0U;
     uint16_t out_sys = (BatTypeB&0x00FF);
+
+    WG_COM_V2_GET_DATA_UINT(written_boot_time_a, wg_com_v2_ctrl.SetBootTimeA);
+    WG_COM_V2_GET_DATA_UINT(written_boot_time_b, wg_com_v2_ctrl.SetBootTimeB);
+    WG_COM_V2_GET_DATA_UINT(written_soft_start_a, wg_com_v2_ctrl.SetOnCurrStartTimeA);
+    WG_COM_V2_GET_DATA_UINT(written_soft_start_b, wg_com_v2_ctrl.SetOnCurrStartTimeB);
 
     if(out_sys >= eSTANDARD_SYS_VOLT_MAX)
     {
@@ -310,10 +320,20 @@ void init_standard_mode_parameter(void)
     SetInpFullCurr     = Bat_Standard_Sys_Volt_Config[eSTANDARD_SYS_12V].SetFullLedCurr;
 
     WG_COM_V2_SET_DATA_UINT(((eBAT_DCDC<<8) + eSYS_10_60V),  wg_com_v2_ctrl.InpBatyType);
-    WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetBootTimeA);
-    WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetBootTimeB);
-    WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetOnCurrStartTimeA);
-    WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetOnCurrStartTimeB);
+    if(keep_written_timing != 0U)
+    {
+        WG_COM_V2_SET_DATA_UINT(written_boot_time_a, wg_com_v2_ctrl.SetBootTimeA);
+        WG_COM_V2_SET_DATA_UINT(written_boot_time_b, wg_com_v2_ctrl.SetBootTimeB);
+        WG_COM_V2_SET_DATA_UINT(written_soft_start_a, wg_com_v2_ctrl.SetOnCurrStartTimeA);
+        WG_COM_V2_SET_DATA_UINT(written_soft_start_b, wg_com_v2_ctrl.SetOnCurrStartTimeB);
+    }
+    else
+    {
+        WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetBootTimeA);
+        WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetBootTimeB);
+        WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetOnCurrStartTimeA);
+        WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.SetOnCurrStartTimeB);
+    }
 
     WG_COM_V2_SET_DATA_UINT(SetUvloA, wg_com_v2_param.SetInpUvlo);
     WG_COM_V2_SET_DATA_UINT(SetUvloRecoverA, wg_com_v2_param.SetInpUvloRecover);
