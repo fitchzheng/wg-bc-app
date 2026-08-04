@@ -1233,7 +1233,7 @@ static void process_command(void)
 void wg_com_v2_init(void)
 {
     WG_COM_V2_SET_DATA(host_addr, wg_com_v2_product_info.Address);
-    WG_COM_V2_SET_DATA(1, wg_com_v2_ctrl.PowerOnOff); // 默认关机
+    WG_COM_V2_SET_DATA(WG_COM_V2_DEFAULT_POWER_ON_OFF, wg_com_v2_ctrl.PowerOnOff);
     WG_COM_V2_SET_DATA(100, wg_com_v2_param.SetInsideTemp);
     WG_COM_V2_SET_DATA(100, wg_com_v2_param.SetOutsideTemp);
     WG_COM_V2_SET_DATA(20.0f, wg_com_v2_param.SetOutOVP);

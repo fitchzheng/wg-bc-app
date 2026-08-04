@@ -407,7 +407,7 @@ static uint8_t eeprom_ctrl_is_valid(const wg_com_v2_ctrl_t *ctrl)
 static void eeprom_ctrl_fill_safe_default(void)
 {
     WG_COM_V2_SET_DATA_UINT(0, eeprom_wg_com_v2_param.wg_com_v2_ctrl.FactoryReset);
-    WG_COM_V2_SET_DATA_UINT(0, eeprom_wg_com_v2_param.wg_com_v2_ctrl.PowerOnOff);
+    WG_COM_V2_SET_DATA_UINT(WG_COM_V2_DEFAULT_POWER_ON_OFF, eeprom_wg_com_v2_param.wg_com_v2_ctrl.PowerOnOff);
     WG_COM_V2_SET_DATA_UINT(eSET_BAT_MODE, eeprom_wg_com_v2_param.wg_com_v2_ctrl.SetPowerMode);
     WG_COM_V2_SET_DATA_UINT(eSET_MANUAL_MODE, eeprom_wg_com_v2_param.wg_com_v2_ctrl.SetChargMode);
     WG_COM_V2_SET_DATA_UINT(((eBAT_LA_AGM << 8) | eSYS_12V), eeprom_wg_com_v2_param.wg_com_v2_ctrl.InpBatyType);
@@ -1526,7 +1526,7 @@ static uint8_t eeprom_factory_restore_app_defaults_verified(void)
     WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_product_info.BtName);
 
     WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.FactoryReset);
-    WG_COM_V2_SET_DATA_UINT(1, wg_com_v2_ctrl.PowerOnOff);
+    WG_COM_V2_SET_DATA_UINT(WG_COM_V2_DEFAULT_POWER_ON_OFF, wg_com_v2_ctrl.PowerOnOff);
     WG_COM_V2_SET_DATA_UINT(eSET_BAT_MODE, wg_com_v2_ctrl.SetPowerMode);
     WG_COM_V2_SET_DATA_UINT(eSET_MANUAL_MODE, wg_com_v2_ctrl.SetChargMode);
     WG_COM_V2_SET_DATA_UINT(((eBAT_LA_AGM << 8) | eSYS_12V), wg_com_v2_ctrl.InpBatyType);
@@ -2884,7 +2884,7 @@ void eeprom_cfg_init(void)
                    sizeof(wg_com_v2_product_info));
 
             WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.FactoryReset);
-            WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.PowerOnOff);
+            WG_COM_V2_SET_DATA_UINT(WG_COM_V2_DEFAULT_POWER_ON_OFF, wg_com_v2_ctrl.PowerOnOff);
             WG_COM_V2_SET_DATA_UINT(eSET_BAT_MODE, wg_com_v2_ctrl.SetPowerMode);
             WG_COM_V2_SET_DATA_UINT(eSET_MANUAL_MODE, wg_com_v2_ctrl.SetChargMode);
             WG_COM_V2_SET_DATA_UINT(((eBAT_LA_AGM << 8) | eSYS_12V), wg_com_v2_ctrl.InpBatyType);
@@ -3045,7 +3045,7 @@ void eeprom_cfg_init(void)
     WG_COM_V2_GET_DATA_UINT(State_Control_Data.OutBatyType, wg_com_v2_ctrl.OutBatyType);
 
     WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.FactoryReset);
-    WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.PowerOnOff);
+    WG_COM_V2_SET_DATA_UINT(WG_COM_V2_DEFAULT_POWER_ON_OFF, wg_com_v2_ctrl.PowerOnOff);
     WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.ZeroCurrCalibration);
     WG_COM_V2_SET_DATA_UINT(0, wg_com_v2_ctrl.ResetFactoryData);
     WG_COM_V2_SET_DATA_UINT(7, wg_com_v2_realtime_data.StateCharge);
