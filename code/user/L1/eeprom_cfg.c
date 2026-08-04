@@ -2390,14 +2390,6 @@ uint8_t eeprom_apply_mppt_mode_profile(void)
     eeprom_profile_apply(0, &profile_b);
     eeprom_apply_mppt_fixed_input_params();
     has_snapshot = eeprom_mppt_return_load_snapshot(&snapshot);
-    if((has_snapshot != 0U) && (snapshot.inp_profile.is_writed == EEPROM_SYS_PROFILE_INIT_DATA))
-    {
-        eeprom_profile_apply(1U, &snapshot.inp_profile);
-    }
-    if((has_snapshot != 0U) && (snapshot.out_profile.is_writed == EEPROM_SYS_PROFILE_INIT_DATA))
-    {
-        eeprom_profile_apply(0U, &snapshot.out_profile);
-    }
     if(eeprom_load_mppt_output_limits(&mppt_inp_curr,
                                       &mppt_inp_power,
                                       &mppt_out_curr,
