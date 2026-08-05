@@ -11,7 +11,12 @@
 
 #define BUCK_BOOST_SIN_60       (0.866025404f)
 #define BUCK_BOOST_TAN_60       (1.732050808f)
-#define BUCK_BOOST_PARALLEL_DROOP_K (0.01f)
+#define BUCK_BOOST_PARALLEL_DROOP_K (0.05f)
+#define BUCK_BOOST_PARALLEL_RECOVER_ON_CURR_A   (5.00f)
+#define BUCK_BOOST_PARALLEL_RECOVER_OFF_CURR_A  (3.00f)
+#define BUCK_BOOST_PARALLEL_RECOVER_STEP_V     (0.02f)
+#define BUCK_BOOST_PARALLEL_RECOVER_RATIO      (0.40f)
+#define BUCK_BOOST_PARALLEL_RECOVER_TARGET_V   (0.50f)
 
 extern float Get_Set_Out_Curr_Value_Lmt(void);
 uint8_t dcm_obs_trig = 0;
@@ -364,13 +369,70 @@ extern uint8_t force_ccm;
 
 static float buck_boost_get_parallel_v_ref(const buck_boost_t *str)
 {
-    float v_ref;
+    static float parallel_recover_v = 0.0f;
+    static uint32_t parallel_recover_tick = 0U;
+    float v_ref = 0.0f;
 
     v_ref = str->input.v_out_ref;
 #if (APP_PARALLEL_MODE_FEATURES == 1)
     if (parallel_mode_is_run_allowed() != 0U)
     {
-        v_ref -= (BUCK_BOOST_PARALLEL_DROOP_K * str->input.i_out);
+        float i_out = str->input.i_out;
+        float droop_v;
+        float recover_max_v;
+        float recover_target_v;
+
+        if (i_out < 0.0f)
+        {
+            i_out = 0.0f;
+        }
+
+        droop_v = BUCK_BOOST_PARALLEL_DROOP_K * i_out;
+        recover_max_v = droop_v * BUCK_BOOST_PARALLEL_RECOVER_RATIO;
+        recover_target_v = recover_max_v;
+        if (recover_target_v > BUCK_BOOST_PARALLEL_RECOVER_TARGET_V)
+        {
+            recover_target_v = BUCK_BOOST_PARALLEL_RECOVER_TARGET_V;
+        }
+
+        if (++parallel_recover_tick >= 5U)
+        {
+            parallel_recover_tick = 0U;
+            if (i_out > BUCK_BOOST_PARALLEL_RECOVER_ON_CURR_A)
+            {
+                if (parallel_recover_v < recover_target_v)
+                {
+                    parallel_recover_v += BUCK_BOOST_PARALLEL_RECOVER_STEP_V;
+                }
+            }
+            else if (i_out < BUCK_BOOST_PARALLEL_RECOVER_OFF_CURR_A)
+            {
+                parallel_recover_v -= BUCK_BOOST_PARALLEL_RECOVER_STEP_V;
+            }
+            else
+            {
+            }
+
+            if (parallel_recover_v > recover_target_v)
+            {
+                parallel_recover_v = recover_target_v;
+            }
+            else if (parallel_recover_v < 0.0f)
+            {
+                parallel_recover_v = 0.0f;
+            }
+            else
+            {
+            }
+        }
+
+        v_ref += parallel_recover_v;
+        v_ref -= droop_v;
+    }
+    else
+    {
+        parallel_recover_v = 0.0f;
+        parallel_recover_tick = 0U;
     }
 #else
     (void)str;
