@@ -335,8 +335,7 @@ void Get_CAN_Communications_Content (uint32_t can_id, uint8_t *data, uint8_t len
                 if(data[1] != 0x22){return;}
                 can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_realtime_data.InsideTemp));
                 can_put_u16_be(data, 4, can_read_u16_field(&wg_com_v2_realtime_data.OutsideTemp));
-                data[6] = 0;                                                                                // 保留
-                data[7] = 0;                                                                                // 保留
+                can_put_u16_be(data, 6, can_read_u16_field(&wg_com_v2_realtime_data.Temp2));
                 break;
             case POWER_CHARGING_MODE:
                 if(data[1] != 0x22){return;}
