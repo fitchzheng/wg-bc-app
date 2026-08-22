@@ -12,15 +12,12 @@
 
 
 
-//以下定义中，speed与rcu_periph用不到，直接给0
-#define GPIO_REG_PARM(_name, _gpx, _pin, _mode, _def_lv) { \
-    .bsp_gpio_table = _name,                               \
-    .gpio_periph = _gpx,                                   \
-    .mode = GPIO_MODE_##_mode,                             \
-    .speed = 0,                                            \
-    .pin = GPIO_PIN_##_pin,                                \
-    .rcu_periph = 0,                                       \
-    .def_lv = _def_lv,                                     \
+/* Keep only the fields used by GPIO initialization and runtime access. */
+#define GPIO_REG_PARM(_unused_name, _gpx, _pin, _mode, _def_lv) { \
+    .gpio_periph = (uint8_t)(_gpx),                            \
+    .mode = (uint8_t)GPIO_MODE_##_mode,                        \
+    .pin = (uint16_t)GPIO_PIN_##_pin,                          \
+    .def_lv = (uint8_t)(_def_lv),                              \
 }
 
 typedef enum
@@ -72,12 +69,9 @@ typedef enum
 
 typedef struct
 {
-  bsp_gpio_table_e bsp_gpio_table;
-  uint32_t gpio_periph;
-  uint32_t mode;
-  uint32_t speed;
-  uint32_t pin;
-  uint32_t rcu_periph;
+  uint8_t gpio_periph;
+  uint8_t mode;
+  uint16_t pin;
   uint8_t def_lv;
 } bsp_gpio_parm_t;
 

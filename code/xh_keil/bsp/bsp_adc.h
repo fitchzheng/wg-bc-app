@@ -64,40 +64,28 @@ typedef struct
                             _gpio_periph,                   \
                             _pin,                           \
                             ch)                             \
-    .adc_name = _adc_name,                                  \
     .gpio_periph = _gpio_periph,                            \
     .pin = GPIO_PIN_##_pin,                                 \
     .adc_periph = (uint32_t)CM_ADC1,                        \
-    .adc_ch = ADC_CH##ch,                                   \
-    .rank = _adc_name / 2,                                  \
-    .sample_time = SAMPLE_TIME,                             \
-    .p_adc_value = (uint16_t *)&adc0_value[_adc_name]
+    .adc_ch = ADC_CH##ch
 
 #define BSP_ADC1_REG_PARM(_adc_name,                      \
                             _gpio_periph,                   \
                             _pin,                           \
                             ch)                             \
-    .adc_name = _adc_name,                                  \
     .gpio_periph = _gpio_periph,                            \
     .pin = GPIO_PIN_##_pin,                                 \
     .adc_periph = (uint32_t)CM_ADC2,                        \
-    .adc_ch = ADC_CH##ch,                                   \
-    .rank = _adc_name / 2,                                  \
-    .sample_time = SAMPLE_TIME,                             \
-    .p_adc_value = (uint16_t *)&adc1_value[_adc_name]
+    .adc_ch = ADC_CH##ch
 
 #define BSP_ADC2_REG_PARM(_adc_name,    \
                           _gpio_periph, \
                           _pin,         \
                           ch)           \
-    .adc_name = _adc_name,              \
     .gpio_periph = _gpio_periph,        \
     .pin = GPIO_PIN_##_pin,             \
     .adc_periph = (uint32_t)CM_ADC3,    \
-    .adc_ch = ADC_CH##ch,               \
-    .rank = _adc_name,                  \
-    .sample_time = SAMPLE_TIME,         \
-    .p_adc_value = (uint16_t *)&adc2_value[_adc_name]
+    .adc_ch = ADC_CH##ch
 
 
 typedef enum
@@ -125,14 +113,10 @@ typedef enum
 
 typedef struct
 {
-    uint32_t adc_name;
-    uint32_t gpio_periph;
-    uint32_t pin;
     uint32_t adc_periph;
+    uint16_t pin;
+    uint8_t gpio_periph;
     uint8_t adc_ch;
-    uint8_t rank;
-    uint32_t sample_time;
-    uint16_t *p_adc_value;
 } bsp_adc_param_t;
 
 void bsp_adc_init(void);
