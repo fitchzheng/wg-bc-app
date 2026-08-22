@@ -218,3 +218,7 @@ code/xh_keil/build_app_sleep_rearm_20260616.log
 code/xh_keil/build_app_mppt_sleep_restore_20260617.log
 code/xh_keil/build_app_can_mppt_sleep_restore_20260617.log
 code/xh_keil/build_app_autosys_recover_power_20260603_144945.htm
+code/xh_keil/build_parallel_rs485_paced_sync_20260820.log
+code/xh_keil/build_parallel_rs485_ack_sync_20260820_r2.log
+code/xh_keil/build_parallel_rs485_ack_sync_20260820_r3.log
+code/xh_keil/build_parallel_rs485_ack_sync_20260820.log

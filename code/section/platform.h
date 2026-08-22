@@ -16,6 +16,7 @@ extern size_t __stop_section;
 #define AUTO_REG_SECTION __attribute__((__section__("section")))
 #define FUNC_RAM
 #define RAMFUNC
+#define RAMFUNC_INLINE
 
 #elif defined(HC32F334) || defined(IS_HC32)
 extern uint32_t systemtime;
@@ -31,6 +32,11 @@ extern uint32_t Load$$SECTION$$Limit;
 #define AUTO_REG_SECTION __attribute__((used, __section__(".section")))
 #define FUNC_RAM __attribute__((used, __section__(".ramfunc")))
 #define RAMFUNC FUNC_RAM
+#if defined(RAMFUNC_INLINE_FORCE_USED)
+#define RAMFUNC_INLINE FUNC_RAM
+#else
+#define RAMFUNC_INLINE __attribute__((__section__(".ramfunc")))
+#endif
 
 #else
 #include "gd32f30x.h"
@@ -47,6 +53,7 @@ extern uint32_t Load$$SECTION$$Limit;
 #define AUTO_REG_SECTION __attribute__((used, __section__(".section")))
 #define FUNC_RAM
 #define RAMFUNC
+#define RAMFUNC_INLINE
 #endif
 
 #endif /* __SECTION_PLATFORM_H__ */

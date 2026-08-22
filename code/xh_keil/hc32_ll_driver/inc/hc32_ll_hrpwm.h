@@ -4016,7 +4016,7 @@ __STATIC_INLINE en_flag_status_t HRPWM_GetStatus(const CM_HRPWM_TypeDef *HRPWMx,
  *  @arg HRPWM_FLAG_ONE_SHOT_CPLT
  * @retval None
  */
-__STATIC_INLINE void RAMFUNC HRPWM_ClearStatus(CM_HRPWM_TypeDef *HRPWMx, uint64_t u64Flag)
+__STATIC_INLINE void RAMFUNC_INLINE HRPWM_ClearStatus(CM_HRPWM_TypeDef *HRPWMx, uint64_t u64Flag)
 {
     DDL_ASSERT(IS_HRPWM_UNIT(HRPWMx));
     DDL_ASSERT(IS_HRPWM_CNT_CLR_FLAG(u64Flag));
@@ -4605,7 +4605,7 @@ __STATIC_INLINE void HRPWM_U1SingleTransBufConfig(uint32_t u32Config)
  * @param  None
  * @retval None
  */
-__STATIC_INLINE void RAMFUNC HRPWM_U1SingleTransBufTrigger(void)
+__STATIC_INLINE void RAMFUNC_INLINE HRPWM_U1SingleTransBufTrigger(void)
 {
     WRITE_REG32(bCM_HRPWM_COMMON->GBCONR_b.OSTBTRU1, 0x01UL);
 }
@@ -4783,7 +4783,7 @@ __STATIC_INLINE void HRPWM_IDLE_SetChBIdleLevel(CM_HRPWM_TypeDef *HRPWMx, uint32
  * @param  [in] u32Ch               HRPWM channel @ref HRPWM_Sw_Sync_Ch_Define
  * @retval None
  */
-__STATIC_INLINE void RAMFUNC HRPWM_IDLE_EnterImmediate(uint32_t u32Unit, uint32_t u32Ch)
+__STATIC_INLINE void RAMFUNC_INLINE HRPWM_IDLE_EnterImmediate(uint32_t u32Unit, uint32_t u32Ch)
 {
     DDL_ASSERT(IS_HRPWM_SW_SYNC_UNIT(u32Unit));
     DDL_ASSERT(IS_HRPWM_SW_SYNC_CH(u32Ch));
@@ -4830,7 +4830,7 @@ __STATIC_INLINE void HRPWM_IDLE_ExitForCountStart(uint32_t u32Unit, uint32_t u32
  *  @arg RESET: The channel is in idle status
  * @note  Only for immediately idle state and BM idle state
  */
-__STATIC_INLINE RAMFUNC en_flag_status_t RAMFUNC HRPWM_IDLE_GetChStatus(uint32_t u32Unit, uint32_t u32Ch)
+__STATIC_INLINE RAMFUNC_INLINE en_flag_status_t HRPWM_IDLE_GetChStatus(uint32_t u32Unit, uint32_t u32Ch)
 {
     en_flag_status_t enStatus = RESET;
     DDL_ASSERT(IS_HRPWM_SW_SYNC_UNIT(u32Unit));
@@ -6466,7 +6466,7 @@ __STATIC_INLINE void HRPWM_SetPeriodValue(CM_HRPWM_TypeDef *HRPWMx, uint32_t u32
  * @param  [in] u32Value            Period value, range (0xC0, 0x3FFFC0]
  * @retval None
  */
-__STATIC_INLINE void RAMFUNC HRPWM_SetPeriodValue_Buf(CM_HRPWM_TypeDef *HRPWMx, uint32_t u32Value)
+__STATIC_INLINE void RAMFUNC_INLINE HRPWM_SetPeriodValue_Buf(CM_HRPWM_TypeDef *HRPWMx, uint32_t u32Value)
 {
     DDL_ASSERT(IS_HRPWM_UNIT(HRPWMx));
     DDL_ASSERT(IS_HRPWM_DATA_REG_RANGE1(u32Value));
@@ -6506,7 +6506,7 @@ __STATIC_INLINE void HRPWM_SetCompareAValue(CM_HRPWM_TypeDef *HRPWMx, uint32_t u
  * @param  [in] u32Value            General compare register value, range (0xC0, 0x3FFFC0]
  * @retval None
  */
-__STATIC_INLINE void RAMFUNC HRPWM_SetCompareAValue_Buf(CM_HRPWM_TypeDef *HRPWMx, uint32_t u32Value)
+__STATIC_INLINE void RAMFUNC_INLINE HRPWM_SetCompareAValue_Buf(CM_HRPWM_TypeDef *HRPWMx, uint32_t u32Value)
 {
     DDL_ASSERT(IS_HRPWM_UNIT(HRPWMx));
    // DDL_ASSERT(IS_HRPWM_DATA_REG_RANGE1(u32Value));

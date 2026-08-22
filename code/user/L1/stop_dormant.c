@@ -17,6 +17,9 @@
 #include "bat_charge_pattern.h"
 #include "parallel_mode.h"
 
+#define SLEEP_LOW_B_UVP_DELAY_COUNT (300U)
+#define SLEEP_LOW_B_UVP_FAULT_MASK  (1UL << (uint32_t)FAULT_RVS12_UVP)
+
 static uint8_t bat_sleep_battery_type_allowed(uint16_t bat_type)
 {
     return ((bat_type == eBAT_LA_AGM)  ||
@@ -132,6 +135,7 @@ void bsp_gpio_pwc_init(void)
 
 extern void ctrl_app_disable(void);
 extern void bsp_hrpwm_init_pwc(void);
+extern uint8_t pwc_stop_flag;
 void bsp_adc_init_pwc(void);
 uint8_t stop_time_flag = 0;
 uint8_t sleep_report_state_flag = 0;
@@ -148,6 +152,7 @@ typedef enum
 } sleep_state_t;
 
 static sleep_state_t sleep_state = SLEEP_IDLE;
+static uint8_t sleep_low_b_uvp_active = 0U;
 
 static void sleep_cancel(void)
 {
@@ -172,6 +177,7 @@ void sleep_low_power_commit(void)
 uint8_t bsp_pwc_stop_rum(void)
 {
     float fvs48 = 0;
+    float rvs12_recover = 0.0f;
     uint8_t re_state = 0;
     
     if (LL_OK == STOP_IsReady() && (stop == 1))
@@ -236,9 +242,12 @@ uint8_t bsp_pwc_stop_rum(void)
         }
         fwdgt_feed_task();
         WG_COM_V2_GET_DATA_UINT(fvs48, wg_com_v2_param.SetInpUvlo);
+        WG_COM_V2_GET_DATA_UINT(rvs12_recover, wg_com_v2_param.SetOutUvloRecover);
         static float pwc_fvs48 = 0;
+        static float pwc_rvs12 = 0.0f;
         static float pwc_vccvs = 0;
         pwc_fvs48 = 0;
+        pwc_rvs12 = 0.0f;
         pwc_vccvs = 0;
 
         uint32_t u32TimeCount = 0;
@@ -249,6 +258,7 @@ uint8_t bsp_pwc_stop_rum(void)
                 if (ADC_GetStatus(CM_ADC1, ADC_FLAG_EOCA) == SET) {
                     ADC_ClearStatus(CM_ADC1, ADC_FLAG_EOCA);
                     pwc_fvs48 += get_show_fvs48_show();
+                    pwc_rvs12 += get_show_rvs12_show();
                     break;
                 }
                 fwdgt_feed_task();
@@ -267,14 +277,18 @@ uint8_t bsp_pwc_stop_rum(void)
         }
         fwdgt_feed_task();
         pwc_fvs48 = pwc_fvs48 / 8;
+        pwc_rvs12 = pwc_rvs12 / 8.0f;
         pwc_vccvs = pwc_vccvs / 8;
 
         bsp_adc_deinit();    
 
         bsp_pwm_deinit();
  
-        if((pwc_fvs48 < (fvs48+0.5f)) || (pwc_vccvs > 9.0f))
+        if((pwc_vccvs > 9.0f) ||
+           ((sleep_low_b_uvp_active == 1U) && (pwc_rvs12 > rvs12_recover)) ||
+           ((sleep_low_b_uvp_active == 0U) && (pwc_fvs48 < (fvs48+0.5f))))
         { 
+            sleep_low_b_uvp_active = 0U;
             NVIC_SystemReset();
         }
         else
@@ -299,11 +313,24 @@ void bat_stop_charge_flag(void)
     WG_COM_V2_GET_DATA_UINT(InpBatyType, wg_com_v2_ctrl.InpBatyType);
     WG_COM_V2_GET_DATA_UINT(SleepModeOnOff, wg_com_v2_ctrl.SleepModeOnOff);
     static uint16_t delay = 0;
+    static uint16_t low_b_uvp_delay = 0U;
     uint16_t bat_type = Get_Charge_State();
+    uint8_t low_b_uvp_condition_met = 0U;
+
+    low_b_uvp_condition_met = ((PowerMode == eSET_BAT_MODE)                         &&
+                               (fault_get_all_fault() == SLEEP_LOW_B_UVP_FAULT_MASK) &&
+                               (bat_sleep_battery_type_allowed(bat_type) == 1U)      &&
+                               (get_check_state_data() == ADDRS_BACKWARD)            &&
+                               (get_wg_com_v2_data.BatModeFRState == 0U)             &&
+                               (parallel_mode_is_run_allowed() == 0U)                &&
+                               (parallel_mode_should_block_local_run() == 0U)        &&
+                               (SleepModeOnOff == 1U));
 
     if(SleepModeOnOff == 0)
     {
         delay = 0;
+        low_b_uvp_delay = 0U;
+        sleep_low_b_uvp_active = 0U;
         sleep_report_count = 0;
         sleep_cancel();
         return;
@@ -317,7 +344,9 @@ void bat_stop_charge_flag(void)
     if(sleep_state == SLEEP_REPORTING)
     {
         WG_COM_V2_SET_DATA_UINT(eSTOP_CHARGE, wg_com_v2_realtime_data.StateCharge);
-        if(bat_sleep_condition_met(PowerMode, SleepModeOnOff, bat_type) == 1)
+        if(((sleep_low_b_uvp_active == 0U) &&
+            (bat_sleep_condition_met(PowerMode, SleepModeOnOff, bat_type) == 1U)) ||
+           ((sleep_low_b_uvp_active == 1U) && (low_b_uvp_condition_met == 1U)))
         {
             if(--sleep_report_count == 0)
             {
@@ -325,12 +354,18 @@ void bat_stop_charge_flag(void)
                 stop_time_flag = 1;
                 InitFlag = 0;
                 sleep_report_state_flag = 1;
+                if(sleep_low_b_uvp_active == 1U)
+                {
+                    sleep_low_power_commit();
+                    pwc_stop_flag = 1U;
+                }
             }
         }
         else
         {
             delay = 0;
             sleep_report_count = 0;
+            sleep_low_b_uvp_active = 0U;
             sleep_cancel();
         }
         return;
@@ -338,6 +373,8 @@ void bat_stop_charge_flag(void)
 
     if(bat_sleep_condition_met(PowerMode, SleepModeOnOff, bat_type) == 1)
     {
+        sleep_low_b_uvp_active = 0U;
+        low_b_uvp_delay = 0U;
         if(++delay >= 20)
         {
             delay = 0;
@@ -347,10 +384,25 @@ void bat_stop_charge_flag(void)
             sleep_report_count = SLEEP_REPORT_DELAY_COUNT;
         }
     }
+    else if(low_b_uvp_condition_met == 1U)
+    {
+        delay = 0;
+        if(++low_b_uvp_delay >= SLEEP_LOW_B_UVP_DELAY_COUNT)
+        {
+            low_b_uvp_delay = 0U;
+            sleep_low_b_uvp_active = 1U;
+            WG_COM_V2_SET_DATA_UINT(eSTOP_CHARGE, wg_com_v2_realtime_data.StateCharge);
+            sleep_state = SLEEP_REPORTING;
+            sleep_report_state_flag = 1;
+            sleep_report_count = SLEEP_REPORT_DELAY_COUNT;
+        }
+    }
     else
     {
         delay = 0;
+        low_b_uvp_delay = 0U;
         sleep_report_count = 0;
+        sleep_low_b_uvp_active = 0U;
         sleep_cancel();
     }
 }

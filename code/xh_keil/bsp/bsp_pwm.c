@@ -1,3 +1,4 @@
+#define RAMFUNC_INLINE_FORCE_USED
 #include "bsp_pwm.h"
 #include "section.h"
 #include "app_features.h"

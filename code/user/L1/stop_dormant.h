@@ -8,15 +8,10 @@
 #define PWC_GPIO_MODE_ANALOG_PU     2
 #define PWC_GPIO_MODE_ANALOG_PD     4
 
-//以下定义中，speed与rcu_periph用不到，直接给0
-#define PWC_GPIO_REG_PARM(_name, _gpx, _pin, _mode, _def_lv) {  \
-    .bsp_gpio_table = _name,                                    \
-    .gpio_periph = _gpx,                                        \
-    .mode = PWC_GPIO_MODE_##_mode,                              \
-    .speed = 0,                                                 \
-    .pin = GPIO_PIN_##_pin,                                     \
-    .rcu_periph = 0,                                            \
-    .def_lv = _def_lv,                                          \
+/* Sleep GPIO initialization only reads the port and pin fields. */
+#define PWC_GPIO_REG_PARM(_unused_name, _gpx, _pin, _unused_mode, _unused_def_lv) { \
+    .gpio_periph = (uint8_t)(_gpx),                                                 \
+    .pin = (uint16_t)GPIO_PIN_##_pin,                                               \
 }
 
 typedef enum
@@ -77,13 +72,8 @@ typedef enum
 
 typedef struct
 {
-  bsp_gpio_table_pwc_e bsp_gpio_table;
-  uint32_t gpio_periph;
-  uint32_t mode;
-  uint32_t speed;
-  uint32_t pin;
-  uint32_t rcu_periph;
-  uint8_t def_lv;
+  uint8_t gpio_periph;
+  uint16_t pin;
 } bsp_gpio_parm_pwc_t;
 
 
