@@ -24,7 +24,7 @@ uint8_t bsp_flash_erase_page(uint32_t page_index)
     return 1;
 }
 
-// æ–°å¢ï¼šæŒ‰é¡µå†™å…¥ï¼ˆ2KB/é¡µ = 1024ä¸ªuint16_tï¼‰
+// ĞÂÔö£º°´Ò³Ğ´Èë£¨2KB/Ò³ = 1024¸öuint16_t£©
 uint8_t bsp_flash_write_page(uint32_t page_index, const uint16_t *data)
 {
     uint32_t base_addr = 0xFFFFFFFFU;
@@ -38,7 +38,7 @@ uint8_t bsp_flash_write_page(uint32_t page_index, const uint16_t *data)
     fmc_unlock();
     fmc_page_erase(base_addr);
 
-    // é€åŠå­—ç¼–ç¨‹ä¸€æ•´é¡µ
+    // Öğ°ë×Ö±à³ÌÒ»ÕûÒ³
     for (uint32_t i = 0; i < (FLASH_LOGICAL_PAGE_SIZE / 2U); i++)
     {
         fmc_halfword_program(base_addr + (i * 2U), data[i]);
@@ -48,7 +48,7 @@ uint8_t bsp_flash_write_page(uint32_t page_index, const uint16_t *data)
     return 1;
 }
 
-// æ–°å¢ï¼šæŒ‰é¡µè¯»å–ï¼ˆ2KB/é¡µ = 1024ä¸ªuint16_tï¼‰
+// ĞÂÔö£º°´Ò³¶ÁÈ¡£¨2KB/Ò³ = 1024¸öuint16_t£©
 void bsp_flash_read_page(uint32_t page_index, uint16_t *data)
 {
     uint32_t base_addr = 0xFFFFFFFFU;

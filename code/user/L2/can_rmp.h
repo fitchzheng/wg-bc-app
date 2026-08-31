@@ -4,9 +4,9 @@
 #include "stdint.h"
 #include "can_packet.h"
 
-// #define PROTNO_RMP 0x060 // Rectifier Monitor Protocol ç›‘æ§æ¨¡å—ä¸æ•´æµæ¨¡å—åè®®
+// #define PROTNO_RMP 0x060 // Rectifier Monitor Protocol ¼à¿ØÄ£¿éÓëÕûÁ÷Ä£¿éĞ­Òé
 
-// RMP åè®®
+// RMP Ğ­Òé
 #define VALUETYPE_RMP_GET_MOD_VOLTAGE 0x0001
 #define VALUETYPE_RMP_GET_MOD_CURRENT_REAL 0x0002
 #define VALUETYPE_RMP_GET_LIMIT_CURRENT_POINT 0x0003
@@ -128,60 +128,60 @@
 #define VALUETYPE_RMP_BOOTLOADER_DOWNLOAD_TRIGGER 0x00FE
 #define VALUETYPE_RMP_BOOTLOADER_DOWNLOAD_OLD_TI 0x00FF
 
-#pragma pack(1) // 1å­—èŠ‚å¯¹é½ï¼Œç¡®ä¿ç»“æ„ä½“æŒ‰1å­—èŠ‚å¯¹é½æ–¹å¼å­˜å‚¨
+#pragma pack(1) // 1×Ö½Ú¶ÔÆë£¬È·±£½á¹¹Ìå°´1×Ö½Ú¶ÔÆë·½Ê½´æ´¢
 
-// MSGTYPE_CMD0_SET_REQ 0x00 // è®¾ç½®è¯·æ±‚æ•°æ® - ç»¼åˆå‘½ä»¤0
+// MSGTYPE_CMD0_SET_REQ 0x00 // ÉèÖÃÇëÇóÊı¾İ - ×ÛºÏÃüÁî0
 
 typedef struct
 {
-    uint8_t ac_ovp_disable : 1;   // Bit0: äº¤æµè¿‡å‹ä¿æŠ¤å…è®¸ï¼Œ1=ç¦æ­¢ï¼Œ0=å…è®¸
-    uint8_t can_init_reset : 1;   // Bit1: CANåˆå§‹åŒ–ï¼Œ1=å¤ä½ï¼Œ0=æ­£å¸¸
-    uint8_t ovp_relay_trip : 1;   // Bit2: è¿‡å‹è„±ç¦»ç»§ç”µå™¨åŠ¨ä½œï¼Œ1=è„±ç¦»ï¼Œ0=æ­£å¸¸
-    uint8_t led_green_flash : 1;  // Bit3: æ¨¡å—é€šä¿¡ç»¿ç¯é—ªçƒï¼Œ1=é—ªçƒï¼Œ0=æ­£å¸¸
-    uint8_t fan_full_speed : 1;   // Bit4: æ¨¡å—é£æ‰‡æ˜¯å¦å…¨é€Ÿï¼Œ1=å…¨é€Ÿï¼Œ0=è‡ªåŠ¨
-    uint8_t walk_in_enable : 1;   // Bit5: è®¾ç½®æ¨¡å—æ˜¯å¦WALK-INï¼Œ1=ä½¿èƒ½ï¼Œ0=ç¦æ­¢
-    uint8_t ovp_reset_enable : 1; // Bit6: è®¾ç½®æ¨¡å—è¿‡å‹å¤ä½ï¼Œ1=å¤ä½ï¼Œ0=æ­£å¸¸
-    uint8_t mod_power_off : 1;    // Bit7: è®¾ç½®æ¨¡å—å¼€å…³æœºï¼Œ1=å…³æœºï¼Œ0=å¼€æœº
+    uint8_t ac_ovp_disable : 1;   // Bit0: ½»Á÷¹ıÑ¹±£»¤ÔÊĞí£¬1=½ûÖ¹£¬0=ÔÊĞí
+    uint8_t can_init_reset : 1;   // Bit1: CAN³õÊ¼»¯£¬1=¸´Î»£¬0=Õı³£
+    uint8_t ovp_relay_trip : 1;   // Bit2: ¹ıÑ¹ÍÑÀë¼ÌµçÆ÷¶¯×÷£¬1=ÍÑÀë£¬0=Õı³£
+    uint8_t led_green_flash : 1;  // Bit3: Ä£¿éÍ¨ĞÅÂÌµÆÉÁË¸£¬1=ÉÁË¸£¬0=Õı³£
+    uint8_t fan_full_speed : 1;   // Bit4: Ä£¿é·çÉÈÊÇ·ñÈ«ËÙ£¬1=È«ËÙ£¬0=×Ô¶¯
+    uint8_t walk_in_enable : 1;   // Bit5: ÉèÖÃÄ£¿éÊÇ·ñWALK-IN£¬1=Ê¹ÄÜ£¬0=½ûÖ¹
+    uint8_t ovp_reset_enable : 1; // Bit6: ÉèÖÃÄ£¿é¹ıÑ¹¸´Î»£¬1=¸´Î»£¬0=Õı³£
+    uint8_t mod_power_off : 1;    // Bit7: ÉèÖÃÄ£¿é¿ª¹Ø»ú£¬1=¹Ø»ú£¬0=¿ª»ú
 } can_rmp_msgtype_cmd0_set_req_byte2_t;
 
 typedef struct
 {
     uint8_t current_share_voltage_adjust;
-    // RMP Byte3: å‡æµå¾®è°ƒç”µå‹è®¾ç½®ï¼Œæ— ç¬¦å·å­—èŠ‚å‹æ•°æ®
-    // 128è¡¨ç¤ºä¸è°ƒæ•´ç”µå‹ï¼Œå¢å¤§/å‡å°ä»£è¡¨ç”µå‹å‡é«˜/é™ä½ï¼Œæ­¥è¿›1ä¸ºæœ€å°è°ƒèŠ‚å•ä½
+    // RMP Byte3: ¾ùÁ÷Î¢µ÷µçÑ¹ÉèÖÃ£¬ÎŞ·ûºÅ×Ö½ÚĞÍÊı¾İ
+    // 128±íÊ¾²»µ÷ÕûµçÑ¹£¬Ôö´ó/¼õĞ¡´ú±íµçÑ¹Éı¸ß/½µµÍ£¬²½½ø1Îª×îĞ¡µ÷½Úµ¥Î»
 } can_rmp_msgtype_cmd0_set_req_byte3_t;
 
-// 4å­—èŠ‚æµ®ç‚¹æ—¶é—´å€¼ï¼Œä½¿ç”¨unionæ–¹ä¾¿floatä¸å­—èŠ‚æ•°ç»„è½¬æ¢
+// 4×Ö½Ú¸¡µãÊ±¼äÖµ£¬Ê¹ÓÃunion·½±ãfloatÓë×Ö½ÚÊı×é×ª»»
 typedef union
 {
-    float runtime_hours_float; // æµ®ç‚¹æ•°ï¼Œå•ä½å°æ—¶ï¼ŒIEEE 754 æ ‡å‡†å•ç²¾åº¦æµ®ç‚¹
+    float runtime_hours_float; // ¸¡µãÊı£¬µ¥Î»Ğ¡Ê±£¬IEEE 754 ±ê×¼µ¥¾«¶È¸¡µã
 } can_rmp_msgtype_cmd0_set_req_byte4_7_t;
 
 #define CAN_RMP_MSGTYPE_CMD0_SET_REQ_REDATA {0x01, 0x02, 0x03, 0x04, 0x05, 0x7, 0x40, 0x54, 0x58}
 
-// MSGTYPE_CMD1_SET_REQ 0x10 // è®¾ç½®è¯·æ±‚æ•°æ® - ç»¼åˆå‘½ä»¤1
+// MSGTYPE_CMD1_SET_REQ 0x10 // ÉèÖÃÇëÇóÊı¾İ - ×ÛºÏÃüÁî1
 typedef struct
 {
-    uint8_t phase_loss_trip : 1; // Bit0: ç¼ºç›¸åŠ¨ä½œï¼ˆ1=å…³æœºï¼Œ0=åŠè½½ï¼‰
-    uint8_t reserved : 7;        // Bit1~7: ä¿ç•™ï¼Œæœªä½¿ç”¨
+    uint8_t phase_loss_trip : 1; // Bit0: È±Ïà¶¯×÷£¨1=¹Ø»ú£¬0=°ëÔØ£©
+    uint8_t reserved : 7;        // Bit1~7: ±£Áô£¬Î´Ê¹ÓÃ
 } can_rmp_msgtype_cmd1_set_req_byte2_t;
 
 typedef struct
 {
-    uint8_t rsvd[5]; // ä¿ç•™å­—èŠ‚ï¼Œæœªä½¿ç”¨
+    uint8_t rsvd[5]; // ±£Áô×Ö½Ú£¬Î´Ê¹ÓÃ
 } can_rmp_msgtype_cmd1_set_req_byte3_7_t;
 
 #define CAN_PACK_MSGTYPE_CMD1_SET_REQ_REDATA {0x0C, 0x0D, 0x0E, 0x40}
 
-// MSGTYPE_CMD2_SET_REQ 0x20 // è®¾ç½®è¯·æ±‚æ•°æ® - ç»¼åˆå‘½ä»¤2
+// MSGTYPE_CMD2_SET_REQ 0x20 // ÉèÖÃÇëÇóÊı¾İ - ×ÛºÏÃüÁî2
 typedef struct
 {
-    uint8_t rsvd[6]; // ä¿ç•™å­—èŠ‚ï¼Œæœªä½¿ç”¨
+    uint8_t rsvd[6]; // ±£Áô×Ö½Ú£¬Î´Ê¹ÓÃ
 } can_rmp_msgtype_cmd2_set_req_byte2_7_t;
 
 #define CAN_PACK_MSGTYPE_CMD2_SET_REQ_REDATA {0x0F, 0x11, 0x12, 0x13, 0x51, 0x55, 0x56, 0x5A, 0x5B, 0x5C, 0x5D}
 
-// MSGTYPE_BYTE_READ_REQ 0x01  // è¯·æ±‚å­—èŠ‚æ•°æ® - æŒ‰å­—èŠ‚è¯»å–æ•°æ®
+// MSGTYPE_BYTE_READ_REQ 0x01  // ÇëÇó×Ö½ÚÊı¾İ - °´×Ö½Ú¶ÁÈ¡Êı¾İ
 typedef struct
 {
     uint16_t valuetype;
@@ -192,17 +192,17 @@ typedef struct
     can_packet_data_value_u value;
 } can_rmp_msgtype_byte_read_req_byte4_7_t;
 
-// MSGTYPE_BYTE_READ_RESP 0x41 // åº”ç­”è¯·æ±‚ - æŒ‰å­—èŠ‚è¯»å–æ•°æ®
+// MSGTYPE_BYTE_READ_RESP 0x41 // Ó¦´ğÇëÇó - °´×Ö½Ú¶ÁÈ¡Êı¾İ
 
-// MSGTYPE_BIT_READ_REQ 0x02  // è¯·æ±‚ä½æ•°æ® - æŒ‰ä½è¯»å–æ•°æ®
-// MSGTYPE_BIT_READ_RESP 0x42 // åº”ç­”è¯·æ±‚ - æŒ‰ä½è¯»å–æ•°æ®
+// MSGTYPE_BIT_READ_REQ 0x02  // ÇëÇóÎ»Êı¾İ - °´Î»¶ÁÈ¡Êı¾İ
+// MSGTYPE_BIT_READ_RESP 0x42 // Ó¦´ğÇëÇó - °´Î»¶ÁÈ¡Êı¾İ
 
-// MSGTYPE_BYTE_WRITE_REQ 0x03  // è®¾ç½®æ•°æ® - æŒ‰å­—èŠ‚è®¾ç½®æ•°æ®
-// MSGTYPE_BYTE_WRITE_RESP 0x43 // åº”ç­”è®¾ç½® - æŒ‰å­—èŠ‚è®¾ç½®æ•°æ®
+// MSGTYPE_BYTE_WRITE_REQ 0x03  // ÉèÖÃÊı¾İ - °´×Ö½ÚÉèÖÃÊı¾İ
+// MSGTYPE_BYTE_WRITE_RESP 0x43 // Ó¦´ğÉèÖÃ - °´×Ö½ÚÉèÖÃÊı¾İ
 
-#pragma pack() // æ¢å¤é»˜è®¤å¯¹é½æ–¹å¼
+#pragma pack() // »Ö¸´Ä¬ÈÏ¶ÔÆë·½Ê½
 
-// RMPåˆ†å‘æ¥å£
+// RMP·Ö·¢½Ó¿Ú
 void can_comm_rmp_dispatch(const can_packet_t *packet);
 
 #endif

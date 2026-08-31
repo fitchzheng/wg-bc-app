@@ -15,7 +15,7 @@ typedef struct
 }DMA_INFO_Str;
 
 
-//å®šä¹‰ä½¿ç”¨çš„DMAé€šé“åŠç›¸å…³é…ç½®
+//¶¨ÒåÊ¹ÓÃµÄDMAÍ¨µÀ¼°Ïà¹ØÅäÖÃ
 #define USART1_TX_DMA_UNIT          CM_DMA
 #define USART1_TX_DMA_CH            DMA_CH0
 
@@ -34,22 +34,22 @@ typedef struct
 #define USART3_RX_DMA_UNIT          CM_DMA
 #define USART3_RX_DMA_CH            DMA_CH5
 
-//DMAèµ„æºåˆ†é…å®šä¹‰--Usart_Tx1
+//DMA×ÊÔ´·ÖÅä¶¨Òå--Usart_Tx1
 extern DMA_INFO_Str Dma_Usart_Tx1_Info ;
 
-//DMAèµ„æºåˆ†é…å®šä¹‰--Usart_Rx1
+//DMA×ÊÔ´·ÖÅä¶¨Òå--Usart_Rx1
 extern DMA_INFO_Str Dma_Usart_Rx1_Info;
 
-//DMAèµ„æºåˆ†é…å®šä¹‰--Usart_Tx1
+//DMA×ÊÔ´·ÖÅä¶¨Òå--Usart_Tx1
 extern DMA_INFO_Str Dma_Usart_Tx2_Info ;
 
-//DMAèµ„æºåˆ†é…å®šä¹‰--Usart_Rx1
+//DMA×ÊÔ´·ÖÅä¶¨Òå--Usart_Rx1
 extern DMA_INFO_Str Dma_Usart_Rx2_Info ;
 
-//DMAèµ„æºåˆ†é…å®šä¹‰--Usart_Tx3
+//DMA×ÊÔ´·ÖÅä¶¨Òå--Usart_Tx3
 extern DMA_INFO_Str Dma_Usart_Tx3_Info ;
 
-//DMAèµ„æºåˆ†é…å®šä¹‰--Usart_Rx3
+//DMA×ÊÔ´·ÖÅä¶¨Òå--Usart_Rx3
 extern DMA_INFO_Str Dma_Usart_Rx3_Info ;
 
 void BSP_DMA_USART1TX_Init(void);

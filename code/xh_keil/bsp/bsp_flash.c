@@ -25,8 +25,8 @@ uint8_t bsp_flash_erase_page(uint32_t page_index)
     return 1;
 }
 
-// æ–°å¢ï¼šæŒ‰é¡µå†™å…¥ï¼ˆ4KB/é¡µ = 1024ä¸ªuint32_tï¼‰
-//æ³¨æ„ï¼ŒHC32F334åªæ”¯æŒWORDå†™å…¥ï¼Œå³32bit/4BYTEï¼Œä¸æ”¯æŒåŠå­—å†™å…¥
+// ĞÂÔö£º°´Ò³Ğ´Èë£¨4KB/Ò³ = 1024¸öuint32_t£©
+//×¢Òâ£¬HC32F334Ö»Ö§³ÖWORDĞ´Èë£¬¼´32bit/4BYTE£¬²»Ö§³Ö°ë×ÖĞ´Èë
 uint8_t bsp_flash_write_page(uint32_t page_index, const uint32_t *data)
 {
     uint32_t base_addr = 0xFFFFFFFFU;
@@ -45,7 +45,7 @@ uint8_t bsp_flash_write_page(uint32_t page_index, const uint32_t *data)
 
     EFM_SectorErase(base_addr);
 
-    // æ•´å­—ç¼–ç¨‹ä¸€æ•´é¡µ
+    // Õû×Ö±à³ÌÒ»ÕûÒ³
     for (uint32_t i = 0; i < (FLASH_LOGICAL_PAGE_SIZE / 4U); i++)
     {
         EFM_ProgramWord(base_addr + (i * 4U), data[i]);
@@ -57,8 +57,8 @@ uint8_t bsp_flash_write_page(uint32_t page_index, const uint32_t *data)
 }
 
 
-// æ–°å¢ï¼šæŒ‰é¡µè¯»å–ï¼ˆ4KB/é¡µ = 1024ä¸ªuint32_tï¼‰
-//HC32F334çš„è¯»å–å¯ä»¥ä¸ç”¨å¯¹é½åœ°å€
+// ĞÂÔö£º°´Ò³¶ÁÈ¡£¨4KB/Ò³ = 1024¸öuint32_t£©
+//HC32F334µÄ¶ÁÈ¡¿ÉÒÔ²»ÓÃ¶ÔÆëµØÖ·
 void bsp_flash_read_page(uint32_t page_index, uint32_t *data)
 {
     uint32_t base_addr = 0xFFFFFFFFU;

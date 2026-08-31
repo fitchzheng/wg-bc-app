@@ -4,16 +4,16 @@
 #include "hc32_ll.h"
 #include "hc32_ll_efm.h"
 
-// ç”¨æˆ·æ•°æ® Flash åŒºåŸŸå®šä¹‰ï¼ˆæœ€å 16KBï¼‰
-#define FLASH_USER_BASE_ADDR 0x00000000U                                           // ç”¨æˆ· Flash èµ·å§‹åœ°å€
-#define FLASH_USER_TOTAL_SIZE (128 * 1024U)                                        // æ€»å¤§å° 128KB
-#define FLASH_LOGICAL_PAGE_SIZE (4 * 1024U)                                        // é€»è¾‘é¡µå¤§å° 4KB
-#define FLASH_LOGICAL_PAGE_COUNT (FLASH_USER_TOTAL_SIZE / FLASH_LOGICAL_PAGE_SIZE) // å…± 128/4 = 32 é¡µ
+// ÓÃ»§Êı¾İ Flash ÇøÓò¶¨Òå£¨×îºó 16KB£©
+#define FLASH_USER_BASE_ADDR 0x00000000U                                           // ÓÃ»§ Flash ÆğÊ¼µØÖ·
+#define FLASH_USER_TOTAL_SIZE (128 * 1024U)                                        // ×Ü´óĞ¡ 128KB
+#define FLASH_LOGICAL_PAGE_SIZE (4 * 1024U)                                        // Âß¼­Ò³´óĞ¡ 4KB
+#define FLASH_LOGICAL_PAGE_COUNT (FLASH_USER_TOTAL_SIZE / FLASH_LOGICAL_PAGE_SIZE) // ¹² 128/4 = 32 Ò³
 
-// API æ¥å£ï¼ˆä»…æŒ‰é¡µæ“ä½œï¼‰
+// API ½Ó¿Ú£¨½ö°´Ò³²Ù×÷£©
 uint8_t bsp_flash_erase_page(uint32_t page_index);
 //uint8_t bsp_flash_write_page(uint32_t page_index, const uint16_t *data); 
-uint8_t bsp_flash_write_page(uint32_t page_index, const uint32_t *data);// dataé•¿åº¦å¿…é¡»ä¸ºFLASH_LOGICAL_PAGE_SIZE/4
+uint8_t bsp_flash_write_page(uint32_t page_index, const uint32_t *data);// data³¤¶È±ØĞëÎªFLASH_LOGICAL_PAGE_SIZE/4
 void bsp_flash_read_page(uint32_t page_index, uint32_t *data);
 
 #endif

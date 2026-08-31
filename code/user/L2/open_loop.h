@@ -1,13 +1,13 @@
 #ifndef __OPEN_LOOP_H
 #define __OPEN_LOOP_H
 
-// å®šä¹‰æ¨¡å¼åˆ‡æ¢çš„é˜ˆå€¼
+// ¶¨ÒåÄ£Ê½ÇĞ»»µÄãĞÖµ
 #define BUCK_TO_BUCK_BOOST_THRESHOLD 0.93f
 #define BUCK_BOOST_TO_BOOST_THRESHOLD 1.17f
 #define BOOST_TO_BUCK_BOOST_THRESHOLD 1.11f
 #define BUCK_BOOST_TO_BUCK_THRESHOLD 0.85f
 
-// å®šä¹‰æ¨¡å¼æšä¸¾
+// ¶¨ÒåÄ£Ê½Ã¶¾Ù
 typedef enum
 {
     MODE_BUCK,
@@ -15,31 +15,31 @@ typedef enum
     MODE_BOOST
 } operation_mode_e;
 
-// å®šä¹‰è¾“å…¥ç»“æ„ä½“
+// ¶¨ÒåÊäÈë½á¹¹Ìå
 typedef struct
 {
-    float gain; // è¾“å…¥å¢ç›Š
+    float gain; // ÊäÈëÔöÒæ
 } input_t;
 
-// å®šä¹‰ä¸­é—´çŠ¶æ€ç»“æ„ä½“
+// ¶¨ÒåÖĞ¼ä×´Ì¬½á¹¹Ìå
 typedef struct
 {
-    operation_mode_e mode; // å½“å‰æ¨¡å¼
+    operation_mode_e mode; // µ±Ç°Ä£Ê½
 } inter_t;
 
-// å®šä¹‰è¾“å‡ºç»“æ„ä½“
+// ¶¨ÒåÊä³ö½á¹¹Ìå
 typedef struct
 {
-    float buck_duty;  // Buck å ç©ºæ¯”
-    float boost_duty; // Boost å ç©ºæ¯”
+    float buck_duty;  // Buck Õ¼¿Õ±È
+    float boost_duty; // Boost Õ¼¿Õ±È
 } output_t;
 
-// å®šä¹‰ä¸»ç»“æ„ä½“
+// ¶¨ÒåÖ÷½á¹¹Ìå
 typedef struct
 {
-    input_t input;   // è¾“å…¥ç»“æ„ä½“
-    inter_t inter;   // ä¸­é—´çŠ¶æ€ç»“æ„ä½“
-    output_t output; // è¾“å‡ºç»“æ„ä½“
+    input_t input;   // ÊäÈë½á¹¹Ìå
+    inter_t inter;   // ÖĞ¼ä×´Ì¬½á¹¹Ìå
+    output_t output; // Êä³ö½á¹¹Ìå
 } open_loop_t;
 
 void open_loop_init(open_loop_t *control);

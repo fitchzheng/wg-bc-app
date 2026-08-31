@@ -4,15 +4,15 @@
 #include <stdint.h>
 #include "gd32f30x.h"
 
-// ç”¨æˆ·æ•°æ® Flash åŒºåŸŸå®šä¹‰ï¼ˆæœ€å 16KBï¼‰
-#define FLASH_USER_BASE_ADDR 0x08000000U                                           // ç”¨æˆ· Flash èµ·å§‹åœ°å€
-#define FLASH_USER_TOTAL_SIZE (256 * 1024U)                                        // æ€»å¤§å° 256KB
-#define FLASH_LOGICAL_PAGE_SIZE (2 * 1024U)                                        // é€»è¾‘é¡µå¤§å° 2KB
-#define FLASH_LOGICAL_PAGE_COUNT (FLASH_USER_TOTAL_SIZE / FLASH_LOGICAL_PAGE_SIZE) // å…± 128 é¡µ
+// ÓÃ»§Êı¾İ Flash ÇøÓò¶¨Òå£¨×îºó 16KB£©
+#define FLASH_USER_BASE_ADDR 0x08000000U                                           // ÓÃ»§ Flash ÆğÊ¼µØÖ·
+#define FLASH_USER_TOTAL_SIZE (256 * 1024U)                                        // ×Ü´óĞ¡ 256KB
+#define FLASH_LOGICAL_PAGE_SIZE (2 * 1024U)                                        // Âß¼­Ò³´óĞ¡ 2KB
+#define FLASH_LOGICAL_PAGE_COUNT (FLASH_USER_TOTAL_SIZE / FLASH_LOGICAL_PAGE_SIZE) // ¹² 128 Ò³
 
-// API æ¥å£ï¼ˆä»…æŒ‰é¡µæ“ä½œï¼‰
+// API ½Ó¿Ú£¨½ö°´Ò³²Ù×÷£©
 uint8_t bsp_flash_erase_page(uint32_t page_index);
-uint8_t bsp_flash_write_page(uint32_t page_index, const uint16_t *data); // dataé•¿åº¦å¿…é¡»ä¸ºFLASH_LOGICAL_PAGE_SIZE/2
-void bsp_flash_read_page(uint32_t page_index, uint16_t *data);           // dataé•¿åº¦å¿…é¡»ä¸ºFLASH_LOGICAL_PAGE_SIZE/2
+uint8_t bsp_flash_write_page(uint32_t page_index, const uint16_t *data); // data³¤¶È±ØĞëÎªFLASH_LOGICAL_PAGE_SIZE/2
+void bsp_flash_read_page(uint32_t page_index, uint16_t *data);           // data³¤¶È±ØĞëÎªFLASH_LOGICAL_PAGE_SIZE/2
 
 #endif

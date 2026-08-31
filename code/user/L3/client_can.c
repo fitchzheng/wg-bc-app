@@ -299,7 +299,7 @@ static void canstack_handle_app_debug(uint8_t *data)
 }
 void Get_CAN_Communications_Content (uint32_t can_id, uint8_t *data, uint8_t len)
 {
-    // 鎻愬彇 DGN
+    // 提取 DGN
     uint16_t data_val = 0;
     if((can_id != 0x600) || (len != 8)){return;}
     if(data[0] == CANSTACK_ADDRESS_SELECT)
@@ -332,22 +332,22 @@ void Get_CAN_Communications_Content (uint32_t can_id, uint8_t *data, uint8_t len
                 if(data[1] != 0x22){return;}
                 can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_realtime_data.InsideTemp));
                 can_put_u16_be(data, 4, can_read_u16_field(&wg_com_v2_realtime_data.OutsideTemp));
-                data[6] = 0;                                                                                // 淇濈暀
-                data[7] = 0;                                                                                // 淇濈暀
+                data[6] = 0;                                                                                // 保留
+                data[7] = 0;                                                                                // 保留
                 break;
             case POWER_CHARGING_MODE:
                 if(data[1] != 0x22){return;}
                 can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_realtime_data.PowerMode));
                 can_put_u16_be(data, 4, can_read_u16_field(&wg_com_v2_realtime_data.ChargMode));
-                data[6] = 0;                                                                                // 淇濈暀
-                data[7] = 0;                                                                                // 淇濈暀
+                data[6] = 0;                                                                                // 保留
+                data[7] = 0;                                                                                // 保留
                 break;
             case FAULT_ALARM_SIGNALS:
                 if(data[1] != 0x22){return;}
                 can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_realtime_data.FaultSign));
                 can_put_u16_be(data, 4, can_read_u16_field(&wg_com_v2_realtime_data.AlarmSign));
-                data[6] = 0;                                                                                // 淇濈暀
-                data[7] = 0;                                                                                // 淇濈暀
+                data[6] = 0;                                                                                // 保留
+                data[7] = 0;                                                                                // 保留
                 break;
             case AB_COMPEN_TEMP:
                 if(data[1] != 0x22){return;}
@@ -358,22 +358,22 @@ void Get_CAN_Communications_Content (uint32_t can_id, uint8_t *data, uint8_t len
             case CHARGING_STATUS:
                 if(data[1] != 0x22){return;}
                 can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_realtime_data.StateCharge));
-                data[4] = 0;                                                                                // 淇濈暀
-                data[5] = 0;                                                                                // 淇濈暀
-                data[6] = 0;                                                                                // 淇濈暀
-                data[7] = 0;                                                                                // 淇濈暀
+                data[4] = 0;                                                                                // 保留
+                data[5] = 0;                                                                                // 保留
+                data[6] = 0;                                                                                // 保留
+                data[7] = 0;                                                                                // 保留
                 break;
 
             case FACTORY_RESET:
                 if(data[1] == 0x88){
                     data_val = can_get_u16_be(data, 2);
-                    (void)can_write_register_u16(0x0400U, data_val);                         // 鎭㈠鍑哄巶璁剧疆
+                    (void)can_write_register_u16(0x0400U, data_val);                         // 恢复出厂设置
                 }else if(data[1] == 0x22){
                     can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_ctrl.FactoryReset));
-                    data[4] = 0;                                                                            // 淇濈暀
-                    data[5] = 0;                                                                            // 淇濈暀
-                    data[6] = 0;                                                                            // 淇濈暀
-                    data[7] = 0;                                                                            // 淇濈暀
+                    data[4] = 0;                                                                            // 保留
+                    data[5] = 0;                                                                            // 保留
+                    data[6] = 0;                                                                            // 保留
+                    data[7] = 0;                                                                            // 保留
                 }
                 break;
             case FACTORY_SAVE:
@@ -433,13 +433,13 @@ void Get_CAN_Communications_Content (uint32_t can_id, uint8_t *data, uint8_t len
             case POWER_STATUS:
                 if(data[1] == 0x88){
                     data_val = can_get_u16_be(data, 2);
-                    (void)can_write_register_u16(0x0401U, data_val);                           // 寮�鍏虫満鐘舵�?
+                    (void)can_write_register_u16(0x0401U, data_val);                           // 开关机状态
                 }else if(data[1] == 0x22){
                     can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_ctrl.PowerOnOff));
-                    data[4] = 0;                                                                            // 淇濈暀
-                    data[5] = 0;                                                                            // 淇濈暀
-                    data[6] = 0;                                                                            // 淇濈暀
-                    data[7] = 0;                                                                            // 淇濈暀
+                    data[4] = 0;                                                                            // 保留
+                    data[5] = 0;                                                                            // 保留
+                    data[6] = 0;                                                                            // 保留
+                    data[7] = 0;                                                                            // 保留
                 }
                 break;
             case POWER_MODE:
@@ -447,50 +447,50 @@ void Get_CAN_Communications_Content (uint32_t can_id, uint8_t *data, uint8_t len
                     data_val = can_get_u16_be(data, 2);
                     if(data_val < eSET_MODE_MAX)
                                         {
-                        (void)can_write_register_u16(0x0402U, data_val);                         // 鐢垫簮妯″紡
+                        (void)can_write_register_u16(0x0402U, data_val);                         // 电源模式
                     }
                 }else if(data[1] == 0x22){
                     can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_ctrl.SetPowerMode));
-                    data[4] = 0;                                                                            // 淇濈暀
-                    data[5] = 0;                                                                            // 淇濈暀
-                    data[6] = 0;                                                                            // 淇濈暀
-                    data[7] = 0;                                                                            // 淇濈暀
+                    data[4] = 0;                                                                            // 保留
+                    data[5] = 0;                                                                            // 保留
+                    data[6] = 0;                                                                            // 保留
+                    data[7] = 0;                                                                            // 保留
                 }
                 break;
             case CHARGING_MODE:
                 if(data[1] == 0x88){
                     data_val = can_get_u16_be(data, 2);
-                    (void)can_write_register_u16(0x0403U, data_val);                         // 鍏呯數妯″紡
+                    (void)can_write_register_u16(0x0403U, data_val);                         // 充电模式
                 }else if(data[1] == 0x22){
                     can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_ctrl.SetChargMode));
-                    data[4] = 0;                                                                            // 淇濈暀
-                    data[5] = 0;                                                                            // 淇濈暀
-                    data[6] = 0;                                                                            // 淇濈暀
-                    data[7] = 0;                                                                            // 淇濈暀
+                    data[4] = 0;                                                                            // 保留
+                    data[5] = 0;                                                                            // 保留
+                    data[6] = 0;                                                                            // 保留
+                    data[7] = 0;                                                                            // 保留
                 }
                 break;
             case A_BATTERY_TYPE:
                 if(data[1] == 0x88){
                     data_val = can_get_battery_type_value(data, 2);
-                    (void)can_write_register_u16(0x0404U, data_val);                          // A绔數姹犵被鍨嬶紝楂樹綅绫诲瀷锛屼綆浣嶇數鍘?
+                    (void)can_write_register_u16(0x0404U, data_val);                          // A端电池类型，高位类型，低位电压
                 }else if(data[1] == 0x22){
                     can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_ctrl.InpBatyType));
-                    data[4] = 0;                                                                            // 淇濈暀
-                    data[5] = 0;                                                                            // 淇濈暀
-                    data[6] = 0;                                                                            // 淇濈暀
-                    data[7] = 0;                                                                            // 淇濈暀
+                    data[4] = 0;                                                                            // 保留
+                    data[5] = 0;                                                                            // 保留
+                    data[6] = 0;                                                                            // 保留
+                    data[7] = 0;                                                                            // 保留
                 }
                 break;
             case B_BATTERY_TYPE:
                 if(data[1] == 0x88){
                     data_val = can_get_battery_type_value(data, 2);
-                    (void)can_write_register_u16(0x0405U, data_val);                          // B绔數姹犵被鍨嬶紝楂樹綅绫诲瀷锛屼綆浣嶇數鍘?
+                    (void)can_write_register_u16(0x0405U, data_val);                          // B端电池类型，高位类型，低位电压
                 }else if(data[1] == 0x22){
                     can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_ctrl.OutBatyType));
-                    data[4] = 0;                                                                            // 淇濈暀
-                    data[5] = 0;                                                                            // 淇濈暀
-                    data[6] = 0;                                                                            // 淇濈暀
-                    data[7] = 0;                                                                            // 淇濈暀
+                    data[4] = 0;                                                                            // 保留
+                    data[5] = 0;                                                                            // 保留
+                    data[6] = 0;                                                                            // 保留
+                    data[7] = 0;                                                                            // 保留
                 }
                 break;
             case BOOT_TIME_DELAY:
@@ -501,8 +501,8 @@ void Get_CAN_Communications_Content (uint32_t can_id, uint8_t *data, uint8_t len
                 }else if(data[1] == 0x22){
                     can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_ctrl.SetBootTimeA));
                     can_put_u16_be(data, 4, can_read_u16_field(&wg_com_v2_ctrl.SetBootTimeB));
-                    data[6] = 0;                                                                            // 淇濈暀
-                    data[7] = 0;                                                                            // 淇濈暀
+                    data[6] = 0;                                                                            // 保留
+                    data[7] = 0;                                                                            // 保留
                 }
                 break;
             case SOFT_START_TIME_DELAY:
@@ -513,261 +513,261 @@ void Get_CAN_Communications_Content (uint32_t can_id, uint8_t *data, uint8_t len
                 }else if(data[1] == 0x22){
                     can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_ctrl.SetOnCurrStartTimeA));
                     can_put_u16_be(data, 4, can_read_u16_field(&wg_com_v2_ctrl.SetOnCurrStartTimeB));
-                    data[6] = 0;                                                                            // 淇濈暀
-                    data[7] = 0;                                                                            // 淇濈暀
+                    data[6] = 0;                                                                            // 保留
+                    data[7] = 0;                                                                            // 保留
                 }
                 break;
             case TERMINAL_A_VOLTAGE:
                 if(data[1] == 0x88){
-                    (void)can_write_param_u16(&wg_com_v2_param.SetInpVolt, can_get_u16_be(data, 2));                        // 璁剧疆A绔數鍘?
+                    (void)can_write_param_u16(&wg_com_v2_param.SetInpVolt, can_get_u16_be(data, 2));                        // 设置A端电压
                 }else if(data[1] == 0x22){
                     can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_param.SetInpVolt));
-                    data[4] = 0;                                                                            // 淇濈暀
-                    data[5] = 0;                                                                            // 淇濈暀
-                    data[6] = 0;                                                                            // 淇濈暀
-                    data[7] = 0;                                                                            // 淇濈暀
+                    data[4] = 0;                                                                            // 保留
+                    data[5] = 0;                                                                            // 保留
+                    data[6] = 0;                                                                            // 保留
+                    data[7] = 0;                                                                            // 保留
                 }
                 break;
             case TERMINAL_A_CURRENT:
                 if(data[1] == 0x88){
-                    (void)can_write_param_u16(&wg_com_v2_param.SetInpCurr, can_get_u16_be(data, 2));                        // A绔數娴?
+                    (void)can_write_param_u16(&wg_com_v2_param.SetInpCurr, can_get_u16_be(data, 2));                        // A端电流
                 }else if(data[1] == 0x22){
                     can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_param.SetInpCurr));
-                    data[4] = 0;                                                                            // 淇濈暀
-                    data[5] = 0;                                                                            // 淇濈暀
-                    data[6] = 0;                                                                            // 淇濈暀
-                    data[7] = 0;                                                                            // 淇濈暀
+                    data[4] = 0;                                                                            // 保留
+                    data[5] = 0;                                                                            // 保留
+                    data[6] = 0;                                                                            // 保留
+                    data[7] = 0;                                                                            // 保留
                 }
                 break;
             case TERMINAL_A_POWER:
                 if(data[1] == 0x88){
-                    (void)can_write_param_u16(&wg_com_v2_param.SetInpCurrPower, can_get_u16_be(data, 2));                     // A绔姛鐜?
+                    (void)can_write_param_u16(&wg_com_v2_param.SetInpCurrPower, can_get_u16_be(data, 2));                     // A端功率
                 }else if(data[1] == 0x22){
                     can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_param.SetInpCurrPower));
-                    data[4] = 0;                                                                            // 淇濈暀
-                    data[5] = 0;                                                                            // 淇濈暀
-                    data[6] = 0;                                                                            // 淇濈暀
-                    data[7] = 0;                                                                            // 淇濈暀
+                    data[4] = 0;                                                                            // 保留
+                    data[5] = 0;                                                                            // 保留
+                    data[6] = 0;                                                                            // 保留
+                    data[7] = 0;                                                                            // 保留
                 }
                 break;
             case TERMINAL_B_VOLT:
                 if(data[1] == 0x88){
-                    (void)can_write_param_u16(&wg_com_v2_param.SetOutVolt, can_get_u16_be(data, 2));                        // B绔數鍘?
+                    (void)can_write_param_u16(&wg_com_v2_param.SetOutVolt, can_get_u16_be(data, 2));                        // B端电压
                 }else if(data[1] == 0x22){
                     can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_param.SetOutVolt));
-                    data[4] = 0;                                                                            // 淇濈暀
-                    data[5] = 0;                                                                            // 淇濈暀
-                    data[6] = 0;                                                                            // 淇濈暀
-                    data[7] = 0;                                                                            // 淇濈暀
+                    data[4] = 0;                                                                            // 保留
+                    data[5] = 0;                                                                            // 保留
+                    data[6] = 0;                                                                            // 保留
+                    data[7] = 0;                                                                            // 保留
                 }
                 break;
             case TERMINAL_B_CURR:
                 if(data[1] == 0x88){
-                    (void)can_write_param_u16(&wg_com_v2_param.SetOutCurr, can_get_u16_be(data, 2));                        // B绔數娴?
+                    (void)can_write_param_u16(&wg_com_v2_param.SetOutCurr, can_get_u16_be(data, 2));                        // B端电流
                 }else if(data[1] == 0x22){
                     can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_param.SetOutCurr));
-                    data[4] = 0;                                                                            // 淇濈暀
-                    data[5] = 0;                                                                            // 淇濈暀
-                    data[6] = 0;                                                                            // 淇濈暀
-                    data[7] = 0;                                                                            // 淇濈暀
+                    data[4] = 0;                                                                            // 保留
+                    data[5] = 0;                                                                            // 保留
+                    data[6] = 0;                                                                            // 保留
+                    data[7] = 0;                                                                            // 保留
                 }
                 break;
             case TERMINAL_B_POWER:
                 if(data[1] == 0x88){
-                    (void)can_write_param_u16(&wg_com_v2_param.SetOutCurrPower, can_get_u16_be(data, 2));                     // B绔姛鐜?
+                    (void)can_write_param_u16(&wg_com_v2_param.SetOutCurrPower, can_get_u16_be(data, 2));                     // B端功率
                 }else if(data[1] == 0x22){
                     can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_param.SetOutCurrPower));
-                    data[4] = 0;                                                                            // 淇濈暀
-                    data[5] = 0;                                                                            // 淇濈暀
-                    data[6] = 0;                                                                            // 淇濈暀
-                    data[7] = 0;                                                                            // 淇濈暀
+                    data[4] = 0;                                                                            // 保留
+                    data[5] = 0;                                                                            // 保留
+                    data[6] = 0;                                                                            // 保留
+                    data[7] = 0;                                                                            // 保留
                 }
                 break;
             case TERMINAL_A_UNDER:
                 if(data[1] == 0x88){
-                    (void)can_write_param_u16(&wg_com_v2_param.SetInpUvlo, can_get_u16_be(data, 2));                        // A绔瑺鍘嬩繚鎶?
+                    (void)can_write_param_u16(&wg_com_v2_param.SetInpUvlo, can_get_u16_be(data, 2));                        // A端欠压保护
                 }else if(data[1] == 0x22){
                     can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_param.SetInpUvlo));
-                    data[4] = 0;                                                                            // 淇濈暀
-                    data[5] = 0;                                                                            // 淇濈暀
-                    data[6] = 0;                                                                            // 淇濈暀
-                    data[7] = 0;                                                                            // 淇濈暀
+                    data[4] = 0;                                                                            // 保留
+                    data[5] = 0;                                                                            // 保留
+                    data[6] = 0;                                                                            // 保留
+                    data[7] = 0;                                                                            // 保留
                 }
                 break;
             case TERMINAL_A_UNDER_R:
                 if(data[1] == 0x88){
-                    (void)can_write_param_u16(&wg_com_v2_param.SetInpUvloRecover, can_get_u16_be(data, 2));                 // A绔瑺鍘嬩繚鎶ゆ仮澶?
+                    (void)can_write_param_u16(&wg_com_v2_param.SetInpUvloRecover, can_get_u16_be(data, 2));                 // A端欠压保护恢复
                 }else if(data[1] == 0x22){
                     can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_param.SetInpUvloRecover));
-                    data[4] = 0;                                                                            // 淇濈暀
-                    data[5] = 0;                                                                            // 淇濈暀
-                    data[6] = 0;                                                                            // 淇濈暀
-                    data[7] = 0;                                                                            // 淇濈暀
+                    data[4] = 0;                                                                            // 保留
+                    data[5] = 0;                                                                            // 保留
+                    data[6] = 0;                                                                            // 保留
+                    data[7] = 0;                                                                            // 保留
                 }
                 break;
             case TERMINAL_A_OVER:
                 if(data[1] == 0x88){
-                    (void)can_write_param_u16(&wg_com_v2_param.SetInpOVP, can_get_u16_be(data, 2));                         // A绔繃鍘嬩繚鎶?
+                    (void)can_write_param_u16(&wg_com_v2_param.SetInpOVP, can_get_u16_be(data, 2));                         // A端过压保护
                 }else if(data[1] == 0x22){
                     can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_param.SetInpOVP));
-                    data[4] = 0;                                                                            // 淇濈暀
-                    data[5] = 0;                                                                            // 淇濈暀
-                    data[6] = 0;                                                                            // 淇濈暀
-                    data[7] = 0;                                                                            // 淇濈暀
+                    data[4] = 0;                                                                            // 保留
+                    data[5] = 0;                                                                            // 保留
+                    data[6] = 0;                                                                            // 保留
+                    data[7] = 0;                                                                            // 保留
                 }
                 break;
             case TERMINAL_A_OVER_R:
                 if(data[1] == 0x88){
-                    (void)can_write_param_u16(&wg_com_v2_param.SetInpOVPRecover, can_get_u16_be(data, 2));                  // A绔繃鍘嬩繚鎶ゆ仮澶?
+                    (void)can_write_param_u16(&wg_com_v2_param.SetInpOVPRecover, can_get_u16_be(data, 2));                  // A端过压保护恢复
                 }else if(data[1] == 0x22){
                     can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_param.SetInpOVPRecover));
-                    data[4] = 0;                                                                            // 淇濈暀
-                    data[5] = 0;                                                                            // 淇濈暀
-                    data[6] = 0;                                                                            // 淇濈暀
-                    data[7] = 0;                                                                            // 淇濈暀
+                    data[4] = 0;                                                                            // 保留
+                    data[5] = 0;                                                                            // 保留
+                    data[6] = 0;                                                                            // 保留
+                    data[7] = 0;                                                                            // 保留
                 }
                 break;
             case TERMINAL_B_UNDER:
                 if(data[1] == 0x88){
-                    (void)can_write_param_u16(&wg_com_v2_param.SetOutUvlo, can_get_u16_be(data, 2));                        // B绔瑺鍘嬩繚鎶?
+                    (void)can_write_param_u16(&wg_com_v2_param.SetOutUvlo, can_get_u16_be(data, 2));                        // B端欠压保护
                 }else if(data[1] == 0x22){
                     can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_param.SetOutUvlo));
-                    data[4] = 0;                                                                            // 淇濈暀
-                    data[5] = 0;                                                                            // 淇濈暀
-                    data[6] = 0;                                                                            // 淇濈暀
-                    data[7] = 0;                                                                            // 淇濈暀
+                    data[4] = 0;                                                                            // 保留
+                    data[5] = 0;                                                                            // 保留
+                    data[6] = 0;                                                                            // 保留
+                    data[7] = 0;                                                                            // 保留
                 }
                 break;
             case TERMINAL_B_UNDER_R:
                 if(data[1] == 0x88){
-                    (void)can_write_param_u16(&wg_com_v2_param.SetOutUvloRecover, can_get_u16_be(data, 2));                 // B绔瑺鍘嬩繚鎶ゆ仮澶?
+                    (void)can_write_param_u16(&wg_com_v2_param.SetOutUvloRecover, can_get_u16_be(data, 2));                 // B端欠压保护恢复
                 }else if(data[1] == 0x22){
                     can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_param.SetOutUvloRecover));
-                    data[4] = 0;                                                                            // 淇濈暀
-                    data[5] = 0;                                                                            // 淇濈暀
-                    data[6] = 0;                                                                            // 淇濈暀
-                    data[7] = 0;                                                                            // 淇濈暀
+                    data[4] = 0;                                                                            // 保留
+                    data[5] = 0;                                                                            // 保留
+                    data[6] = 0;                                                                            // 保留
+                    data[7] = 0;                                                                            // 保留
                 }
                 break;
             case TERMINAL_B_OVER:
                 if(data[1] == 0x88){
-                    (void)can_write_param_u16(&wg_com_v2_param.SetOutOVP, can_get_u16_be(data, 2));                         // B绔繃鍘嬩繚鎶?
+                    (void)can_write_param_u16(&wg_com_v2_param.SetOutOVP, can_get_u16_be(data, 2));                         // B端过压保护
                 }else if(data[1] == 0x22){
                     can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_param.SetOutOVP));
-                    data[4] = 0;                                                                            // 淇濈暀
-                    data[5] = 0;                                                                            // 淇濈暀
-                    data[6] = 0;                                                                            // 淇濈暀
-                    data[7] = 0;                                                                            // 淇濈暀
+                    data[4] = 0;                                                                            // 保留
+                    data[5] = 0;                                                                            // 保留
+                    data[6] = 0;                                                                            // 保留
+                    data[7] = 0;                                                                            // 保留
                 }
                 break;
             case TERMINAL_B_OVER_R:
                 if(data[1] == 0x88){
-                    (void)can_write_param_u16(&wg_com_v2_param.SetOutOVPRecover, can_get_u16_be(data, 2));                  // B绔繃鍘嬩繚鎶ゆ仮澶?
+                    (void)can_write_param_u16(&wg_com_v2_param.SetOutOVPRecover, can_get_u16_be(data, 2));                  // B端过压保护恢复
                 }else if(data[1] == 0x22){
                     can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_param.SetOutOVPRecover));
-                    data[4] = 0;                                                                            // 淇濈暀
-                    data[5] = 0;                                                                            // 淇濈暀
-                    data[6] = 0;                                                                            // 淇濈暀
-                    data[7] = 0;                                                                            // 淇濈暀
+                    data[4] = 0;                                                                            // 保留
+                    data[5] = 0;                                                                            // 保留
+                    data[6] = 0;                                                                            // 保留
+                    data[7] = 0;                                                                            // 保留
                 }
                 break;
             case OVER_TEMPERATURE:
                 if(data[1] == 0x88){
-                    (void)can_write_param_u16(&wg_com_v2_param.SetInsideTemp, can_get_u16_be(data, 2));                       // 鍐呴儴娓╁害
-                    (void)can_write_param_u16(&wg_com_v2_param.SetOutsideTemp, can_get_u16_be(data, 4));                      // 澶栭儴娓╁害
+                    (void)can_write_param_u16(&wg_com_v2_param.SetInsideTemp, can_get_u16_be(data, 2));                       // 内部温度
+                    (void)can_write_param_u16(&wg_com_v2_param.SetOutsideTemp, can_get_u16_be(data, 4));                      // 外部温度
                 }else if(data[1] == 0x22){
                     can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_param.SetInsideTemp));
                     can_put_u16_be(data, 4, can_read_u16_field(&wg_com_v2_param.SetOutsideTemp));
-                    data[6] = 0;                                                                            // 淇濈暀
-                    data[7] = 0;                                                                            // 淇濈暀
+                    data[6] = 0;                                                                            // 保留
+                    data[7] = 0;                                                                            // 保留
                 }
                 break;
             case TERMINAL_A_CHARGING_LIGHT:
                 if(data[1] == 0x88){
-                    (void)can_write_param_u16(&wg_com_v2_param.SetInpChargLedCurr, can_get_u16_be(data, 2));                // A绔厖鐢垫寚绀虹伅鐢垫祦
-                    (void)can_write_param_u16(&wg_com_v2_param.SetInpFullLedCurr, can_get_u16_be(data, 4));                 // A绔厖婊℃寚绀虹伅鐢垫祦
+                    (void)can_write_param_u16(&wg_com_v2_param.SetInpChargLedCurr, can_get_u16_be(data, 2));                // A端充电指示灯电流
+                    (void)can_write_param_u16(&wg_com_v2_param.SetInpFullLedCurr, can_get_u16_be(data, 4));                 // A端充满指示灯电流
                 }else if(data[1] == 0x22){
                     can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_param.SetInpChargLedCurr));
                     can_put_u16_be(data, 4, can_read_u16_field(&wg_com_v2_param.SetInpFullLedCurr));
-                    data[6] = 0;                                                                            // 淇濈暀
-                    data[7] = 0;                                                                            // 淇濈暀
+                    data[6] = 0;                                                                            // 保留
+                    data[7] = 0;                                                                            // 保留
                 }
                 break;
             case TERMINAL_B_CHARGING_LIGHT:
                 if(data[1] == 0x88){
-                    (void)can_write_param_u16(&wg_com_v2_param.SetOutChargLedCurr, can_get_u16_be(data, 2));                // B绔厖鐢垫寚绀虹伅鐢垫祦
-                    (void)can_write_param_u16(&wg_com_v2_param.SetOutFullLedCurr, can_get_u16_be(data, 4));                 // B绔厖婊℃寚绀虹伅鐢垫祦
+                    (void)can_write_param_u16(&wg_com_v2_param.SetOutChargLedCurr, can_get_u16_be(data, 2));                // B端充电指示灯电流
+                    (void)can_write_param_u16(&wg_com_v2_param.SetOutFullLedCurr, can_get_u16_be(data, 4));                 // B端充满指示灯电流
                 }else if(data[1] == 0x22){
                     can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_param.SetOutChargLedCurr));
                     can_put_u16_be(data, 4, can_read_u16_field(&wg_com_v2_param.SetOutFullLedCurr));
-                    data[6] = 0;                                                                            // 淇濈暀
-                    data[7] = 0;                                                                            // 淇濈暀
+                    data[6] = 0;                                                                            // 保留
+                    data[7] = 0;                                                                            // 保留
                 }
                 break;
             case AUTO_CHARGE_FORWARD_OPEN:
                 if(data[1] == 0x88){
-                    (void)can_write_param_u16(&wg_com_v2_param.AuotForwardOpenVoltA, can_get_u16_be(data, 2));              // 鑷姩妯″紡姝ｅ悜A绔紑鍚數鍘?
+                    (void)can_write_param_u16(&wg_com_v2_param.AuotForwardOpenVoltA, can_get_u16_be(data, 2));              // 自动模式正向A端开启电压
                 }else if(data[1] == 0x22){
                     can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_param.AuotForwardOpenVoltA));
-                    data[4] = 0;                                                                            // 淇濈暀
-                    data[5] = 0;                                                                            // 淇濈暀
-                    data[6] = 0;                                                                            // 淇濈暀
-                    data[7] = 0;                                                                            // 淇濈暀
+                    data[4] = 0;                                                                            // 保留
+                    data[5] = 0;                                                                            // 保留
+                    data[6] = 0;                                                                            // 保留
+                    data[7] = 0;                                                                            // 保留
                 }
                 break;
             case AUTO_CHARGE_FORWARD_VEER:
                 if(data[1] == 0x88){
-                    (void)can_write_param_u16(&wg_com_v2_param.AuotForwardVeerVoltA, can_get_u16_be(data, 2));              // 鑷姩妯″紡姝ｅ悜杞悜A鐢靛帇
+                    (void)can_write_param_u16(&wg_com_v2_param.AuotForwardVeerVoltA, can_get_u16_be(data, 2));              // 自动模式正向转向A电压
                 }else if(data[1] == 0x22){
                     can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_param.AuotForwardVeerVoltA));
-                    data[4] = 0;                                                                            // 淇濈暀
-                    data[5] = 0;                                                                            // 淇濈暀
-                    data[6] = 0;                                                                            // 淇濈暀
-                    data[7] = 0;                                                                            // 淇濈暀
+                    data[4] = 0;                                                                            // 保留
+                    data[5] = 0;                                                                            // 保留
+                    data[6] = 0;                                                                            // 保留
+                    data[7] = 0;                                                                            // 保留
                 }
                 break;
             case AUTO_CHARGE_FORWARD_SHUT:
                 if(data[1] == 0x88){
-                    (void)can_write_param_u16(&wg_com_v2_param.AuotForwardShutVoltA, can_get_u16_be(data, 2));              // 鑷姩妯″紡姝ｅ悜A绔叧闂數鍘?
+                    (void)can_write_param_u16(&wg_com_v2_param.AuotForwardShutVoltA, can_get_u16_be(data, 2));              // 自动模式正向A端关闭电压
                 }else if(data[1] == 0x22){
                     can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_param.AuotForwardShutVoltA));
-                    data[4] = 0;                                                                            // 淇濈暀
-                    data[5] = 0;                                                                            // 淇濈暀
-                    data[6] = 0;                                                                            // 淇濈暀
-                    data[7] = 0;                                                                            // 淇濈暀
+                    data[4] = 0;                                                                            // 保留
+                    data[5] = 0;                                                                            // 保留
+                    data[6] = 0;                                                                            // 保留
+                    data[7] = 0;                                                                            // 保留
                 }
                 break;
             case AUTO_CHARGE_REVERSE_OPEN:
                 if(data[1] == 0x88){
-                    (void)can_write_param_u16(&wg_com_v2_param.AuotReverseOpenVoltB, can_get_u16_be(data, 2));              // 鑷姩妯″紡鍙嶅悜B绔紑鍚數鍘?
+                    (void)can_write_param_u16(&wg_com_v2_param.AuotReverseOpenVoltB, can_get_u16_be(data, 2));              // 自动模式反向B端开启电压
                 }else if(data[1] == 0x22){
                     can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_param.AuotReverseOpenVoltB));
-                    data[4] = 0;                                                                            // 淇濈暀
-                    data[5] = 0;                                                                            // 淇濈暀
-                    data[6] = 0;                                                                            // 淇濈暀
-                    data[7] = 0;                                                                            // 淇濈暀
+                    data[4] = 0;                                                                            // 保留
+                    data[5] = 0;                                                                            // 保留
+                    data[6] = 0;                                                                            // 保留
+                    data[7] = 0;                                                                            // 保留
                 }
                 break;
             case AUTO_CHARGE_REVERSE_SHUT:
                 if(data[1] == 0x88){
-                    (void)can_write_param_u16(&wg_com_v2_param.AuotReverseShutVoltB, can_get_u16_be(data, 2));              // 鑷姩妯″紡鍙嶅悜B绔叧闂數鍘?
+                    (void)can_write_param_u16(&wg_com_v2_param.AuotReverseShutVoltB, can_get_u16_be(data, 2));              // 自动模式反向B端关闭电压
                 }else if(data[1] == 0x22){
                     can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_param.AuotReverseShutVoltB));
-                    data[4] = 0;                                                                            // 淇濈暀
-                    data[5] = 0;                                                                            // 淇濈暀
-                    data[6] = 0;                                                                            // 淇濈暀
-                    data[7] = 0;                                                                            // 淇濈暀
+                    data[4] = 0;                                                                            // 保留
+                    data[5] = 0;                                                                            // 保留
+                    data[6] = 0;                                                                            // 保留
+                    data[7] = 0;                                                                            // 保留
                 }
                 break;
             case SET_TEMP_INNER:
                 if(data[1] == 0x88){
-                    (void)can_write_param_u16(&wg_com_v2_param.SetTemp2, can_get_u16_be(data, 2));                            // 鍐呴儴娓╁害
+                    (void)can_write_param_u16(&wg_com_v2_param.SetTemp2, can_get_u16_be(data, 2));                            // 内部温度
                 }else if(data[1] == 0x22){
                     can_put_u16_be(data, 2, can_read_u16_field(&wg_com_v2_param.SetTemp2));
-                    data[4] = 0;                                                                            // 淇濈暀
-                    data[5] = 0;                                                                            // 淇濈暀
-                    data[6] = 0;                                                                            // 淇濈暀
-                    data[7] = 0;                                                                            // 淇濈暀
+                    data[4] = 0;                                                                            // 保留
+                    data[5] = 0;                                                                            // 保留
+                    data[6] = 0;                                                                            // 保留
+                    data[7] = 0;                                                                            // 保留
                 }
                 break;
             case MFG_PROTOCOL_VERSION:
@@ -871,17 +871,17 @@ void Get_CAN_Communications_Content (uint32_t can_id, uint8_t *data, uint8_t len
                     {
                         data[2] = 0x11;
                         data[3] = 0x11;
-                        data[4] = 0;                                                                            // 淇濈暀
-                        data[5] = 0;                                                                            // 淇濈暀
-                        data[6] = 0;                                                                            // 淇濈暀
-                        data[7] = 0;                                                                            // 淇濈暀
+                        data[4] = 0;                                                                            // 保留
+                        data[5] = 0;                                                                            // 保留
+                        data[6] = 0;                                                                            // 保留
+                        data[7] = 0;                                                                            // 保留
                     }else{
-                        data[2] = 0;                                                                            // 淇濈暀
-                        data[3] = 0;                                                                            // 淇濈暀
-                        data[4] = 0;                                                                            // 淇濈暀
-                        data[5] = 0;                                                                            // 淇濈暀
-                        data[6] = 0;                                                                            // 淇濈暀
-                        data[7] = 0;                                                                            // 淇濈暀
+                        data[2] = 0;                                                                            // 保留
+                        data[3] = 0;                                                                            // 保留
+                        data[4] = 0;                                                                            // 保留
+                        data[5] = 0;                                                                            // 保留
+                        data[6] = 0;                                                                            // 保留
+                        data[7] = 0;                                                                            // 保留
                     }
                 }
                 break;
@@ -898,17 +898,17 @@ void Get_CAN_Communications_Content (uint32_t can_id, uint8_t *data, uint8_t len
                     {
                         data[2] = 0x11;
                         data[3] = 0x11;
-                        data[4] = 0;                                                                            // 淇濈暀
-                        data[5] = 0;                                                                            // 淇濈暀
-                        data[6] = 0;                                                                            // 淇濈暀
-                        data[7] = 0;                                                                            // 淇濈暀
+                        data[4] = 0;                                                                            // 保留
+                        data[5] = 0;                                                                            // 保留
+                        data[6] = 0;                                                                            // 保留
+                        data[7] = 0;                                                                            // 保留
                     }else{
-                        data[2] = 0;                                                                            // 淇濈暀
-                        data[3] = 0;                                                                            // 淇濈暀
-                        data[4] = 0;                                                                            // 淇濈暀
-                        data[5] = 0;                                                                            // 淇濈暀
-                        data[6] = 0;                                                                            // 淇濈暀
-                        data[7] = 0;                                                                            // 淇濈暀
+                        data[2] = 0;                                                                            // 保留
+                        data[3] = 0;                                                                            // 保留
+                        data[4] = 0;                                                                            // 保留
+                        data[5] = 0;                                                                            // 保留
+                        data[6] = 0;                                                                            // 保留
+                        data[7] = 0;                                                                            // 保留
                     }
                 }
                 break;

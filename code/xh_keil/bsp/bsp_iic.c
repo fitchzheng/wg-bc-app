@@ -13,13 +13,13 @@ static int32_t BSP_24CXX_I2C_Read(uint16_t u16Addr, uint8_t *pu8Buf, uint32_t u3
 static int32_t BSP_24CXX_I2C_GetStatus(void);
 
 static stc_24cxx_ll_t m_stc24cxxLL = {
-    .u32PageSize = EE_24CXX_PAGE_SIZE,      // é¡µå¤§å°
-    .u32Capacity = EE_24CXX_CAPACITY,       // å®¹é‡
+    .u32PageSize = EE_24CXX_PAGE_SIZE,      // Ò³´óĞ¡
+    .u32Capacity = EE_24CXX_CAPACITY,       // ÈİÁ¿
     .Delay = DDL_DelayUS,
-    .Init = BSP_24CXX_I2C_Init,             //åˆå§‹åŒ–
+    .Init = BSP_24CXX_I2C_Init,             //³õÊ¼»¯
     .DeInit = BSP_24CXX_I2C_DeInit,
-    .WritePage = BSP_24CXX_I2C_WritePage,   // å†™æ•°æ®
-    .Read = BSP_24CXX_I2C_Read,             // è¯»æ•°æ®
+    .WritePage = BSP_24CXX_I2C_WritePage,   // Ğ´Êı¾İ
+    .Read = BSP_24CXX_I2C_Read,             // ¶ÁÊı¾İ
     .GetStatus = BSP_24CXX_I2C_GetStatus,
 };
 

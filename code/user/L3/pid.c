@@ -6,11 +6,11 @@ void pid_reset(pid_param_t *pid_param)
     memset(pid_param, 0, sizeof(pid_param_t));
 }
 float RAMFUNC pid_cal(pid_param_t *pid_param, float ref, float act) {
-    // 1. è®¡ç®—è¯¯å·®é¡¹ï¼ˆå‡å°‘é‡å¤è®¿é—®å†…å­˜ï¼‰
+    // 1. ¼ÆËãÎó²îÏî£¨¼õÉÙÖØ¸´·ÃÎÊÄÚ´æ£©
     const float err = ref - act;
     const float err_diff = err - pid_param->inter.err_last;
 
-    // 2. é¢„è®¡ç®— P å’Œ D é¡¹ï¼ˆå‡å°‘é‡å¤è®¡ç®—ï¼‰
+    // 2. Ô¤¼ÆËã P ºÍ D Ïî£¨¼õÉÙÖØ¸´¼ÆËã£©
     const float kp = pid_param->cfg.kp;
     const float ki = pid_param->cfg.ki;
     const float kd = pid_param->cfg.kd;
@@ -21,33 +21,33 @@ float RAMFUNC pid_cal(pid_param_t *pid_param, float ref, float act) {
     const float p_term = kp * err;
     const float d_term = kd * err_diff;
 
-    // 3. æ›´æ–°ç§¯åˆ†é¡¹ï¼ˆå…ˆä¸åŠ åˆ°è¾“å‡ºï¼Œé¿å…åç»­é™å¹…å½±å“ï¼‰
+    // 3. ¸üĞÂ»ı·ÖÏî£¨ÏÈ²»¼Óµ½Êä³ö£¬±ÜÃâºóĞøÏŞ·ùÓ°Ïì£©
     pid_param->inter.i_err += err;
 
-    // 4. è®¡ç®—æ— ç§¯åˆ†é™åˆ¶çš„è¾“å‡ºï¼ˆå‡å°‘åˆ†æ”¯é¢„æµ‹å½±å“ï¼‰
+    // 4. ¼ÆËãÎŞ»ı·ÖÏŞÖÆµÄÊä³ö£¨¼õÉÙ·ÖÖ§Ô¤²âÓ°Ïì£©
     float output = p_term + (ki * pid_param->inter.i_err) + d_term;
 
-    // 5. è¾“å‡ºé™å¹…ï¼ˆä¼˜åŒ–åˆ†æ”¯é€»è¾‘ï¼‰
+    // 5. Êä³öÏŞ·ù£¨ÓÅ»¯·ÖÖ§Âß¼­£©
     if (output > output_lmt_max) {
         output = output_lmt_max;
-        // æŠ—é¥±å’Œå¤„ç†ï¼ˆä»…åœ¨å¿…è¦æ—¶è®¡ç®—ï¼‰
+        // ¿¹±¥ºÍ´¦Àí£¨½öÔÚ±ØÒªÊ±¼ÆËã£©
         if (ki != 0.0f) {
-            // è®¡ç®—æœ€å¤§å…è®¸çš„ç§¯åˆ†é¡¹ï¼ˆæå‰è®¡ç®—å¸¸é‡ï¼‰
+            // ¼ÆËã×î´óÔÊĞíµÄ»ı·ÖÏî£¨ÌáÇ°¼ÆËã³£Á¿£©
             const float max_i_term = output_lmt_max - p_term - d_term;
             pid_param->inter.i_err = max_i_term * ki_inv;  // ki_inv = 1/ki
         }
     } 
     else if (output < output_lmt_min) {
         output = output_lmt_min;
-        // æŠ—é¥±å’Œå¤„ç†ï¼ˆä»…åœ¨å¿…è¦æ—¶è®¡ç®—ï¼‰
+        // ¿¹±¥ºÍ´¦Àí£¨½öÔÚ±ØÒªÊ±¼ÆËã£©
         if (ki != 0.0f) {
-            // è®¡ç®—æœ€å°å…è®¸çš„ç§¯åˆ†é¡¹ï¼ˆæå‰è®¡ç®—å¸¸é‡ï¼‰
+            // ¼ÆËã×îĞ¡ÔÊĞíµÄ»ı·ÖÏî£¨ÌáÇ°¼ÆËã³£Á¿£©
             const float min_i_term = output_lmt_min - p_term - d_term;
             pid_param->inter.i_err = min_i_term * ki_inv;  // ki_inv = 1/ki
         }
     }
 
-    // 6. æ›´æ–°å†å²è¯¯å·®ï¼ˆå‡å°‘å†…å­˜è®¿é—®æ¬¡æ•°ï¼‰
+    // 6. ¸üĞÂÀúÊ·Îó²î£¨¼õÉÙÄÚ´æ·ÃÎÊ´ÎÊı£©
     pid_param->inter.err_last = err;
     pid_param->output.output = output;
 
@@ -56,6 +56,6 @@ float RAMFUNC pid_cal(pid_param_t *pid_param, float ref, float act) {
 
 void RAMFUNC pid_clr_i_err(pid_param_t *pid_param)
 {
-    // ä»…æ¸…é™¤ç§¯åˆ†è¯¯å·®é¡¹ï¼Œä¿æŒå…¶ä»–çŠ¶æ€
+    // ½öÇå³ı»ı·ÖÎó²îÏî£¬±£³ÖÆäËû×´Ì¬
     pid_param->inter.i_err = 0.0f;
 }

@@ -4,7 +4,7 @@
 #include "stdint.h"
 #include "get_com_data.h"
 
-// æ ‡å‡†æ¨¡å¼
+// ±ê×¼Ä£Ê½
 #define STANDARD_BAT_SYS_12V_MAX_OUT_VOLT         15.00f
 #define STANDARD_BAT_SYS_12V_MIN_OUT_VOLT         10.00f
 #define STANDARD_BAT_SYS_12V_DEFAULT_OUT_VOLT     12.00f
@@ -100,22 +100,22 @@
 
 typedef struct
 {
-    float OutVoltMax;            // è¾“å‡ºæœ€å¤§ç”µå‹
-    float OutVoltMin;            // è¾“å‡ºæœ€å°ç”µå‹
-    float OutVoltDefault;        // è¾“å‡ºç”µå‹é»˜è®¤å€¼
-    float OutCurrMax;            // è¾“å‡ºæœ€å¤§ç”µæµ
-    float OutCurrMin;            // è¾“å‡ºæœ€å°ç”µæµ
-    float OutCurrDefault;        // è¾“å‡ºç”µæµé»˜è®¤å€¼
-    float OpenVoltA;             // è‡ªåŠ¨æ¨¡å¼ä¸‹æ­£å‘å¼€ç”µå‹
-    float CloseVoltA;            // è‡ªåŠ¨æ¨¡å¼ä¸‹æ­£å‘å…³é—­ç”µå‹
-    float VeerVoltA;             // è‡ªåŠ¨æ¨¡å¼ä¸‹æ­£å‘è½¬å‘ç”µå‹
-    float OpenVoltB;             // è‡ªåŠ¨æ¨¡å¼ä¸‹åå‘å¼€ç”µå‹
-    float CloseVoltB;            // è‡ªåŠ¨æ¨¡å¼ä¸‹åå‘å…³é—­ç”µå‹
+    float OutVoltMax;            // Êä³ö×î´óµçÑ¹
+    float OutVoltMin;            // Êä³ö×îĞ¡µçÑ¹
+    float OutVoltDefault;        // Êä³öµçÑ¹Ä¬ÈÏÖµ
+    float OutCurrMax;            // Êä³ö×î´óµçÁ÷
+    float OutCurrMin;            // Êä³ö×îĞ¡µçÁ÷
+    float OutCurrDefault;        // Êä³öµçÁ÷Ä¬ÈÏÖµ
+    float OpenVoltA;             // ×Ô¶¯Ä£Ê½ÏÂÕıÏò¿ªµçÑ¹
+    float CloseVoltA;            // ×Ô¶¯Ä£Ê½ÏÂÕıÏò¹Ø±ÕµçÑ¹
+    float VeerVoltA;             // ×Ô¶¯Ä£Ê½ÏÂÕıÏò×ªÏòµçÑ¹
+    float OpenVoltB;             // ×Ô¶¯Ä£Ê½ÏÂ·´Ïò¿ªµçÑ¹
+    float CloseVoltB;            // ×Ô¶¯Ä£Ê½ÏÂ·´Ïò¹Ø±ÕµçÑ¹
     float SetChargLedCurr;
     float SetFullLedCurr;
-    uint16_t OutPowerMax;        // è¾“å‡ºæœ€å¤§åŠŸç‡
-    uint16_t OutPowerMin;        // è¾“å‡ºæœ€å°åŠŸç‡
-    uint16_t OutPowerDefault;    // è¾“å‡ºåŠŸç‡é»˜è®¤å€¼
+    uint16_t OutPowerMax;        // Êä³ö×î´ó¹¦ÂÊ
+    uint16_t OutPowerMin;        // Êä³ö×îĞ¡¹¦ÂÊ
+    uint16_t OutPowerDefault;    // Êä³ö¹¦ÂÊÄ¬ÈÏÖµ
 
 } STANDARD_MODE_CONFIG_T;
 

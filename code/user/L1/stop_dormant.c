@@ -186,7 +186,7 @@ uint8_t bsp_pwc_stop_rum(void)
         if(InitFlag == 0)
         {
             ctrl_app_disable();
-            //ÂÖ≥Èó≠Â§ñËÆæ
+            //πÿ±’Õ‚…Ë
             bsp_adc_deinit();    
 
             bsp_pwm_deinit();
@@ -203,8 +203,8 @@ uint8_t bsp_pwc_stop_rum(void)
             
             CLK_SetClockDiv(CLK_BUS_CLK_ALL,
             (CLK_PCLK0_DIV8 | CLK_PCLK1_DIV16| CLK_PCLK2_DIV16 |
-            CLK_PCLK3_DIV16 | CLK_PCLK4_DIV16 | CLK_HCLK_DIV8));  //ÈÖçÁΩÆ‰∏ªÈ¢ëÂàÜÈ¢ë CLK_HCLK_DIV16ÂÜ≥ÂÆö‰∏ªÈ¢ë
-            CLK_SetSysClockSrc(CLK_SYSCLK_SRC_MRC); //ÈÖçÁΩÆÊó∂ÈíüÊ∫ê ,MRC 8M
+            CLK_PCLK3_DIV16 | CLK_PCLK4_DIV16 | CLK_HCLK_DIV8));  //≈‰÷√÷˜∆µ∑÷∆µ CLK_HCLK_DIV16æˆ∂®÷˜∆µ
+            CLK_SetSysClockSrc(CLK_SYSCLK_SRC_MRC); //≈‰÷√ ±÷”‘¥ ,MRC 8M
             
             CLK_PLLCmd(DISABLE);
             TMR0_Config();

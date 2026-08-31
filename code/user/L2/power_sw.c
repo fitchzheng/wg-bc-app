@@ -13,42 +13,42 @@ void power_sw_run(void)
     static uint8_t soft_is_on_last = 0;
 //    static uint8_t hard_is_on_last = 0;
 
-    // è·å–å½“å‰çŠ¶æ€
+    // »ñÈ¡µ±Ç°×´Ì¬
     WG_COM_V2_GET_DATA_UINT(soft_is_off, wg_com_v2_ctrl.PowerOnOff);
     if ((gpio_get_pg_en() == 0) &&
         (soft_is_off == 0))
     {
-        // ç¡¬ä»¶å¼€å…³å…³é—­æ—¶ï¼Œè½¯ä»¶å¼€å…³è¢«å¼ºåˆ¶å…³é—­
+        // Ó²¼ş¿ª¹Ø¹Ø±ÕÊ±£¬Èí¼ş¿ª¹Ø±»Ç¿ÖÆ¹Ø±Õ
        // soft_is_off = 1;
        // WG_COM_V2_SET_DATA(soft_is_off, wg_com_v2_ctrl.PowerOnOff);
     }
     soft_is_on = soft_is_off ? 0 : 1;
 //    hard_is_on = gpio_get_pg_en() ? 0 : 1;
 
-    // æ£€æµ‹è¾¹æ²¿
+    // ¼ì²â±ßÑØ
     uint8_t soft_falling = (soft_is_on_last == 1) && (soft_is_on == 0);
     uint8_t soft_rising = (soft_is_on_last == 0) && (soft_is_on == 1);
 //    uint8_t hard_falling = (hard_is_on_last == 0) && (hard_is_on == 1);
 //    uint8_t hard_rising = (hard_is_on_last == 1) && (hard_is_on == 0);
 
-    // ä¼˜å…ˆçº§å¤„ç†ï¼šå…ˆæ£€æŸ¥ä¸‹é™æ²¿
+    // ÓÅÏÈ¼¶´¦Àí£ºÏÈ¼ì²éÏÂ½µÑØ
     if (soft_falling/* ||
         hard_falling*/)
     {
-        power_is_on = 0; // ä¸‹é™æ²¿ä¼˜å…ˆï¼Œå¼ºåˆ¶å…³æœº
+        power_is_on = 0; // ÏÂ½µÑØÓÅÏÈ£¬Ç¿ÖÆ¹Ø»ú
     }
     else if (/*(*/soft_rising/* ||
               hard_rising) */&&
              (power_is_on == 0))
     {
-        power_is_on = 1; // åªæœ‰åœ¨å½“å‰å…³æœºçŠ¶æ€æ‰å…è®¸å¼€æœº
+        power_is_on = 1; // Ö»ÓĞÔÚµ±Ç°¹Ø»ú×´Ì¬²ÅÔÊĞí¿ª»ú
     }
 
-    // æ›´æ–°è¾“å‡º
+    // ¸üĞÂÊä³ö
 //    uint8_t power_is_off = power_is_on ? 0 : 1;
 //    WG_COM_V2_SET_DATA(power_is_off, wg_com_v2_ctrl.PowerOnOff);
 
-    // æ›´æ–°å†å²çŠ¶æ€
+    // ¸üĞÂÀúÊ·×´Ì¬
     soft_is_on_last = soft_is_on;
 //    hard_is_on_last = hard_is_on;
 }

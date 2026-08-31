@@ -34,7 +34,7 @@ uint32_t ymodem_state_next = YMODEM_STA_INIT;
 
 uint8_t usart_link = 0;
 
-// å£°æ˜Ž DMA çŽ¯å½¢ç¼“å†²ï¼ˆä½¿ç”?volatile é˜²æ­¢ä¼˜åŒ–ä¸¢è¯»ï¼?
+// ÉùÃ÷ DMA »·ÐÎ»º³å£¨Ê¹ÓÃ volatile ·ÀÖ¹ÓÅ»¯µ¼ÖÂ¶ª¶Á£©
 extern volatile uint8_t usart2_rx_buffer[];
 extern volatile uint8_t usart0_rx_buffer[];
 extern uint32_t dma_transfer_number_get(uint32_t periph, uint8_t channel);
@@ -44,11 +44,11 @@ ymodem_frame_stx_t ymodem_frame_stx;
 //static uint16_t flash_page_2k = 0;
 //static uint32_t code_size_byte = 0;
 
-// ç©ºé—²åˆ¤å®šé˜ˆå€¼ï¼šè¿žç»­ç©ºé—² 50ms è§†ä¸ºå½“å‰å¸§æŽ¥æ”¶å®Œæˆ?
+// ¿ÕÏÐÅÐ¶¨ãÐÖµ£ºÁ¬Ðø¿ÕÏÐ 50ms ÊÓÎªµ±Ç°Ö¡½ÓÊÕÍê³É
 #undef YMODEM_IDLE_GAP_MS
 #define YMODEM_IDLE_GAP_MS 50U
 
-// å›žå¤å‘é€é˜Ÿåˆ—ï¼ˆæŒ?200ms é—´éš”å‘é€ï¼‰
+// »Ø¸´·¢ËÍ¶ÓÁÐ£¨Ã¿200ms ¼ä¸ô·¢ËÍ£©
 static uint8_t reply_fifo[4];
 static uint8_t reply_head[2], reply_tail[2], reply_len[2];
 static uint16_t reply_wait_ms[2];
@@ -75,14 +75,14 @@ typedef struct
 //           ((in & 0x000000FF) << 24);  // Move byte 0 to byte 3
 //}
 
-// å®‰å…¨å¢žåŠ è®¡æ•°å™¨ï¼ˆé˜²æ­¢æº¢å‡ºï¼?
+// °²È«Ôö¼Ó¼ÆÊýÆ÷£¨·ÀÖ¹Òç³ö£©
 static inline void safe_increment(uint32_t *counter, uint32_t max)
 {
     if (*counter < max)
         (*counter)++;
 }
 
-// å…¥é˜Ÿä¸€ä¸ªå¾…å›žå¤å­—èŠ‚
+// Èë¶ÓÒ»¸ö´ý»Ø¸´×Ö½Ú
 static inline void ymodem_queue_reply(uint8_t c,uint8_t port_com)
 {
     if (reply_len[port_com] < sizeof(reply_fifo))
@@ -93,7 +93,7 @@ static inline void ymodem_queue_reply(uint8_t c,uint8_t port_com)
     }
 }
 static uint32_t ymodem_usart0_delay = 0;
-// å®žé™…å‘é€ä¸€ä¸ªå¾…å›žå¤å­—èŠ‚ï¼ˆprintfï¼‰ï¼Œå¹¶å¯åŠ¨ä¸‹ä¸€æ¬?50ms é—´éš”è®¡æ—¶
+// Êµ¼Ê·¢ËÍÒ»¸ö´ý»Ø¸´×Ö½Ú£¨printf£©£¬²¢Æô¶¯ÏÂÒ»´Î50ms ¼ä¸ô¼ÆÊ±
 static inline void ymodem_tx_reply_tick(uint8_t port_com)
 {
     if (reply_len[port_com] == 0)
@@ -105,12 +105,12 @@ static inline void ymodem_tx_reply_tick(uint8_t port_com)
         return;
     }
 
-    // å‘é€é˜Ÿé¦?
+    // ·¢ËÍ¶ÓÁÐ
     uint8_t c = reply_fifo[reply_head[port_com]];
     reply_head[port_com] = (uint8_t)((reply_head[port_com] + 1) % sizeof(reply_fifo));
     reply_len[port_com]--;
 
-    // å‘é€?
+    // ·¢ËÍ
     if (port_com == OUTPUT_USART0)
     {
         gpio_set_re(1);
@@ -131,7 +131,7 @@ static inline void ymodem_tx_reply_tick(uint8_t port_com)
         usart2_printf("%c", c);
     }
 
-    // è®¾ç½®ä¸‹ä¸€æ¡å›žå¤çš„æœ€å°é—´éš?50ms
+    // ÉèÖÃÏÂÒ»Ìõ»Ø¸´µÄ×îÐ¡¼ä¸ô50ms
     reply_wait_ms[port_com] = 200;
 }
 
@@ -142,7 +142,7 @@ static inline void ymodem_send_nak(uint8_t port_com)
     // ymodem_update_time_dn_cnt = 0;
 }
 
-// ========== è¡¥å›žç¼ºå¤±çš„é™æ€å…¨å±€å˜é‡ä¸Žå‰ç½®å£°æ˜?==========
+// ========== ²¹»ØÈ±Ê§µÄ¾²Ì¬È«¾Ö±äÁ¿ÓëÇ°ÖÃÉùÃ÷ ==========
 static uint8_t recv_buffer[2][YMODEM_BUFFER_SIZE];
 static uint16_t recv_index[2];
 static uint8_t  up_data = 0;
@@ -193,7 +193,7 @@ static uint8_t ymodem_write_update_request(const iap_meta_t *meta)
     return 1;
 }
 
-// === CRC16 Modbus å®žçŽ°ï¼ˆé«˜ä½åœ¨å‰ï¼‰ ===
+// === CRC16 Modbus ÊµÏÖ£¨¸ßÎ»ÔÚÇ°£© ===
 static uint16_t ymodem_crc16(const uint8_t *data, uint32_t len)
 {
     uint16_t crc = 0xFFFF;
@@ -323,18 +323,18 @@ void ymodem_process_usart_dma_input(const ymodem_usart_dma_port_t *port)
         is_recv_cplt[port->USARTx] = 1;
     }
     
-    // ç»Ÿä¸€åœ¨è¿™é‡ŒæŒ‰èŠ‚æµé—´éš”å‘é€å¾…å›žå¤å­—èŠ‚
+    // Í³Ò»ÔÚÕâÀï°´½ÚÁ÷¼ä¸ô·¢ËÍ´ý»Ø¸´×Ö½Ú
     ymodem_tx_reply_tick(port->USARTx);
 }
 
 void ymodem_recv_task(void)
 {
-    // USART2éƒ¨åˆ†
+    // USART2²¿·Ö
     static uint16_t rd_idx2 = 0;
     static int overflow2 = 0;
     static uint16_t idle2_ms = 0;
     
-    // USART0éƒ¨åˆ†
+    // USART0²¿·Ö
     static uint16_t rd_idx0 = 0;
     static int overflow0 = 0;
     static uint16_t idle0_ms = 0;
@@ -405,7 +405,7 @@ uint8_t get_up_data_flag(void)
 
 //static void ymodem_wait_reply(void)
 //{
-//    // ç­‰å¾…å›žå¤çŠ¶æ€?
+//    // µÈ´ý»Ø¸´×´Ì¬
 //    if (reply_len == 0)
 //    {
 //        ymodem_state = ymodem_state_next;
@@ -415,7 +415,7 @@ uint8_t get_up_data_flag(void)
 static void ymodem_wait_data(void)
 {
     static uint8_t updating_flag = 0;
-    // ç­‰å¾…æ•°æ®çŠ¶æ€?
+    // µÈ´ýÊý¾Ý×´Ì¬
     for(uint16_t i = 0;i < 2;i++)
     {
         if(updating_flag == 1)

@@ -215,11 +215,11 @@ void app_debug_event_read_regs(uint16_t reg_offset, uint16_t reg_count, uint8_t 
 
 #endif
 //uint8_t flash_buffer_data[4096] = {0};
-// 鍒濆鍖?         1word->2byte   璧峰0鍦板潃
-// P00鍘傚鏁版嵁鍖? 42word->84byte  璧峰鍦板潃2
-// P02鎺у埗璁剧疆     12word->24byte  璧峰鍦板潃86
-// P03璁剧疆鍙傛暟鍖? 52word->104byte 璧峰鍦板潃110
-// 瀹夊叏鍑忓皯璁℃暟鍣紙闃叉涓嬫孩锛?
+// 初始化         1word->2byte   起始0地址
+// P00厂家数据区 42word->84byte  起始地址2
+// P02控制设置     12word->24byte  起始地址86
+// P03设置参数区 52word->104byte 起始地址110
+// 安全减少计数器（防止下溢）
 uint16_t eeprom_profile_page_to_addr(uint16_t page)
 {
     return (uint16_t)(page * EE_24CXX_PAGE_SIZE);
@@ -3727,40 +3727,5 @@ static uint8_t Restore_Factory_Data(void)
 }
 
 REG_TASK(100, eeprom_cfg_update)
-
-
-void erasure_eeprom_data(void)
-{
-    static uint32_t ErasureDataDelay = 0;
-    static uint8_t  ErasureFlag = 0;
-    if(bsp_get_addrs() == 0)
-    {
-        if(ErasureDataDelay > 10)
-        {
-            ErasureDataDelay = 0;
-            if(ErasureFlag == 0)
-            {
-                ErasureFlag = 1;
-                memset((uint8_t *)&eeprom_page_read_data, 0xFF, sizeof(eeprom_page_read_data));
-                for(uint32_t i = 0;i < EE_24CXX_CAPACITY;)
-                {
-                    (void)eeprom_write_page_verify((uint16_t)i);
-                    i += EE_24CXX_PAGE_SIZE;
-                }
-            }
-        }
-        else
-        {
-            ++ErasureDataDelay;
-        }
-    }
-    else
-    {
-        ErasureFlag = 0;
-        ErasureDataDelay = 0;
-    }
-}
-
-REG_TASK(100, erasure_eeprom_data)
 
 

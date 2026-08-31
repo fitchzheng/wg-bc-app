@@ -89,23 +89,23 @@ typedef struct
     uint8_t header;
     uint8_t pn;
     uint8_t xpn;
-    char product_name[20]; // äº§å“åç§° ASCII
-    uint32_t file_size;    // æ–‡ä»¶å¤§å°ï¼ˆByteï¼ŒLEï¼‰
-    uint16_t baud;         // å‡çº§æ³¢ç‰¹ç‡ï¼ˆé»˜è®¤96è¡¨ç¤º9600dpsï¼‰
-    uint8_t passthrough;   // é€ä¼ ï¼ˆé»˜è®¤0xFFï¼‰
-    uint8_t upgrade_mode;  // åŠŸèƒ½å‡çº§é€‰æ‹©ï¼ˆé»˜è®¤æ•´ç‰‡å‡çº§ï¼‰
-    uint32_t hw_ver;       // åè®®ç¡¬ä»¶ç‰ˆæœ¬å·
-    uint8_t link_id;       // é“¾è·¯æ ‡è®°
-    uint8_t padding[95];   // å¡«å……åŒºï¼ˆ0x00ï¼‰
+    char product_name[20]; // ²úÆ·Ãû³Æ ASCII
+    uint32_t file_size;    // ÎÄ¼ş´óĞ¡£¨Byte£¬LE£©
+    uint16_t baud;         // Éı¼¶²¨ÌØÂÊ£¨Ä¬ÈÏ96±íÊ¾9600dps£©
+    uint8_t passthrough;   // Í¸´«£¨Ä¬ÈÏ0xFF£©
+    uint8_t upgrade_mode;  // ¹¦ÄÜÉı¼¶Ñ¡Ôñ£¨Ä¬ÈÏÕûÆ¬Éı¼¶£©
+    uint32_t hw_ver;       // Ğ­ÒéÓ²¼ş°æ±¾ºÅ
+    uint8_t link_id;       // Á´Â·±ê¼Ç
+    uint8_t padding[95];   // Ìî³äÇø£¨0x00£©
     uint8_t crc_high;      // CRC-H
     uint8_t crc_low;       // CRC-L
 } ymodem_soh_first_parsed_t;
 
-// å°†åŸå§‹é¦–å¸§ä¸è§£æè§†å›¾åšè”åˆä½“ï¼Œä¾¿äºåŸæ ·/å­—æ®µåŒ–ä¸¤ç§è®¿é—®
+// ½«Ô­Ê¼Ê×Ö¡Óë½âÎöÊÓÍ¼×öÁªºÏÌå£¬±ãÓÚÔ­Ñù/×Ö¶Î»¯Á½ÖÖ·ÃÎÊ
 typedef union
 {
-    ymodem_frame_soh_first_t raw;     // åŸå§‹ç¼“å†²è§†å›¾ï¼ˆä¸ä¼ è¾“æ ¼å¼ä¸€è‡´ï¼‰
-    ymodem_soh_first_parsed_t parsed; // å­—æ®µåŒ–è§†å›¾ï¼ˆä¾¿äºç›´æ¥è¯»å–å­—æ®µï¼‰
+    ymodem_frame_soh_first_t raw;     // Ô­Ê¼»º³åÊÓÍ¼£¨Óë´«Êä¸ñÊ½Ò»ÖÂ£©
+    ymodem_soh_first_parsed_t parsed; // ×Ö¶Î»¯ÊÓÍ¼£¨±ãÓÚÖ±½Ó¶ÁÈ¡×Ö¶Î£©
 } ymodem_soh_first_u;
 
 

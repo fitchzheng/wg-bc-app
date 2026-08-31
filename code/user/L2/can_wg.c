@@ -77,14 +77,14 @@ void can_wg_handle_set_mfg(const can_packet_t *packet)
     case CAN_WG_MFG_VALUETYPE_SN:
         if (mfg_data->byte2_3.offset >= 5)
         {
-            return; // é”™è¯¯çš„åç§»é‡
+            return; // ´íÎóµÄÆ«ÒÆÁ¿
         }
         memcpy((uint8_t *)&wg_com_v2_product_info.SnSerial[mfg_data->byte2_3.offset * 2], mfg_data->byte4_7.data, 4);
         break;
     case CAN_WG_MFG_VALUETYPE_PRODUCT_NAME:
         if (mfg_data->byte2_3.offset >= 5)
         {
-            return; // é”™è¯¯çš„åç§»é‡
+            return; // ´íÎóµÄÆ«ÒÆÁ¿
         }
         memcpy((uint8_t *)&wg_com_v2_product_info.ProductName[mfg_data->byte2_3.offset * 2], mfg_data->byte4_7.data, 4);
         break;
@@ -107,7 +107,7 @@ void can_wg_handle_get_mfg(const can_packet_t *packet)
     can_packet_data_u can_packet_data = {0};
     can_packet_data.data.err = 0;
     can_packet_data.data.msgtype = CAN_WG_MSGTYPE_GET_MFG;
-    can_packet_data.data.errtype = ERRTYPE_OK; // æ— é”™è¯?
+    can_packet_data.data.errtype = ERRTYPE_OK; // ÎÞ´íÎó
     can_wg_mfg_t *mfg_data = (can_wg_mfg_t *)&can_packet_data.data.data_info.valueinfo;
     mfg_data->byte2_3.valuetype = packet->data.data.data_info.valueinfo.valuetype.byte2;
     mfg_data->byte2_3.offset = packet->data.data.data_info.valueinfo.valuetype.byte3;
@@ -134,7 +134,7 @@ void can_wg_handle_get_mfg(const can_packet_t *packet)
     case CAN_WG_MFG_VALUETYPE_SN:
         if (mfg_data->byte2_3.offset >= 5)
         {
-            return; // é”™è¯¯çš„åç§»é‡
+            return; // ´íÎóµÄÆ«ÒÆÁ¿
         }
         p_data = (uint8_t *)&wg_com_v2_product_info.SnSerial[mfg_data->byte2_3.offset * 2];
         pack_num = 5;
@@ -142,7 +142,7 @@ void can_wg_handle_get_mfg(const can_packet_t *packet)
     case CAN_WG_MFG_VALUETYPE_PRODUCT_NAME:
         if (mfg_data->byte2_3.offset >= 5)
         {
-            return; // é”™è¯¯çš„åç§»é‡
+            return; // ´íÎóµÄÆ«ÒÆÁ¿
         }
         p_data = (uint8_t *)&wg_com_v2_product_info.ProductName[mfg_data->byte2_3.offset * 2];
         pack_num = 5;
@@ -185,7 +185,7 @@ void can_wg_handle_get_rtdata(const can_packet_t *packet)
     can_packet_data_u can_packet_data = {0};
     can_packet_data.data.err = 0;
     can_packet_data.data.msgtype = CAN_WG_MSGTYPE_GET_RTDATA;
-    can_packet_data.data.errtype = ERRTYPE_OK; // æ— é”™è¯?
+    can_packet_data.data.errtype = ERRTYPE_OK; // ÎÞ´íÎó
 
     can_wg_get_rtdata_t *rtdata = (can_wg_get_rtdata_t *)&can_packet_data.data.data_info.valueinfo;
     uint8_t pack_num = (packet->data.data.data_info.valueinfo.valuetype.byte3 / 2) + (packet->data.data.data_info.valueinfo.valuetype.byte3 % 2);
@@ -213,7 +213,7 @@ void can_wg_handle_set_param(const can_packet_t *packet)
     uint16_t count = (uint16_t)param_data->data_num + 1U;
     if (param_data->data_num >= 2)
     {
-        return; // é”™è¯¯çš„å‚æ•°ä¸ªæ•?
+        return; // ´íÎóµÄ²ÎÊý¸öÊý
     }
     (void)can_wg_write_registers_from_be((uint16_t)(WG_COM_V2_PARAM_ADDR + param_data->data_offset),
                                          count,
@@ -225,7 +225,7 @@ void can_wg_handle_get_param(const can_packet_t *packet)
     can_packet_data_u can_packet_data = {0};
     can_packet_data.data.err = 0;
     can_packet_data.data.msgtype = CAN_WG_MSGTYPE_GET_PARAM;
-    can_packet_data.data.errtype = ERRTYPE_OK; // æ— é”™è¯?
+    can_packet_data.data.errtype = ERRTYPE_OK; // ÎÞ´íÎó
     can_packet_data.data.data_info.valueinfo = packet->data.data.data_info.valueinfo;
 
     can_wg_param_t *param_data = (can_wg_param_t *)&can_packet_data.data.data_info.valueinfo;
@@ -387,7 +387,7 @@ void can_comm_set_slave_voltcomp(void)
     {
         can_packet_data.data.err = 0;
         can_packet_data.data.msgtype = CAN_WG_MSGTYPE_VOLTCOMP;
-        can_packet_data.data.errtype = ERRTYPE_OK; // æ— é”™è¯?
+        can_packet_data.data.errtype = ERRTYPE_OK; // ÎÞ´íÎó
 
         memcpy(can_packet_data.data.data_info.valueinfo.value.bytes, (uint8_t *)&voltcomp_com, 4);
         can_packet_transmit_data(

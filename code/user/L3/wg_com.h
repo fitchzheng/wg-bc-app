@@ -8,8 +8,8 @@
 #define DEVICE_ADDR 0x01
 #define MAX_FRAME_SIZE 64
 
-#define HOST_ADDR 0x01      // 涓绘満鍦板潃
-#define BROADCAST_ADDR 0x99 // 骞挎挱鍦板潃
+#define HOST_ADDR 0x01      // 主机地址
+#define BROADCAST_ADDR 0x99 // 广播地址
 
 void wg_com_send(uint8_t cmd, uint8_t *data, uint32_t len);
 

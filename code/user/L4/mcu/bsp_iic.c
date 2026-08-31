@@ -141,7 +141,7 @@ uint8_t IICx_Write_Byte(uint32_t i2c_periph,uint32_t Address,uint8_t* ndata,uint
             return Write_TIMEOUT_FAULT;
         }
 	}
-    for(uint16_t i = 0;i < 50000;i++)  // å»¶æ—¶1.9~3msæ‰èƒ½å†™å…¥ä¸‹ä¸€é¡µæ•°æ®
+    for(uint16_t i = 0;i < 50000;i++)  // ÑÓÊ±1.9~3ms²ÅÄÜÐ´ÈëÏÂÒ»Ò³Êý¾Ý
     {
         __NOP();
         __NOP();

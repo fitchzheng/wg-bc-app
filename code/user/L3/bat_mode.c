@@ -683,27 +683,27 @@ void init_bat_mode_parameter(void)
 
 void BattChargingCurve(charge_state_data_t *bat_charge_data,uint8_t soft_flag)
 {
-    float OutVolt = 0.0f;               // 鏄剧ず杈撳嚭鐢靛帇
-    float OutCurr = 0.0f;               // 鏄剧ず杈撳嚭鐢垫祦
-    float ChargeVolt = 0.0f;            // 鍏呯數鐢靛帇
-    float PrechargeVolt = 0.0f;         // 棰勫厖鐢电數鍘?
-    float SetOutChargLedCurr = 0.0f;    // 璁剧疆杈撳嚭鍏呯數鎸囩ず鐏數娴?
-    float SetOutFullLedCurr = 0.0f;     // 璁剧疆杈撳嚭鍏呮弧鎸囩ず鐏數娴?
-    uint16_t OutPower = 0;              // 鏄剧ず杈撳嚭鍔熺巼
-    uint16_t SetOutCurrPower;           // 璁剧疆杈撳嚭鍔熺巼
+    float OutVolt = 0.0f;               // 显示输出电压
+    float OutCurr = 0.0f;               // 显示输出电流
+    float ChargeVolt = 0.0f;            // 充电电压
+    float PrechargeVolt = 0.0f;         // 预充电电流
+    float SetOutChargLedCurr = 0.0f;    // 设置输出充电指示灯电流
+    float SetOutFullLedCurr = 0.0f;     // 设置输出充满指示灯电流
+    uint16_t OutPower = 0;              // 显示输出功率
+    uint16_t SetOutCurrPower;           // 设置输出功率
     uint8_t bat_step = 0;
     float temp_derate_ratio = bat_charge_data->temp_derate_ratio;
     static uint8_t record_bat_step = 0;
     static uint8_t exeion_step = 0;
-    float UfuncOutVolt = 0.0f;               // 杩愮畻杈撳嚭鐢靛帇
-    float UfuncOutCurr = 0.0f;               // 杩愮畻杈撳嚭鐢垫祦
+    float UfuncOutVolt = 0.0f;               // 运算输出电压
+    float UfuncOutCurr = 0.0f;               // 运算输出电流
 
     if(bat_charge_data->check_state == eADDRS_BACKWARD)
     {
 //        OutVolt = fabsf(get_show_fvs48_show());
 //        OutCurr = fabsf(get_show_ihv_show());
-        OutVolt = get_wg_com_v2_data.com_realtime_data.InpVolt;     // A绔數鍘?
-        OutCurr = get_wg_com_v2_data.com_realtime_data.InpCurr;     // A绔數娴?
+        OutVolt = get_wg_com_v2_data.com_realtime_data.InpVolt;     // A端电压
+        OutCurr = get_wg_com_v2_data.com_realtime_data.InpCurr;     // A端电流
         SetOutCurrPower = get_wg_com_v2_data.com_param.SetInpCurrPower;
         SetOutChargLedCurr = get_wg_com_v2_data.com_param.SetInpChargLedCurr;
         SetOutFullLedCurr = get_wg_com_v2_data.com_param.SetInpFullLedCurr;
@@ -740,8 +740,8 @@ void BattChargingCurve(charge_state_data_t *bat_charge_data,uint8_t soft_flag)
     {
 //        OutVolt = fabsf(get_show_rvs12_show());
 //        OutCurr = fabsf(get_show_ilv_show());
-        OutVolt = get_wg_com_v2_data.com_realtime_data.OutVolt;     // B绔數鍘?
-        OutCurr = get_wg_com_v2_data.com_realtime_data.OutCurr;     // B绔數娴?
+        OutVolt = get_wg_com_v2_data.com_realtime_data.OutVolt;     // B端电压
+        OutCurr = get_wg_com_v2_data.com_realtime_data.OutCurr;     // B端电流
         SetOutCurrPower = get_wg_com_v2_data.com_param.SetOutCurrPower;
         SetOutChargLedCurr = get_wg_com_v2_data.com_param.SetOutChargLedCurr;
         SetOutFullLedCurr = get_wg_com_v2_data.com_param.SetOutFullLedCurr;
@@ -832,13 +832,13 @@ void BattChargingCurve(charge_state_data_t *bat_charge_data,uint8_t soft_flag)
             bat_charge_data->bat_state.sucPowerReached90Percent = 0;
             bat_charge_data->bat_state.LithiumBatOnOff = 0;
             break;
-		case 1:  // 閾呴吀鐢垫睜
+		case 1:  // 铅酸电池
 			if(OutVolt >= ChargeVolt){ // 70%
 				if(OutCurr < SetOutFullLedCurr){
                     if(++FloatChargingDelay >= TIME_CNT_BAT_TYPE_200MS_IN_10MS)
                     {
                         FloatChargingDelay = 0;
-                        bat_charge_data->SetCharState = eFLOAT_CHARGE;    // 娴厖鐢垫ā寮?
+                        bat_charge_data->SetCharState = eFLOAT_CHARGE;    // 浮充电模式
                     }
                     ChargeCVDelay = 0;
                     ChargeCCDelay = 0;
@@ -848,7 +848,7 @@ void BattChargingCurve(charge_state_data_t *bat_charge_data,uint8_t soft_flag)
                         if(++ChargeCCDelay >= TIME_CNT_BAT_TYPE_200MS_IN_10MS)
                         {
                             ChargeCCDelay = 0;
-                            bat_charge_data->SetCharState = eCC_CHARGE;    // CC鎭掓祦鍏呯數
+                            bat_charge_data->SetCharState = eCC_CHARGE;    // CC恒流充电
                         }
                         ChargeCVDelay = 0;
                     }else if((OutCurr < (bat_charge_data->SetOutCurr*0.95f))
@@ -857,7 +857,7 @@ void BattChargingCurve(charge_state_data_t *bat_charge_data,uint8_t soft_flag)
                         if(++ChargeCVDelay >= TIME_CNT_BAT_TYPE_200MS_IN_10MS)
                         {
                             ChargeCVDelay = 0;
-                            bat_charge_data->SetCharState = eCV_CHARGE;    // CV鎭掓祦鍏呯數
+                            bat_charge_data->SetCharState = eCV_CHARGE;    // CV恒流充电
                         }
                         ChargeCCDelay = 0;
                     }else{
@@ -871,7 +871,7 @@ void BattChargingCurve(charge_state_data_t *bat_charge_data,uint8_t soft_flag)
                 if(++PrechargeDelay >= TIME_CNT_BAT_TYPE_200MS_IN_10MS)
                 {
                     PrechargeDelay = 0;
-                    bat_charge_data->SetCharState = ePRE_CHARGE;    // 棰勫厖鐢垫ā寮?
+                    bat_charge_data->SetCharState = ePRE_CHARGE;    // 预充电模式
                 }
                 FloatChargingDelay = 0;
                 ChargeCVDelay = 0;
@@ -904,37 +904,37 @@ void BattChargingCurve(charge_state_data_t *bat_charge_data,uint8_t soft_flag)
 					break;
 			}
             break;
-		case 2:  // 閿傜數姹?
-			// 鍒ゆ柇鐢垫祦鏄惁鏇剧粡杈惧埌杩囪缃�肩殑 90%
+		case 2:  // 锂电池
+			// 判断电流是否曾经达到过设置值的 90%
 			if (OutCurr >= (bat_charge_data->SetOutCurr * 0.90f)) { 
                 if(++CurrentReached90PercentDelay >= TIME_CNT_BAT_TYPE_200MS_IN_10MS)
                 {
                     CurrentReached90PercentDelay = 0;
-                    bat_charge_data->bat_state.sucCurrentReached90Percent = 1;             // 鐢垫祦杈惧埌鎴栬秴杩?90% 鏃讹紝缃綅鏍囧織
+                    bat_charge_data->bat_state.sucCurrentReached90Percent = 1;             // 电流达到或超过90% 时，置位标志
                 }
 			}else{
                 CurrentReached90PercentDelay = 0;
             }
-			// 鍒ゆ柇鍔熺巼鏄惁鏇剧粡杈惧埌杩囪缃�肩殑 90%
+			// 判断功率是否曾经达到过设置值的 90%
 			if (OutPower >= (SetOutCurrPower * 0.90f)) {
                 if(++PowerReached90PercentDelay >= TIME_CNT_BAT_TYPE_200MS_IN_10MS)
                 {
                     PowerReached90PercentDelay = 0;
-                    bat_charge_data->bat_state.sucPowerReached90Percent = 1;             // 鍔熺巼杈惧埌鎴栬秴杩?90% 鏃讹紝缃綅鏍囧織
+                    bat_charge_data->bat_state.sucPowerReached90Percent = 1;             // 功率达到或超过90% 时，置位标志
                 }
 			}else{
                 PowerReached90PercentDelay = 0;
             }
-			// 濡傛灉鐢垫祦鏇剧粡杈惧埌杩?90% 骞朵笖鐢垫祦灏忎簬 1.5A锛屼笖鐢靛帇澶т簬璁剧疆鐢靛帇鐨?90%锛屽垯鏍囪涓哄厖婊?
-			if ((!bat_charge_data->bat_state.LithiumBatOnOff)                          // 娌℃湁鍏呮弧 
-			&& ((bat_charge_data->bat_state.sucCurrentReached90Percent)||(bat_charge_data->bat_state.sucPowerReached90Percent))                // 鏄惁澶х數娴佸厖鐢佃繃
-			&&  (OutVolt > (bat_charge_data->SetOutVolt * 0.95f))    // 杈撳嚭鐢靛帇鏄惁澶т簬璁剧疆鐢靛帇95%
-			&&  (OutCurr < (bat_charge_data->SetOutCurr * 0.10f))    // 杈撳嚭鐢垫祦灏忎簬璁剧疆鐢垫祦10%
+			// 如果电流曾经达到过90% 并且电流小于 1.5A，且电压大于设置电压的90%，则标记为充满
+			if ((!bat_charge_data->bat_state.LithiumBatOnOff)                          // 没有充满 
+			&& ((bat_charge_data->bat_state.sucCurrentReached90Percent)||(bat_charge_data->bat_state.sucPowerReached90Percent))                // 是否大电流充电过
+			&&  (OutVolt > (bat_charge_data->SetOutVolt * 0.95f))    // 输出电压是否大于设置电压95%
+			&&  (OutCurr < (bat_charge_data->SetOutCurr * 0.10f))    // 输出电流小于设置电流10%
             &&  (bat_charge_data->SetCharState == eFULL_CHARGE)){		
 				if(++LiBatFullDelay >= TIME_CNT_BAT_TYPE_1M_IN_10MS)
 				{
                     LiBatFullDelay = 0;
-					bat_charge_data->bat_state.LithiumBatOnOff = 1; // 绗﹀悎鏉′欢锛屾爣璁板厖婊?
+					bat_charge_data->bat_state.LithiumBatOnOff = 1; // 符合条件，标记充满
 				}
                 ChargeCVDelay = 0;
                 ChargeCCDelay = 0;                
@@ -943,14 +943,14 @@ void BattChargingCurve(charge_state_data_t *bat_charge_data,uint8_t soft_flag)
                 if(OutVolt >= ChargeVolt){ // 70%
                     if((OutCurr > (bat_charge_data->SetOutCurr*0.95f))
                      ||(OutVolt < (bat_charge_data->SetOutVolt*0.96f))){
-                        bat_charge_data->SetCharState = eCC_CHARGE;    // CC鎭掓祦鍏呯數
+                        bat_charge_data->SetCharState = eCC_CHARGE;    // CC恒流充电
                     }else if((OutCurr < (bat_charge_data->SetOutCurr*0.95f))
                           && (OutCurr > SetOutChargLedCurr)
                           && (OutVolt > bat_charge_data->SetOutVolt*0.97f)){
-                        bat_charge_data->SetCharState = eCV_CHARGE;    // CV鎭掓祦鍏呯數
+                        bat_charge_data->SetCharState = eCV_CHARGE;    // CV恒流充电
                     }else if((OutCurr < SetOutFullLedCurr)
                           && (OutVolt > bat_charge_data->SetOutVolt*0.98f)){
-                        bat_charge_data->SetCharState = eFULL_CHARGE;    // 鐢垫睜鍏呮弧
+                        bat_charge_data->SetCharState = eFULL_CHARGE;    // 电池充满
                     }
 
                     PrechargeDelay = 0;
@@ -958,7 +958,7 @@ void BattChargingCurve(charge_state_data_t *bat_charge_data,uint8_t soft_flag)
                     if(++PrechargeDelay >= TIME_CNT_BAT_TYPE_200MS_IN_10MS)
                     {
                         PrechargeDelay = 0;
-                        bat_charge_data->SetCharState = ePRE_CHARGE;    // 棰勫厖鐢垫ā寮?
+                        bat_charge_data->SetCharState = ePRE_CHARGE;    // 预充电模式
                     }
                     ChargeCVDelay = 0;
                     ChargeCCDelay = 0;
@@ -971,21 +971,21 @@ void BattChargingCurve(charge_state_data_t *bat_charge_data,uint8_t soft_flag)
 
 			if(bat_charge_data->bat_state.LithiumBatOnOff)
 			{	
-				// 濡傛灉鐢靛帇浣庝簬璁剧疆鐢靛帇*0.93
+				// 如果电压低于设置电压*0.93
 				if (OutVolt < (bat_charge_data->SetOutVolt * 0.93f)) 
 				{
                     if(++ClearChargeFlagDelay >= TIME_CNT_BAT_TYPE_200MS_IN_10MS)
                     {
                         ClearChargeFlagDelay = 0;
-						bat_charge_data->bat_state.LithiumBatOnOff = 0; // 鐢靛帇浣庝簬闃堝�硷紝娓呴櫎鍏呮弧鏍囪
-						bat_charge_data->bat_state.sucCurrentReached90Percent = 0; // 娓呴櫎鐢垫祦鏍囧織浣嶏紝閲嶆柊鍒ゆ柇
+						bat_charge_data->bat_state.LithiumBatOnOff = 0; // 电压低于阈值，清除充满标记
+						bat_charge_data->bat_state.sucCurrentReached90Percent = 0; // 清除电流标志位，重新判断
 						bat_charge_data->bat_state.sucPowerReached90Percent = 0;
                     }
 				}else{
                     ClearChargeFlagDelay = 0;
 				}
 
-				bat_charge_data->SetCharState = eSTOP_CHARGE;    // 鍏呮弧鍋滄
+				bat_charge_data->SetCharState = eSTOP_CHARGE;    // 充满停止
 
                 PrechargeDelay = 0;
                 ChargeCVDelay = 0;
@@ -1014,13 +1014,13 @@ void BattChargingCurve(charge_state_data_t *bat_charge_data,uint8_t soft_flag)
                     break;
             }
             break;
-		case 3:  // 瓒呯骇鐢靛
+		case 3:  // 超级电容
             if((OutCurr > (bat_charge_data->SetOutCurr*0.95f))
             || (OutVolt < (bat_charge_data->SetOutVolt*0.96f))){
                 if(++ChargeCCDelay >= TIME_CNT_BAT_TYPE_200MS_IN_10MS)
                 {
                     ChargeCCDelay = 0;
-                    bat_charge_data->SetCharState = eCC_CHARGE;    // CC鎭掓祦鍏呯數
+                    bat_charge_data->SetCharState = eCC_CHARGE;    // CC恒流充电
                 }
                 ChargeCVDelay = 0;
                 LiBatFullDelay = 0;
@@ -1029,7 +1029,7 @@ void BattChargingCurve(charge_state_data_t *bat_charge_data,uint8_t soft_flag)
                 if(++ChargeCVDelay >= TIME_CNT_BAT_TYPE_200MS_IN_10MS)
                 {
                     ChargeCVDelay = 0;
-                    bat_charge_data->SetCharState = eCV_CHARGE;    // CV鎭掓祦鍏呯數
+                    bat_charge_data->SetCharState = eCV_CHARGE;    // CV恒流充电
                 }
                 ChargeCCDelay = 0;
                 LiBatFullDelay = 0;
@@ -1038,7 +1038,7 @@ void BattChargingCurve(charge_state_data_t *bat_charge_data,uint8_t soft_flag)
                 if(++LiBatFullDelay >= TIME_CNT_BAT_TYPE_200MS_IN_10MS)
                 {
                     LiBatFullDelay = 0;
-                    bat_charge_data->SetCharState = eFULL_CHARGE;  // 鐢垫睜鍏呮弧
+                    bat_charge_data->SetCharState = eFULL_CHARGE;  // 电池充满
                 }
             }else{
                 ChargeCVDelay = 0;

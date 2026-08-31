@@ -251,14 +251,14 @@ static void RAMFUNC buck_boost_set_close_loop_duty(buck_boost_t *str, uint32_t i
 
 static float RAMFUNC cal_boost_l_curr_ripple(float t_s, float v_in, float v_out, float l)
 {
-    // è®¡ç®—å…¬å¼
+    // ¼ÆËã¹«Ê½
     float result = (t_s * v_in * (1.0f - v_in / v_out)) / l;
     return result;
 }
 
 static float RAMFUNC cal_buck_l_curr_ripple(float t_s, float v_in, float v_out, float l)
 {
-    // è®¡ç®—å…¬å¼
+    // ¼ÆËã¹«Ê½
     float result = (t_s * (v_in - v_out) * v_out) / (l * v_in);
     return result;
 }
@@ -607,7 +607,7 @@ void RAMFUNC buck_boost_run(buck_boost_t *str)
 
 				// gpio_set_db2(0);
 	// gpio_set_db2(1);
-//          str->inter.is_ccm[0] =1;  //å…³é—­DCM
+//          str->inter.is_ccm[0] =1;  //¹Ø±ÕDCM
         if (str->inter.is_ccm[0])
         {
 			    for (uint32_t i = 0; i < BUCK_BOOST_L_LOOP_NUM; i++)
@@ -621,11 +621,11 @@ void RAMFUNC buck_boost_run(buck_boost_t *str)
         else
         {
 			// gpio_set_db1(1);
-            pid_clr_i_err(&str->inter.l_loop[0].inter.pid); // DCMä¸‹æ¸…é™¤ç§¯åˆ†è¯¯å·®
-			pid_clr_i_err(&str->inter.l_loop[1].inter.pid); // DCMä¸‹æ¸…é™¤ç§¯åˆ†è¯¯å·®
+            pid_clr_i_err(&str->inter.l_loop[0].inter.pid); // DCMÏÂÇå³ı»ı·ÖÎó²î
+			pid_clr_i_err(&str->inter.l_loop[1].inter.pid); // DCMÏÂÇå³ı»ı·ÖÎó²î
 					if(str->inter.volt_loop.inter.pid.output.output < 0.0f)
 					{
-						pid_clr_i_err(&str->inter.volt_loop.inter.pid); // DCMä¸‹æ¸…é™¤ç§¯åˆ†è¯¯å·®
+						pid_clr_i_err(&str->inter.volt_loop.inter.pid); // DCMÏÂÇå³ı»ı·ÖÎó²î
 					}
             str->inter.bb_mode_duty[0].inter.mode = (str->inter.buck_boost_mode == BB_MODE_BOOST)
                                                         ? BUCK_BOOST_MODE_BOOST
@@ -723,7 +723,7 @@ extern uint32_t RAMFUNC HRPWM_GetPeriodValue_Buff(const CM_HRPWM_TypeDef *HRPWMx
 void PWM_para_config(void)
 {
     bsp_pwm_change_freq_pwma(); 
-    bsp_pwm_change_full_freq_pwma();//è®¾ç½®PWMBä¸ºå…¨é¢‘ç‡pwm
+    bsp_pwm_change_full_freq_pwma();//ÉèÖÃPWMBÎªÈ«ÆµÂÊpwm
     bsp_pwm_change_full_freq_pwmb();
     open_loop_pwm.left_duty   = 0.0f;
     open_loop_pwm.left_dn_en  = 0;
@@ -733,13 +733,13 @@ void PWM_para_config(void)
     open_loop_pwm.right_duty  = 0.0f;
     bsp_pwm_set_a_duty(&open_loop_pwm);
     bsp_pwm_set_b_duty(&open_loop_pwm);
-    bsp_pwm_update_chclt2();  // æ›´æ–°é€šé“é…ç½®
-    bsp_hrpwm1_update_trig(); // è§¦å‘hrpwm1å•æ¬¡ç¼“å­˜
-    HRPWM_IDLE_Exit(HRPWM_PWM_SYNC_UNIT, HRPWM_SW_SYNC_CH_ALL); //æ‰€æœ‰é€šé“é€€å‡ºç©ºé—²
-    HRPWM_CountStart(PWM_UNIT); // å¯åŠ¨å®šæ—¶å™¨å¿…é¡»ä»HRPWM1å¼€å§‹ï¼Œ1æ˜¯ä¸»é€šé“
+    bsp_pwm_update_chclt2();  // ¸üĞÂÍ¨µÀÅäÖÃ
+    bsp_hrpwm1_update_trig(); // ´¥·¢hrpwm1µ¥´Î»º´æ
+    HRPWM_IDLE_Exit(HRPWM_PWM_SYNC_UNIT, HRPWM_SW_SYNC_CH_ALL); //ËùÓĞÍ¨µÀÍË³ö¿ÕÏĞ
+    HRPWM_CountStart(PWM_UNIT); // Æô¶¯¶¨Ê±Æ÷±ØĞë´ÓHRPWM1¿ªÊ¼£¬1ÊÇÖ÷Í¨µÀ
 }
 
-//pçƒ“ç²‰ç¿¹ç¾¹m cfg channel .left upen=1;
+//pù·ÛÂN¸şm cfg channel .left upen=1;
 //pwm cfg channel .left dn en=1;
 //pwm cfg channel .right up en=1;
 //Pwm cfg channel right dn en=1
@@ -752,7 +752,7 @@ void PWM_para_config(void)
 //pwm cfg channel B.right duty=0.2f;
 //bsp pwm set a duty(spwm cfg channel )bsp pwm set b duty(spw cfg channel B);
 //bsp pwm update chclt2();
-//bsp hrpwml update trig();//è§¦å‘hrpwm1å•æ¬¡ç¼“å­˜
+//bsp hrpwml update trig();//´¥·¢hrpwm1µ¥´Î»º´æ
 
 #include "adc.h"
 #include "data_com.h"
@@ -794,15 +794,15 @@ void open_loop_test(void)
 
     if (open_loop_bb.output.is_half_freq == 0)
     {
-        bsp_pwm_change_full_freq_pwma(); // è®¾ç½®PWMAä¸ºå…¨é¢‘ç‡
-        bsp_pwm_change_full_freq_pwmb(); // è®¾ç½®PWMBä¸ºå…¨é¢‘ç‡
+        bsp_pwm_change_full_freq_pwma(); // ÉèÖÃPWMAÎªÈ«ÆµÂÊ
+        bsp_pwm_change_full_freq_pwmb(); // ÉèÖÃPWMBÎªÈ«ÆµÂÊ
 //        HRPWM_SetPeriodValue_Buf(PWM_UNIT,CTRL_PERIOD);
 //        HRPWM_SetPeriodValue_Buf(PWM_UNIT,CTRL_PERIOD);
     }
     else
     {
-        bsp_pwm_change_half_freq_pwma(); // è®¾ç½®PWMAä¸ºåŠé¢‘ç‡
-        bsp_pwm_change_half_freq_pwmb(); // è®¾ç½®PWMBä¸ºåŠé¢‘ç‡
+        bsp_pwm_change_half_freq_pwma(); // ÉèÖÃPWMAÎª°ëÆµÂÊ
+        bsp_pwm_change_half_freq_pwmb(); // ÉèÖÃPWMBÎª°ëÆµÂÊ
 //        HRPWM_SetPeriodValue_Buf(PWM_UNIT,((CTRL_PERIOD + 1) << 1)-64);
 //        HRPWM_SetPeriodValue_Buf(PWM_UNIT,((CTRL_PERIOD + 1) << 1)-64);
     }
@@ -885,7 +885,7 @@ void open_loop_test(void)
         bsp_pwm_set_a_duty(&open_loop_pwm);
         bsp_pwm_set_b_duty(&open_loop_pwm);
     }
-//    bsp_hrpwm1_update_trig(); // è§¦å‘hrpwm1å•æ¬¡ç¼“å­˜
-//    bsp_pwm_update_chclt2();  // æ›´æ–°é€šé“é…ç½®
-    bsp_hrpwm1_update_trig(); // è§¦å‘hrpwm1å•æ¬¡ç¼“å­˜
+//    bsp_hrpwm1_update_trig(); // ´¥·¢hrpwm1µ¥´Î»º´æ
+//    bsp_pwm_update_chclt2();  // ¸üĞÂÍ¨µÀÅäÖÃ
+    bsp_hrpwm1_update_trig(); // ´¥·¢hrpwm1µ¥´Î»º´æ
 }

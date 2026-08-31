@@ -62,7 +62,7 @@
 #define WG_COM_V2_APP_DEBUG_EVENT_SIZE 8U
 #define WG_COM_V2_APP_DEBUG_REG_COUNT ((WG_COM_V2_APP_DEBUG_EVENT_COUNT * WG_COM_V2_APP_DEBUG_EVENT_SIZE) / 2U)
 
-#define MODBUS_MIN_FRAME_LEN 5 // åœ°å€(1) + åŠŸèƒ½ç (1) + èµ·å§‹å¯„å­˜å™¨(2) + CRC(2)
+#define MODBUS_MIN_FRAME_LEN 5 // µØÖ·(1) + ¹¦ÄÜÂë(1) + ÆğÊ¼¼Ä´æÆ÷(2) + CRC(2)
 
 #define USART0_DELAY_CONT   0xffff
 
@@ -85,12 +85,12 @@ typedef struct
     uint16_t dn_lmt;
 } wg_com_v2_data_lmt_map_t;
 
-// åœ°å€åŒºåŸŸæè¿°ç»“æ„ä½“
+// µØÖ·ÇøÓòÃèÊö½á¹¹Ìå
 typedef struct
 {
     uint16_t start_addr;
     uint16_t end_addr;
-    void *data_ptr; // æ•°æ®ç»“æ„èµ·å§‹åœ°å€
+    void *data_ptr; // Êı¾İ½á¹¹ÆğÊ¼µØÖ·
 } addr_region_t;
 
 #pragma pack(1)
@@ -98,57 +98,57 @@ typedef struct
 #define WG_COM_V2_PRUCUCT_INFO_ADDR 0x0
 typedef struct
 {
-    uint16_t ProtocolVersion[2];   // åè®®ç‰ˆæœ¬
-    uint16_t ProductType[2];       // äº§å“ç±»å‹
-    uint16_t HardverVerzi[2];      // ç¡¬ä»¶ç‰ˆæœ¬
-    uint16_t SoftVersion[2];       // è½¯ä»¶ç‰ˆæœ¬
-    uint16_t SnSerial[10];         // SNåºåˆ—å·
-    uint16_t ProductName[10];      // äº§å“åç§°
-    uint16_t Address;              // åœ°å€
-    uint16_t ApplicationScenarios; // åº”ç”¨åœºæ™¯
-    uint16_t CustomizationVersion; // åè®®å®šåˆ¶
-    uint16_t MacAddress[10];       // macåœ°å€
-    uint16_t BtName;               // è®¾ç½®è“ç‰™åç§°
+    uint16_t ProtocolVersion[2];   // Ğ­Òé°æ±¾
+    uint16_t ProductType[2];       // ²úÆ·ÀàĞÍ
+    uint16_t HardverVerzi[2];      // Ó²¼ş°æ±¾
+    uint16_t SoftVersion[2];       // Èí¼ş°æ±¾
+    uint16_t SnSerial[10];         // SNĞòÁĞºÅ
+    uint16_t ProductName[10];      // ²úÆ·Ãû³Æ
+    uint16_t Address;              // µØÖ·
+    uint16_t ApplicationScenarios; // Ó¦ÓÃ³¡¾°
+    uint16_t CustomizationVersion; // Ğ­Òé¶¨ÖÆ
+    uint16_t MacAddress[10];       // macµØÖ·
+    uint16_t BtName;               // ÉèÖÃÀ¶ÑÀÃû³Æ
 } wg_com_v2_product_info_t;
 
 #define WG_COM_V2_REALTIME_DATA_ADDR 0x200
 typedef struct
 {
-    uint16_t InpVolt;      // Aç«¯ç”µå‹
-    uint16_t InpCurr;      // Aç«¯ç”µæµ
-    uint16_t InpCurrPower; // Aç«¯åŠŸç‡
-    uint16_t OutVolt;      // Bç«¯ç”µå‹
-    uint16_t OutCurr;      // Bç«¯ç”µæµ
-    uint16_t OutCurrPower; // Bç«¯åŠŸç‡
-    int16_t InsideTemp;   // å†…éƒ¨æ¸©åº¦
-    int16_t OutsideTemp;  // å¤–éƒ¨æ¸©åº¦
-    uint16_t PowerMode;    // ç”µæºæ¨¡å¼
-    uint16_t ChargMode;    // å……ç”µæ¨¡å¼
-    uint16_t FaultSign;    // æ•…éšœä¿¡å·
-    uint16_t AlarmSign;    // å‘Šè­¦ä¿¡å·
-    uint16_t CompensationVoltA; // Aç«¯è¡¥å¿
-    uint16_t CompensationVoltB; // Bç«¯è¡¥å¿
-    int16_t Temp2;        // å™¨ä»¶æ¸©åº¦2
-    uint16_t StateCharge;  // å……ç”µçŠ¶æ€  
-    uint16_t ADDVolt;      // ADDè¾…æºç”µå‹
+    uint16_t InpVolt;      // A¶ËµçÑ¹
+    uint16_t InpCurr;      // A¶ËµçÁ÷
+    uint16_t InpCurrPower; // A¶Ë¹¦ÂÊ
+    uint16_t OutVolt;      // B¶ËµçÑ¹
+    uint16_t OutCurr;      // B¶ËµçÁ÷
+    uint16_t OutCurrPower; // B¶Ë¹¦ÂÊ
+    int16_t InsideTemp;   // ÄÚ²¿ÎÂ¶È
+    int16_t OutsideTemp;  // Íâ²¿ÎÂ¶È
+    uint16_t PowerMode;    // µçÔ´Ä£Ê½
+    uint16_t ChargMode;    // ³äµçÄ£Ê½
+    uint16_t FaultSign;    // ¹ÊÕÏĞÅºÅ
+    uint16_t AlarmSign;    // ¸æ¾¯ĞÅºÅ
+    uint16_t CompensationVoltA; // A¶Ë²¹³¥
+    uint16_t CompensationVoltB; // B¶Ë²¹³¥
+    int16_t Temp2;        // Æ÷¼şÎÂ¶È2
+    uint16_t StateCharge;  // ³äµç×´Ì¬  
+    uint16_t ADDVolt;      // ADD¸¨Ô´µçÑ¹
 } wg_com_v2_realtime_data_t;
 
 #define WG_COM_V2_CTRL_ADDR 0x400
 typedef struct
 {
-    uint16_t FactoryReset;        // 400: æ¢å¤å‡ºå‚è®¾ç½®
-    uint16_t PowerOnOff;          // 401: å¼€å…³æœºçŠ¶æ€
-    uint16_t SetPowerMode;        // 402: ç”µæºæ¨¡å¼
-    uint16_t SetChargMode;        // 403: å……ç”µæ¨¡å¼
-    uint16_t InpBatyType;         // 404: Aç«¯ç”µæ± ç±»å‹ï¼ˆé«˜8ä½ç±»å‹ï¼Œä½8ä½ç”µå‹ï¼‰
-    uint16_t OutBatyType;         // 405: Bç«¯ç”µæ± ç±»å‹ï¼ˆé«˜8ä½ç±»å‹ï¼Œä½8ä½ç”µå‹ï¼‰
-    uint16_t SetBootTimeA;        // 406: Aç«¯å¼€æœºæ—¶é—´
-    uint16_t SetBootTimeB;        // 407: Bç«¯å¼€æœºæ—¶é—´
-    uint16_t SetOnCurrStartTimeA; // 408: Aç«¯å¼€æœºç”µæµè½¯èµ·åŠ¨æ—¶é—´
-    uint16_t SetOnCurrStartTimeB; // 409: Bç«¯å¼€æœºç”µæµè½¯èµ·åŠ¨æ—¶é—´
-    uint16_t ZeroCurrCalibration; // 40A: ç«¯é›¶ç”µæµæ ¡å‡†
-    uint16_t ResetFactoryData;    // 40B: æ¢å¤å‚å®¶æ•°æ®
-    uint16_t BatModeFR;           // 40C: ç”µæ± æ¨¡å¼æ­£åå‘åˆ‡æ¢
+    uint16_t FactoryReset;        // 400: »Ö¸´³ö³§ÉèÖÃ
+    uint16_t PowerOnOff;          // 401: ¿ª¹Ø»ú×´Ì¬
+    uint16_t SetPowerMode;        // 402: µçÔ´Ä£Ê½
+    uint16_t SetChargMode;        // 403: ³äµçÄ£Ê½
+    uint16_t InpBatyType;         // 404: A¶Ëµç³ØÀàĞÍ£¨¸ß8Î»ÀàĞÍ£¬µÍ8Î»µçÑ¹£©
+    uint16_t OutBatyType;         // 405: B¶Ëµç³ØÀàĞÍ£¨¸ß8Î»ÀàĞÍ£¬µÍ8Î»µçÑ¹£©
+    uint16_t SetBootTimeA;        // 406: A¶Ë¿ª»úÊ±¼ä
+    uint16_t SetBootTimeB;        // 407: B¶Ë¿ª»úÊ±¼ä
+    uint16_t SetOnCurrStartTimeA; // 408: A¶Ë¿ª»úµçÁ÷ÈíÆğ¶¯Ê±¼ä
+    uint16_t SetOnCurrStartTimeB; // 409: B¶Ë¿ª»úµçÁ÷ÈíÆğ¶¯Ê±¼ä
+    uint16_t ZeroCurrCalibration; // 40A: ¶ËÁãµçÁ÷Ğ£×¼
+    uint16_t ResetFactoryData;    // 40B: »Ö¸´³§¼ÒÊı¾İ
+    uint16_t BatModeFR;           // 40C: µç³ØÄ£Ê½Õı·´ÏòÇĞ»»
     uint16_t MpptSwitch;          // 40D: MPPT mode switch
     uint16_t SleepModeOnOff;      // 40E: sleep mode switch
 } wg_com_v2_ctrl_t;
@@ -156,57 +156,57 @@ typedef struct
 #define WG_COM_V2_PARAM_ADDR 0x800
 typedef struct
 {
-    uint16_t InpVoltCalibrK;     // Aç«¯ç”µå‹æ ¡å‡†Kå€¼
-    uint16_t InpVoltCalibrB;     // Aç«¯ç”µå‹æ ¡å‡†Bå€¼
-    uint16_t InpCurrCalibrK;     // Aç«¯ç”µæµæ ¡å‡†Kå€¼
-    uint16_t InpCurrCalibrB;     // Aç«¯ç”µæµæ ¡å‡†Bå€¼
-    uint16_t InpShowVoltCalibrK; // Aç«¯æ˜¾ç¤ºç”µå‹æ ¡å‡†Kå€¼
-    uint16_t InpShowVoltCalibrB; // Aç«¯æ˜¾ç¤ºç”µå‹æ ¡å‡†Bå€¼
-    uint16_t InpShowCurrCalibrK; // Aç«¯æ˜¾ç¤ºç”µæµæ ¡å‡†Kå€¼
-    uint16_t InpShowCurrCalibrB; // Aç«¯æ˜¾ç¤ºç”µæµæ ¡å‡†Bå€¼
-    uint16_t OutVoltCalibrK;     // Bç«¯ç”µå‹æ ¡å‡†Kå€¼
-    uint16_t OutVoltCalibrB;     // Bç«¯ç”µå‹æ ¡å‡†Bå€¼
-    uint16_t OutCurrCalibrK;     // Bç«¯ç”µæµæ ¡å‡†Kå€¼
-    uint16_t OutCurrCalibrB;     // Bç«¯ç”µæµæ ¡å‡†Bå€¼
-    uint16_t OutShowVoltCalibrK; // Bç«¯æ˜¾ç¤ºç”µå‹æ ¡å‡†Kå€¼
-    uint16_t OutShowVoltCalibrB; // Bç«¯æ˜¾ç¤ºç”µå‹æ ¡å‡†Bå€¼
-    uint16_t OutShowCurrCalibrK; // Bç«¯æ˜¾ç¤ºç”µæµæ ¡å‡†Kå€¼
-    uint16_t OutShowCurrCalibrB; // Bç«¯æ˜¾ç¤ºç”µæµæ ¡å‡†Bå€¼
-    uint16_t BOutShowCurrCalibrK;// Bç«¯æ˜¾ç¤ºç”µæµæ ¡å‡†Kå€¼	
-    uint16_t BOutShowCurrCalibrB;// Bç«¯æ˜¾ç¤ºç”µæµæ ¡å‡†Bå€¼	
-    uint16_t AOutShowCurrCalibrK;// Aç«¯æ˜¾ç¤ºç”µæµæ ¡å‡†Kå€¼	
-    uint16_t AOutShowCurrCalibrB;// Aç«¯æ˜¾ç¤ºç”µæµæ ¡å‡†Bå€¼	
-    uint16_t VoltCompensationAK; // ACC/Aç«¯ç”µå‹è¡¥å¿æ ¡å‡†Kå€¼	
-    uint16_t VoltCompensationAB; // ACC/Aç«¯ç”µå‹è¡¥å¿æ ¡å‡†Bå€¼	
-    uint16_t VoltCompensationBK; // RTM/Bç«¯ç”µå‹è¡¥å¿æ ¡å‡†Kå€¼	
-    uint16_t VoltCompensationBB; // RTM/Bç«¯ç”µå‹è¡¥å¿æ ¡å‡†Bå€¼	
-    uint16_t Retain10[2];        // ä¿ç•™
-    uint16_t SetInpVolt;         // Aç«¯ç”µå‹
-    uint16_t SetInpCurr;         // Aç«¯ç”µæµ
-    uint16_t SetInpCurrPower;    // Aç«¯åŠŸç‡
-    uint16_t SetOutVolt;         // Bç«¯ç”µå‹
-    uint16_t SetOutCurr;         // Bç«¯ç”µæµ
-    uint16_t SetOutCurrPower;    // Bç«¯åŠŸç‡
-    uint16_t SetInpUvlo;         // Aç«¯æ¬ å‹ä¿æŠ¤
-    uint16_t SetInpUvloRecover;  // Aç«¯æ¬ å‹ä¿æŠ¤æ¢å¤
-    uint16_t SetInpOVP;          // Aç«¯è¿‡å‹ä¿æŠ¤
-    uint16_t SetInpOVPRecover;   // Aç«¯è¿‡å‹ä¿æŠ¤æ¢å¤
-    uint16_t SetOutUvlo;         // Bç«¯æ¬ å‹ä¿æŠ¤
-    uint16_t SetOutUvloRecover;  // Bç«¯æ¬ å‹ä¿æŠ¤æ¢å¤
-    uint16_t SetOutOVP;          // Bç«¯è¿‡å‹ä¿æŠ¤
-    uint16_t SetOutOVPRecover;   // Bç«¯è¿‡å‹ä¿æŠ¤æ¢å¤
-    int16_t SetInsideTemp;      // å†…éƒ¨æ¸©åº¦
-    int16_t SetOutsideTemp;     // å¤–éƒ¨æ¸©åº¦
-    uint16_t SetInpChargLedCurr; // Aç«¯å……ç”µæŒ‡ç¤ºç¯ç”µæµ
-    uint16_t SetInpFullLedCurr;  // Aç«¯å……æ»¡æŒ‡ç¤ºç¯ç”µæµ
-    uint16_t SetOutChargLedCurr; // Bç«¯å……ç”µæŒ‡ç¤ºç¯ç”µæµ
-    uint16_t SetOutFullLedCurr;  // Bç«¯å……æ»¡æŒ‡ç¤ºç¯ç”µæµ
-    uint16_t AuotForwardOpenVoltA; // è‡ªåŠ¨æ¨¡å¼æ­£å‘Aç«¯å¼€å¯ç”µå‹
-    uint16_t AuotForwardVeerVoltA; // è‡ªåŠ¨æ¨¡å¼æ­£å‘è½¬å‘Aç”µå‹
-    uint16_t AuotForwardShutVoltA; // è‡ªåŠ¨æ¨¡å¼æ­£å‘Aç«¯å…³é—­ç”µå‹
-    uint16_t AuotReverseOpenVoltB; // è‡ªåŠ¨æ¨¡å¼åå‘Bç«¯å¼€å¯ç”µå‹
-    uint16_t AuotReverseShutVoltB; // è‡ªåŠ¨æ¨¡å¼åå‘Bç«¯å…³é—­ç”µå‹
-    int16_t SetTemp2;             // å†…éƒ¨æ¸©åº¦
+    uint16_t InpVoltCalibrK;     // A¶ËµçÑ¹Ğ£×¼KÖµ
+    uint16_t InpVoltCalibrB;     // A¶ËµçÑ¹Ğ£×¼BÖµ
+    uint16_t InpCurrCalibrK;     // A¶ËµçÁ÷Ğ£×¼KÖµ
+    uint16_t InpCurrCalibrB;     // A¶ËµçÁ÷Ğ£×¼BÖµ
+    uint16_t InpShowVoltCalibrK; // A¶ËÏÔÊ¾µçÑ¹Ğ£×¼KÖµ
+    uint16_t InpShowVoltCalibrB; // A¶ËÏÔÊ¾µçÑ¹Ğ£×¼BÖµ
+    uint16_t InpShowCurrCalibrK; // A¶ËÏÔÊ¾µçÁ÷Ğ£×¼KÖµ
+    uint16_t InpShowCurrCalibrB; // A¶ËÏÔÊ¾µçÁ÷Ğ£×¼BÖµ
+    uint16_t OutVoltCalibrK;     // B¶ËµçÑ¹Ğ£×¼KÖµ
+    uint16_t OutVoltCalibrB;     // B¶ËµçÑ¹Ğ£×¼BÖµ
+    uint16_t OutCurrCalibrK;     // B¶ËµçÁ÷Ğ£×¼KÖµ
+    uint16_t OutCurrCalibrB;     // B¶ËµçÁ÷Ğ£×¼BÖµ
+    uint16_t OutShowVoltCalibrK; // B¶ËÏÔÊ¾µçÑ¹Ğ£×¼KÖµ
+    uint16_t OutShowVoltCalibrB; // B¶ËÏÔÊ¾µçÑ¹Ğ£×¼BÖµ
+    uint16_t OutShowCurrCalibrK; // B¶ËÏÔÊ¾µçÁ÷Ğ£×¼KÖµ
+    uint16_t OutShowCurrCalibrB; // B¶ËÏÔÊ¾µçÁ÷Ğ£×¼BÖµ
+    uint16_t BOutShowCurrCalibrK;// B¶ËÏÔÊ¾µçÁ÷Ğ£×¼KÖµ	
+    uint16_t BOutShowCurrCalibrB;// B¶ËÏÔÊ¾µçÁ÷Ğ£×¼BÖµ	
+    uint16_t AOutShowCurrCalibrK;// A¶ËÏÔÊ¾µçÁ÷Ğ£×¼KÖµ	
+    uint16_t AOutShowCurrCalibrB;// A¶ËÏÔÊ¾µçÁ÷Ğ£×¼BÖµ	
+    uint16_t VoltCompensationAK; // ACC/A¶ËµçÑ¹²¹³¥Ğ£×¼KÖµ	
+    uint16_t VoltCompensationAB; // ACC/A¶ËµçÑ¹²¹³¥Ğ£×¼BÖµ	
+    uint16_t VoltCompensationBK; // RTM/B¶ËµçÑ¹²¹³¥Ğ£×¼KÖµ	
+    uint16_t VoltCompensationBB; // RTM/B¶ËµçÑ¹²¹³¥Ğ£×¼BÖµ	
+    uint16_t Retain10[2];        // ±£Áô
+    uint16_t SetInpVolt;         // A¶ËµçÑ¹
+    uint16_t SetInpCurr;         // A¶ËµçÁ÷
+    uint16_t SetInpCurrPower;    // A¶Ë¹¦ÂÊ
+    uint16_t SetOutVolt;         // B¶ËµçÑ¹
+    uint16_t SetOutCurr;         // B¶ËµçÁ÷
+    uint16_t SetOutCurrPower;    // B¶Ë¹¦ÂÊ
+    uint16_t SetInpUvlo;         // A¶ËÇ·Ñ¹±£»¤
+    uint16_t SetInpUvloRecover;  // A¶ËÇ·Ñ¹±£»¤»Ö¸´
+    uint16_t SetInpOVP;          // A¶Ë¹ıÑ¹±£»¤
+    uint16_t SetInpOVPRecover;   // A¶Ë¹ıÑ¹±£»¤»Ö¸´
+    uint16_t SetOutUvlo;         // B¶ËÇ·Ñ¹±£»¤
+    uint16_t SetOutUvloRecover;  // B¶ËÇ·Ñ¹±£»¤»Ö¸´
+    uint16_t SetOutOVP;          // B¶Ë¹ıÑ¹±£»¤
+    uint16_t SetOutOVPRecover;   // B¶Ë¹ıÑ¹±£»¤»Ö¸´
+    int16_t SetInsideTemp;      // ÄÚ²¿ÎÂ¶È
+    int16_t SetOutsideTemp;     // Íâ²¿ÎÂ¶È
+    uint16_t SetInpChargLedCurr; // A¶Ë³äµçÖ¸Ê¾µÆµçÁ÷
+    uint16_t SetInpFullLedCurr;  // A¶Ë³äÂúÖ¸Ê¾µÆµçÁ÷
+    uint16_t SetOutChargLedCurr; // B¶Ë³äµçÖ¸Ê¾µÆµçÁ÷
+    uint16_t SetOutFullLedCurr;  // B¶Ë³äÂúÖ¸Ê¾µÆµçÁ÷
+    uint16_t AuotForwardOpenVoltA; // ×Ô¶¯Ä£Ê½ÕıÏòA¶Ë¿ªÆôµçÑ¹
+    uint16_t AuotForwardVeerVoltA; // ×Ô¶¯Ä£Ê½ÕıÏò×ªÏòAµçÑ¹
+    uint16_t AuotForwardShutVoltA; // ×Ô¶¯Ä£Ê½ÕıÏòA¶Ë¹Ø±ÕµçÑ¹
+    uint16_t AuotReverseOpenVoltB; // ×Ô¶¯Ä£Ê½·´ÏòB¶Ë¿ªÆôµçÑ¹
+    uint16_t AuotReverseShutVoltB; // ×Ô¶¯Ä£Ê½·´ÏòB¶Ë¹Ø±ÕµçÑ¹
+    int16_t SetTemp2;             // ÄÚ²¿ÎÂ¶È
 } wg_com_v2_param_t;
 
 #pragma pack()
@@ -243,7 +243,7 @@ typedef struct
     uint8_t *is_rx_flag;
     uint32_t *timeout;
     const char *tag;
-    void (*my_printf)(const char *fmt, ...); // ä¸²å£ä¸“ç”¨ printf æ¥å£
+    void (*my_printf)(const char *fmt, ...); // ´®¿Ú×¨ÓÃ printf ½Ó¿Ú
     usart_output_port_t USARTx;
 } usart_dma_port_t;
 

@@ -19,7 +19,7 @@ can_packet_id_t can_build_ext_id(
     packet_id.cnt = cnt;
     packet_id.res1 = res1;
     packet_id.res2 = res2;
-    packet_id.rsvd = 0; // ä¿ç•™ä½
+    packet_id.rsvd = 0; // ±£ÁôÎ»
     return packet_id;
 }
 
@@ -27,8 +27,8 @@ void can_build_payload(uint8_t *data, uint8_t group, uint8_t msg_type, uint8_t c
 {
     data[0] = ((group & 0x0F) << 4) | (msg_type & 0x0F);
     data[1] = cmd_type;
-    data[2] = 0x00; // ä¿ç•™
-    data[3] = 0x00; // ä¿ç•™
+    data[2] = 0x00; // ±£Áô
+    data[3] = 0x00; // ±£Áô
     data[4] = (cmd_data >> 24) & 0xFF;
     data[5] = (cmd_data >> 16) & 0xFF;
     data[6] = (cmd_data >> 8) & 0xFF;
@@ -51,10 +51,10 @@ void can_packet_transmit_data(uint16_t protno,
 }
 
 /**
- * @brief æ¥æ”¶ä¸€ä¸ªCANæ‰©å±•å¸§ï¼ˆ29bit ID + 8å­—èŠ‚æ•°æ®ï¼‰ï¼Œå¹¶è§£æåˆ°can_packet_tç»“æ„ä½“
- * @param can_periph CANå¤–è®¾ï¼ˆå¦‚CAN0ï¼‰
- * @param packet     è¾“å‡ºï¼Œæ¥æ”¶åˆ°çš„can_packet_tç»“æ„ä½“
- * @return 0=æˆåŠŸï¼Œé0=å¤±è´¥
+ * @brief ½ÓÊÕÒ»¸öCANÀ©Õ¹Ö¡£¨29bit ID + 8×Ö½ÚÊı¾İ£©£¬²¢½âÎöµ½can_packet_t½á¹¹Ìå
+ * @param can_periph CANÍâÉè£¨ÈçCAN0£©
+ * @param packet     Êä³ö£¬½ÓÊÕµ½µÄcan_packet_t½á¹¹Ìå
+ * @return 0=³É¹¦£¬·Ç0=Ê§°Ü
  */
 int can_packet_receive(can_packet_t *packet)
 {

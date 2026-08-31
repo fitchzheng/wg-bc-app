@@ -33,11 +33,11 @@ static uint8_t wg_com_checksum(wg_com_frame_t *wg_com_frame)
     checksum = DEC_TO_BCD(checksum);
     if (checksum == wg_com_frame->checksum)
     {
-        return 1; // æ ¡éªŒå’Œæ­£ç¡®
+        return 1; // Ğ£ÑéºÍÕıÈ·
     }
     else
     {
-        return 0; // æ ¡éªŒå’Œé”™è¯¯
+        return 0; // Ğ£ÑéºÍ´íÎó
     }
 }
 
@@ -62,7 +62,7 @@ void wg_com_run(void)
         wg_com_buffer_cnt++;
         if (wg_com_buffer_cnt >= MAX_FRAME_SIZE)
         {
-            wg_com_buffer_cnt = 0; // é˜²æ­¢æº¢å‡º
+            wg_com_buffer_cnt = 0; // ·ÀÖ¹Òç³ö
         }
         if (rx_data == FRAME_TAIL)
         {
@@ -72,29 +72,29 @@ void wg_com_run(void)
             wg_com_frame.addr = wg_com_buffer[1];
             wg_com_frame.length = wg_com_buffer[2];
             wg_com_frame.cid = wg_com_buffer[3];
-            wg_com_frame.info = &wg_com_buffer[4];                          // INFO èµ·å§‹ä½ç½®
-            wg_com_frame.checksum = wg_com_buffer[3 + wg_com_frame.length]; // æ ¡éªŒå’Œä½ç½®
-            wg_com_frame.eoi = wg_com_buffer[4 + wg_com_frame.length];      // ç»“æŸç¬¦ä½ç½®
+            wg_com_frame.info = &wg_com_buffer[4];                          // INFO ÆğÊ¼Î»ÖÃ
+            wg_com_frame.checksum = wg_com_buffer[3 + wg_com_frame.length]; // Ğ£ÑéºÍÎ»ÖÃ
+            wg_com_frame.eoi = wg_com_buffer[4 + wg_com_frame.length];      // ½áÊø·ûÎ»ÖÃ
             if (((wg_com_frame.addr == HOST_ADDR) ||
                  (wg_com_frame.addr == BROADCAST_ADDR)) &&
                 wg_com_checksum(&wg_com_frame))
             {
                 extern reg_wg_com_t *p_wg_com_first;
-                // æ ¡éªŒå’Œæ­£ç¡®ï¼Œæ‰§è¡Œå‘½ä»¤
+                // Ğ£ÑéºÍÕıÈ·£¬Ö´ĞĞÃüÁî
                 reg_wg_com_t *p_wg_com = p_wg_com_first;
                 while (p_wg_com != NULL)
                 {
                     if (p_wg_com->cmd == wg_com_frame.cid)
                     {
-                        p_wg_com->p_func(&wg_com_frame); // æ‰§è¡Œå¯¹åº”çš„å‡½æ•°
+                        p_wg_com->p_func(&wg_com_frame); // Ö´ĞĞ¶ÔÓ¦µÄº¯Êı
                         break;
                     }
-                    p_wg_com = p_wg_com->p_next; // ç§»åŠ¨åˆ°ä¸‹ä¸€ä¸ªå‘½ä»¤
+                    p_wg_com = p_wg_com->p_next; // ÒÆ¶¯µ½ÏÂÒ»¸öÃüÁî
                 }
             }
             else
             {
-                // æ ¡éªŒå’Œé”™è¯¯ï¼Œå¤„ç†é”™è¯¯
+                // Ğ£ÑéºÍ´íÎó£¬´¦Àí´íÎó
             }
         }
     }
@@ -113,8 +113,8 @@ void wg_com_send(uint8_t cmd, uint8_t *data, uint32_t len)
     wg_com_frame.checksum = wg_com_cal_sum(&wg_com_frame);
 
     printf("%c", wg_com_frame.soi);
-    printf("%c", wg_com_frame.addr);   // åœ°å€
-    printf("%c", wg_com_frame.length); // CMD + INFO é•¿åº¦
+    printf("%c", wg_com_frame.addr);   // µØÖ·
+    printf("%c", wg_com_frame.length); // CMD + INFO ³¤¶È
     printf("%c", cmd);
     for (int i = 0; i < len; i++)
     {

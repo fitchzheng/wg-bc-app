@@ -68,11 +68,11 @@ typedef struct
 } can_packet_t;
 #pragma pack(pop)
 
-// æ¶ˆæ¯ç±»å‹
+// ÏûÏ¢ÀàĞÍ
 #define CAN_MSG_SET_DATA 0x00
 #define CAN_MSG_READ_DATA 0x02
 
-// å¸§å‘½ä»¤ç±»å‹ï¼ˆä¸¾ä¾‹ï¼‰
+// Ö¡ÃüÁîÀàĞÍ£¨¾ÙÀı£©
 #define CMD_VOUT_REF 0x02
 
 can_packet_id_t can_build_ext_id(uint16_t protno, uint8_t ptp, uint8_t dstaddr, uint8_t srcaddr, uint8_t cnt, uint8_t res1, uint8_t res2);

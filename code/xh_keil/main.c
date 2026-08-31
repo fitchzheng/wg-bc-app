@@ -14,7 +14,7 @@ int main(void)
 {
     LL_PERIPH_WE(LL_PERIPH_SEL);
     BSP_CLK_Init();
-    bsp_timer_irq_register(section_interrupt); // 注册中断回调
+    bsp_timer_irq_register(section_interrupt); // ע���жϻص�
     SysTick_Init(1000);
     section_init();
     while (1)

@@ -17,7 +17,7 @@
 #include "fan_drive.h"
 
 #define ALARM_FAN_RUNNING_REPORT 0x4000U
-// ä½¿ç”¨é™æ€å˜é‡é™åˆ¶ä½œç”¨åŸŸå¹¶æé«˜è®¿é—®é€Ÿåº¦
+// Ê¹ÓÃ¾²Ì¬±äÁ¿ÏŞÖÆ×÷ÓÃÓò²¢Ìá¸ß·ÃÎÊËÙ¶È
 static float ila_val = 0.0f;
 static float ilb_val = 0.0f;
 static uint32_t il_ocp_cnt = 0;
@@ -33,35 +33,35 @@ REG_SHELL_VAR(ilb_val_obs, ilb_val_obs, SHELL_FP32, 10000.0f, -10000.0f, NULL, S
 extern void gpio_set_auxoff(uint8_t val);
 void protect_fast(void)
 {
-    // 1. å¿«é€Ÿè·å–ADCå€¼ - ç›´æ¥ä½¿ç”¨å¯„å­˜å™¨è®¿é—®æ–¹å¼å¦‚æœå¯èƒ½
+    // 1. ¿ìËÙ»ñÈ¡ADCÖµ - Ö±½ÓÊ¹ÓÃ¼Ä´æÆ÷·ÃÎÊ·½Ê½Èç¹û¿ÉÄÜ
     ila_val = adc_get_ila();
     ilb_val = adc_get_ilb();
 
-    // 2. ä½¿ç”¨æ•´æ•°æ¯”è¾ƒå’Œä½æ“ä½œåŠ é€Ÿæ¡ä»¶åˆ¤æ–­
+    // 2. Ê¹ÓÃÕûÊı±È½ÏºÍÎ»²Ù×÷¼ÓËÙÌõ¼şÅĞ¶Ï
     if ((fabsf(ila_val) > IL_OCP_THRESHOLD) |
         (fabsf(ilb_val) > IL_OCP_THRESHOLD))
     {
-        // 3. ä½¿ç”¨é¥±å’Œè®¡æ•°å™¨é˜²æ­¢æº¢å‡º
+        // 3. Ê¹ÓÃ±¥ºÍ¼ÆÊıÆ÷·ÀÖ¹Òç³ö
         if (il_ocp_cnt < IL_OCP_TIME)
         {
             il_ocp_cnt++;
         }
 
-        // 4. ä½¿ç”¨æå‰åˆ¤æ–­å‡å°‘åˆ†æ”¯é¢„æµ‹å¤±è´¥
+        // 4. Ê¹ÓÃÌáÇ°ÅĞ¶Ï¼õÉÙ·ÖÖ§Ô¤²âÊ§°Ü
         if (il_ocp_cnt >= IL_OCP_TIME)
         {
             il_ocp_cnt = 0;
             fault_set_fault(FAULT_OCP);
             ((ctrl_app_get_ctrl_mode() == CTRL_BACKWARD) ? fault_set_fault(FAULT_FVS48_SCP) : fault_set_fault(FAULT_RVS12_SCP));
-            ctrl_app_disable();    // ç¦ç”¨æ§åˆ¶å™¨
-//            ila_val_obs = ila_val; // è®°å½•å¼‚å¸¸å€¼
-//            ilb_val_obs = ilb_val; // è®°å½•å¼‚å¸¸å€¼
-            return;                // æå‰è¿”å›é¿å…åç»­åˆ¤æ–­
+            ctrl_app_disable();    // ½ûÓÃ¿ØÖÆÆ÷
+//            ila_val_obs = ila_val; // ¼ÇÂ¼Òì³£Öµ
+//            ilb_val_obs = ilb_val; // ¼ÇÂ¼Òì³£Öµ
+            return;                // ÌáÇ°·µ»Ø±ÜÃâºóĞøÅĞ¶Ï
         }
     }
     else
     {
-        il_ocp_cnt = 0; // é‡ç½®è®¡æ•°å™¨
+        il_ocp_cnt = 0; // ÖØÖÃ¼ÆÊıÆ÷
     }
 
     const float fvs48_val = get_show_fvs48_show();
@@ -77,9 +77,9 @@ void protect_fast(void)
         uvp_cnt++;
         if (uvp_cnt >= FAST_UVP_TIME)
         {
-            uvp_cnt = FAST_UVP_TIME; // é˜²æ­¢æº¢å‡º
+            uvp_cnt = FAST_UVP_TIME; // ·ÀÖ¹Òç³ö
             fault_set_fault(FAULT_FAST_UVP);
-            ctrl_app_disable(); // ç¦ç”¨æ§åˆ¶å™¨
+            ctrl_app_disable(); // ½ûÓÃ¿ØÖÆÆ÷
         }
     }
     else
@@ -92,11 +92,11 @@ void protect_fast(void)
     }
 }
 
-// ç¡®ä¿ä¸­æ–­å¤„ç†å‡½æ•°åœ¨å¿«é€Ÿå†…å­˜åŒºåŸŸ
+// È·±£ÖĞ¶Ï´¦Àíº¯ÊıÔÚ¿ìËÙÄÚ´æÇøÓò
 REG_INTERRUPT(0, protect_fast);
 
-bool cmp_less(float a, float b) { return a < b; }    // ç”¨äºæ¬ å‹
-bool cmp_greater(float a, float b) { return a > b; } // ç”¨äºè¿‡å‹
+bool cmp_less(float a, float b) { return a < b; }    // ÓÃÓÚÇ·Ñ¹
+bool cmp_greater(float a, float b) { return a > b; } // ÓÃÓÚ¹ıÑ¹
 
 void update_protect_item(protect_item_t *item)
 {
@@ -134,7 +134,7 @@ void update_protect_item(protect_item_t *item)
             item->counter = 0;
         }
     }
-    else // æ­£åœ¨ä¿æŠ¤ä¸­
+    else // ÕıÔÚ±£»¤ÖĞ
     {
         if (item->cmp_recover(item->val, item->recover))
         {
@@ -183,7 +183,7 @@ void update_warning_item(warning_item_t *item)
             item->counter = 0;
         }
     }
-    else // æ­£åœ¨ä¿æŠ¤ä¸­
+    else // ÕıÔÚ±£»¤ÖĞ
     {
         if (item->cmp_recover(item->val, item->recover))
         {
@@ -266,13 +266,13 @@ REG_SHELL_VAR(fvs48_volt_r, fvs48_volt_r, SHELL_FP32, 10000.0f, -10000.0f, NULL,
 static void protect_volt(void)
 {
 
-//    float fvs48_val = get_show_fvs48_show(); // è¾“å…¥ç”µå‹
-//    float rvs12_val = get_show_rvs12_show(); // è¾“å‡ºç”µå‹
-//    float vdd_8v_val = adc_get_vdd_8v();// vddç”µå‹
+//    float fvs48_val = get_show_fvs48_show(); // ÊäÈëµçÑ¹
+//    float rvs12_val = get_show_rvs12_show(); // Êä³öµçÑ¹
+//    float vdd_8v_val = adc_get_vdd_8v();// vddµçÑ¹
     float Acc_val = adc_get_accvs();
     float Rtm_val = adc_get_rmtvs();
 
-    // ä»å‚æ•°ä¸­è·å–é˜ˆå€¼
+    // ´Ó²ÎÊıÖĞ»ñÈ¡ãĞÖµ
 //    float InpUvlo = 0.00f, InpUvloRecover = 0.00f, InpOVP = 0.00f, InpOVPRecover = 0.00f;
 //    float OutUvlo = 0.00f, OutUvloRecover = 0.00f, OutOVP = 0.00f, OutOVPRecover = 0.00f;
 //    float AuotVeerVolt = 0.00f;

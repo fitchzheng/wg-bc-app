@@ -1,24 +1,24 @@
 #ifndef NO_DOUBLE_H
 #define NO_DOUBLE_H
-// æ–¹æ³•1ï¼šä½¿ç”¨é¢„å¤„ç†å™¨é‡å®šä¹‰ï¼ˆç¼–è¯‘æ—¶é”™è¯¯ï¼‰
-#ifdef __CC_ARM               // ARMCCç¼–è¯‘å™¨
+// ·½·¨1£ºÊ¹ÓÃÔ¤´¦ÀíÆ÷ÖØ¶¨Òå£¨±àÒëÊ±´íÎó£©
+#ifdef __CC_ARM               // ARMCC±àÒëÆ÷
     #define double ERROR_DOUBLE_TYPE_NOT_ALLOWED_USE_FLOAT_INSTEAD
     #define DOUBLE ERROR_DOUBLE_TYPE_NOT_ALLOWED_USE_FLOAT_INSTEAD
-#elif defined(__ARMCC_VERSION) // ARMClangç¼–è¯‘å™¨
+#elif defined(__ARMCC_VERSION) // ARMClang±àÒëÆ÷
     #define double ERROR_DOUBLE_TYPE_NOT_ALLOWED_USE_FLOAT_INSTEAD
     #define DOUBLE ERROR_DOUBLE_TYPE_NOT_ALLOWED_USE_FLOAT_INSTEAD
 #endif
 
-//// æ–¹æ³•2ï¼šé™æ€æ–­è¨€ï¼ˆC11ï¼‰
+//// ·½·¨2£º¾²Ì¬¶ÏÑÔ£¨C11£©
 //#if __STDC_VERSION__ >= 201112L
-//    // å¦‚æœæ£€æµ‹åˆ°doubleç±»å‹ï¼Œé™æ€æ–­è¨€å¤±è´¥
-//    // æ³¨æ„ï¼šè¿™éœ€è¦å®é™…ä½¿ç”¨doubleæ‰èƒ½è§¦å‘
+//    // Èç¹û¼ì²âµ½doubleÀàĞÍ£¬¾²Ì¬¶ÏÑÔÊ§°Ü
+//    // ×¢Òâ£ºÕâĞèÒªÊµ¼ÊÊ¹ÓÃdouble²ÅÄÜ´¥·¢
 //#endif
 
-//// å®šä¹‰å•ç²¾åº¦æ›¿ä»£
+//// ¶¨Òåµ¥¾«¶ÈÌæ´ú
 //typedef float float32_t;
 //#define PI          3.14159265358979323846f
-//#define DOUBLE(x)   ((float)(x))  // å¼ºåˆ¶è½¬æ¢å®
+//#define DOUBLE(x)   ((float)(x))  // Ç¿ÖÆ×ª»»ºê
 
 #endif // NO_DOUBLE_H
 

@@ -75,7 +75,7 @@ static void RTC_Config(void)
 
     /* Reset RTC counter */
     if (LL_ERR_TIMEOUT == RTC_DeInit()) {
-        //RTCÈáçÁΩÆÂ§±Ë¥•
+        //RTC÷ÿ÷√ ß∞‹
     } else {
         /* Stop RTC */
         RTC_Cmd(DISABLE);

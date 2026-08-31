@@ -1,9 +1,9 @@
 #include "bsp_fwdgt.h"
 
-// 看门狗初始化配置
-// 10K时钟，32分配，计数256，即32*256/10K = 0.8192秒
-// 休眠时看门狗停止
-// 看门狗溢出后直接复位芯片
+// ���Ź���ʼ������
+// 10Kʱ�ӣ�32���䣬����256����32*256/10K = 0.8192��
+// ����ʱ���Ź�ֹͣ
+// ���Ź������ֱ�Ӹ�λоƬ
 void SWDT_Config(void)
 {
     stc_swdt_init_t stcSwdtInit;
@@ -24,5 +24,5 @@ void bsp_fwdgt_init(void)
 
 void bsp_fwdgt_feed(void)
 {
-    //SWDT_FeedDog();//看门狗喂狗
+    //SWDT_FeedDog();//���Ź�ι��
 }

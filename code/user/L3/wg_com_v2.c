@@ -774,14 +774,14 @@ void set_int16(uint8_t *p_data, uint16_t data)
     p_data[1] = (uint8_t)(data & 0x00FF);
 }
 
-// 鍦板潃鍖哄煙娉ㄥ唽琛?
+// 地址区域注册
 static const addr_region_t addr_regions[] = {
     DEFINE_ADDR_REGION(WG_COM_V2_PRUCUCT_INFO_ADDR, wg_com_v2_product_info),
     DEFINE_ADDR_REGION(WG_COM_V2_REALTIME_DATA_ADDR, wg_com_v2_realtime_data),
     DEFINE_ADDR_REGION(WG_COM_V2_CTRL_ADDR, wg_com_v2_ctrl),
     DEFINE_ADDR_REGION(WG_COM_V2_PARAM_ADDR, wg_com_v2_param)};
 
-// 鏌ユ壘鍖归厤鐨勫湴鍧�鍖哄煙
+// 查找匹配的地址区域
 static const addr_region_t *find_addr_region(uint16_t addr, uint16_t count)
 {
     for (size_t i = 0; i < sizeof(addr_regions) / sizeof(addr_regions[0]); i++)
@@ -795,7 +795,7 @@ static const addr_region_t *find_addr_region(uint16_t addr, uint16_t count)
     return NULL;
 }
 
-// 鍚勫尯鍩熺殑鍏蜂綋璇诲啓瀹炵幇
+// 各区域的具体读写实现
 static uint8_t unified_read(uint16_t addr, uint16_t count, uint8_t *data)
 {
 #if (APP_PARALLEL_RS485_FEATURES == 1)
@@ -1257,27 +1257,27 @@ uint8_t wg_com_v2_write_registers(uint16_t addr, uint16_t count, const uint8_t *
     return unified_write(addr, count, data);
 }
 
-// 鍛戒护澶勭悊鍑芥暟
+// 命令处理函数
 static void handle_read_command(void)
 {
     uint16_t start_addr = get_uint16(&wg_com_rx_buffer[2]);
     uint16_t reg_count = get_uint16(&wg_com_rx_buffer[4]);
 
-    wg_com_tx_buffer[0] = wg_com_rx_buffer[0];          // 浠庢満鍦板潃
-    wg_com_tx_buffer[1] = WG_COM_V2_CMD_READ; // 鍔熻兘鐮?
+    wg_com_tx_buffer[0] = wg_com_rx_buffer[0];          // 从机地址
+    wg_com_tx_buffer[1] = WG_COM_V2_CMD_READ; // 功能码
 
     if (unified_read(start_addr, reg_count, &wg_com_tx_buffer[3]))
     {
-        wg_com_tx_buffer[2] = reg_count * 2; // 瀛楄妭鏁?
+        wg_com_tx_buffer[2] = reg_count * 2; // 字节数
         uint16_t crc = ModBusCRC16(wg_com_tx_buffer, 3 + reg_count * 2);
         set_uint16(&wg_com_tx_buffer[3 + reg_count * 2], crc);
         wg_com_tx_buffer_cnt = 5 + reg_count * 2;
         return;
     }
 
-    // 閿欒澶勭悊
-    wg_com_tx_buffer[1] |= 0x80; // 璁剧疆閿欒鏍囧織
-    wg_com_tx_buffer[2] = 0x02;  // 闈炴硶鏁版嵁鍦板潃
+    // 错误处理
+    wg_com_tx_buffer[1] |= 0x80; // 设置错误标志
+    wg_com_tx_buffer[2] = 0x02;  // 非法数据地址
     uint16_t crc = ModBusCRC16(wg_com_tx_buffer, 3);
     set_uint16(&wg_com_tx_buffer[3], crc);
     wg_com_tx_buffer_cnt = 5;
@@ -1288,7 +1288,7 @@ static void handle_write_data_command(void)
     uint16_t reg_addr = get_uint16(&wg_com_rx_buffer[2]);
     uint16_t reg_value = get_uint16(&wg_com_rx_buffer[4]);
 
-    memcpy(wg_com_tx_buffer, wg_com_rx_buffer, 6); // 鍥炴樉
+    memcpy(wg_com_tx_buffer, wg_com_rx_buffer, 6); // 回显
 
     uint8_t data[2];
     set_uint16(data, reg_value);
@@ -1301,7 +1301,7 @@ static void handle_write_data_command(void)
         return;
     }
 
-    // 閿欒澶勭悊
+    // 错误处理
     wg_com_tx_buffer[1] |= 0x80;
     wg_com_tx_buffer[2] = 0x02;
     uint16_t crc = ModBusCRC16(wg_com_tx_buffer, 3);
@@ -1319,14 +1319,14 @@ static void handle_write_str_command(void)
     {
         wg_com_tx_buffer[0] = host_addr;
         wg_com_tx_buffer[1] = WG_COM_V2_CMD_WRITE_STR | 0x80;
-        wg_com_tx_buffer[2] = 0x03; // 闈炴硶鏁版嵁鍊?
+        wg_com_tx_buffer[2] = 0x03; // 非法数据值
         uint16_t crc = ModBusCRC16(wg_com_tx_buffer, 3);
         set_uint16(&wg_com_tx_buffer[3], crc);
         wg_com_tx_buffer_cnt = 5;
         return;
     }
 
-    memcpy(wg_com_tx_buffer, wg_com_rx_buffer, 6); // 鍥炴樉
+    memcpy(wg_com_tx_buffer, wg_com_rx_buffer, 6); // 回显
 
     if (unified_write(start_addr, reg_count, &wg_com_rx_buffer[7]))
     {
@@ -1336,7 +1336,7 @@ static void handle_write_str_command(void)
         return;
     }
 
-    // 閿欒澶勭悊
+    // 错误处理
     wg_com_tx_buffer[1] |= 0x80;
     wg_com_tx_buffer[2] = 0x02;
     uint16_t crc = ModBusCRC16(wg_com_tx_buffer, 3);
@@ -1371,7 +1371,7 @@ static void process_command(void)
 void wg_com_v2_init(void)
 {
     WG_COM_V2_SET_DATA(host_addr, wg_com_v2_product_info.Address);
-    WG_COM_V2_SET_DATA(1, wg_com_v2_ctrl.PowerOnOff); // 榛樿鍏虫満
+    WG_COM_V2_SET_DATA(1, wg_com_v2_ctrl.PowerOnOff); // 默认关机
     WG_COM_V2_SET_DATA(100, wg_com_v2_param.SetInsideTemp);
     WG_COM_V2_SET_DATA(100, wg_com_v2_param.SetOutsideTemp);
     WG_COM_V2_SET_DATA(20.0f, wg_com_v2_param.SetOutOVP);
@@ -1390,7 +1390,7 @@ void wg_com_v2_run(void)
     }
     else
     {
-        WG_COM_V2_SET_DATA(1, wg_com_v2_ctrl.SetChargMode); // 妯℃嫙鍏呯數妯″紡
+        WG_COM_V2_SET_DATA(1, wg_com_v2_ctrl.SetChargMode); // 模拟充电模式
     }
 }
 #else
@@ -1468,7 +1468,7 @@ void usart2_printf(const char *fmt, ...)
     usart_light_printf(OUTPUT_USART2, fmt, args);
     va_end(args);
 }
-// 瀹夊叏澧炲姞璁℃暟鍣紙闃叉婧㈠嚭锛?
+// 安全增加计数器（防止溢出）
 static inline void safe_increment(uint32_t *counter, uint32_t max)
 {
     if (*counter < max)
@@ -1786,7 +1786,7 @@ void process_usart_dma_input(const usart_dma_port_t *port)
                     gpio_set_re(1);
                     for (uint32_t i = 0; i < wg_com_tx_buffer_cnt; i++)
                     {
-                        port->my_printf("%c", wg_com_tx_buffer[i]); // 鎸夊瓧鑺傝緭鍑?
+                        port->my_printf("%c", wg_com_tx_buffer[i]); // 按字节输出
                     }
                     usart0_delay = 0;
                     while(USART_GetStatus(CM_USART1, USART_FLAG_TX_CPLT) == 0)
@@ -1803,7 +1803,7 @@ void process_usart_dma_input(const usart_dma_port_t *port)
                 {
                     for (uint32_t i = 0; i < wg_com_tx_buffer_cnt; i++)
                     {
-                        port->my_printf("%c", wg_com_tx_buffer[i]); // 鎸夊瓧鑺傝緭鍑?
+                        port->my_printf("%c", wg_com_tx_buffer[i]); // 按字节输出
                     }
                 }
             }

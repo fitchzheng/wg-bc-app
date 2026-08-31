@@ -2,19 +2,19 @@
 #include "math.h"
 #include "stdlib.h"
 #include "section.h"
-// å®‰å…¨å¼€æ–¹
+// °²È«¿ª·½
 static inline float RAMFUNC safe_sqrtf(float x)
 {
     return (x > 0.0f) ? sqrtf(x) : 0.0f;
 }
 
-// å®‰å…¨é™¤æ³•
+// °²È«³ı·¨
 static inline float RAMFUNC safe_divf(float numerator, float denominator)
 {
     return (fabsf(denominator) > 1e-6f) ? (numerator / denominator) : (numerator / 1e-6f);
 }
 
-// é™å®š duty èŒƒå›´
+// ÏŞ¶¨ duty ·¶Î§
 static inline float RAMFUNC limit_duty(float duty)
 {
     if (duty < 0.0f)
@@ -102,7 +102,7 @@ void RAMFUNC cal_buck_boost_dcm_duty(float v_in,
         *p_buck_duty = check_buck_duty(w, t, l, v_in, v_out, i_ref);
         if (*p_buck_duty > OPEN_LOOP_FIX_DUTY)
         {
-            *p_buck_duty = OPEN_LOOP_FIX_DUTY; // é™åˆ¶æœ€å¤§å ç©ºæ¯”
+            *p_buck_duty = OPEN_LOOP_FIX_DUTY; // ÏŞÖÆ×î´óÕ¼¿Õ±È
         }
     }
     else
@@ -111,7 +111,7 @@ void RAMFUNC cal_buck_boost_dcm_duty(float v_in,
            *p_buck_duty = check_buck_duty2(w, t, l, v_in, v_out, i_ref);
         if (*p_buck_duty > OPEN_LOOP_FIX_DUTY)
         {
-            *p_buck_duty = OPEN_LOOP_FIX_DUTY; // é™åˆ¶æœ€å¤§å ç©ºæ¯”
+            *p_buck_duty = OPEN_LOOP_FIX_DUTY; // ÏŞÖÆ×î´óÕ¼¿Õ±È
         }
     }
 

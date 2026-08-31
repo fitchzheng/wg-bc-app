@@ -13,7 +13,7 @@ static float cal_ntc_resistance(float volt, TEMPERATURE_MODE_E mode)
         }
         else
         {
-            resistance = 0.0f; // é”™è¯¯å¤„ç†
+            resistance = 0.0f; // ´íÎó´¦Àí
         }
     }
     else if (mode == IS_UP_NTC)
@@ -29,16 +29,16 @@ static float cal_ntc_resistance(float volt, TEMPERATURE_MODE_E mode)
     }
     else
     {
-        resistance = 0.0f; // é”™è¯¯å¤„ç†
+        resistance = 0.0f; // ´íÎó´¦Àí
     }
     return resistance;
 }
 
 /**
- * äºŒåˆ†æŸ¥æ‰¾åŒºé—´ï¼šåœ¨é™åºæ•°ç»„ arr ä¸­æŸ¥æ‰¾ target æ‰€åœ¨çš„åŒºé—´
- * è¿”å› iï¼Œä½¿å¾— arr[i] â‰¥ target > arr[i+1]
- * è‹¥ target å¤§äº arr[0]ï¼Œè¿”å› -1ï¼ˆè¶…å‡ºä¸Šç•Œï¼‰
- * è‹¥ target å°äº arr[size-1]ï¼Œè¿”å› size-1ï¼ˆè¶…å‡ºä¸‹ç•Œï¼‰
+ * ¶ş·Ö²éÕÒÇø¼ä£ºÔÚ½µĞòÊı×é arr ÖĞ²éÕÒ target ËùÔÚµÄÇø¼ä
+ * ·µ»Ø i£¬Ê¹µÃ arr[i] ¡İ target > arr[i+1]
+ * Èô target ´óÓÚ arr[0]£¬·µ»Ø -1£¨³¬³öÉÏ½ç£©
+ * Èô target Ğ¡ÓÚ arr[size-1]£¬·µ»Ø size-1£¨³¬³öÏÂ½ç£©
  */
 static int binary_search_range(const float arr[], int size, float target)
 {
@@ -48,11 +48,11 @@ static int binary_search_range(const float arr[], int size, float target)
 
     if (target >= arr[0])
     {
-        return 0; // è¶…å‡ºä¸Šé™
+        return 0; // ³¬³öÉÏÏŞ
     }
     else if (target <= arr[size - 1])
     {
-        return size - 1; // è¶…å‡ºä¸‹é™
+        return size - 1; // ³¬³öÏÂÏŞ
     }
 
     while (left < right - 1)
@@ -71,26 +71,26 @@ static int binary_search_range(const float arr[], int size, float target)
     return mid;
 }
 
-// è¿”å›æ’å€¼åæ¸©åº¦ï¼ˆå•ä½ï¼šâ„ƒï¼‰
+// ·µ»Ø²åÖµºóÎÂ¶È£¨µ¥Î»£º¡æ£©
 float cal_ntc_temp(float volt, TEMPERATURE_MODE_E mode)
 {
     float ntc_res = cal_ntc_resistance(volt, mode);
     int size = sizeof(ntc_table) / sizeof(ntc_table[0]);
 
-    // è¾¹ç•Œåˆ¤æ–­
+    // ±ß½çÅĞ¶Ï
     if (ntc_res >= ntc_table[0])
     {
-        return 0.0f + NTC_OFFSET; // è¶…å‡ºä¸Šé™ï¼ˆæœ€ä½æ¸©ï¼‰
+        return 0.0f + NTC_OFFSET; // ³¬³öÉÏÏŞ£¨×îµÍÎÂ£©
     }
     else if (ntc_res <= ntc_table[size - 1])
     {
-        return (float)(size - 1) + NTC_OFFSET; // è¶…å‡ºä¸‹é™ï¼ˆæœ€é«˜æ¸©ï¼‰
+        return (float)(size - 1) + NTC_OFFSET; // ³¬³öÏÂÏŞ£¨×î¸ßÎÂ£©
     }
 
-    // äºŒåˆ†æŸ¥æ‰¾åŒºé—´
+    // ¶ş·Ö²éÕÒÇø¼ä
     int mid = binary_search_range(ntc_table, size, ntc_res);
 
-    // çº¿æ€§æ’å€¼è®¡ç®—æ¸©åº¦
+    // ÏßĞÔ²åÖµ¼ÆËãÎÂ¶È
     float r0 = ntc_table[mid];
     float r1 = ntc_table[mid + 1];
     float t0 = (float)mid;

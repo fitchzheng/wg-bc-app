@@ -19,13 +19,13 @@ volatile uint8_t usart2_rx_buffer[Usart2_RxBuff_Size];
 uint8_t USART3_Txbuff[Usart3_TxBuff_Size];
 volatile uint8_t usart3_rx_buffer[Usart3_RxBuff_Size];
 
-uint16_t  Usart1_Rx_Lenth = 0; //æ¥æ”¶é•¿åº¦
+uint16_t  Usart1_Rx_Lenth = 0; //½ÓÊÕ³¤¶È
 uint16_t  Usart1_Rx_Evt = 0;
 
-uint16_t  Usart2_Rx_Lenth = 0; //æ¥æ”¶é•¿åº¦
+uint16_t  Usart2_Rx_Lenth = 0; //½ÓÊÕ³¤¶È
 uint16_t  Usart2_Rx_Evt = 0;
 
-uint16_t  Usart3_Rx_Lenth = 0; //æ¥æ”¶é•¿åº¦
+uint16_t  Usart3_Rx_Lenth = 0; //½ÓÊÕ³¤¶È
 uint16_t  Usart3_Rx_Evt = 0;
 
 typedef struct
@@ -118,14 +118,14 @@ static void bsp_usart_port_init(const bsp_usart_port_cfg_t *cfg)
 
 uint8_t get_usart1_rx_state(void)
 {
-    if(USART_GetStatus(CM_USART1,USART_FLAG_RX_TIMEOUT) == SET) //åˆ¤æ–­æ˜¯å¦æ¥æ”¶å®Œä¸€å¸§æ•°æ®
+    if(USART_GetStatus(CM_USART1,USART_FLAG_RX_TIMEOUT) == SET) //ÅĞ¶ÏÊÇ·ñ½ÓÊÕÍêÒ»Ö¡Êı¾İ
     {
         TMR0_Stop(CM_TMR0_1, TMR0_CH_A);
         Usart1_Rx_Lenth =Usart1_RxBuff_Size - DMA_GetTransCount(USART1_RX_DMA_UNIT,USART1_RX_DMA_CH);
-        DMA_ChCmd(USART1_RX_DMA_UNIT, USART1_RX_DMA_CH, DISABLE); //å…³é—­DMAé€šé“
+        DMA_ChCmd(USART1_RX_DMA_UNIT, USART1_RX_DMA_CH, DISABLE); //¹Ø±ÕDMAÍ¨µÀ
         DMA_SetDestAddr(USART1_RX_DMA_UNIT,USART1_RX_DMA_CH,(uint32_t)&usart0_rx_buffer[0]);
-        DMA_SetTransCount(USART1_RX_DMA_UNIT, USART1_RX_DMA_CH, Usart1_RxBuff_Size); //è®¾ç½®DMAä¼ è¾“é•¿åº¦
-        DMA_ChCmd(USART1_RX_DMA_UNIT, USART1_RX_DMA_CH, ENABLE); //å…³é—­DMAé€šé“
+        DMA_SetTransCount(USART1_RX_DMA_UNIT, USART1_RX_DMA_CH, Usart1_RxBuff_Size); //ÉèÖÃDMA´«Êä³¤¶È
+        DMA_ChCmd(USART1_RX_DMA_UNIT, USART1_RX_DMA_CH, ENABLE); //¹Ø±ÕDMAÍ¨µÀ
         USART_ClearStatus(CM_USART1, USART_FLAG_RX_TIMEOUT);
         return SET;
     }
@@ -136,14 +136,14 @@ uint8_t get_usart1_rx_state(void)
 
 uint8_t get_usart2_rx_state(void)
 {
-    if(USART_GetStatus(CM_USART2,USART_FLAG_RX_TIMEOUT) == SET) //åˆ¤æ–­æ˜¯å¦æ¥æ”¶å®Œä¸€å¸§æ•°æ®
+    if(USART_GetStatus(CM_USART2,USART_FLAG_RX_TIMEOUT) == SET) //ÅĞ¶ÏÊÇ·ñ½ÓÊÕÍêÒ»Ö¡Êı¾İ
     {
         TMR0_Stop(CM_TMR0_1, TMR0_CH_B);
         Usart2_Rx_Lenth =Usart2_RxBuff_Size - DMA_GetTransCount(USART2_RX_DMA_UNIT,USART2_RX_DMA_CH);
-        DMA_ChCmd(USART2_RX_DMA_UNIT, USART2_RX_DMA_CH, DISABLE); //å…³é—­DMAé€šé“
+        DMA_ChCmd(USART2_RX_DMA_UNIT, USART2_RX_DMA_CH, DISABLE); //¹Ø±ÕDMAÍ¨µÀ
         DMA_SetDestAddr(USART2_RX_DMA_UNIT,USART2_RX_DMA_CH,(uint32_t)&usart2_rx_buffer[0]);
-        DMA_SetTransCount(USART2_RX_DMA_UNIT, USART2_RX_DMA_CH, Usart1_RxBuff_Size); //è®¾ç½®DMAä¼ è¾“é•¿åº¦
-        DMA_ChCmd(USART2_RX_DMA_UNIT, USART2_RX_DMA_CH, ENABLE); //å…³é—­DMAé€šé“
+        DMA_SetTransCount(USART2_RX_DMA_UNIT, USART2_RX_DMA_CH, Usart1_RxBuff_Size); //ÉèÖÃDMA´«Êä³¤¶È
+        DMA_ChCmd(USART2_RX_DMA_UNIT, USART2_RX_DMA_CH, ENABLE); //¹Ø±ÕDMAÍ¨µÀ
         USART_ClearStatus(CM_USART2, USART_FLAG_RX_TIMEOUT);
         return SET;
     }
@@ -152,10 +152,10 @@ uint8_t get_usart2_rx_state(void)
 
 
 
-//æ ¹æ®æ³¢ç‰¹ç‡å’Œè¶…æ—¶ä½æ•°ï¼Œè®¡ç®—TIMER0çš„æ¯”è¾ƒå€¼
-//é»˜è®¤ä¸»é¢‘200Mï¼ŒPCLK1100M,timer0å¯¹åº”çš„è®¡æ•°æºä¸º100Mçš„8åˆ†é¢‘ï¼ˆ100M/8ï¼‰,å¯¹åº”çš„æ—¶é—´å°±æ˜¯ 8 / 100Mï¼Œæ³¢ç‰¹ç‡æ¯1ä¸ªbitï¼Œæ—¶é—´ä¸º 1/baudrate
-//å› æ­¤ï¼Œæ¯ä¸€ä¸ªbitå¯¹åº”çš„TIMER0è®¡æ•°å€¼ä¸º 1/baudrate / (8 / 100M) = 100M / (8 * baudrate)
-//å‡è®¾æ³¢ç‰¹ç‡æ˜¯115200ï¼Œåˆ™å¯¹åº”çš„è®¡æ•°å€¼ä¸º 100M / (8 * 115200) = 108.51
+//¸ù¾İ²¨ÌØÂÊºÍ³¬Ê±Î»Êı£¬¼ÆËãTIMER0µÄ±È½ÏÖµ
+//Ä¬ÈÏÖ÷Æµ200M£¬PCLK1100M,timer0¶ÔÓ¦µÄ¼ÆÊıÔ´Îª100MµÄ8·ÖÆµ£¨100M/8£©,¶ÔÓ¦µÄÊ±¼ä¾ÍÊÇ 8 / 100M£¬²¨ÌØÂÊÃ¿1¸öbit£¬Ê±¼äÎª 1/baudrate
+//Òò´Ë£¬Ã¿Ò»¸öbit¶ÔÓ¦µÄTIMER0¼ÆÊıÖµÎª 1/baudrate / (8 / 100M) = 100M / (8 * baudrate)
+//¼ÙÉè²¨ÌØÂÊÊÇ115200£¬Ôò¶ÔÓ¦µÄ¼ÆÊıÖµÎª 100M / (8 * 115200) = 108.51
 uint16_t Get_Timeout_Value(uint32_t Baudrate,uint8_t TimeoutBits)
 {
     uint16_t CompareVal = 0;
@@ -167,13 +167,13 @@ uint16_t Get_Timeout_Value(uint32_t Baudrate,uint8_t TimeoutBits)
     }
     else if(CompareVal < 2)
     {
-        CompareVal = 2; //æœ€å°å€¼ä¸º2
+        CompareVal = 2; //×îĞ¡ÖµÎª2
     }
     return CompareVal;
 }
 
 
-//timer0_1A åˆå§‹åŒ–ï¼Œç”¨äºUSART1çš„æ¥æ”¶è¶…æ—¶
+//timer0_1A ³õÊ¼»¯£¬ÓÃÓÚUSART1µÄ½ÓÊÕ³¬Ê±
 void Timer0_1_A_Init(void)
 {
     uint16_t u16CompareValue;
@@ -182,11 +182,11 @@ void Timer0_1_A_Init(void)
     FCG_Fcg2PeriphClockCmd(FCG2_PERIPH_TMR0_1, ENABLE);
 
     /* Initialize TMR0 base function. */
-    stcTmr0Init.u32ClockSrc = TMR0_CLK_SRC_INTERN_CLK; //ä½¿ç”¨PCLK1ä½œä¸ºæ—¶é’Ÿ
+    stcTmr0Init.u32ClockSrc = TMR0_CLK_SRC_INTERN_CLK; //Ê¹ÓÃPCLK1×÷ÎªÊ±ÖÓ
     stcTmr0Init.u32ClockDiv = TMR0_CLK_DIV8;  
     stcTmr0Init.u32Func     = TMR0_FUNC_CMP;  
    
-    u16CompareValue = Get_Timeout_Value(USART1_BAUD,USART1_TIMOUT_BITS); //ç©ºé—²20ä¸ªbitç®—è¶…æ—¶
+    u16CompareValue = Get_Timeout_Value(USART1_BAUD,USART1_TIMOUT_BITS); //¿ÕÏĞ20¸öbitËã³¬Ê±
     
     stcTmr0Init.u16CompareValue = u16CompareValue;
     (void)TMR0_Init(CM_TMR0_1, TMR0_CH_A, &stcTmr0Init);
@@ -196,7 +196,7 @@ void Timer0_1_A_Init(void)
 
 }
 
-//timer0_1A åˆå§‹åŒ–ï¼Œç”¨äºUSART1çš„æ¥æ”¶è¶…æ—¶
+//timer0_1A ³õÊ¼»¯£¬ÓÃÓÚUSART1µÄ½ÓÊÕ³¬Ê±
 void Timer0_1_B_Init(void)
 {
     uint16_t u16CompareValue;
@@ -205,11 +205,11 @@ void Timer0_1_B_Init(void)
     FCG_Fcg2PeriphClockCmd(FCG2_PERIPH_TMR0_1, ENABLE);
 
     /* Initialize TMR0 base function. */
-    stcTmr0Init.u32ClockSrc = TMR0_CLK_SRC_INTERN_CLK; //ä½¿ç”¨PCLK1ä½œä¸ºæ—¶é’Ÿ
+    stcTmr0Init.u32ClockSrc = TMR0_CLK_SRC_INTERN_CLK; //Ê¹ÓÃPCLK1×÷ÎªÊ±ÖÓ
     stcTmr0Init.u32ClockDiv = TMR0_CLK_DIV8;  
     stcTmr0Init.u32Func     = TMR0_FUNC_CMP;  
    
-    u16CompareValue = Get_Timeout_Value(USART2_BAUD,USART2_TIMOUT_BITS); //ç©ºé—²20ä¸ªbitç®—è¶…æ—¶
+    u16CompareValue = Get_Timeout_Value(USART2_BAUD,USART2_TIMOUT_BITS); //¿ÕÏĞ20¸öbitËã³¬Ê±
     
     stcTmr0Init.u16CompareValue = u16CompareValue;
     (void)TMR0_Init(CM_TMR0_1, TMR0_CH_B, &stcTmr0Init);
@@ -219,7 +219,7 @@ void Timer0_1_B_Init(void)
 
 }
 
-//ä½¿ç”¨åˆ°çš„ç«¯å£åˆå§‹åŒ–
+//Ê¹ÓÃµ½µÄ¶Ë¿Ú³õÊ¼»¯
 void BSP_Port_Init(void)
 {
 
@@ -231,7 +231,7 @@ void BSP_Port_Init(void)
     GPIO_SetFunc(USART3_RX_PORT,USART3_RX_PIN , USART3_RX_FUNC);
 }
 
-//ä¸²å£åˆå§‹åŒ–
+//´®¿Ú³õÊ¼»¯
 void BSP_Usart1_Init(void)
 {
     stc_usart_uart_init_t stcUartInit;
@@ -260,7 +260,7 @@ void BSP_Usart1_Init(void)
 //    NVIC_EnableIRQ(stcIrqSigninConfig.enIRQn);
 
 
-    USART_FuncCmd(CM_USART1, USART_TX|USART_RX|USART_RX_TIMEOUT|USART_INT_RX_TIMEOUT, ENABLE); //ä½¿èƒ½å‘é€
+    USART_FuncCmd(CM_USART1, USART_TX|USART_RX|USART_RX_TIMEOUT|USART_INT_RX_TIMEOUT, ENABLE); //Ê¹ÄÜ·¢ËÍ
 }
 
 
@@ -292,7 +292,7 @@ void BSP_Usart2_Init(void)
 //    NVIC_EnableIRQ(stcIrqSigninConfig.enIRQn);
 
 
-    USART_FuncCmd(CM_USART2, USART_TX|USART_RX|USART_RX_TIMEOUT|USART_INT_RX_TIMEOUT, ENABLE); //ä½¿èƒ½å‘é€
+    USART_FuncCmd(CM_USART2, USART_TX|USART_RX|USART_RX_TIMEOUT|USART_INT_RX_TIMEOUT, ENABLE); //Ê¹ÄÜ·¢ËÍ
 }
 
 void BSP_Usart3_Init(void)
@@ -301,7 +301,7 @@ void BSP_Usart3_Init(void)
 }
 
 
-//ä¸²å£1å‘é€æ•°æ®
+//´®¿Ú1·¢ËÍÊı¾İ
 void Uart1_SendData(uint8_t *pu8Data, uint16_t u16Len)
 {
     uint32_t Timeout = 0xfffffff0;
@@ -310,19 +310,19 @@ void Uart1_SendData(uint8_t *pu8Data, uint16_t u16Len)
         Timeout--;
         if(Timeout == 0)
         {
-            //åŠ å…¥è¶…æ—¶å¤„ç†
-            DMA_ChCmd(USART1_TX_DMA_UNIT, USART1_TX_DMA_CH,DISABLE); //è¶…æ—¶å¼ºåˆ¶å…³é—­DMA
+            //¼ÓÈë³¬Ê±´¦Àí
+            DMA_ChCmd(USART1_TX_DMA_UNIT, USART1_TX_DMA_CH,DISABLE); //³¬Ê±Ç¿ÖÆ¹Ø±ÕDMA
         }
     }
     DMA_ChCmd(USART1_TX_DMA_UNIT, USART1_TX_DMA_CH,DISABLE);
-    DMA_SetTransCount(USART1_TX_DMA_UNIT, USART1_TX_DMA_CH, u16Len);           // è®¾ç½®DMAä¼ è¾“é•¿åº¦
-    DMA_SetSrcAddr(USART1_TX_DMA_UNIT, USART1_TX_DMA_CH, (uint32_t)(pu8Data)); // è®¾ç½®DMAæºåœ°å€ï¼ˆè·³è¿‡ç¬¬ä¸€ä¸ªå­—èŠ‚ï¼‰
-//    DMA_SetDestAddr(USART_TX_DMA_UNIT, USART_TX_DMA_CH, (uint32_t)(&CM_USART1->TDR));  // è®¾ç½®DMAç›®çš„åœ°å€
-    DMA_ChCmd(USART1_TX_DMA_UNIT, USART1_TX_DMA_CH,ENABLE); //ä½¿èƒ½DMA
-    DMA_MxChSWTrigger(USART1_TX_DMA_UNIT, 1<<USART1_TX_DMA_CH); //è½¯ä»¶å¯åŠ¨DMAä¼ è¾“
+    DMA_SetTransCount(USART1_TX_DMA_UNIT, USART1_TX_DMA_CH, u16Len);           // ÉèÖÃDMA´«Êä³¤¶È
+    DMA_SetSrcAddr(USART1_TX_DMA_UNIT, USART1_TX_DMA_CH, (uint32_t)(pu8Data)); // ÉèÖÃDMAÔ´µØÖ·£¨Ìø¹ıµÚÒ»¸ö×Ö½Ú£©
+//    DMA_SetDestAddr(USART_TX_DMA_UNIT, USART_TX_DMA_CH, (uint32_t)(&CM_USART1->TDR));  // ÉèÖÃDMAÄ¿µÄµØÖ·
+    DMA_ChCmd(USART1_TX_DMA_UNIT, USART1_TX_DMA_CH,ENABLE); //Ê¹ÄÜDMA
+    DMA_MxChSWTrigger(USART1_TX_DMA_UNIT, 1<<USART1_TX_DMA_CH); //Èí¼şÆô¶¯DMA´«Êä
 }
 
-//ä¸²å£2å‘é€æ•°æ®
+//´®¿Ú2·¢ËÍÊı¾İ
 void Uart2_SendData(uint8_t *pu8Data, uint16_t u16Len)
 {
     uint32_t Timeout = 0xfffffff0;
@@ -331,16 +331,16 @@ void Uart2_SendData(uint8_t *pu8Data, uint16_t u16Len)
         Timeout--;
         if(Timeout == 0)
         {
-            //åŠ å…¥è¶…æ—¶å¤„ç†
-            DMA_ChCmd(USART2_TX_DMA_UNIT, USART2_TX_DMA_CH,DISABLE); //è¶…æ—¶å¼ºåˆ¶å…³é—­DMA
+            //¼ÓÈë³¬Ê±´¦Àí
+            DMA_ChCmd(USART2_TX_DMA_UNIT, USART2_TX_DMA_CH,DISABLE); //³¬Ê±Ç¿ÖÆ¹Ø±ÕDMA
         }
     }
     DMA_ChCmd(USART2_TX_DMA_UNIT, USART2_TX_DMA_CH,DISABLE);
-    DMA_SetTransCount(USART2_TX_DMA_UNIT, USART2_TX_DMA_CH, u16Len);           // è®¾ç½®DMAä¼ è¾“é•¿åº¦
-    DMA_SetSrcAddr(USART2_TX_DMA_UNIT, USART2_TX_DMA_CH, (uint32_t)(pu8Data)); // è®¾ç½®DMAæºåœ°å€ï¼ˆè·³è¿‡ç¬¬ä¸€ä¸ªå­—èŠ‚ï¼‰
-//    DMA_SetDestAddr(USART_TX_DMA_UNIT, USART_TX_DMA_CH, (uint32_t)(&CM_USART1->TDR));  // è®¾ç½®DMAç›®çš„åœ°å€
-    DMA_ChCmd(USART2_TX_DMA_UNIT, USART2_TX_DMA_CH,ENABLE); //ä½¿èƒ½DMA
-    DMA_MxChSWTrigger(USART2_TX_DMA_UNIT, 1<<USART2_TX_DMA_CH); //è½¯ä»¶å¯åŠ¨DMAä¼ è¾“
+    DMA_SetTransCount(USART2_TX_DMA_UNIT, USART2_TX_DMA_CH, u16Len);           // ÉèÖÃDMA´«Êä³¤¶È
+    DMA_SetSrcAddr(USART2_TX_DMA_UNIT, USART2_TX_DMA_CH, (uint32_t)(pu8Data)); // ÉèÖÃDMAÔ´µØÖ·£¨Ìø¹ıµÚÒ»¸ö×Ö½Ú£©
+//    DMA_SetDestAddr(USART_TX_DMA_UNIT, USART_TX_DMA_CH, (uint32_t)(&CM_USART1->TDR));  // ÉèÖÃDMAÄ¿µÄµØÖ·
+    DMA_ChCmd(USART2_TX_DMA_UNIT, USART2_TX_DMA_CH,ENABLE); //Ê¹ÄÜDMA
+    DMA_MxChSWTrigger(USART2_TX_DMA_UNIT, 1<<USART2_TX_DMA_CH); //Èí¼şÆô¶¯DMA´«Êä
 }
 
 void bsp_usart_init(void)
@@ -583,8 +583,8 @@ void bsp_usart_deinit(void)
 
 //    USART_UART_Init(CM_USART1, &stcUartInit, NULL);
 //    USART_UART_Init(CM_USART2, &stcUartInit, NULL);
-//    USART_FuncCmd(CM_USART1, USART_TX|USART_RX|USART_RX_TIMEOUT|USART_INT_RX_TIMEOUT, DISABLE); //ä½¿èƒ½å‘é€
-//    USART_FuncCmd(CM_USART2, USART_TX|USART_RX|USART_RX_TIMEOUT|USART_INT_RX_TIMEOUT, DISABLE); //ä½¿èƒ½å‘é€
+//    USART_FuncCmd(CM_USART1, USART_TX|USART_RX|USART_RX_TIMEOUT|USART_INT_RX_TIMEOUT, DISABLE); //Ê¹ÄÜ·¢ËÍ
+//    USART_FuncCmd(CM_USART2, USART_TX|USART_RX|USART_RX_TIMEOUT|USART_INT_RX_TIMEOUT, DISABLE); //Ê¹ÄÜ·¢ËÍ
 
 //    FCG_Fcg2PeriphClockCmd(FCG2_PERIPH_TMR0_1, DISABLE);
 //    TMR0_HWStartCondCmd(CM_TMR0_1, TMR0_CH_A, DISABLE);

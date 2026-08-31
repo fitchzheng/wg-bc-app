@@ -32,7 +32,7 @@ static uint8_t parallel_run_allows_pg_low(void)
 {
     return (parallel_mode_is_run_allowed() != 0U) ? 1U : 0U;
 }
-// 状态枚�?
+// ״̬ö��
 typedef enum
 {
     STATE_INIT = 1,
@@ -724,7 +724,7 @@ static void fault_out(void)
 {
 }
 
-// 注册状态机
+// ע��״̬��
 REG_FSM(my_fsm, STATE_INIT, fsm_ev,
         FSM_ENTRY(STATE_INIT, init_in, init_exe, init_chk, init_out),
         FSM_ENTRY(STATE_IDLE, idle_in, idle_exe, idle_chk, idle_out),

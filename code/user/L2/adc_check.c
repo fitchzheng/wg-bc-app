@@ -20,28 +20,28 @@ void voltage_check_init(voltage_check_state_t *state, const voltage_check_config
     state->config = config;
 }
 
-// å®‰å…¨å¢åŠ è®¡æ•°å™¨ï¼ˆé˜²æ­¢æº¢å‡ºï¼‰
+// °²È«Ôö¼Ó¼ÆÊıÆ÷£¨·ÀÖ¹Òç³ö£©
 static inline void safe_increment(uint32_t *counter, uint32_t max)
 {
     if (*counter < max)
         (*counter)++;
 }
 
-// å®‰å…¨å‡å°‘è®¡æ•°å™¨ï¼ˆé˜²æ­¢ä¸‹æº¢ï¼‰
+// °²È«¼õÉÙ¼ÆÊıÆ÷£¨·ÀÖ¹ÏÂÒç£©
 static inline void safe_decrement(uint32_t *counter)
 {
     if (*counter > 0)
         (*counter)--;
 }
 
-// é‡ç½®æ‰€æœ‰è®¡æ•°å™¨
+// ÖØÖÃËùÓĞ¼ÆÊıÆ÷
 static inline void reset_all_counters(voltage_check_state_t *state)
 {
     state->is_ok_cnt = 0;
     state->ovp_cnt = 0;
     state->uvp_cnt = 0;
 }
-// çŠ¶æ€è½¬ç§»å‡½æ•° - æå–å…¬å…±æ“ä½œ
+// ×´Ì¬×ªÒÆº¯Êı - ÌáÈ¡¹«¹²²Ù×÷
 static void transition_state(voltage_check_state_t *state, ADC_CHECK_VOLT_E new_status, uint8_t is_ok)
 {
     state->status = new_status;
@@ -49,18 +49,18 @@ static void transition_state(voltage_check_state_t *state, ADC_CHECK_VOLT_E new_
     reset_all_counters(state);
 }
 
-// NULLçŠ¶æ€å¤„ç†
+// NULL×´Ì¬´¦Àí
 static void handle_null_state(voltage_check_state_t *state, float voltage)
 {
     const voltage_check_config_t *cfg = state->config;
 
-    // å¤„ç†OVPè®¡æ•°
+    // ´¦ÀíOVP¼ÆÊı
     voltage > cfg->ovp_threshold ? safe_increment(&state->ovp_cnt, cfg->ovp_time) : safe_decrement(&state->ovp_cnt);
 
-    // å¤„ç†UVPè®¡æ•°
+    // ´¦ÀíUVP¼ÆÊı
     voltage < cfg->uvp_threshold ? safe_increment(&state->uvp_cnt, cfg->uvp_time) : safe_decrement(&state->uvp_cnt);
 
-    // å¤„ç†æ­£å¸¸èŒƒå›´è®¡æ•°
+    // ´¦ÀíÕı³£·¶Î§¼ÆÊı
     if ((voltage < cfg->normal_up) &&
         (voltage > cfg->normal_dn))
     {
@@ -71,7 +71,7 @@ static void handle_null_state(voltage_check_state_t *state, float voltage)
         safe_decrement(&state->is_ok_cnt);
     }
 
-    // çŠ¶æ€è½¬ç§»åˆ¤æ–­
+    // ×´Ì¬×ªÒÆÅĞ¶Ï
     if (state->ovp_cnt >= cfg->ovp_time)
     {
         transition_state(state, ADC_CHECK_VOLT_OVP, 0);
@@ -86,18 +86,18 @@ static void handle_null_state(voltage_check_state_t *state, float voltage)
     }
 }
 
-// NORMALçŠ¶æ€å¤„ç†
+// NORMAL×´Ì¬´¦Àí
 static void handle_normal_state(voltage_check_state_t *state, float voltage)
 {
     const voltage_check_config_t *cfg = state->config;
 
-    // å¤„ç†OVPè®¡æ•°
+    // ´¦ÀíOVP¼ÆÊı
     voltage > cfg->ovp_threshold ? safe_increment(&state->ovp_cnt, cfg->ovp_time) : safe_decrement(&state->ovp_cnt);
 
-    // å¤„ç†UVPè®¡æ•°
+    // ´¦ÀíUVP¼ÆÊı
     voltage < cfg->uvp_threshold ? safe_increment(&state->uvp_cnt, cfg->uvp_time) : safe_decrement(&state->uvp_cnt);
 
-    // å¤„ç†å¼‚å¸¸èŒƒå›´è®¡æ•°
+    // ´¦ÀíÒì³£·¶Î§¼ÆÊı
     if ((voltage > cfg->abnormal_up) ||
         (voltage < cfg->abnormal_dn))
     {
@@ -108,7 +108,7 @@ static void handle_normal_state(voltage_check_state_t *state, float voltage)
         safe_decrement(&state->is_ok_cnt);
     }
 
-    // çŠ¶æ€è½¬ç§»åˆ¤æ–­
+    // ×´Ì¬×ªÒÆÅĞ¶Ï
     if (state->is_ok_cnt >= cfg->abnormal_time)
     {
         transition_state(state, ADC_CHECK_VOLT_NULL, 0);
@@ -123,36 +123,36 @@ static void handle_normal_state(voltage_check_state_t *state, float voltage)
     }
 }
 
-// OVPçŠ¶æ€å¤„ç†
+// OVP×´Ì¬´¦Àí
 static void handle_ovp_state(voltage_check_state_t *state, float voltage)
 {
     const voltage_check_config_t *cfg = state->config;
 
-    // å¤„ç†æ¢å¤è®¡æ•°
+    // ´¦Àí»Ö¸´¼ÆÊı
     voltage < cfg->ovp_hysteresis ? safe_increment(&state->is_ok_cnt, cfg->normal_time) : safe_decrement(&state->is_ok_cnt);
 
-    // çŠ¶æ€è½¬ç§»åˆ¤æ–­
+    // ×´Ì¬×ªÒÆÅĞ¶Ï
     if (state->is_ok_cnt >= cfg->normal_time)
     {
         transition_state(state, ADC_CHECK_VOLT_NULL, 0);
     }
 }
 
-// UVPçŠ¶æ€å¤„ç†
+// UVP×´Ì¬´¦Àí
 static void handle_uvp_state(voltage_check_state_t *state, float voltage)
 {
     const voltage_check_config_t *cfg = state->config;
 
-    // å¤„ç†æ¢å¤è®¡æ•°
+    // ´¦Àí»Ö¸´¼ÆÊı
     voltage > cfg->uvp_hysteresis ? safe_increment(&state->is_ok_cnt, cfg->normal_time) : safe_decrement(&state->is_ok_cnt);
 
-    // çŠ¶æ€è½¬ç§»åˆ¤æ–­
+    // ×´Ì¬×ªÒÆÅĞ¶Ï
     if (state->is_ok_cnt >= cfg->normal_time)
     {
         transition_state(state, ADC_CHECK_VOLT_NULL, 0);
     }
 }
-// ç”µå‹æ£€æµ‹ä¸»å‡½æ•°
+// µçÑ¹¼ì²âÖ÷º¯Êı
 void voltage_check_func(voltage_check_state_t *state, float voltage)
 {
     typedef void (*state_handler_t)(voltage_check_state_t *, float);
@@ -169,8 +169,8 @@ void voltage_check_func(voltage_check_state_t *state, float voltage)
     }
 }
 
-// å…·ä½“ç”µå‹æ£€æµ‹å®ä¾‹
-// 48Vç³»ç»Ÿé…ç½®
+// ¾ßÌåµçÑ¹¼ì²âÊµÀı
+// 48VÏµÍ³ÅäÖÃ
 static const voltage_check_config_t fvs48_config = {
     .ovp_threshold = ADC_CHECK_FVS48_OVP,
     .uvp_threshold = ADC_CHECK_FVS48_UVP,
@@ -186,7 +186,7 @@ static const voltage_check_config_t fvs48_config = {
     .abnormal_time = TIME_CNT_20MS_IN_1MS,
 };
 
-// 12Vç³»ç»Ÿé…ç½®
+// 12VÏµÍ³ÅäÖÃ
 static const voltage_check_config_t rvs12_config = {
     .ovp_threshold = ADC_CHECK_RVS12_OVP,
     .uvp_threshold = ADC_CHECK_RVS12_UVP,
@@ -202,19 +202,19 @@ static const voltage_check_config_t rvs12_config = {
     .abnormal_time = ADC_CHECK_RVS12_ABNORMAL_TIME,
 };
 
-// 48Vç³»ç»ŸçŠ¶æ€
+// 48VÏµÍ³×´Ì¬
 voltage_check_state_t fvs48_state;
 
-// 12Vç³»ç»ŸçŠ¶æ€
+// 12VÏµÍ³×´Ì¬
 voltage_check_state_t rvs12_state;
 
-// 48Væ£€æµ‹å‡½æ•°
+// 48V¼ì²âº¯Êı
 void adc_check_fvs_48_is_ok_func(void)
 {
     voltage_check_func(&fvs48_state, get_show_fvs48_show());
 }
 
-// 12Væ£€æµ‹å‡½æ•°
+// 12V¼ì²âº¯Êı
 void adc_check_rvs_12_is_ok_func(void)
 {
     voltage_check_func(&rvs12_state, get_show_rvs12_show());
@@ -225,7 +225,7 @@ REG_SHELL_VAR(fvs48_is_ok, fvs48_state.is_ok, SHELL_UINT8, 0xFFu, 0u, NULL, SHEL
 REG_SHELL_VAR(rvs12_is_ok, rvs12_state.is_ok, SHELL_UINT8, 0xFFu, 0u, NULL, SHELL_STA_NULL)
 #endif
 
-// è·å–çŠ¶æ€å‡½æ•°
+// »ñÈ¡×´Ì¬º¯Êı
 uint8_t adc_check_get_fvs48_is_ok(void)
 {
     return fvs48_state.is_ok;
@@ -251,32 +251,32 @@ uint32_t auxoffDelay = 0,auxonDelay = 0;
 static void adc_check_aux_is_ok_func(void)
 {
     aux_volt = adc_get_vdd_8v();
-    // å®šä¹‰æ¸…æ™°çš„ç”µå‹èŒƒå›´æ£€æŸ¥
+    // ¶¨ÒåÇåÎúµÄµçÑ¹·¶Î§¼ì²é
     const uint8_t is_normal = (aux_volt < ADC_CHECK_AUX_NORMAL_UP) &&
                               (aux_volt > ADC_CHECK_AUX_NORMAL_DN);
     const uint8_t is_abnormal = (aux_volt > ADC_CHECK_AUX_ABNORMAL_UP) ||
                                 (aux_volt < ADC_CHECK_AUX_ABNORMAL_DN);
 
-    // çŠ¶æ€è½¬æ¢é€»è¾‘
+    // ×´Ì¬×ª»»Âß¼­
     if (is_normal)
     {
         safe_increment(&aux_state.is_ok_cnt, ADC_CHECK_AUX_NORMAL_TIME);
     }
     else if (is_abnormal)
     {
-        aux_state.is_ok_cnt = 0; // ç«‹å³é‡ç½®è®¡æ•°å™¨
+        aux_state.is_ok_cnt = 0; // Á¢¼´ÖØÖÃ¼ÆÊıÆ÷
     }
     else
     {
-        // ä¸­é—´çŠ¶æ€ï¼Œå¯é€‰çš„é€’å‡é€»è¾‘
+        // ÖĞ¼ä×´Ì¬£¬¿ÉÑ¡µÄµİ¼õÂß¼­
         safe_decrement(&aux_state.is_ok_cnt);
     }
 
-    // çŠ¶æ€æ›´æ–°ï¼ˆå¸¦è¿Ÿæ»ï¼‰
+    // ×´Ì¬¸üĞÂ£¨´ø³ÙÖÍ£©
     aux_state.is_ok = (aux_state.is_ok_cnt >= ADC_CHECK_AUX_NORMAL_TIME) ? 1 : 0;
 }
 
-// çŠ¶æ€è®¡æ•°å™¨
+// ×´Ì¬¼ÆÊıÆ÷
 //static uint32_t adds_state_cnt = 0;
 static ADC_CHECK_ADDRS_E adds_state = ADDRS_IDLE;
 
@@ -294,7 +294,7 @@ ADC_CHECK_ADDRS_E RAMFUNC adc_check_get_addrs_state(void)
 //    const float voltage = adc_get_addrs();
 //    static ADC_CHECK_ADDRS_E candidate_state = ADDRS_IDLE;
 
-//    // ç¡®å®šå½“å‰ç”µå‹å¯¹åº”çš„å€™é€‰çŠ¶æ€
+//    // È·¶¨µ±Ç°µçÑ¹¶ÔÓ¦µÄºòÑ¡×´Ì¬
 //    ADC_CHECK_ADDRS_E new_candidate = ADDRS_IDLE;
 
 //    if (voltage > ADC_CHECK_ADDRS_IDLE_DN &&
@@ -319,33 +319,33 @@ ADC_CHECK_ADDRS_E RAMFUNC adc_check_get_addrs_state(void)
 //    }
 //    else
 //    {
-//        // ç”µå‹ä¸åœ¨ä»»ä½•å®šä¹‰èŒƒå›´å†…ï¼Œä¿æŒIDLEçŠ¶æ€
+//        // µçÑ¹²»ÔÚÈÎºÎ¶¨Òå·¶Î§ÄÚ£¬±£³ÖIDLE×´Ì¬
 //        new_candidate = ADDRS_IDLE;
 //    }
 
-//    // æ£€æŸ¥çŠ¶æ€æ˜¯å¦å˜åŒ–
+//    // ¼ì²é×´Ì¬ÊÇ·ñ±ä»¯
 //    if (new_candidate != candidate_state)
 //    {
 //        candidate_state = new_candidate;
-//        adds_state_cnt = 0; // çŠ¶æ€å˜åŒ–ï¼Œé‡ç½®è®¡æ•°å™¨
+//        adds_state_cnt = 0; // ×´Ì¬±ä»¯£¬ÖØÖÃ¼ÆÊıÆ÷
 //    }
 //    else
 //    {
-//        // çŠ¶æ€æŒç»­ï¼Œå¢åŠ è®¡æ•°å™¨ï¼ˆä¸è¶…è¿‡æœ€å¤§å€¼ï¼‰
+//        // ×´Ì¬³ÖĞø£¬Ôö¼Ó¼ÆÊıÆ÷£¨²»³¬¹ı×î´óÖµ£©
 //        if (adds_state_cnt < ADDRS_STATE_CONFIRM_TIME)
 //        {
 //            adds_state_cnt++;
 //        }
 //    }
 
-//    // ç¡®è®¤çŠ¶æ€è½¬æ¢ï¼ˆæŒç»­è¾¾åˆ°1ç§’ï¼‰
+//    // È·ÈÏ×´Ì¬×ª»»£¨³ÖĞø´ïµ½1Ãë£©
 //    if (adds_state_cnt >= ADDRS_STATE_CONFIRM_TIME)
 //    {
 //        adds_state = candidate_state;
 //    }
 //    else
 //    {
-//        // æœªè¾¾åˆ°ç¡®è®¤æ—¶é—´ï¼Œä¿æŒIDLEçŠ¶æ€
+//        // Î´´ïµ½È·ÈÏÊ±¼ä£¬±£³ÖIDLE×´Ì¬
 //        adds_state = ADDRS_IDLE;
 //    }
 //}

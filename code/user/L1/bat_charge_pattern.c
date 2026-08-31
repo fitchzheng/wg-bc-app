@@ -89,19 +89,19 @@ void GetChargeState(uint16_t ChargMode)
     float Acc_Volt = adc_get_accvs();
 
     switch(ChargMode){
-        case eSET_FORWARD:                            // 姝ｅ悜
+        case eSET_FORWARD:                            // 正向
             forward_charg_mode();
             break;
-        case eSET_BACKWARD:                           // 鍙嶅悜
+        case eSET_BACKWARD:                           // 反向
             backward_charg_mode();
             break;
-        case eSET_AUTO_MODE:                               // 鑷姩
+        case eSET_AUTO_MODE:                               // 自动
             auto_charge_mode();
             break;
-        case eSET_MANUAL_MODE:                             // 鎵嬪姩
+        case eSET_MANUAL_MODE:                             // 手动
             manual_charg_mode();
             break;
-        case eSET_PG_CUSTOM_MODE:                         // 澶栬
+        case eSET_PG_CUSTOM_MODE:                         // 外设
             if(get_key_pg_val() == 0){
                 auto_charge_mode();
             }else{
@@ -134,8 +134,8 @@ uint8_t gpio_get_pg_en(void)
 
 void get_protect_data(void)
 {
-    float fvs48_val = get_show_fvs48_show(); // 杈撳叆鐢靛帇
-    float rvs12_val = get_show_rvs12_show(); // 杈撳嚭鐢靛帇
+    float fvs48_val = get_show_fvs48_show(); // 输入电压
+    float rvs12_val = get_show_rvs12_show(); // 输出电压
     float Acc_val = adc_get_accvs();
     float Rtm_val = adc_get_rmtvs();
 
@@ -200,7 +200,7 @@ void get_protect_data(void)
 
     switch(StateCharge)
     {
-        case eFORWARD: // 姝ｅ悜
+        case eFORWARD: // 正向
         case eMANUAL_FORWARD:
         case ePG_MANUAL_FORWARD:
             charge_state_data.protect_data.protect_item_fvs48_uvp.val = fvs48_val;
@@ -220,7 +220,7 @@ void get_protect_data(void)
             charge_state_data.protect_data.protect_item_rvs12_ovp.recover = SetVolt;
             charge_state_data.protect_data.protect_item_rvs12_ovp.enable = 1;
              break;
-        case eBACKWARD: // 鍙嶅悜
+        case eBACKWARD: // 反向
         case eMANUAL_BACKWARD:
         case ePG_MANUAL_BACKWARD:
             charge_state_data.protect_data.protect_item_fvs48_uvp.val = fvs48_val;

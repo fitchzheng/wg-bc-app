@@ -30,34 +30,34 @@
 
 typedef struct
 {
-    float val;                         // å½“å‰å€¼
-    float limit;                       // è§¦å‘é˜ˆå€¼
-    float recover;                     // æ¢å¤é˜ˆå€¼
-    int counter;                       // è®¡æ•°å™¨
-    int counter_r;                     // æ¢å¤è®¡æ•°å™¨
-    bool flag;                         // å½“å‰æ˜¯å¦å¤„äºä¿æŠ¤ä¸­
-    FAULT_E fault;                     // æ•…éšœç±»å‹
-    bool (*cmp_trigger)(float, float); // è§¦å‘æ¯”è¾ƒå‡½æ•°
-    bool (*cmp_recover)(float, float); // æ¢å¤æ¯”è¾ƒå‡½æ•°
+    float val;                         // µ±Ç°Öµ
+    float limit;                       // ´¥·¢ãĞÖµ
+    float recover;                     // »Ö¸´ãĞÖµ
+    int counter;                       // ¼ÆÊıÆ÷
+    int counter_r;                     // »Ö¸´¼ÆÊıÆ÷
+    bool flag;                         // µ±Ç°ÊÇ·ñ´¦ÓÚ±£»¤ÖĞ
+    FAULT_E fault;                     // ¹ÊÕÏÀàĞÍ
+    bool (*cmp_trigger)(float, float); // ´¥·¢±È½Ïº¯Êı
+    bool (*cmp_recover)(float, float); // »Ö¸´±È½Ïº¯Êı
     uint8_t enable;
-    uint32_t TriggerTime;                // è§¦å‘æ—¶é—´
-    uint32_t RecoverTime;                // æ¢å¤æ—¶é—´
+    uint32_t TriggerTime;                // ´¥·¢Ê±¼ä
+    uint32_t RecoverTime;                // »Ö¸´Ê±¼ä
 } protect_item_t;
 
 typedef struct
 {
-    float val;                         // å½“å‰å€¼
-    float limit;                       // è§¦å‘é˜ˆå€¼
-    float recover;                     // æ¢å¤é˜ˆå€¼
-    int counter;                       // è®¡æ•°å™¨
-    int counter_r;                     // æ¢å¤è®¡æ•°å™¨
-    bool flag;                         // å½“å‰æ˜¯å¦å¤„äºä¿æŠ¤ä¸­
-    ALARM_E alarm;                     // æ•…éšœç±»å‹
-    bool (*cmp_trigger)(float, float); // è§¦å‘æ¯”è¾ƒå‡½æ•°
-    bool (*cmp_recover)(float, float); // æ¢å¤æ¯”è¾ƒå‡½æ•°
+    float val;                         // µ±Ç°Öµ
+    float limit;                       // ´¥·¢ãĞÖµ
+    float recover;                     // »Ö¸´ãĞÖµ
+    int counter;                       // ¼ÆÊıÆ÷
+    int counter_r;                     // »Ö¸´¼ÆÊıÆ÷
+    bool flag;                         // µ±Ç°ÊÇ·ñ´¦ÓÚ±£»¤ÖĞ
+    ALARM_E alarm;                     // ¹ÊÕÏÀàĞÍ
+    bool (*cmp_trigger)(float, float); // ´¥·¢±È½Ïº¯Êı
+    bool (*cmp_recover)(float, float); // »Ö¸´±È½Ïº¯Êı
     uint8_t enable;
-    uint32_t TriggerTime;                // è§¦å‘æ—¶é—´
-    uint32_t RecoverTime;                // æ¢å¤æ—¶é—´
+    uint32_t TriggerTime;                // ´¥·¢Ê±¼ä
+    uint32_t RecoverTime;                // »Ö¸´Ê±¼ä
 } warning_item_t;
 
 void protect_fast(void);

@@ -3,47 +3,47 @@
 
 #include "can_packet.h"
 
-#define PROTNO_LAP 0x010   // Local Alarm Protocol EESåè®®å†…å®¹
-#define PROTNO_NCP 0x020   // Network Configuration Protocol EESåè®®å†…å®¹
-#define PROTNO_FSP 0x030   // Function State Protocol EESåè®®å†…å®¹
-#define PROTNO_MCP 0x040   // Measurement And Control Protocol EESåè®®å†…å®¹
-#define PROTNO_SMCP 0x041  // Simple Measurement and Control Protocol EESåè®®å†…å®¹
-#define PROTNO_PSP 0x050   // Power Statue Protocol EESåè®®å†…å®¹
-#define PROTNO_SCP 0x100   // Simple Configuration Protocol EESåè®®å†…å®¹
-#define PROTNO_PIP 0x110   // Product Information Protocol EESåè®®å†…å®¹
-#define PROTNO_TDP 0x1FE   // Test And Debuge Protocol EESåè®®å†…å®¹
-#define PROTNO_RFDBP 0x1C8 // Bootloader request first data block protocal Bootloader ç¬¬ä¸€åŒ…æ•°æ®å—è¯·æ±‚åè®®
-#define PROTNO_RNDBP 0x1C9 // Bootloader request next data block protocal Bootloader ä¸‹ä¸€åŒ…æ•°æ®å—è¯·æ±‚åè®®
-#define PROTNO_BDTP 0x1CA  // Bootloader download trigger protocol Bootloader ä¸‹è½½è§¦å‘åè®®
-#define PROTNO_RSNP 0x1CB  // Bootloader request serial number protocal Bootloader è¯·æ±‚åºåˆ—å·åè®®
-#define PROTNO_RBVP 0x1CC  // Bootloader request boot version protocal Bootloader è¯·æ±‚å¼•å¯¼åŒºç‰ˆæœ¬åè®®
-#define PROTNO_HMP 0x1FD   // Host Monitor Protocol ç›‘æ§æ¨¡å—ä¸åå°è°ƒè¯•åè®®
-#define PROTNO_RMP 0x060   // Rectifier Monitor Protocol ç›‘æ§æ¨¡å—ä¸æ•´æµæ¨¡å—åè®®
-#define PROTNO_IMP 0x061   // Invert Monitor Protocol ç›‘æ§æ¨¡å—ä¸é€†å˜æ¨¡å—åè®®
-#define PROTNO_LDMP 0x062  // LC Distribution Monitor Protocol ç›‘æ§æ¨¡å—ä¸LCé…ç”µæ¨¡å—åè®®
-#define PROTNO_LCMP 0x063  // LC for DC/DC Converter Monitor Protocol ç›‘æ§æ¨¡å—ä¸å±±ç‰¹LCå˜æ¢å™¨åè®®
-#define PROTNO_NACMP 0x064 // NA Converter Monitor Protocol ç›‘æ§æ¨¡å—ä¸åŒ—ç¾å˜æ¢å™¨æ¨¡å—åè®®
-#define PROTNO_RRP 0x070   // Rectifier Rectifier Protocol æ•´æµæ¨¡å—ä¹‹é—´åè®®
-#define PROTNO_NACCP 0x071 // NA Converter Converter Protocol åŒ—ç¾å˜æ¢å™¨ä¹‹é—´åè®®
-#define PROTNO_WG 0x188    // WG Communication Protocol WGé€šä¿¡åè®®
+#define PROTNO_LAP 0x010   // Local Alarm Protocol EESĞ­ÒéÄÚÈİ
+#define PROTNO_NCP 0x020   // Network Configuration Protocol EESĞ­ÒéÄÚÈİ
+#define PROTNO_FSP 0x030   // Function State Protocol EESĞ­ÒéÄÚÈİ
+#define PROTNO_MCP 0x040   // Measurement And Control Protocol EESĞ­ÒéÄÚÈİ
+#define PROTNO_SMCP 0x041  // Simple Measurement and Control Protocol EESĞ­ÒéÄÚÈİ
+#define PROTNO_PSP 0x050   // Power Statue Protocol EESĞ­ÒéÄÚÈİ
+#define PROTNO_SCP 0x100   // Simple Configuration Protocol EESĞ­ÒéÄÚÈİ
+#define PROTNO_PIP 0x110   // Product Information Protocol EESĞ­ÒéÄÚÈİ
+#define PROTNO_TDP 0x1FE   // Test And Debuge Protocol EESĞ­ÒéÄÚÈİ
+#define PROTNO_RFDBP 0x1C8 // Bootloader request first data block protocal Bootloader µÚÒ»°üÊı¾İ¿éÇëÇóĞ­Òé
+#define PROTNO_RNDBP 0x1C9 // Bootloader request next data block protocal Bootloader ÏÂÒ»°üÊı¾İ¿éÇëÇóĞ­Òé
+#define PROTNO_BDTP 0x1CA  // Bootloader download trigger protocol Bootloader ÏÂÔØ´¥·¢Ğ­Òé
+#define PROTNO_RSNP 0x1CB  // Bootloader request serial number protocal Bootloader ÇëÇóĞòÁĞºÅĞ­Òé
+#define PROTNO_RBVP 0x1CC  // Bootloader request boot version protocal Bootloader ÇëÇóÒıµ¼Çø°æ±¾Ğ­Òé
+#define PROTNO_HMP 0x1FD   // Host Monitor Protocol ¼à¿ØÄ£¿éÓëºóÌ¨µ÷ÊÔĞ­Òé
+#define PROTNO_RMP 0x060   // Rectifier Monitor Protocol ¼à¿ØÄ£¿éÓëÕûÁ÷Ä£¿éĞ­Òé
+#define PROTNO_IMP 0x061   // Invert Monitor Protocol ¼à¿ØÄ£¿éÓëÄæ±äÄ£¿éĞ­Òé
+#define PROTNO_LDMP 0x062  // LC Distribution Monitor Protocol ¼à¿ØÄ£¿éÓëLCÅäµçÄ£¿éĞ­Òé
+#define PROTNO_LCMP 0x063  // LC for DC/DC Converter Monitor Protocol ¼à¿ØÄ£¿éÓëÉ½ÌØLC±ä»»Æ÷Ğ­Òé
+#define PROTNO_NACMP 0x064 // NA Converter Monitor Protocol ¼à¿ØÄ£¿éÓë±±ÃÀ±ä»»Æ÷Ä£¿éĞ­Òé
+#define PROTNO_RRP 0x070   // Rectifier Rectifier Protocol ÕûÁ÷Ä£¿éÖ®¼äĞ­Òé
+#define PROTNO_NACCP 0x071 // NA Converter Converter Protocol ±±ÃÀ±ä»»Æ÷Ö®¼äĞ­Òé
+#define PROTNO_WG 0x188    // WG Communication Protocol WGÍ¨ĞÅĞ­Òé
 
-#define ERRTYPE_OK 0xF0               // æ— é”™è¯¯ï¼Œæ­£å¸¸å“åº”
-#define ERRTYPE_INVALID_ADDR 0xF1     // èŠ‚ç‚¹åœ°å€æ— æ•ˆ
-#define ERRTYPE_INVALID_CMD 0xF2      // å‘½ä»¤æ— æ•ˆ
-#define ERRTYPE_CHECKSUM_FAIL 0xF3    // æ•°æ®æ ¡éªŒé”™è¯¯
-#define ERRTYPE_ADDR_RECOGNIZING 0xF4 // åœ°å€è¯†åˆ«è¿‡ç¨‹ä¸­
+#define ERRTYPE_OK 0xF0               // ÎŞ´íÎó£¬Õı³£ÏìÓ¦
+#define ERRTYPE_INVALID_ADDR 0xF1     // ½ÚµãµØÖ·ÎŞĞ§
+#define ERRTYPE_INVALID_CMD 0xF2      // ÃüÁîÎŞĞ§
+#define ERRTYPE_CHECKSUM_FAIL 0xF3    // Êı¾İĞ£Ñé´íÎó
+#define ERRTYPE_ADDR_RECOGNIZING 0xF4 // µØÖ·Ê¶±ğ¹ı³ÌÖĞ
 
-#define MSGTYPE_CMD0_SET_REQ 0x00 // è®¾ç½®è¯·æ±‚æ•°æ® - ç»¼åˆå‘½ä»¤0
-#define MSGTYPE_CMD1_SET_REQ 0x10 // è®¾ç½®è¯·æ±‚æ•°æ® - ç»¼åˆå‘½ä»¤1
-#define MSGTYPE_CMD2_SET_REQ 0x20 // è®¾ç½®è¯·æ±‚æ•°æ® - ç»¼åˆå‘½ä»¤2
+#define MSGTYPE_CMD0_SET_REQ 0x00 // ÉèÖÃÇëÇóÊı¾İ - ×ÛºÏÃüÁî0
+#define MSGTYPE_CMD1_SET_REQ 0x10 // ÉèÖÃÇëÇóÊı¾İ - ×ÛºÏÃüÁî1
+#define MSGTYPE_CMD2_SET_REQ 0x20 // ÉèÖÃÇëÇóÊı¾İ - ×ÛºÏÃüÁî2
 
-#define MSGTYPE_BYTE_READ_REQ 0x01  // è¯·æ±‚å­—èŠ‚æ•°æ® - æŒ‰å­—èŠ‚è¯»å–æ•°æ®
-#define MSGTYPE_BYTE_READ_RESP 0x41 // åº”ç­”è¯·æ±‚ - æŒ‰å­—èŠ‚è¯»å–æ•°æ®
+#define MSGTYPE_BYTE_READ_REQ 0x01  // ÇëÇó×Ö½ÚÊı¾İ - °´×Ö½Ú¶ÁÈ¡Êı¾İ
+#define MSGTYPE_BYTE_READ_RESP 0x41 // Ó¦´ğÇëÇó - °´×Ö½Ú¶ÁÈ¡Êı¾İ
 
-#define MSGTYPE_BIT_READ_REQ 0x02  // è¯·æ±‚ä½æ•°æ® - æŒ‰ä½è¯»å–æ•°æ®
-#define MSGTYPE_BIT_READ_RESP 0x42 // åº”ç­”è¯·æ±‚ - æŒ‰ä½è¯»å–æ•°æ®
+#define MSGTYPE_BIT_READ_REQ 0x02  // ÇëÇóÎ»Êı¾İ - °´Î»¶ÁÈ¡Êı¾İ
+#define MSGTYPE_BIT_READ_RESP 0x42 // Ó¦´ğÇëÇó - °´Î»¶ÁÈ¡Êı¾İ
 
-#define MSGTYPE_BYTE_WRITE_REQ 0x03  // è®¾ç½®æ•°æ® - æŒ‰å­—èŠ‚è®¾ç½®æ•°æ®
-#define MSGTYPE_BYTE_WRITE_RESP 0x43 // åº”ç­”è®¾ç½® - æŒ‰å­—èŠ‚è®¾ç½®æ•°æ®
+#define MSGTYPE_BYTE_WRITE_REQ 0x03  // ÉèÖÃÊı¾İ - °´×Ö½ÚÉèÖÃÊı¾İ
+#define MSGTYPE_BYTE_WRITE_RESP 0x43 // Ó¦´ğÉèÖÃ - °´×Ö½ÚÉèÖÃÊı¾İ
 
 #endif

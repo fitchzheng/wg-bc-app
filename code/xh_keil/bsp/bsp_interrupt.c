@@ -15,11 +15,11 @@ static void adc_sample_debug_pulse(bsp_gpio_table_e pin)
 }
 #endif
 
-// 涓柇澶勭悊鍑芥暟
+// 中断处理函数
 void RAMFUNC HRPWM_1_SCmp_Handler(void)
 {
     bsp_gpio_set_bit(PIN_INTC25K, 1);
-    // 鍦ㄦ澶勬坊鍔犱腑鏂鐞嗕唬鐮侊紝鎴栬�呭湪涓柇鍥炶皟涓鐞嗙浉鍏充换鍔?
+    // 在此处添加中断处理代码，或者在中断回调中处理相关任务
     if ((CM_HRPWM1->STFLR1 & HRPWM_STFLR1_CMSAUF) != 0U)
     {
         CM_HRPWM1->STFLR1 &= ~HRPWM_STFLR1_CMSAUF;
@@ -57,7 +57,7 @@ void RAMFUNC HRPWM_1_Ovf_Udf_Handler(void)
     bCM_HRPWM_COMMON->GBCONR_b.OSTBTRU1 = 1;
 }
 
-// 娉ㄥ唽涓柇鍥炶皟鍑芥暟
+// 注册中断回调函数
 void bsp_timer_irq_register(void (*func)(void))
 {
     timer_irq = func;

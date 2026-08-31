@@ -15,7 +15,7 @@
 #define MCAN_CLK_UNIT                   (CLK_MCAN1)
 #define MCAN_CLK_SRC                    (CLK_MCANCLK_SYSCLK_DIV3)
 /* Pin */
-#define MCAN_TX_PORT                    (GPIO_PORT_B)  //娉ㄦ剰鏀规垚PB8鍜孭B9
+#define MCAN_TX_PORT                    (GPIO_PORT_B)  //注意改成PB8和PB9
 #define MCAN_TX_PIN                     (GPIO_PIN_09)
 #define MCAN_TX_PIN_FUNC                (GPIO_FUNC_54)
 #define MCAN_RX_PORT                    (GPIO_PORT_B)

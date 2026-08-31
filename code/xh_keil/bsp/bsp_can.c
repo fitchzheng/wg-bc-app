@@ -85,7 +85,7 @@ void McanInitConfig(void)
     /* Configure Rx FIFO1 operation mode if needed.
        If new message received when Rx FIFO1 is full, the new received message
        will overwrite the oldest received message and RF1N Interrupt generated. */
-    MCAN_RxFifoOperationModeConfig(MCAN_UNIT, MCAN_RX_FIFO1, MCAN_RX_FIFO_OVERWRITE);  //FIFO1ä½¿ç”¨è¦†ç›–æ¨¡å¼
+    MCAN_RxFifoOperationModeConfig(MCAN_UNIT, MCAN_RX_FIFO1, MCAN_RX_FIFO_OVERWRITE);  //FIFO1Ê¹ÓÃ¸²¸ÇÄ£Ê½
 
     /* Configures timestamp if needed */
     MCAN_TimestampCounterConfig(MCAN_UNIT, 1U);
@@ -95,7 +95,7 @@ void McanInitConfig(void)
        only when its own transmission completed interrupt is enabled. */
     MCAN_TxBufferNotificationCmd(MCAN_UNIT, MCAN_TX_NOTIFICATION_BUF, MCAN_INT_TX_CPLT, ENABLE);
 
-//  ä¸å¼€å¯ä¸­æ–­ï¼Œä½¿ç”¨è½®è¯¢æ–¹å¼
+//  ²»¿ªÆôÖÐ¶Ï£¬Ê¹ÓÃÂÖÑ¯·½Ê½
 //    MCAN_IntCmd(MCAN_UNIT, MCAN_INT0_SEL, MCAN_INT_LINE0, ENABLE);  
 //    MCAN_IntCmd(MCAN_UNIT, MCAN_INT1_SEL, MCAN_INT_LINE1, ENABLE);
 }
@@ -170,7 +170,7 @@ void McanSampleTx(void)
 
 
 
-//æ£€æµ‹æ˜¯å¦æŽ¥æ”¶åˆ°æ–°æ•°æ?
+//¼ì²âÊÇ·ñ½ÓÊÕµ½ÐÂÊý¾Ý
 uint8_t bsp_can_rev_check(void)
 {
     if (MCAN_GetStatus(MCAN_UNIT, MCAN_FLAG_RX_FIFO1_NEW_MSG) == SET) 
@@ -180,37 +180,37 @@ uint8_t bsp_can_rev_check(void)
     }
     return 0;
 }
-//èŽ·å–æŽ¥æ”¶æ•°æ®
+//»ñÈ¡½ÓÊÕÊý¾Ý
 uint8_t bsp_can_get_msg(stc_mcan_rx_msg_t* stcRxMsg)
 {
     return MCAN_GetRxMsg(MCAN_UNIT, MCAN_RX_FIFO1,stcRxMsg);
 
 }
-//CANæŽ¥æ”¶æ•°æ®å¤„ç†ï¼Œç”¨äºŽæµ‹è¯•ï¼Œå°†æŽ¥æ”¶åˆ°çš„æ•°æ®ä¿®æ”¹ä¸€ä¸‹å†å‘é€å›žåŽ?
-//stcRxMsg  æŽ¥æ”¶æ•°æ®æŒ‡é’ˆ
-//stcTxMsg  å‘é€æ•°æ®æŒ‡é’?
+//CAN½ÓÊÕÊý¾Ý´¦Àí£¬ÓÃÓÚ²âÊÔ£¬½«½ÓÊÕµ½µÄÊý¾ÝÐÞ¸ÄÒ»ÏÂÔÙ·¢ËÍ»ØÀ´
+//stcRxMsg  ½ÓÊÕÊý¾ÝÖ¸Õë
+//stcTxMsg  ·¢ËÍÊý¾ÝÖ¸Õë
 void can_data_process(stc_mcan_tx_msg_t *stcTxMsg,stc_mcan_rx_msg_t* stcRxMsg)
 {
     stcTxMsg->ID = stcRxMsg->ID + 1; //ID+1
-    stcTxMsg->IDE = stcRxMsg->IDE;   //å¸§æ ¼å¼ä¸å?
-    stcTxMsg->DLC = stcRxMsg->DLC;   //æ•°æ®é•¿åº¦ä¸å˜
+    stcTxMsg->IDE = stcRxMsg->IDE;   //Ö¡¸ñÊ½²»·û
+    stcTxMsg->DLC = stcRxMsg->DLC;   //Êý¾Ý³¤¶È²»±ä
     stcTxMsg->RTR = stcRxMsg->RTR;
-    stcTxMsg->au8Data[0] = stcRxMsg->au8Data[0] + 1;  //å‰ä¸¤ä¸ªæ•°æ?1
+    stcTxMsg->au8Data[0] = stcRxMsg->au8Data[0] + 1;  //Ç°Á½¸öÊý¾Ý¼Ó1
     stcTxMsg->au8Data[1] = stcRxMsg->au8Data[1] + 1;
     MCAN_AddMsgToTxFifoQueue(MCAN_UNIT, stcTxMsg);
 }
 
 
-//CANæ€»çº¿æµ‹è¯•
+//CAN×ÜÏß²âÊÔ
 void can_test(void)
 {
-    stc_mcan_tx_msg_t stcTxMsg={0}; //å‘é€æ•°æ®ç»“æž„ä½“
-    stc_mcan_rx_msg_t stcRxMsg={0}; //æŽ¥æ”¶æ•°æ®ç»“æž„ä½?
-    if(bsp_can_rev_check()) //æ˜¯å¦æœ‰æ”¶åˆ°æ–°æ•°æ®
+    stc_mcan_tx_msg_t stcTxMsg={0}; //·¢ËÍÊý¾Ý½á¹¹Ìå
+    stc_mcan_rx_msg_t stcRxMsg={0}; //½ÓÊÕÊý¾Ý½á¹¹Ìå
+    if(bsp_can_rev_check()) //ÊÇ·ñÓÐÊÕµ½ÐÂÊý¾Ý
     {
-        if(bsp_can_get_msg(&stcRxMsg) == LL_OK) //èŽ·å–æ•°æ®
+        if(bsp_can_get_msg(&stcRxMsg) == LL_OK) //»ñÈ¡Êý¾Ý
         {
-            can_data_process(&stcTxMsg,&stcRxMsg); //å¤„ç†æ•°æ®
+            can_data_process(&stcTxMsg,&stcRxMsg); //´¦ÀíÊý¾Ý
         }
 
     }    

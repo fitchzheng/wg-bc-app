@@ -1,29 +1,29 @@
 #include "open_loop.h"
 
-// åˆå§‹åŒ–å‡½æ•°
+// ³õÊ¼»¯º¯Êý
 void open_loop_init(open_loop_t *str)
 {
     if (!str)
         return;
 
-    // åˆå§‹åŒ–è¾“å…¥å¢žç›Šä¸º 0
+    // ³õÊ¼»¯ÊäÈëÔöÒæÎª 0
     str->input.gain = 0.0f;
 
-    // åˆå§‹åŒ–æ¨¡å¼ä¸ºé™åŽ‹æ¨¡å¼
+    // ³õÊ¼»¯Ä£Ê½Îª½µÑ¹Ä£Ê½
     str->inter.mode = MODE_BUCK;
 
-    // åˆå§‹åŒ–è¾“å‡ºå ç©ºæ¯”ä¸º 0
+    // ³õÊ¼»¯Êä³öÕ¼¿Õ±ÈÎª 0
     str->output.buck_duty = 0.0f;
     str->output.boost_duty = 0.0f;
 }
 
-// å¼€çŽ¯æŽ§åˆ¶å‡½æ•°
+// ¿ª»·¿ØÖÆº¯Êý
 void open_loop_control(open_loop_t *str)
 {
     if (!str)
         return;
 
-    // æ ¹æ®å½“å‰æ¨¡å¼å’Œå¢žç›Šåˆ¤æ–­ä¸‹ä¸€ä¸ªæ¨¡å¼
+    // ¸ù¾Ýµ±Ç°Ä£Ê½ºÍÔöÒæÅÐ¶ÏÏÂÒ»¸öÄ£Ê½
     switch (str->inter.mode)
     {
     case MODE_BUCK:
@@ -52,12 +52,12 @@ void open_loop_control(open_loop_t *str)
         break;
 
     default:
-        // ä¸å¯èƒ½åˆ°è¾¾è¿™é‡Œ
+        // ²»¿ÉÄÜµ½´ïÕâÀï
         str->inter.mode = MODE_BUCK;
         break;
     }
 
-    // æ ¹æ®æ¨¡å¼ç¡®å®šå ç©ºæ¯”
+    // ¸ù¾ÝÄ£Ê½È·¶¨Õ¼¿Õ±È
     switch (str->inter.mode)
     {
     case MODE_BUCK:
@@ -76,7 +76,7 @@ void open_loop_control(open_loop_t *str)
         break;
 
     default:
-        // ä¸å¯èƒ½åˆ°è¾¾è¿™é‡Œ
+        // ²»¿ÉÄÜµ½´ïÕâÀï
         str->output.buck_duty = 0.0f;
         str->output.boost_duty = 0.0f;
         break;

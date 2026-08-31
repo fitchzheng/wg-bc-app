@@ -8,7 +8,7 @@
 #define GPIO_MODE_IPD               1
 #define GPIO_MODE_DEFAULT_OUT_PP    2
 #define GPIO_MODE_DEFAULT_IPD       3
-//å…¶ä»–ç±»åž‹å®šä¹‰æŒ‰å®žé™…éœ€è¦å¢žåŠ 
+//ÆäËûÀàÐÍ¶¨Òå°´Êµ¼ÊÐèÒªÔö¼Ó
 
 
 

@@ -1,6 +1,6 @@
 /**
  * @file rvc_message_handler.c
- * @brief RV-C æ¶ˆæ¯å¤„ç†å®žçŽ°
+ * @brief RV-C ÏûÏ¢´¦ÀíÊµÏÖ
  */
 #include "rvc_message_handler.h"
 #include "rvc_address.h"
@@ -15,7 +15,7 @@
 
 static uint8_t g_my_instance = 1;
 
-/* ========== å†…éƒ¨å˜é‡ ========== */
+/* ========== ÄÚ²¿±äÁ¿ ========== */
 
 static rvc_charger_command_callback_t g_charger_command_cb = NULL;
 static rvc_request_for_dgn_callback_t g_request_for_dgn_cb = NULL;
@@ -26,7 +26,7 @@ static uint16_t g_current_spn = 0;
 static uint8_t g_current_fmi = 0;
 static uint8_t g_occurrence_count = 0;
 
-/* ========== å†…éƒ¨å‡½æ•°å£°æ˜Ž ========== */
+/* ========== ÄÚ²¿º¯ÊýÉùÃ÷ ========== */
 
 static void handle_charger_command(uint32_t can_id, uint8_t *data, uint8_t len);
 static void handle_request_for_dgn(uint32_t can_id, uint8_t *data, uint8_t len);
@@ -74,7 +74,7 @@ static uint8_t rvc_is_pc_source(uint32_t can_id)
     return (((uint8_t)(can_id & 0xFFU)) == RVC_PC_SOURCE_ADDRESS) ? 1U : 0U;
 }
 
-/* ========== å…¬å…± API å®žçŽ° ========== */
+/* ========== ¹«¹² API ÊµÏÖ ========== */
 
 #if (APP_DEBUG_EVENT_READ_FEATURES == 1)
 #define RVC_APP_DEBUG_EVENT_REG_OFFSET       8U
@@ -155,7 +155,7 @@ uint8_t rvc_send_dm_rv(uint8_t instance, uint16_t spn, uint8_t fmi)
         g_current_spn = spn;
         g_current_fmi = fmi;
         g_occurrence_count = (spn != 0) ? 1 : 0;
-        g_dm_dsn++;  // çŠ¶æ€æ”¹å˜ï¼Œåºåˆ—å·é€’å¢ž
+        g_dm_dsn++;  // ×´Ì¬¸Ä±ä£¬ÐòÁÐºÅµÝÔö
     }
 
     uint8_t data[8];
@@ -164,7 +164,7 @@ uint8_t rvc_send_dm_rv(uint8_t instance, uint16_t spn, uint8_t fmi)
     data[2] = (spn >> 8) & 0xFF;
     data[3] = fmi;
     data[4] = g_occurrence_count;
-    data[5] = rvc_address_get_current();  // DSA = è‡ªå·±çš„åœ°å€
+    data[5] = rvc_address_get_current();  // DSA = ×Ô¼ºµÄµØÖ·
     data[6] = instance;
     data[7] = 0xFF;  // Reserved
 
@@ -176,8 +176,8 @@ void rvc_message_handler_init(void)
     g_charger_command_cb = NULL;
     g_request_for_dgn_cb = NULL;
 
-    // è¯»å–æœ¬æœº Instance
-    g_my_instance = 1;  // æˆ–ç›´æŽ¥ç”¨ RVC_CHARGER_INSTANCE
+    // ¶ÁÈ¡±¾»ú Instance
+    g_my_instance = 1;  // »òÖ±½ÓÓÃ RVC_CHARGER_INSTANCE
 }
 
 void rvc_register_charger_command_callback(rvc_charger_command_callback_t callback)
@@ -193,15 +193,15 @@ void rvc_register_request_for_dgn_callback(rvc_request_for_dgn_callback_t callba
 static void handle_manufacturer_data(uint32_t gdn, uint8_t *data, uint8_t len)
 {
     if (len < 7) {
-        return;  // æ•°æ®é•¿åº¦ä¸è¶³
+        return;  // Êý¾Ý³¤¶È²»×ã
     }
 
-    // æ£€æŸ¥å®žä¾‹å·
+    // ¼ì²éÊµÀýºÅ
     if ((data[0] != 0xFF) && (data[0] != g_my_instance)) {
-        return;  // ä¸æ˜¯è¯·æ±‚æˆ‘çš„
+        return;  // ²»ÊÇÇëÇóÎÒµÄ
     }
 
-    // æå–å‘é€è€…åœ°å€
+    // ÌáÈ¡·¢ËÍÕßµØÖ·
     uint32_t tx_can_id = 0;//build_can_id(6, RVC_DGN_ACKNOWLEDGEMENT, rvc_address_get_current());
     uint8_t tx_data[8];
     switch(gdn){
@@ -295,15 +295,15 @@ static void handle_manufacturer_data(uint32_t gdn, uint8_t *data, uint8_t len)
 static void handle_real_time_data(uint32_t gdn, uint8_t *data, uint8_t len)
 {
     if (len < 7) {
-        return;  // æ•°æ®é•¿åº¦ä¸è¶³
+        return;  // Êý¾Ý³¤¶È²»×ã
     }
 
-    // æ£€æŸ¥å®žä¾‹å·
+    // ¼ì²éÊµÀýºÅ
     if ((data[0] != 0xFF) && (data[0] != 0x00) && (data[0] != g_my_instance)) {
-        return;  // ä¸æ˜¯è¯·æ±‚æˆ‘çš„
+        return;  // ²»ÊÇÇëÇóÎÒµÄ
     }
 
-    // æå–å‘é€è€…åœ°å€
+    // ÌáÈ¡·¢ËÍÕßµØÖ·
     uint32_t tx_can_id = 0;//build_can_id(6, RVC_DGN_ACKNOWLEDGEMENT, rvc_address_get_current());
     uint8_t tx_data[8];
     uint16_t value = 0;
@@ -332,18 +332,18 @@ static void handle_real_time_data(uint32_t gdn, uint8_t *data, uint8_t len)
         case RVC_DGN_PROPRIETARY_POWER_CHARG_STATE_CHARGEE_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_POWER_CHARG_STATE_CHARGEE_R, rvc_address_get_current());
             WG_COM_V2_GET_DATA_UINT(value, wg_com_v2_realtime_data.PowerMode);
-            rvc_put_u16_be(tx_data, 1, value);                                  // ç”µæºæ¨¡å¼
+            rvc_put_u16_be(tx_data, 1, value);                                  // µçÔ´Ä£Ê½
             WG_COM_V2_GET_DATA_UINT(value, wg_com_v2_realtime_data.ChargMode);
-            rvc_put_u16_be(tx_data, 3, value);                                  // å……ç”µæ¨¡å¼
+            rvc_put_u16_be(tx_data, 3, value);                                  // ³äµçÄ£Ê½
             WG_COM_V2_GET_DATA_UINT(value, wg_com_v2_realtime_data.StateCharge);
             rvc_put_u16_be(tx_data, 5, value);
             break;
         case RVC_DGN_PROPRIETARY_FAULT_SIGN_ALARM_SIGN_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_FAULT_SIGN_ALARM_SIGN_R, rvc_address_get_current());
             WG_COM_V2_GET_DATA_UINT(value, wg_com_v2_realtime_data.FaultSign);
-            rvc_put_u16_be(tx_data, 1, value);                                  // æ•…éšœä¿¡å·
+            rvc_put_u16_be(tx_data, 1, value);                                  // ¹ÊÕÏÐÅºÅ
             WG_COM_V2_GET_DATA_UINT(value, wg_com_v2_realtime_data.AlarmSign);
-            rvc_put_u16_be(tx_data, 3, value);                                  // å‘Šè­¦ä¿¡å·
+            rvc_put_u16_be(tx_data, 3, value);                                  // ¸æ¾¯ÐÅºÅ
             break;
         case RVC_DGN_PROPRIETARY_VOLTA_VOLTB_ADDVOLT_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_VOLTA_VOLTB_ADDVOLT_R, rvc_address_get_current());
@@ -363,15 +363,15 @@ static void handle_real_time_data(uint32_t gdn, uint8_t *data, uint8_t len)
 static void handle_control_settings(uint32_t gdn, uint8_t *data, uint8_t len)
 {
     if (len < 7) {
-        return;  // æ•°æ®é•¿åº¦ä¸è¶³
+        return;  // Êý¾Ý³¤¶È²»×ã
     }
 
-    // æ£€æŸ¥å®žä¾‹å·
+    // ¼ì²éÊµÀýºÅ
     if ((data[0] != 0xFF) && (data[0] != g_my_instance)) {
-        return;  // ä¸æ˜¯è¯·æ±‚æˆ‘çš„
+        return;  // ²»ÊÇÇëÇóÎÒµÄ
     }
 
-    // æå–å‘é€è€…åœ°å€
+    // ÌáÈ¡·¢ËÍÕßµØÖ·
     uint32_t tx_can_id = 0;//build_can_id(6, RVC_DGN_ACKNOWLEDGEMENT, rvc_address_get_current());
     uint8_t tx_data[8];
     uint16_t value = 0;
@@ -383,16 +383,16 @@ static void handle_control_settings(uint32_t gdn, uint8_t *data, uint8_t len)
             WG_COM_V2_GET_DATA_UINT(value, wg_com_v2_ctrl.PowerOnOff);
             rvc_put_u16_be(tx_data, 1, value);
             WG_COM_V2_GET_DATA_UINT(value, wg_com_v2_ctrl.SetPowerMode);
-            rvc_put_u16_be(tx_data, 3, value);                                  // ç”µæºæ¨¡å¼
+            rvc_put_u16_be(tx_data, 3, value);                                  // µçÔ´Ä£Ê½
             WG_COM_V2_GET_DATA_UINT(value, wg_com_v2_ctrl.SetChargMode);
-            rvc_put_u16_be(tx_data, 5, value);                                  // å……ç”µæ¨¡å¼
+            rvc_put_u16_be(tx_data, 5, value);                                  // ³äµçÄ£Ê½
             break;
         case RVC_DGN_PROPRIETARY_FACTORY_RESET_RESET_FACTORY_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_FACTORY_RESET_RESET_FACTORY_R, rvc_address_get_current());
             WG_COM_V2_GET_DATA_UINT(value, wg_com_v2_ctrl.FactoryReset);
-            rvc_put_u16_be(tx_data, 1, value);                                  // æ¢å¤å‡ºåŽ‚è®¾ç½®
+            rvc_put_u16_be(tx_data, 1, value);                                  // »Ö¸´³ö³§ÉèÖÃ
             WG_COM_V2_GET_DATA_UINT(value, wg_com_v2_ctrl.ResetFactoryData);
-            rvc_put_u16_be(tx_data, 3, value);                                  // ä¿å­˜å‡ºåŽ‚è®¾ç½®
+            rvc_put_u16_be(tx_data, 3, value);                                  // ±£´æ³ö³§ÉèÖÃ
             break;
         case RVC_DGN_PROPRIETARY_BATY_TYPE_BOOT_CURR_STARTA_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_BATY_TYPE_BOOT_CURR_STARTA_R, rvc_address_get_current());
@@ -401,7 +401,7 @@ static void handle_control_settings(uint32_t gdn, uint8_t *data, uint8_t len)
             WG_COM_V2_GET_DATA_UINT(value, wg_com_v2_ctrl.SetBootTimeA);
             rvc_put_u16_be(tx_data, 3, value);
             WG_COM_V2_GET_DATA_UINT(value, wg_com_v2_ctrl.SetOnCurrStartTimeA);
-            rvc_put_u16_be(tx_data, 5, value);                                  // Aç«¯å¼€æœºç”µæµè½¯èµ·åŠ¨æ—¶é—´
+            rvc_put_u16_be(tx_data, 5, value);                                  // A¶Ë¿ª»úµçÁ÷ÈíÆð¶¯Ê±¼ä
             break;
         case RVC_DGN_PROPRIETARY_BATY_TYPE_BOOT_CURR_STARTB_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_BATY_TYPE_BOOT_CURR_STARTB_R, rvc_address_get_current());
@@ -410,12 +410,12 @@ static void handle_control_settings(uint32_t gdn, uint8_t *data, uint8_t len)
             WG_COM_V2_GET_DATA_UINT(value, wg_com_v2_ctrl.SetBootTimeB);
             rvc_put_u16_be(tx_data, 3, value);
             WG_COM_V2_GET_DATA_UINT(value, wg_com_v2_ctrl.SetOnCurrStartTimeB);
-            rvc_put_u16_be(tx_data, 5, value);                                  // Bç«¯å¼€æœºç”µæµè½¯èµ·åŠ¨æ—¶é—´
+            rvc_put_u16_be(tx_data, 5, value);                                  // B¶Ë¿ª»úµçÁ÷ÈíÆð¶¯Ê±¼ä
             break;
         case RVC_DGN_PROPRIETARY_ZERO_CURR_BAT_MODE_FR_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_ZERO_CURR_BAT_MODE_FR_R, rvc_address_get_current());
             WG_COM_V2_GET_DATA_UINT(value, wg_com_v2_ctrl.ZeroCurrCalibration);
-            rvc_put_u16_be(tx_data, 1, value);                                  // ç«¯é›¶ç”µæµæ ¡å‡†
+            rvc_put_u16_be(tx_data, 1, value);                                  // ¶ËÁãµçÁ÷Ð£×¼
             break;
         case RVC_DGN_PROPRIETARY_STATUS_CONTROL_R:
             tx_can_id = build_can_id(6, RVC_DGN_PROPRIETARY_STATUS_CONTROL_R, rvc_address_get_current());
@@ -424,7 +424,7 @@ static void handle_control_settings(uint32_t gdn, uint8_t *data, uint8_t len)
             WG_COM_V2_GET_DATA_UINT(value, wg_com_v2_ctrl.MpptSwitch);
             rvc_put_u16_be(tx_data, 3, value);                                  // MPPTÄ£Ê½
             WG_COM_V2_GET_DATA_UINT(value, wg_com_v2_ctrl.SleepModeOnOff);
-            rvc_put_u16_be(tx_data, 5, value);                                  // ä¼‘çœ åŠŸèƒ½
+            rvc_put_u16_be(tx_data, 5, value);                                  // ÐÝÃß¹¦ÄÜ
             break;
         default:
             return;
@@ -609,15 +609,15 @@ static void handle_calibration_command(uint8_t *data, uint8_t len)
 static void handle_set_parameter_area(uint32_t gdn, uint8_t *data, uint8_t len)
 {
     if (len < 7) {
-        return;  // æ•°æ®é•¿åº¦ä¸è¶³
+        return;  // Êý¾Ý³¤¶È²»×ã
     }
 
-    // æ£€æŸ¥å®žä¾‹å·
+    // ¼ì²éÊµÀýºÅ
     if ((data[0] != 0xFF) && (data[0] != g_my_instance)) {
-        return;  // ä¸æ˜¯è¯·æ±‚æˆ‘çš„
+        return;  // ²»ÊÇÇëÇóÎÒµÄ
     }
 
-    // æå–å‘é€è€…åœ°å€
+    // ÌáÈ¡·¢ËÍÕßµØÖ·
     uint32_t tx_can_id = 0;//build_can_id(6, RVC_DGN_ACKNOWLEDGEMENT, rvc_address_get_current());
     uint8_t tx_data[8];
     memset(tx_data, 0xFF, sizeof(tx_data));
@@ -691,15 +691,15 @@ static void handle_set_parameter_area(uint32_t gdn, uint8_t *data, uint8_t len)
 static void handle_manufacturer_data_w(uint32_t gdn, uint8_t *data, uint8_t len)
 {
     if (len < 7) {
-        return;  // æ•°æ®é•¿åº¦ä¸è¶³
+        return;  // Êý¾Ý³¤¶È²»×ã
     }
 
-    // æ£€æŸ¥å®žä¾‹å·
+    // ¼ì²éÊµÀýºÅ
     if ((data[0] != 0xFF) && (data[0] != g_my_instance)) {
-        return;  // ä¸æ˜¯è¯·æ±‚æˆ‘çš„
+        return;  // ²»ÊÇÇëÇóÎÒµÄ
     }
 
-    // æå–å‘é€è€…åœ°å€
+    // ÌáÈ¡·¢ËÍÕßµØÖ·
     //uint32_t tx_can_id = build_can_id(6, RVC_DGN_ACKNOWLEDGEMENT, rvc_address_get_current());
     //uint8_t tx_data[8];
     switch(gdn){
@@ -736,22 +736,22 @@ static void handle_manufacturer_data_w(uint32_t gdn, uint8_t *data, uint8_t len)
             break;
         default:
             break;
-            // æœªçŸ¥ DGNï¼Œå¿½ç•?
+            // Î´Öª DGN£¬ºöÂÔ
     }
 }
 
 static void handle_control_settings_w(uint32_t gdn, uint8_t *data, uint8_t len)
 {
     if (len < 7) {
-        return;  // æ•°æ®é•¿åº¦ä¸è¶³
+        return;  // Êý¾Ý³¤¶È²»×ã
     }
 
-    // æ£€æŸ¥å®žä¾‹å·
+    // ¼ì²éÊµÀýºÅ
     if ((data[0] != 0xFF) && (data[0] != g_my_instance)) {
-        return;  // ä¸æ˜¯è¯·æ±‚æˆ‘çš„
+        return;  // ²»ÊÇÇëÇóÎÒµÄ
     }
 
-    // æå–å‘é€è€…åœ°å€
+    // ÌáÈ¡·¢ËÍÕßµØÖ·
     //uint32_t tx_can_id = 0;//build_can_id(6, RVC_DGN_ACKNOWLEDGEMENT, rvc_address_get_current());
     //uint8_t tx_data[8];
     uint32_t send_gnd = 0;
@@ -842,7 +842,7 @@ static void handle_control_settings_w(uint32_t gdn, uint8_t *data, uint8_t len)
             break;
         default:
             return;
-            // æœªçŸ¥ DGNï¼Œå¿½ç•?
+            // Î´Öª DGN£¬ºöÂÔ
     }
     handle_control_settings(send_gnd, data, 8);
 }
@@ -850,15 +850,15 @@ static void handle_control_settings_w(uint32_t gdn, uint8_t *data, uint8_t len)
 static void handle_set_parameter_area_w(uint32_t gdn, uint8_t *data, uint8_t len)
 {
     if (len < 7) {
-        return;  // æ•°æ®é•¿åº¦ä¸è¶³
+        return;  // Êý¾Ý³¤¶È²»×ã
     }
 
-    // æ£€æŸ¥å®žä¾‹å·
+    // ¼ì²éÊµÀýºÅ
     if ((data[0] != 0xFF) && (data[0] != g_my_instance)) {
-        return;  // ä¸æ˜¯è¯·æ±‚æˆ‘çš„
+        return;  // ²»ÊÇÇëÇóÎÒµÄ
     }
 
-    // æå–å‘é€è€…åœ°å€
+    // ÌáÈ¡·¢ËÍÕßµØÖ·
     //uint32_t tx_can_id = 0;//build_can_id(6, RVC_DGN_ACKNOWLEDGEMENT, rvc_address_get_current());
     //uint8_t tx_data[8];
     uint32_t send_gnd = 0;
@@ -980,10 +980,10 @@ static void handle_set_parameter_area_w(uint32_t gdn, uint8_t *data, uint8_t len
 
 void rvc_message_handler_process(uint32_t can_id, uint8_t *data, uint8_t len)
 {
-    // æå– DGN
+    // ÌáÈ¡ DGN
     uint32_t dgn = (can_id >> 8) & 0x1FFFF;
 
-    // æ ¹æ® DGN åˆ†å‘å¤„ç†
+    // ¸ù¾Ý DGN ·Ö·¢´¦Àí
     switch (dgn) {
         case RVC_DGN_CHARGER_COMMAND:
             handle_charger_command(can_id, data, len);
@@ -994,7 +994,7 @@ void rvc_message_handler_process(uint32_t can_id, uint8_t *data, uint8_t len)
             break;
 
         case RVC_DGN_CHARGER_CONFIGURATION_COMMAND:
-            // TODO: å®žçŽ°é…ç½®å‘½ä»¤å¤„ç†
+            // TODO: ÊµÏÖÅäÖÃÃüÁî´¦Àí
             break;
 
         case RVC_DGN_PROPRIETARY_PROTOCOL_VERSION_R:
@@ -1123,7 +1123,7 @@ void rvc_message_handler_process(uint32_t can_id, uint8_t *data, uint8_t len)
 
         default:
             break;
-            // æœªçŸ¥ DGNï¼Œå¿½ç•?
+            // Î´Öª DGN£¬ºöÂÔ
     }
 }
 
@@ -1186,7 +1186,7 @@ uint8_t rvc_send_charger_status_2(uint8_t instance, float voltage, float current
     return bsp_rvc_can_tx(can_id, data, 8);
 }
 
-/* ========== å†…éƒ¨å‡½æ•°å®žçŽ° ========== */
+/* ========== ÄÚ²¿º¯ÊýÊµÏÖ ========== */
 
 static uint32_t build_can_id(uint8_t priority, uint32_t dgn, uint8_t sa)
 {
@@ -1202,51 +1202,51 @@ static uint32_t build_can_id(uint8_t priority, uint32_t dgn, uint8_t sa)
 static void handle_charger_command(uint32_t can_id, uint8_t *data, uint8_t len)
 {
     if (len < 7) {
-        return;  // æ•°æ®é•¿åº¦ä¸è¶³
+        return;  // Êý¾Ý³¤¶È²»×ã
     }
 
-    // è§£æžå‘½ä»¤
+    // ½âÎöÃüÁî
     rvc_charger_command_t cmd;
     cmd.instance = data[0];
     cmd.status = data[1];
     cmd.voltage = data[3] | (data[4] << 8);
     cmd.current = data[5] | (data[6] << 8);
 
-    // å¦‚æžœä¸æ˜¯å…¨å±€å®žä¾‹ï¼Œä¹Ÿä¸æ˜¯æœ¬æœºå®žä¾‹ï¼Œå°±æ‹’ç»
+    // Èç¹û²»ÊÇÈ«¾ÖÊµÀý£¬Ò²²»ÊÇ±¾»úÊµÀý£¬¾Í¾Ü¾ø
     if ((cmd.instance != 0) && (cmd.instance != g_my_instance)) {
         return;
     }
 
-    // æå–å‘é€è€…åœ°å€
-    uint8_t sender_sa = (can_id >> 8) & 0xFF;  // DGN-Low å°±æ˜¯å‘é€è€…åœ°å€
+    // ÌáÈ¡·¢ËÍÕßµØÖ·
+    uint8_t sender_sa = (can_id >> 8) & 0xFF;  // DGN-Low ¾ÍÊÇ·¢ËÍÕßµØÖ·
 
-    // è°ƒç”¨å›žè°ƒå‡½æ•°
+    // µ÷ÓÃ»Øµ÷º¯Êý
     if (g_charger_command_cb != NULL) {
         g_charger_command_cb(&cmd);
     }
 
-    // å‘é€?ACK
+    // ·¢ËÍ ACK
     rvc_send_ack(0x00, cmd.instance, RVC_DGN_CHARGER_COMMAND, sender_sa);
 }
 
 static void handle_request_for_dgn(uint32_t can_id, uint8_t *data, uint8_t len)
 {
     if (len < 4) {
-        return;  // æ•°æ®é•¿åº¦ä¸è¶³
+        return;  // Êý¾Ý³¤¶È²»×ã
     }
 
-    // è§£æžè¯·æ±‚
+    // ½âÎöÇëÇó
     rvc_request_for_dgn_t req;
     req.requested_dgn = data[0] | (data[1] << 8) | ((data[2] & 0x01) << 16);
     req.instance = data[3];
     req.sender_sa = (can_id >> 8) & 0xFF;  // DGN-Low
 
-    // æ£€æŸ¥å®žä¾‹å·
+    // ¼ì²éÊµÀýºÅ
     if ((req.instance != 0xFF) && (req.instance != g_my_instance)) {
-        return;  // ä¸æ˜¯è¯·æ±‚æˆ‘çš„
+        return;  // ²»ÊÇÇëÇóÎÒµÄ
     }
 
-    // è°ƒç”¨å›žè°ƒå‡½æ•°
+    // µ÷ÓÃ»Øµ÷º¯Êý
     if (g_request_for_dgn_cb != NULL) {
         g_request_for_dgn_cb(&req);
     }
@@ -1261,7 +1261,7 @@ static void handle_request_for_dgn(uint32_t can_id, uint8_t *data, uint8_t len)
 
 
 
-/* ========== å……ç”µå™¨çŠ¶æ€å˜åŒ?========== */
+/* ========== ³äµçÆ÷×´Ì¬±ä»¯ ========== */
 
 #if RVC_PERIODIC_BROADCAST_ENABLE
 typedef struct {
@@ -1270,7 +1270,7 @@ typedef struct {
     float target_current;
     float actual_voltage;
     float actual_current;
-    uint8_t state;  // 0=ç¦ç”¨, 1=æœªå……ç”? 2=Bulk, 7=CC/CV
+    uint8_t state;  // 0=½ûÓÃ, 1=Î´³äÂú, 2=Bulk, 7=CC/CV
 } charger_state_t;
 
 static charger_state_t g_charger_state = {
@@ -1284,30 +1284,30 @@ static charger_state_t g_charger_state = {
 #endif
 
 /**
- * @brief å¤„ç† CHARGER_COMMAND
+ * @brief ´¦Àí CHARGER_COMMAND
  */
 void on_charger_command(const rvc_charger_command_t *cmd)
 {
 #if RVC_PERIODIC_BROADCAST_ENABLE
-    // æ‰§è¡Œå‘½ä»¤
+    // Ö´ÐÐÃüÁî
     if (cmd->status == 1) {
-        // ä½¿èƒ½å……ç”µå™?
+        // Ê¹ÄÜ³äµçÆ÷
         g_charger_state.enabled = 1;
         g_charger_state.target_voltage = cmd->voltage * 0.05f;
         g_charger_state.target_current = cmd->current * 0.05f;
         g_charger_state.state = 7;  // CC/CV Ä£Ê½
 
-        // TODO: å¯åŠ¨å®žé™…çš„å……ç”µç¡¬ä»?
+        // TODO: Æô¶¯Êµ¼ÊµÄ³äµçÓ²¼þ
         // charger_hardware_enable();
         // charger_hardware_set_voltage(g_charger_state.target_voltage);
         // charger_hardware_set_current(g_charger_state.target_current);
 
     } else {
-        // ç¦ç”¨å……ç”µå™?
+        // ½ûÓÃ³äµçÆ÷
         g_charger_state.enabled = 0;
         g_charger_state.state = 0;
 
-        // TODO: å…³é—­å®žé™…çš„å……ç”µç¡¬ä»?
+        // TODO: ¹Ø±ÕÊµ¼ÊµÄ³äµçÓ²¼þ
         // charger_hardware_disable();
     }
 #else
@@ -1316,7 +1316,7 @@ void on_charger_command(const rvc_charger_command_t *cmd)
 }
 
 /**
- * @brief å¤„ç† REQUEST_FOR_DGN
+ * @brief ´¦Àí REQUEST_FOR_DGN
  */
 void on_request_for_dgn(const rvc_request_for_dgn_t *req)
 {
@@ -1387,16 +1387,16 @@ void on_request_for_dgn(const rvc_request_for_dgn_t *req)
 
 void message_init(void)
 {
-    /* åˆå§‹åŒ?RV-C åœ°å€ç®¡ç†å™?*/
+    /* ³õÊ¼»¯RV-C µØÖ·¹ÜÀíÆ÷*/
     rvc_address_init(RVC_ADDRESS_MODE_STATIC);
-    /* åˆå§‹åŒ–æ¶ˆæ¯å¤„ç†å™¨ */
+    /* ³õÊ¼»¯ÏûÏ¢´¦ÀíÆ÷ */
     rvc_message_handler_init();
 
-    /* æ³¨å†Œå›žè°ƒå‡½æ•° */
+    /* ×¢²á»Øµ÷º¯Êý */
     rvc_register_charger_command_callback(on_charger_command);
     rvc_register_request_for_dgn_callback(on_request_for_dgn);
 
-    /* å¯åŠ¨åœ°å€å£°æ˜Žæµç¨‹ */
+    /* Æô¶¯µØÖ·ÉùÃ÷Á÷³Ì */
     if (!rvc_address_claim_start()) {
         //printf("Failed to start address claim!\r\n");
     }
@@ -1416,17 +1416,17 @@ void message_rum(void)
 #endif
 
 
-    /* å‘¨æœŸè°ƒç”¨åœ°å€ç®¡ç†å™?*/
+    /* ÖÜÆÚµ÷ÓÃµØÖ·¹ÜÀíÆ÷*/
     rvc_address_process();
 
-    /* æ£€æŸ¥åœ°å€çŠ¶æ€?*/
+    /* ¼ì²éµØÖ·×´Ì¬*/
 
     if (rvc_address_is_claimed()) {
 #if RVC_PERIODIC_BROADCAST_ENABLE
         uint32_t now = systemtime;
         uint8_t my_addr = rvc_address_get_current();
 
-        /* å‘¨æœŸå‘é€?CHARGER_STATUS */
+        /* ÖÜÆÚ·¢ËÍ CHARGER_STATUS */
         uint32_t status_interval = g_charger_state.enabled ? 500 : 5000;
         if (now - last_status_time >= status_interval) {
             last_status_time = now;
@@ -1438,15 +1438,15 @@ void message_rum(void)
                                    g_charger_state.state);
         }
 
-        /* å‘¨æœŸå‘é€?CHARGER_STATUS_2 (æ¯?500ms) */
+        /* ÖÜÆÚ·¢ËÍ CHARGER_STATUS_2 £¨Ã¿500ms£© */
         if (now - last_status2_time >= 500) {
             last_status2_time = now;
 
-            // TODO: è¯»å–å®žé™…çš„ç”µåŽ?ç”µæµ/æ¸©åº¦
+            // TODO: ¶ÁÈ¡Êµ¼ÊµÄµçÑ¹/µçÁ÷/ÎÂ¶È
             // g_charger_state.actual_voltage = charger_hardware_read_voltage();
             // g_charger_state.actual_current = charger_hardware_read_current();
 
-            // æ¨¡æ‹Ÿæ•°æ®
+            // Ä£ÄâÊý¾Ý
             g_charger_state.actual_voltage = g_charger_state.target_voltage;
             g_charger_state.actual_current = g_charger_state.enabled ? 8.5f : 0.0f;
 
@@ -1456,31 +1456,31 @@ void message_rum(void)
                                      25);
         }
 
-        /* å‘¨æœŸå‘é€?DM_RVï¼ˆæ¯ 5000msï¼?*/
+        /* ÖÜÆÚ·¢ËÍ DM_RV£¨Ã¿ 5000ms£©*/
         if (now - last_dm_rv_time >= 5000) {
             last_dm_rv_time = now;
             
-            // æ£€æŸ¥æ˜¯å¦æœ‰æ•…éšœ
+            // ¼ì²éÊÇ·ñÓÐ¹ÊÕÏ
             uint16_t spn = 0;
             uint8_t fmi = 0;
             
-            // TODO: æ£€æŸ¥å®žé™…æ•…éš?
+            // TODO: ¼ì²éÊµ¼Ê¹ÊÕÏ
             // if (over_temperature) {
-            //     spn = 110;  // æ¸©åº¦è¿‡é«˜
-            //     fmi = 0;    // æ•°æ®æœ‰æ•ˆä½†è¶…å‡ºæ­£å¸¸èŒƒå›?
+            //     spn = 110;  // ÎÂ¶È¹ý¸ß
+            //     fmi = 0;    // Êý¾ÝÓÐÐ§µ«³¬³öÕý³£·¶Î§
             // }
             
             rvc_send_dm_rv(g_my_instance, spn, fmi);
         }
 #endif
     } else if (rvc_address_get_state() == RVC_ADDR_STATE_CANNOT_CLAIM) {
-        // åœ°å€å†²çªï¼Œæ— æ³•å£°æ˜Žåœ°å€
+        // µØÖ·³åÍ»£¬ÎÞ·¨ÉùÃ÷µØÖ·
 
 
-        // LED æŒ‡ç¤ºï¼šé”™è¯¯çŠ¶æ€ï¼ˆé—ªçƒï¼?
+        // LED Ö¸Ê¾£º´íÎó×´Ì¬£¨ÉÁË¸£©
 
     } else {
-        // æ­£åœ¨å£°æ˜Žåœ°å€
+        // ÕýÔÚÉùÃ÷µØÖ·
     }
 
 }

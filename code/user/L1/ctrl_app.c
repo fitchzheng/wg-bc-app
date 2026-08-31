@@ -189,8 +189,8 @@ void ctrl_app_init(CTRL_MODE_E mode)
 
     buck_boost_init(&buck_boost);
     
-    ihv_lmt = 1.0f;/*璧峰闄愬箙鐢垫祦*/
-    ilv_lmt = 1.0f;/*璧峰闄愬箙鐢垫祦*/
+    ihv_lmt = 1.0f;/*起始限幅电流*/
+    ilv_lmt = 1.0f;/*起始限幅电流*/
     fvs48_lmt = adc_get_fvs48();
     rvs12_lmt = adc_get_rvs12();
     mppt_init(mode);
@@ -406,7 +406,7 @@ void RAMFUNC ctrl_app_run(void)
 		ctrl_mode = CTRL_IDLE;
 	}
 
-    if (ctrl_mode == CTRL_IDLE)   //杞叧鐢靛帇浣庝簬2.5V鎴栫數娴佸皬5A灏佹尝
+    if (ctrl_mode == CTRL_IDLE)   //软关电压低于2.5V或电流小5A封波
     {
         if (mppt.mpptEnableFlg != 0)
         {
@@ -453,7 +453,7 @@ void RAMFUNC ctrl_app_run(void)
             fault_delay = 0;
         }
 
-        if(get_show_ilv_show() > (125*1.05f))//鏈�澶х數娴佺殑0.5鍊?
+        if(get_show_ilv_show() > (125*1.05f))//最大电流的0.5倍
         {
             fault_set_fault(FAULT_RVS12_SCP);
             ctrl_app_disable();
@@ -474,7 +474,7 @@ void RAMFUNC ctrl_app_run(void)
             fault_delay = 0;
         }
 
-        if(get_show_ihv_show() > (125*1.05f))//鏈�澶х數娴佺殑0.5鍊?
+        if(get_show_ihv_show() > (125*1.05f))//最大电流的0.5倍
         {
             fault_set_fault(FAULT_FVS48_SCP);
             ctrl_app_disable();
@@ -482,8 +482,8 @@ void RAMFUNC ctrl_app_run(void)
         }
     }
 
-    RAMP(ihv_lmt/*褰撳墠闄愬箙鐢垫祦*/, data_com_get_ihv_lmt()/*鐩爣闄愬箙鐢垫祦*/, 0.01f/*鐢垫祦杞捣姝ヨ繘锛屽崟浣岮/40us*/);
-    RAMP(ilv_lmt/*褰撳墠闄愬箙鐢垫祦*/, data_com_get_ilv_lmt()/*鐩爣闄愬箙鐢垫祦*/, 0.01f/*鐢垫祦杞捣姝ヨ繘锛屽崟浣岮/40us*/);
+    RAMP(ihv_lmt/*当前限幅电流*/, data_com_get_ihv_lmt()/*目标限幅电流*/, 0.01f/*电流软起步进，单位A/40us*/);
+    RAMP(ilv_lmt/*当前限幅电流*/, data_com_get_ilv_lmt()/*目标限幅电流*/, 0.01f/*电流软起步进，单位A/40us*/);
 
         SCOPE_RUN(SOFT_STOP);
         
@@ -597,8 +597,8 @@ func_end:
 	bsp_pwm_update_aux_by_main_pwm(&bsp_pwm[0], &bsp_pwm[1]);
     bsp_hrpwm1_update_trig();
 
-//    bsp_pwm_update_chclt2();  // 鏇存柊閫氶亾閰嶇疆
-//    bsp_hrpwm1_update_trig(); // 瑙﹀彂hrpwm1鍗曟缂撳瓨
+//    bsp_pwm_update_chclt2();  // 更新通道配置
+//    bsp_hrpwm1_update_trig(); // 触发hrpwm1单次缓存
 }
 
 REG_INTERRUPT(1, ctrl_app_run)

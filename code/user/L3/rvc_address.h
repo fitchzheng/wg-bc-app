@@ -3,39 +3,39 @@
 
 #include "my_math.h"
 
-/* ========== ç±»å‹å®šä¹‰ ========== */
+/* ========== ÀàĞÍ¶¨Òå ========== */
 
 /**
- * @brief åœ°å€æ¨¡å¼
+ * @brief µØÖ·Ä£Ê½
  */
 typedef enum {
-    RVC_ADDRESS_MODE_STATIC = 0,    /**< é™æ€åœ°å€ï¼ˆArbitrary Address Capable = 0ï¼‰ */
-    RVC_ADDRESS_MODE_DYNAMIC = 1    /**< åŠ¨æ€åœ°å€ï¼ˆArbitrary Address Capable = 1ï¼‰ */
+    RVC_ADDRESS_MODE_STATIC = 0,    /**< ¾²Ì¬µØÖ·£¨Arbitrary Address Capable = 0£© */
+    RVC_ADDRESS_MODE_DYNAMIC = 1    /**< ¶¯Ì¬µØÖ·£¨Arbitrary Address Capable = 1£© */
 } rvc_address_mode_t;
 
 /**
- * @brief åœ°å€å£°æ˜çŠ¶æ€
+ * @brief µØÖ·ÉùÃ÷×´Ì¬
  */
 typedef enum {
-    RVC_ADDR_STATE_INIT,            /**< åˆå§‹åŒ– */
-    RVC_ADDR_STATE_WAIT_CLAIM,      /**< ç­‰å¾…å‘é€ ADDRESS_CLAIM */
-    RVC_ADDR_STATE_WAIT_VERIFY,     /**< ç­‰å¾…éªŒè¯ï¼ˆ250msï¼‰ */
-    RVC_ADDR_STATE_CLAIMED,         /**< åœ°å€å·²å£°æ˜ */
-    RVC_ADDR_STATE_CONFLICT,        /**< åœ°å€å†²çª */
-    RVC_ADDR_STATE_CANNOT_CLAIM     /**< æ— æ³•å£°æ˜åœ°å€ */
+    RVC_ADDR_STATE_INIT,            /**< ³õÊ¼»¯ */
+    RVC_ADDR_STATE_WAIT_CLAIM,      /**< µÈ´ı·¢ËÍ ADDRESS_CLAIM */
+    RVC_ADDR_STATE_WAIT_VERIFY,     /**< µÈ´ıÑéÖ¤£¨250ms£© */
+    RVC_ADDR_STATE_CLAIMED,         /**< µØÖ·ÒÑÉùÃ÷ */
+    RVC_ADDR_STATE_CONFLICT,        /**< µØÖ·³åÍ» */
+    RVC_ADDR_STATE_CANNOT_CLAIM     /**< ÎŞ·¨ÉùÃ÷µØÖ· */
 } rvc_address_state_t;
 
 /**
- * @brief NAME å­—æ®µç»“æ„ï¼ˆ64-bitï¼‰
- * @note æŒ‰ç…§ J1939 è§„èŒƒå®šä¹‰
+ * @brief NAME ×Ö¶Î½á¹¹£¨64-bit£©
+ * @note °´ÕÕ J1939 ¹æ·¶¶¨Òå
  */
 typedef struct __attribute__((packed)) {
-    uint32_t serial_number : 21;        /**< åºåˆ—å·ï¼ˆbit 0-20ï¼‰ */
-    uint32_t manufacturer_code : 11;    /**< åˆ¶é€ å•†ç ï¼ˆbit 21-31ï¼‰ */
-    uint8_t  node_instance;             /**< èŠ‚ç‚¹å®ä¾‹ï¼ˆå·²åºŸå¼ƒï¼Œå¡« 0xFFï¼‰ */
-    uint8_t  compatibility[2];          /**< å…¼å®¹æ€§å­—æ®µï¼ˆå¡« 0x00ï¼‰ */
-    uint8_t  arbitrary_capable : 1;     /**< åŠ¨æ€åœ°å€èƒ½åŠ›ï¼ˆbit 63ï¼‰ */
-    uint8_t  reserved : 7;              /**< ä¿ç•™ï¼ˆbit 56-62ï¼‰ */
+    uint32_t serial_number : 21;        /**< ĞòÁĞºÅ£¨bit 0-20£© */
+    uint32_t manufacturer_code : 11;    /**< ÖÆÔìÉÌÂë£¨bit 21-31£© */
+    uint8_t  node_instance;             /**< ½ÚµãÊµÀı£¨ÒÑ·ÏÆú£¬Ìî 0xFF£© */
+    uint8_t  compatibility[2];          /**< ¼æÈİĞÔ×Ö¶Î£¨Ìî 0x00£© */
+    uint8_t  arbitrary_capable : 1;     /**< ¶¯Ì¬µØÖ·ÄÜÁ¦£¨bit 63£© */
+    uint8_t  reserved : 7;              /**< ±£Áô£¨bit 56-62£© */
 } rvc_name_t;
 
 

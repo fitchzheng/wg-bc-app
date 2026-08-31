@@ -7,7 +7,7 @@
 
 //extern void timer_irq_callback(void);
 
-//#define Timer_Freq_Hz                   (25000U)  //ä¸­æ–­é¢‘ç‡25K
+//#define Timer_Freq_Hz                   (25000U)  //ÖĞ¶ÏÆµÂÊ25K
 
 ////#define TMR0_CMP_VALUE                  (XTAL32_VALUE / 4U / 2U - 1U)
 
@@ -55,11 +55,11 @@
 
 //extern void gpio_set_re(uint8_t val);
 
-////ä¸­æ–­å¤„ç†å‡½æ•°
+////ÖĞ¶Ï´¦Àíº¯Êı
 //void timer_irq_handle(void)
 //{
 //    gpio_set_re(1);
-//    //åœ¨æ­¤å¤„æ·»åŠ ä¸­æ–­å¤„ç†ä»£ç ï¼Œæˆ–è€…åœ¨ä¸­æ–­å›è°ƒä¸­å¤„ç†ç›¸å…³ä»»åŠ¡
+//    //ÔÚ´Ë´¦Ìí¼ÓÖĞ¶Ï´¦Àí´úÂë£¬»òÕßÔÚÖĞ¶Ï»Øµ÷ÖĞ´¦ÀíÏà¹ØÈÎÎñ
 //    if( timer_irq != NULL)
 //    {
 //        timer_irq();
@@ -68,7 +68,7 @@
 //    gpio_set_re(0);
 //}
 
-////æ³¨å†Œä¸­æ–­å›è°ƒå‡½æ•°
+////×¢²áÖĞ¶Ï»Øµ÷º¯Êı
 //void bsp_timer_irq_register(void(*func)(void))
 //{
 //    timer_irq = func;
@@ -85,7 +85,7 @@
 //        /* Interrupt configuration */
 //    stcIrqSignConfig.enIntSrc    = TMR0_INT_SRC;
 //    stcIrqSignConfig.enIRQn      = TMR0_IRQn;
-//    stcIrqSignConfig.pfnCallback = &timer_irq_handle;////å¦‚æœä¸éœ€è¦ç”¨å›è°ƒå½¢å¼ï¼Œå¯ä»¥ç›´æ¥ä¿®æ”¹ä¸º   stcIrq.pfnCallback = &timer_irq_callback;
+//    stcIrqSignConfig.pfnCallback = &timer_irq_handle;////Èç¹û²»ĞèÒªÓÃ»Øµ÷ĞÎÊ½£¬¿ÉÒÔÖ±½ÓĞŞ¸ÄÎª   stcIrq.pfnCallback = &timer_irq_callback;
 //    (void)INTC_IrqSignIn(&stcIrqSignConfig);
 //    NVIC_ClearPendingIRQ(stcIrqSignConfig.enIRQn);
 //    NVIC_SetPriority(stcIrqSignConfig.enIRQn, DDL_IRQ_PRIO_DEFAULT);
@@ -93,7 +93,7 @@
 //    
 ////    stcIrq.enIntSrc    = TIMER_INT_SRC;
 ////    stcIrq.enIRQn      = TIMER_INT_IRQn;
-////    stcIrq.pfnCallback = &timer_irq_handle;  //å¦‚æœä¸éœ€è¦ç”¨å›è°ƒå½¢å¼ï¼Œå¯ä»¥ç›´æ¥ä¿®æ”¹ä¸º   stcIrq.pfnCallback = &timer_irq_callback;
+////    stcIrq.pfnCallback = &timer_irq_handle;  //Èç¹û²»ĞèÒªÓÃ»Øµ÷ĞÎÊ½£¬¿ÉÒÔÖ±½ÓĞŞ¸ÄÎª   stcIrq.pfnCallback = &timer_irq_callback;
 ////    (void)INTC_IrqSignIn(&stcIrq);
 ////    NVIC_ClearPendingIRQ(stcIrq.enIRQn);
 ////    NVIC_SetPriority(stcIrq.enIRQn, TIMER_INT_PRIORITY);

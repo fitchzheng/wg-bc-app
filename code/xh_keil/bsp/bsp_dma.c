@@ -2,105 +2,105 @@
 #include "bsp_interrupt.h"
 #include "bsp_usart.h"
 
-stc_dma_llp_descriptor_t Usart1_tx_List = {0}; //ä¸²å£1å‘é€DMAé“¾è¡¨
-stc_dma_llp_descriptor_t Usart1_Rx_List = {0}; //ä¸²å£1æ¥æ”¶DMAé“¾è¡¨
+stc_dma_llp_descriptor_t Usart1_tx_List = {0}; //´®¿Ú1·¢ËÍDMAÁ´±í
+stc_dma_llp_descriptor_t Usart1_Rx_List = {0}; //´®¿Ú1½ÓÊÕDMAÁ´±í
 
-stc_dma_llp_descriptor_t Usart2_tx_List = {0}; //ä¸²å£2å‘é€DMAé“¾è¡¨
-stc_dma_llp_descriptor_t Usart2_Rx_List = {0}; //ä¸²å£2æ¥æ”¶DMAé“¾è¡¨
+stc_dma_llp_descriptor_t Usart2_tx_List = {0}; //´®¿Ú2·¢ËÍDMAÁ´±í
+stc_dma_llp_descriptor_t Usart2_Rx_List = {0}; //´®¿Ú2½ÓÊÕDMAÁ´±í
 
-stc_dma_llp_descriptor_t Usart3_tx_List = {0}; //ä¸²å£3å‘é€DMAé“¾è¡¨
-stc_dma_llp_descriptor_t Usart3_Rx_List = {0}; //ä¸²å£3æ¥æ”¶DMAé“¾è¡¨
-uint32_t Temp_Null_Array[2] = {0}; //å ä½ç”¨ï¼Œæ— å®é™…æ„ä¹‰ï¼Œç”¨äºDMAçš„ä¼ è¾“åœæ­¢
-
-
+stc_dma_llp_descriptor_t Usart3_tx_List = {0}; //´®¿Ú3·¢ËÍDMAÁ´±í
+stc_dma_llp_descriptor_t Usart3_Rx_List = {0}; //´®¿Ú3½ÓÊÕDMAÁ´±í
+uint32_t Temp_Null_Array[2] = {0}; //Õ¼Î»ÓÃ£¬ÎŞÊµ¼ÊÒâÒå£¬ÓÃÓÚDMAµÄ´«ÊäÍ£Ö¹
 
 
-//DMAèµ„æºåˆ†é…å®šä¹‰--Usart_Tx1
+
+
+//DMA×ÊÔ´·ÖÅä¶¨Òå--Usart_Tx1
 DMA_INFO_Str Dma_Usart_Tx1_Info = 
 {
     USART1_TX_DMA_UNIT         ,
     USART1_TX_DMA_CH           ,
 };
 
-//DMAèµ„æºåˆ†é…å®šä¹‰--Usart_Rx1
+//DMA×ÊÔ´·ÖÅä¶¨Òå--Usart_Rx1
 DMA_INFO_Str Dma_Usart_Rx1_Info = 
 {
     USART1_RX_DMA_UNIT           ,
     USART1_RX_DMA_CH             ,
 };
 
-//DMAèµ„æºåˆ†é…å®šä¹‰--Usart_Tx1
+//DMA×ÊÔ´·ÖÅä¶¨Òå--Usart_Tx1
 DMA_INFO_Str Dma_Usart_Tx2_Info = 
 {
     USART2_TX_DMA_UNIT         ,
     USART2_TX_DMA_CH           ,
 };
 
-//DMAèµ„æºåˆ†é…å®šä¹‰--Usart_Rx1
+//DMA×ÊÔ´·ÖÅä¶¨Òå--Usart_Rx1
 DMA_INFO_Str Dma_Usart_Rx2_Info = 
 {
     USART2_RX_DMA_UNIT           ,
     USART2_RX_DMA_CH             ,
 };
 
-//DMAèµ„æºåˆ†é…å®šä¹‰--Usart_Tx3
+//DMA×ÊÔ´·ÖÅä¶¨Òå--Usart_Tx3
 DMA_INFO_Str Dma_Usart_Tx3_Info = 
 {
     USART3_TX_DMA_UNIT         ,
     USART3_TX_DMA_CH           ,
 };
 
-//DMAèµ„æºåˆ†é…å®šä¹‰--Usart_Rx3
+//DMA×ÊÔ´·ÖÅä¶¨Òå--Usart_Rx3
 DMA_INFO_Str Dma_Usart_Rx3_Info = 
 {
     USART3_RX_DMA_UNIT           ,
     USART3_RX_DMA_CH             ,
 };
 
-//ä¸²å£æ¥æ”¶é“¾è¡¨
+//´®¿Ú½ÓÊÕÁ´±í
 void DMA_Usart_Rx1_List_Init(void)
 {
-    //ä½¿èƒ½ä¸­æ–­ã€ä½¿èƒ½é“¾è¡¨ä¼ è¾“ã€æ›´æ–°é“¾è¡¨åç­‰å¾…è§¦å‘ã€æ•°æ®å®½åº¦8bitã€æ— é‡å¤ã€æ— ä¸è¿ç»­ä¼ è¾“ã€ç›®çš„åœ°å€é€’å¢ï¼Œæºåœ°å€å›ºå®š
+    //Ê¹ÄÜÖĞ¶Ï¡¢Ê¹ÄÜÁ´±í´«Êä¡¢¸üĞÂÁ´±íºóµÈ´ı´¥·¢¡¢Êı¾İ¿í¶È8bit¡¢ÎŞÖØ¸´¡¢ÎŞ²»Á¬Ğø´«Êä¡¢Ä¿µÄµØÖ·µİÔö£¬Ô´µØÖ·¹Ì¶¨
     Usart1_Rx_List.CHCTLx = DMA_INT_ENABLE | DMA_LLP_ENABLE | DMA_LLP_WAIT | DMA_DATAWIDTH_8BIT \
                            |DMA_RPT_NONE | DMA_NON_SEQ_NONE | DMA_DEST_ADDR_INC | DMA_SRC_ADDR_FIX;  
-    Usart1_Rx_List.SARx = (uint32_t)(&CM_USART1->RDR); //æºåœ°å€
-    Usart1_Rx_List.DARx = (uint32_t)usart0_rx_buffer; //ç›®çš„åœ°å€
-    Usart1_Rx_List.DTCTLx = ((Usart1_RxBuff_Size<<16) | 1); //blocksize:1ï¼Œstranscntï¼šUsart1_RxBuff_Size
-    Usart1_Rx_List.RPTx = 0; //æºåœ°å€å’Œç›®çš„åœ°å€éƒ½ä¸é‡å¤
-    Usart1_Rx_List.SNSEQCTLx = 0; //æºåœ°å€éè¿ç»­ä¼ è¾“
-    Usart1_Rx_List.DNSEQCTLx = 0; //ç›®çš„åœ°å€éè¿ç»­ä¼ è¾“
-    Usart1_Rx_List.LLPx = (uint32_t)(&Usart1_Rx_List); //ä¸‹ä¸€ä¸ªé“¾è¡¨åœ°å€ï¼ŒæŒ‡å›é¦–åœ°å€
+    Usart1_Rx_List.SARx = (uint32_t)(&CM_USART1->RDR); //Ô´µØÖ·
+    Usart1_Rx_List.DARx = (uint32_t)usart0_rx_buffer; //Ä¿µÄµØÖ·
+    Usart1_Rx_List.DTCTLx = ((Usart1_RxBuff_Size<<16) | 1); //blocksize:1£¬stranscnt£ºUsart1_RxBuff_Size
+    Usart1_Rx_List.RPTx = 0; //Ô´µØÖ·ºÍÄ¿µÄµØÖ·¶¼²»ÖØ¸´
+    Usart1_Rx_List.SNSEQCTLx = 0; //Ô´µØÖ··ÇÁ¬Ğø´«Êä
+    Usart1_Rx_List.DNSEQCTLx = 0; //Ä¿µÄµØÖ··ÇÁ¬Ğø´«Êä
+    Usart1_Rx_List.LLPx = (uint32_t)(&Usart1_Rx_List); //ÏÂÒ»¸öÁ´±íµØÖ·£¬Ö¸»ØÊ×µØÖ·
 }
 
 void DMA_Usart_Rx2_List_Init(void)
 {
-    //ä½¿èƒ½ä¸­æ–­ã€ä½¿èƒ½é“¾è¡¨ä¼ è¾“ã€æ›´æ–°é“¾è¡¨åç­‰å¾…è§¦å‘ã€æ•°æ®å®½åº¦8bitã€æ— é‡å¤ã€æ— ä¸è¿ç»­ä¼ è¾“ã€ç›®çš„åœ°å€é€’å¢ï¼Œæºåœ°å€å›ºå®š
+    //Ê¹ÄÜÖĞ¶Ï¡¢Ê¹ÄÜÁ´±í´«Êä¡¢¸üĞÂÁ´±íºóµÈ´ı´¥·¢¡¢Êı¾İ¿í¶È8bit¡¢ÎŞÖØ¸´¡¢ÎŞ²»Á¬Ğø´«Êä¡¢Ä¿µÄµØÖ·µİÔö£¬Ô´µØÖ·¹Ì¶¨
     Usart2_Rx_List.CHCTLx = DMA_INT_ENABLE | DMA_LLP_ENABLE | DMA_LLP_WAIT | DMA_DATAWIDTH_8BIT \
                            |DMA_RPT_NONE | DMA_NON_SEQ_NONE | DMA_DEST_ADDR_INC | DMA_SRC_ADDR_FIX;  
-    Usart2_Rx_List.SARx = (uint32_t)(&CM_USART2->RDR); //æºåœ°å€
-    Usart2_Rx_List.DARx = (uint32_t)usart2_rx_buffer; //ç›®çš„åœ°å€
-    Usart2_Rx_List.DTCTLx = ((Usart2_RxBuff_Size<<16) | 1); //blocksize:1ï¼Œstranscntï¼šUsart1_RxBuff_Size
-    Usart2_Rx_List.RPTx = 0; //æºåœ°å€å’Œç›®çš„åœ°å€éƒ½ä¸é‡å¤
-    Usart2_Rx_List.SNSEQCTLx = 0; //æºåœ°å€éè¿ç»­ä¼ è¾“
-    Usart2_Rx_List.DNSEQCTLx = 0; //ç›®çš„åœ°å€éè¿ç»­ä¼ è¾“
-    Usart2_Rx_List.LLPx = (uint32_t)(&Usart2_Rx_List); //ä¸‹ä¸€ä¸ªé“¾è¡¨åœ°å€ï¼ŒæŒ‡å›é¦–åœ°å€
+    Usart2_Rx_List.SARx = (uint32_t)(&CM_USART2->RDR); //Ô´µØÖ·
+    Usart2_Rx_List.DARx = (uint32_t)usart2_rx_buffer; //Ä¿µÄµØÖ·
+    Usart2_Rx_List.DTCTLx = ((Usart2_RxBuff_Size<<16) | 1); //blocksize:1£¬stranscnt£ºUsart1_RxBuff_Size
+    Usart2_Rx_List.RPTx = 0; //Ô´µØÖ·ºÍÄ¿µÄµØÖ·¶¼²»ÖØ¸´
+    Usart2_Rx_List.SNSEQCTLx = 0; //Ô´µØÖ··ÇÁ¬Ğø´«Êä
+    Usart2_Rx_List.DNSEQCTLx = 0; //Ä¿µÄµØÖ··ÇÁ¬Ğø´«Êä
+    Usart2_Rx_List.LLPx = (uint32_t)(&Usart2_Rx_List); //ÏÂÒ»¸öÁ´±íµØÖ·£¬Ö¸»ØÊ×µØÖ·
 }
 
 void DMA_Usart_Rx3_List_Init(void)
 {
-    //ä½¿èƒ½ä¸­æ–­ã€ä½¿èƒ½é“¾è¡¨ä¼ è¾“ã€æ›´æ–°é“¾è¡¨åç­‰å¾…è§¦å‘ã€æ•°æ®å®½åº¦8bitã€æ— é‡å¤ã€æ— ä¸è¿ç»­ä¼ è¾“ã€ç›®çš„åœ°å€é€’å¢ï¼Œæºåœ°å€å›ºå®š
+    //Ê¹ÄÜÖĞ¶Ï¡¢Ê¹ÄÜÁ´±í´«Êä¡¢¸üĞÂÁ´±íºóµÈ´ı´¥·¢¡¢Êı¾İ¿í¶È8bit¡¢ÎŞÖØ¸´¡¢ÎŞ²»Á¬Ğø´«Êä¡¢Ä¿µÄµØÖ·µİÔö£¬Ô´µØÖ·¹Ì¶¨
     Usart3_Rx_List.CHCTLx = DMA_INT_ENABLE | DMA_LLP_ENABLE | DMA_LLP_WAIT | DMA_DATAWIDTH_8BIT \
                            |DMA_RPT_NONE | DMA_NON_SEQ_NONE | DMA_DEST_ADDR_INC | DMA_SRC_ADDR_FIX;  
-    Usart3_Rx_List.SARx = (uint32_t)(&CM_USART3->RDR); //æºåœ°å€
-    Usart3_Rx_List.DARx = (uint32_t)usart3_rx_buffer; //ç›®çš„åœ°å€
-    Usart3_Rx_List.DTCTLx = ((Usart3_RxBuff_Size<<16) | 1); //blocksize:1ï¼Œstranscntï¼šUsart1_RxBuff_Size
-    Usart3_Rx_List.RPTx = 0; //æºåœ°å€å’Œç›®çš„åœ°å€éƒ½ä¸é‡å¤
-    Usart3_Rx_List.SNSEQCTLx = 0; //æºåœ°å€éè¿ç»­ä¼ è¾“
-    Usart3_Rx_List.DNSEQCTLx = 0; //ç›®çš„åœ°å€éè¿ç»­ä¼ è¾“
-    Usart3_Rx_List.LLPx = (uint32_t)(&Usart3_Rx_List); //ä¸‹ä¸€ä¸ªé“¾è¡¨åœ°å€ï¼ŒæŒ‡å›é¦–åœ°å€
+    Usart3_Rx_List.SARx = (uint32_t)(&CM_USART3->RDR); //Ô´µØÖ·
+    Usart3_Rx_List.DARx = (uint32_t)usart3_rx_buffer; //Ä¿µÄµØÖ·
+    Usart3_Rx_List.DTCTLx = ((Usart3_RxBuff_Size<<16) | 1); //blocksize:1£¬stranscnt£ºUsart1_RxBuff_Size
+    Usart3_Rx_List.RPTx = 0; //Ô´µØÖ·ºÍÄ¿µÄµØÖ·¶¼²»ÖØ¸´
+    Usart3_Rx_List.SNSEQCTLx = 0; //Ô´µØÖ··ÇÁ¬Ğø´«Êä
+    Usart3_Rx_List.DNSEQCTLx = 0; //Ä¿µÄµØÖ··ÇÁ¬Ğø´«Êä
+    Usart3_Rx_List.LLPx = (uint32_t)(&Usart3_Rx_List); //ÏÂÒ»¸öÁ´±íµØÖ·£¬Ö¸»ØÊ×µØÖ·
 }
 
-//ä¸²å£2å‘é€DMAåˆå§‹åŒ–
+//´®¿Ú2·¢ËÍDMA³õÊ¼»¯
 void BSP_DMA_USART1TX_Init(void)
 {
     stc_dma_init_t stcDmaInit;
@@ -122,10 +122,10 @@ void BSP_DMA_USART1TX_Init(void)
     stcDmaInit.u32DestAddrInc = DMA_DEST_ADDR_FIX;
     DMA_Init(USART1_TX_DMA_UNIT, USART1_TX_DMA_CH, &stcDmaInit);
     
-    AOS_SetTriggerEventSrc(AOS_DMA_0, EVT_SRC_USART1_TCI); //è§¦å‘æºä¸º ä¸²å£å‘é€å®Œæˆï¼Œæ¯å‘é€å®Œä¸€ä¸ªå­—èŠ‚è§¦å‘ä¸€æ¬¡ 
+    AOS_SetTriggerEventSrc(AOS_DMA_0, EVT_SRC_USART1_TCI); //´¥·¢Ô´Îª ´®¿Ú·¢ËÍÍê³É£¬Ã¿·¢ËÍÍêÒ»¸ö×Ö½Ú´¥·¢Ò»´Î 
 }
 
-//ä¸²å£2å‘é€DMAåˆå§‹åŒ–
+//´®¿Ú2·¢ËÍDMA³õÊ¼»¯
 void BSP_DMA_USART2TX_Init(void)
 {
     stc_dma_init_t stcDmaInit;
@@ -147,10 +147,10 @@ void BSP_DMA_USART2TX_Init(void)
     stcDmaInit.u32DestAddrInc = DMA_DEST_ADDR_FIX;
     DMA_Init(USART2_TX_DMA_UNIT, USART2_TX_DMA_CH, &stcDmaInit);
     
-    AOS_SetTriggerEventSrc(AOS_DMA_2, EVT_SRC_USART2_TCI); //è§¦å‘æºä¸º ä¸²å£å‘é€å®Œæˆï¼Œæ¯å‘é€å®Œä¸€ä¸ªå­—èŠ‚è§¦å‘ä¸€æ¬¡ 
+    AOS_SetTriggerEventSrc(AOS_DMA_2, EVT_SRC_USART2_TCI); //´¥·¢Ô´Îª ´®¿Ú·¢ËÍÍê³É£¬Ã¿·¢ËÍÍêÒ»¸ö×Ö½Ú´¥·¢Ò»´Î 
 }
 
-//ä¸²å£3å‘é€DMAåˆå§‹åŒ–
+//´®¿Ú3·¢ËÍDMA³õÊ¼»¯
 void BSP_DMA_USART3TX_Init(void)
 {
     stc_dma_init_t stcDmaInit;
@@ -169,10 +169,10 @@ void BSP_DMA_USART3TX_Init(void)
     stcDmaInit.u32DestAddrInc = DMA_DEST_ADDR_FIX;
     DMA_Init(USART3_TX_DMA_UNIT, USART3_TX_DMA_CH, &stcDmaInit);
 
-    AOS_SetTriggerEventSrc(AOS_DMA_4, EVT_SRC_USART3_TCI); //è§¦å‘æºä¸º ä¸²å£å‘é€å®Œæˆï¼Œæ¯å‘é€å®Œä¸€ä¸ªå­—èŠ‚è§¦å‘ä¸€æ¬¡ 
+    AOS_SetTriggerEventSrc(AOS_DMA_4, EVT_SRC_USART3_TCI); //´¥·¢Ô´Îª ´®¿Ú·¢ËÍÍê³É£¬Ã¿·¢ËÍÍêÒ»¸ö×Ö½Ú´¥·¢Ò»´Î 
 }
 
-//ä¸²å£æ¥æ”¶DMAåˆå§‹åŒ–
+//´®¿Ú½ÓÊÕDMA³õÊ¼»¯
 void BSP_DMA_USART1RX_Init(void)
 {
     stc_dma_init_t stcDmaInit;
@@ -184,7 +184,7 @@ void BSP_DMA_USART1RX_Init(void)
     FCG_Fcg0PeriphClockCmd(FCG0_PERIPH_DMA, ENABLE);
     FCG_Fcg0PeriphClockCmd(FCG0_PERIPH_AOS, ENABLE);
 
-    /* USART_RX_DMA æ³¨æ„ä¸é“¾è¡¨é…ç½®ä¿æŒä¸€è‡´ */
+    /* USART_RX_DMA ×¢ÒâÓëÁ´±íÅäÖÃ±£³ÖÒ»ÖÂ */
     (void)DMA_StructInit(&stcDmaInit);
     stcDmaInit.u32IntEn = DMA_INT_DISABLE;
     stcDmaInit.u32BlockSize = 1UL;
@@ -206,7 +206,7 @@ void BSP_DMA_USART1RX_Init(void)
     AOS_SetTriggerEventSrc(AOS_DMA_1, EVT_SRC_USART1_RI);
 }
 
-//ä¸²å£æ¥æ”¶DMAåˆå§‹åŒ–
+//´®¿Ú½ÓÊÕDMA³õÊ¼»¯
 void BSP_DMA_USART2RX_Init(void)
 {
     stc_dma_init_t stcDmaInit;
@@ -218,7 +218,7 @@ void BSP_DMA_USART2RX_Init(void)
     FCG_Fcg0PeriphClockCmd(FCG0_PERIPH_DMA, ENABLE);
     FCG_Fcg0PeriphClockCmd(FCG0_PERIPH_AOS, ENABLE);
 
-    /* USART_RX_DMA æ³¨æ„ä¸é“¾è¡¨é…ç½®ä¿æŒä¸€è‡´ */
+    /* USART_RX_DMA ×¢ÒâÓëÁ´±íÅäÖÃ±£³ÖÒ»ÖÂ */
     (void)DMA_StructInit(&stcDmaInit);
     stcDmaInit.u32IntEn = DMA_INT_DISABLE;
     stcDmaInit.u32BlockSize = 1UL;
@@ -240,7 +240,7 @@ void BSP_DMA_USART2RX_Init(void)
     AOS_SetTriggerEventSrc(AOS_DMA_3, EVT_SRC_USART2_RI);
 }
 
-//ä¸²å£æ¥æ”¶DMAåˆå§‹åŒ–
+//´®¿Ú½ÓÊÕDMA³õÊ¼»¯
 void BSP_DMA_USART3RX_Init(void)
 {
     stc_dma_init_t stcDmaInit;
@@ -252,7 +252,7 @@ void BSP_DMA_USART3RX_Init(void)
     FCG_Fcg0PeriphClockCmd(FCG0_PERIPH_DMA, ENABLE);
     FCG_Fcg0PeriphClockCmd(FCG0_PERIPH_AOS, ENABLE);
 
-    /* USART_RX_DMA æ³¨æ„ä¸é“¾è¡¨é…ç½®ä¿æŒä¸€è‡´ */
+    /* USART_RX_DMA ×¢ÒâÓëÁ´±íÅäÖÃ±£³ÖÒ»ÖÂ */
     (void)DMA_StructInit(&stcDmaInit);
     stcDmaInit.u32IntEn = DMA_INT_DISABLE;
     stcDmaInit.u32BlockSize = 1UL;
@@ -274,13 +274,13 @@ void BSP_DMA_USART3RX_Init(void)
     AOS_SetTriggerEventSrc(AOS_DMA_5, EVT_SRC_USART3_RI);
 }
 
-//æ‰€æœ‰ç”¨åˆ°çš„DMAå•å…ƒå’Œé€šé“ä½¿èƒ½
+//ËùÓĞÓÃµ½µÄDMAµ¥ÔªºÍÍ¨µÀÊ¹ÄÜ
 void Dma_Enable(void)
 {
     DMA_Cmd(CM_DMA, ENABLE);
-    DMA_ChCmd(USART1_RX_DMA_UNIT, USART1_RX_DMA_CH, ENABLE); //ä½¿èƒ½DMAé€šé“
-    DMA_ChCmd(USART2_RX_DMA_UNIT, USART2_RX_DMA_CH, ENABLE); //ä½¿èƒ½DMAé€šé“
-    DMA_ChCmd(USART3_RX_DMA_UNIT, USART3_RX_DMA_CH, ENABLE); //ä½¿èƒ½DMAé€šé“
+    DMA_ChCmd(USART1_RX_DMA_UNIT, USART1_RX_DMA_CH, ENABLE); //Ê¹ÄÜDMAÍ¨µÀ
+    DMA_ChCmd(USART2_RX_DMA_UNIT, USART2_RX_DMA_CH, ENABLE); //Ê¹ÄÜDMAÍ¨µÀ
+    DMA_ChCmd(USART3_RX_DMA_UNIT, USART3_RX_DMA_CH, ENABLE); //Ê¹ÄÜDMAÍ¨µÀ
 }
 
 //static void Dma_Delay(uint32_t u32Delay)
@@ -288,22 +288,22 @@ void Dma_Enable(void)
 //    volatile uint32_t i;
 //    for (i = 0; i < u32Delay; i++)
 //    {
-//        // ç©ºå¾ªç¯ï¼Œç­‰å¾…å»¶æ—¶
+//        // ¿ÕÑ­»·£¬µÈ´ıÑÓÊ±
 //    }
 //}
 
 //uint8_t Wait_DMA_Ready(CM_DMA_TypeDef *DMAx, uint8_t u8Ch,uint32_t ADDR)
 //{
-//    /* è®¾ç½®è¶…æ—¶è®¡æ•°å™¨åˆå§‹å€¼ */
+//    /* ÉèÖÃ³¬Ê±¼ÆÊıÆ÷³õÊ¼Öµ */
 //    uint32_t Timeout = 0xfff0;
 
-//    /* å¾ªç¯æ£€æŸ¥DMA LLPåœ°å€æ˜¯å¦åˆ°è¾¾ç›®æ ‡åœ°å€ */
+//    /* Ñ­»·¼ì²éDMA LLPµØÖ·ÊÇ·ñµ½´ïÄ¿±êµØÖ· */
 //    while (DMA_GetDestAddr(DMAx, u8Ch) == ADDR)
 //    {
-//        /* æ¯æ¬¡å¾ªç¯ç­‰å¾…10ä¸ªæ—¶é’Ÿå‘¨æœŸ */
+//        /* Ã¿´ÎÑ­»·µÈ´ı10¸öÊ±ÖÓÖÜÆÚ */
 //        Dma_Delay(10);
 //        
-//        /* è¶…æ—¶æ£€æµ‹ä¸å¤„ç† */
+//        /* ³¬Ê±¼ì²âÓë´¦Àí */
 //        if (Timeout-- == 0)
 //        {
 //            return 0;
@@ -330,21 +330,21 @@ uint8_t DMA_Get_Chen( uint8_t u8Ch)
 
 void bsp_dma_init(void)
 {
-    BSP_DMA_USART1TX_Init();    //ä¸²å£1å‘é€   DMAåˆå§‹åŒ–
-    BSP_DMA_USART1RX_Init();    //ä¸²å£1æ¥æ”¶   DMAåˆå§‹åŒ–
-    BSP_DMA_USART2TX_Init();    //ä¸²å£1å‘é€   DMAåˆå§‹åŒ–
-    BSP_DMA_USART2RX_Init();    //ä¸²å£1æ¥æ”¶   DMAåˆå§‹åŒ–
-    BSP_DMA_USART3TX_Init();    //ä¸²å£1å‘é€   DMAåˆå§‹åŒ–
-    BSP_DMA_USART3RX_Init();    //ä¸²å£1æ¥æ”¶   DMAåˆå§‹åŒ–
-    Dma_Enable();               //ä½¿èƒ½DMA
+    BSP_DMA_USART1TX_Init();    //´®¿Ú1·¢ËÍ   DMA³õÊ¼»¯
+    BSP_DMA_USART1RX_Init();    //´®¿Ú1½ÓÊÕ   DMA³õÊ¼»¯
+    BSP_DMA_USART2TX_Init();    //´®¿Ú1·¢ËÍ   DMA³õÊ¼»¯
+    BSP_DMA_USART2RX_Init();    //´®¿Ú1½ÓÊÕ   DMA³õÊ¼»¯
+    BSP_DMA_USART3TX_Init();    //´®¿Ú1·¢ËÍ   DMA³õÊ¼»¯
+    BSP_DMA_USART3RX_Init();    //´®¿Ú1½ÓÊÕ   DMA³õÊ¼»¯
+    Dma_Enable();               //Ê¹ÄÜDMA
 }
 
 void bsp_dma_deinit(void)
 {
 
 //    DMA_Cmd(CM_DMA, DISABLE);
-//    DMA_ChCmd(USART1_RX_DMA_UNIT, USART1_RX_DMA_CH, DISABLE); //ä½¿èƒ½DMAé€šé“
-//    DMA_ChCmd(USART2_RX_DMA_UNIT, USART2_RX_DMA_CH, DISABLE); //ä½¿èƒ½DMAé€šé“
+//    DMA_ChCmd(USART1_RX_DMA_UNIT, USART1_RX_DMA_CH, DISABLE); //Ê¹ÄÜDMAÍ¨µÀ
+//    DMA_ChCmd(USART2_RX_DMA_UNIT, USART2_RX_DMA_CH, DISABLE); //Ê¹ÄÜDMAÍ¨µÀ
 
     FCG_Fcg0PeriphClockCmd(FCG0_PERIPH_DMA, DISABLE);
     FCG_Fcg0PeriphClockCmd(FCG0_PERIPH_AOS, DISABLE);

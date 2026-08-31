@@ -26,9 +26,9 @@ void bsp_can_init(void)
     can_parameter.rec_fifo_overwrite = DISABLE;
     can_parameter.trans_fifo_order = ENABLE;
     can_parameter.working_mode = CAN_NORMAL_MODE;
-    can_parameter.prescaler = 24;                    // å®é™…åˆ†é¢‘ = 5
-    can_parameter.time_segment_1 = CAN_BT_BS1_15TQ; // å®é™… BS1 = 16 tq
-    can_parameter.time_segment_2 = CAN_BT_BS2_4TQ;  // å®é™… BS2 = 5 tq
+    can_parameter.prescaler = 24;                    // Êµ¼Ê·ÖÆµ = 5
+    can_parameter.time_segment_1 = CAN_BT_BS1_15TQ; // Êµ¼Ê BS1 = 16 tq
+    can_parameter.time_segment_2 = CAN_BT_BS2_4TQ;  // Êµ¼Ê BS2 = 5 tq
     can_parameter.resync_jump_width = CAN_BT_SJW_1TQ;
 
     can_init(CAN0, &can_parameter);
@@ -56,12 +56,12 @@ void bsp_can_tx(uint32_t id, uint8_t *p_data)
     tx_msg.tx_dlen = 8;
     memcpy(&tx_msg.tx_data[0], p_data, 8);
 
-    // ç­‰å¾…æœ‰é‚®ç®±ç©ºé—²ï¼Œä¿è¯è¿ç»­å‘é€ä¸ä¼šä¸¢åŒ…
+    // µÈ´ıÓĞÓÊÏä¿ÕÏĞ£¬±£Ö¤Á¬Ğø·¢ËÍ²»»á¶ª°ü
     while (((CAN_TSTAT(CAN0) & CAN_TSTAT_TME0) == 0) &&
            ((CAN_TSTAT(CAN0) & CAN_TSTAT_TME1) == 0) &&
            ((CAN_TSTAT(CAN0) & CAN_TSTAT_TME2) == 0))
     {
-        // ç­‰å¾…è‡³å°‘æœ‰ä¸€ä¸ªé‚®ç®±ç©ºé—²
+        // µÈ´ıÖÁÉÙÓĞÒ»¸öÓÊÏä¿ÕÏĞ
     }
     can_message_transmit(CAN0, &tx_msg);
 }
@@ -70,7 +70,7 @@ int bsp_can_rx(uint32_t *p_raw, uint8_t *p_data)
 {
     can_receive_message_struct rx_msg = {0};
 
-    // åˆ¤æ–­FIFOæ˜¯å¦æœ‰æ•°æ®
+    // ÅĞ¶ÏFIFOÊÇ·ñÓĞÊı¾İ
     if (can_receive_message_length_get(CAN0, CAN_FIFO0) == 0)
     {
         *p_raw = 0;
@@ -80,10 +80,10 @@ int bsp_can_rx(uint32_t *p_raw, uint8_t *p_data)
 
     can_message_receive(CAN0, CAN_FIFO0, &rx_msg);
 
-    // åªå¤„ç†æ‰©å±•å¸§ä¸”æ•°æ®é•¿åº¦ä¸º8
+    // Ö»´¦ÀíÀ©Õ¹Ö¡ÇÒÊı¾İ³¤¶ÈÎª8
     if (rx_msg.rx_ff != CAN_FF_EXTENDED || rx_msg.rx_dlen != 8)
     {
-        // ä¸»åŠ¨æ¸…ç©ºFIFOï¼Œé˜²æ­¢å†å²æ•°æ®æ®‹ç•™
+        // Ö÷¶¯Çå¿ÕFIFO£¬·ÀÖ¹ÀúÊ·Êı¾İ²ĞÁô
         while (can_receive_message_length_get(CAN0, CAN_FIFO0) > 0)
         {
             can_fifo_release(CAN0, CAN_FIFO0);
@@ -92,16 +92,16 @@ int bsp_can_rx(uint32_t *p_raw, uint8_t *p_data)
         return -1;
     }
 
-    // è§£æ29ä½ID
+    // ½âÎö29Î»ID
     *p_raw = rx_msg.rx_efid;
 
-    // æ‹·è´8å­—èŠ‚æ•°æ®
+    // ¿½±´8×Ö½ÚÊı¾İ
     for (int i = 0; i < 8; ++i)
     {
         p_data[i] = rx_msg.rx_data[i];
     }
 
-    // ä¸»åŠ¨æ¸…ç©ºFIFOï¼Œé˜²æ­¢å†å²æ•°æ®æ®‹ç•™
+    // Ö÷¶¯Çå¿ÕFIFO£¬·ÀÖ¹ÀúÊ·Êı¾İ²ĞÁô
     while (can_receive_message_length_get(CAN0, CAN_FIFO0) > 0)
     {
         can_fifo_release(CAN0, CAN_FIFO0);

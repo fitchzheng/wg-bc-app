@@ -3,30 +3,30 @@
 
 #include "stdint.h"
 
-// ä¸‹å‘å‘½ä»¤
-#define WG_COM_CMD_GET_OUTPUT_INFO 0x03       // è·å–æ¨¡å—è¾“å‡ºç”µå‹ã€ç”µæµã€å‘Šè­¦é‡
-#define WG_COM_CMD_CONTROL_SWITCH 0x04        // æ§åˆ¶å¼€å…³æœº
-#define WG_COM_CMD_SET_OUTPUT_PARAMS 0x06     // è®¾ç½®æ¨¡å—è¾“å‡ºç”µå‹ã€ç”µæµã€åŠŸç‡
-#define WG_COM_CMD_GET_SET_PARAMS 0x07        // è·å–æ¨¡å—ç”µå‹ç”µæµåŠŸç‡è®¾ç½®å‚æ•°
-#define WG_COM_CMD_SET_OVERTEMP_PROTECT 0x32  // è®¾ç½®æ¨¡å—è¿‡æ¸©ä¿æŠ¤ç‚¹
-#define WG_COM_CMD_GET_OVERTEMP_PROTECT 0x33  // è¯»å–æ¨¡å—è¿‡æ¸©ä¿æŠ¤ç‚¹
-#define WG_COM_CMD_SET_UNDERVOLT_PROTECT 0x36 // è®¾ç½®æ¨¡å—è¿‡æ¬ å‹ç‚¹
-#define WG_COM_CMD_GET_UNDERVOLT_PROTECT 0x37 // è¯»å–æ¨¡å—è¿‡æ¬ å‹ç‚¹
-#define WG_COM_CMD_SET_LED_CURRENT 0x38       // è®¾ç½®LEDç”µæµç‚¹
-#define WG_COM_CMD_GET_LED_CURRENT 0x39       // è¯»å–LEDç”µæµç‚¹
+// ÏÂ·¢ÃüÁî
+#define WG_COM_CMD_GET_OUTPUT_INFO 0x03       // »ñÈ¡Ä£¿éÊä³öµçÑ¹¡¢µçÁ÷¡¢¸æ¾¯Á¿
+#define WG_COM_CMD_CONTROL_SWITCH 0x04        // ¿ØÖÆ¿ª¹Ø»ú
+#define WG_COM_CMD_SET_OUTPUT_PARAMS 0x06     // ÉèÖÃÄ£¿éÊä³öµçÑ¹¡¢µçÁ÷¡¢¹¦ÂÊ
+#define WG_COM_CMD_GET_SET_PARAMS 0x07        // »ñÈ¡Ä£¿éµçÑ¹µçÁ÷¹¦ÂÊÉèÖÃ²ÎÊı
+#define WG_COM_CMD_SET_OVERTEMP_PROTECT 0x32  // ÉèÖÃÄ£¿é¹ıÎÂ±£»¤µã
+#define WG_COM_CMD_GET_OVERTEMP_PROTECT 0x33  // ¶ÁÈ¡Ä£¿é¹ıÎÂ±£»¤µã
+#define WG_COM_CMD_SET_UNDERVOLT_PROTECT 0x36 // ÉèÖÃÄ£¿é¹ıÇ·Ñ¹µã
+#define WG_COM_CMD_GET_UNDERVOLT_PROTECT 0x37 // ¶ÁÈ¡Ä£¿é¹ıÇ·Ñ¹µã
+#define WG_COM_CMD_SET_LED_CURRENT 0x38       // ÉèÖÃLEDµçÁ÷µã
+#define WG_COM_CMD_GET_LED_CURRENT 0x39       // ¶ÁÈ¡LEDµçÁ÷µã
 
-// ä¸Šä¼ å‘½ä»¤
-#define WG_COM_CMD_RET_OUTPUT_INFO 0x83       // è¿”å›æ¨¡å—è¾“å‡ºç”µå‹ã€ç”µæµã€å‘Šè­¦é‡
-#define WG_COM_CMD_RET_CONTROL_SWITCH 0x84    // æ§åˆ¶å¼€å…³æœºï¼ˆè¿”å›ï¼‰
-#define WG_COM_CMD_RET_ACK_OUTPUT_PARAMS 0x86 // è¿”å›æ¨¡å—è¾“å‡ºç”µå‹ã€ç”µæµã€åŠŸç‡
-#define WG_COM_CMD_RET_GET_SET_PARAMS 0x87    // è¿”å›æ¨¡å—ç”µå‹ç”µæµåŠŸç‡è®¾ç½®å‚æ•°
-#define WG_COM_CMD_RET_OVERTEMP_PROTECT 0x72  // è¿”å›æ¨¡å—è¿‡æ¸©ä¿æŠ¤ç‚¹
-#define WG_COM_CMD_RET_GET_OVERTEMP 0x73      // è¿”å›æ¨¡å—è¿‡æ¸©ä¿æŠ¤ç‚¹ï¼ˆè¯»å–ï¼‰
-#define WG_COM_CMD_RET_SET_UNDERVOLT 0x76     // è¿”å›è®¾ç½®æ¨¡å—è¿‡æ¬ å‹ç‚¹
-#define WG_COM_CMD_RET_GET_UNDERVOLT 0x77     // è¿”å›è¯»å–æ¨¡å—è¿‡æ¬ å‹ç‚¹
-#define WG_COM_CMD_RET_SET_LED_CURRENT 0x78   // è¿”å›è®¾ç½®LEDç”µæµç‚¹
-#define WG_COM_CMD_RET_GET_LED_CURRENT 0x79   // è¿”å›è¯»å–LEDç”µæµç‚¹
-#define RATIO                          0.99f  // æ»¤æ³¢ç³»æ•°Ratio(0-1)
+// ÉÏ´«ÃüÁî
+#define WG_COM_CMD_RET_OUTPUT_INFO 0x83       // ·µ»ØÄ£¿éÊä³öµçÑ¹¡¢µçÁ÷¡¢¸æ¾¯Á¿
+#define WG_COM_CMD_RET_CONTROL_SWITCH 0x84    // ¿ØÖÆ¿ª¹Ø»ú£¨·µ»Ø£©
+#define WG_COM_CMD_RET_ACK_OUTPUT_PARAMS 0x86 // ·µ»ØÄ£¿éÊä³öµçÑ¹¡¢µçÁ÷¡¢¹¦ÂÊ
+#define WG_COM_CMD_RET_GET_SET_PARAMS 0x87    // ·µ»ØÄ£¿éµçÑ¹µçÁ÷¹¦ÂÊÉèÖÃ²ÎÊı
+#define WG_COM_CMD_RET_OVERTEMP_PROTECT 0x72  // ·µ»ØÄ£¿é¹ıÎÂ±£»¤µã
+#define WG_COM_CMD_RET_GET_OVERTEMP 0x73      // ·µ»ØÄ£¿é¹ıÎÂ±£»¤µã£¨¶ÁÈ¡£©
+#define WG_COM_CMD_RET_SET_UNDERVOLT 0x76     // ·µ»ØÉèÖÃÄ£¿é¹ıÇ·Ñ¹µã
+#define WG_COM_CMD_RET_GET_UNDERVOLT 0x77     // ·µ»Ø¶ÁÈ¡Ä£¿é¹ıÇ·Ñ¹µã
+#define WG_COM_CMD_RET_SET_LED_CURRENT 0x78   // ·µ»ØÉèÖÃLEDµçÁ÷µã
+#define WG_COM_CMD_RET_GET_LED_CURRENT 0x79   // ·µ»Ø¶ÁÈ¡LEDµçÁ÷µã
+#define RATIO                          0.99f  // ÂË²¨ÏµÊıRatio(0-1)
 #pragma pack(1)
 typedef struct
 {
@@ -38,33 +38,33 @@ typedef struct
 
 typedef struct
 {
-    uint8_t ack;                  // åº”ç­”ç»“æœ(1 ä¸ªå­—èŠ‚ï¼Œ0 è¡¨ç¤ºæ­£å¸¸ï¼‰
-    uint16_t output_voltage;      // æ¨¡å—è¾“å‡ºç”µå‹ 10mV
-    uint16_t output_current;      // æ¨¡å—è¾“å‡ºç”µæµ 10mA
-    uint16_t temperature1;        // æ¨¡å—æ¸©åº¦1
-    uint16_t temperature2;        // æ¨¡å—æ¸©åº¦2
-    uint16_t temperature3;        // æ¨¡å—æ¸©åº¦3
-    uint8_t warning_flags;        // æ¨¡å—å‘Šè­¦é‡
-    uint8_t protection_type;      // æ¨¡å—ä¿æŠ¤ç±»å‹
-    uint16_t input_voltage;       // æ¨¡å—è¾“å…¥ç”µå‹ 10mV
-    uint16_t input_current;       // æ¨¡å—è¾“å…¥ç”µæµ 10mA
-    uint16_t primary_temperature; // åŸè¾¹æ¸©åº¦
+    uint8_t ack;                  // Ó¦´ğ½á¹û(1 ¸ö×Ö½Ú£¬0 ±íÊ¾Õı³££©
+    uint16_t output_voltage;      // Ä£¿éÊä³öµçÑ¹ 10mV
+    uint16_t output_current;      // Ä£¿éÊä³öµçÁ÷ 10mA
+    uint16_t temperature1;        // Ä£¿éÎÂ¶È1
+    uint16_t temperature2;        // Ä£¿éÎÂ¶È2
+    uint16_t temperature3;        // Ä£¿éÎÂ¶È3
+    uint8_t warning_flags;        // Ä£¿é¸æ¾¯Á¿
+    uint8_t protection_type;      // Ä£¿é±£»¤ÀàĞÍ
+    uint16_t input_voltage;       // Ä£¿éÊäÈëµçÑ¹ 10mV
+    uint16_t input_current;       // Ä£¿éÊäÈëµçÁ÷ 10mA
+    uint16_t primary_temperature; // Ô­±ßÎÂ¶È
 } output_info_t;
 
 typedef struct
 {
-    uint8_t ack;            // åº”ç­”ç»“æœ(1 ä¸ªå­—èŠ‚ï¼Œ0 è¡¨ç¤ºæ­£å¸¸ï¼‰
-    uint16_t rvs12_lmt;     // æ¨¡å—è¾“å‡ºç”µå‹é™åˆ¶ 10mV
-    uint16_t ilv_lmt;       // æ¨¡å—è¾“å‡ºç”µæµé™åˆ¶ 10mA
-    uint16_t rvs12_pwr_lmt; // æ¨¡å—è¾“å‡ºåŠŸç‡é™åˆ¶ 10mW
+    uint8_t ack;            // Ó¦´ğ½á¹û(1 ¸ö×Ö½Ú£¬0 ±íÊ¾Õı³££©
+    uint16_t rvs12_lmt;     // Ä£¿éÊä³öµçÑ¹ÏŞÖÆ 10mV
+    uint16_t ilv_lmt;       // Ä£¿éÊä³öµçÁ÷ÏŞÖÆ 10mA
+    uint16_t rvs12_pwr_lmt; // Ä£¿éÊä³ö¹¦ÂÊÏŞÖÆ 10mW
 } output_params_ack_t;
 
 typedef struct
 {
-    uint16_t uvp;     // è®¾ç½®è¾“å…¥æ¬ å‹ç‚¹ï¼ˆ2 ä¸ªå­—èŠ‚ï¼‰
-    uint16_t uvp_hys; // è®¾ç½®è¾“å…¥æ¬ å‹æ¢å¤ç‚¹ï¼ˆ2 ä¸ªå­—èŠ‚ï¼‰
-    uint16_t ovp;     // è®¾ç½®è¾“å…¥è¿‡å‹æ¢å¤ç‚¹ï¼ˆ2 ä¸ªå­—èŠ‚ï¼‰
-    uint16_t ovp_hys; // è®¾ç½®è¾“å…¥è¿‡å‹ç‚¹ï¼ˆ2 ä¸ªå­—èŠ‚ï¼‰
+    uint16_t uvp;     // ÉèÖÃÊäÈëÇ·Ñ¹µã£¨2 ¸ö×Ö½Ú£©
+    uint16_t uvp_hys; // ÉèÖÃÊäÈëÇ·Ñ¹»Ö¸´µã£¨2 ¸ö×Ö½Ú£©
+    uint16_t ovp;     // ÉèÖÃÊäÈë¹ıÑ¹»Ö¸´µã£¨2 ¸ö×Ö½Ú£©
+    uint16_t ovp_hys; // ÉèÖÃÊäÈë¹ıÑ¹µã£¨2 ¸ö×Ö½Ú£©
 } volt_protect_ret_t;
 
 

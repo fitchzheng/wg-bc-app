@@ -48,8 +48,8 @@ int fputc(int ch, FILE *f)
     case OUTPUT_USART0:
         USART_DATA(USART0) = (uint8_t)ch;
         while (RESET == usart_flag_get(USART0, USART_FLAG_TC))
-            ;                                    // ç­‰å¾…å‘é€å®Œæˆ
-        usart_flag_clear(USART0, USART_FLAG_TC); // æ‰‹åŠ¨æ¸…é™¤TCæ ‡å¿—
+            ;                                    // µÈ´ı·¢ËÍÍê³É
+        usart_flag_clear(USART0, USART_FLAG_TC); // ÊÖ¶¯Çå³ıTC±êÖ¾
         break;
     case OUTPUT_USART2:
         USART_DATA(USART2) = (uint8_t)ch;

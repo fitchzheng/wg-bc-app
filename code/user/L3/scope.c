@@ -688,7 +688,7 @@ REG_TASK_MS(1, scope_service_state_task)
 #endif
 
 #if (SCOPE_TEST_ENABLE == 1)
-REG_SCOPE(test, 128, 32, scope_·test_ramp, scope_test_square, scope_test_saw)
+REG_SCOPE(test, 128, 32, scope_test_ramp, scope_test_square, scope_test_saw)
 
 static void scope_test_task(void)
 {

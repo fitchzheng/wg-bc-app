@@ -34,23 +34,23 @@ REG_SHELL_VAR(open_loop_mode, open_loop_mode, SHELL_UINT8, 0xFFu, 0u, NULL, SHEL
 #endif
 #endif
 
-// 鏍稿績褰掍竴鍖栧嚱鏁?
+// 核心归一化函数
 static void normalize_to_big_endian_bcd(float value, float gain, uint8_t *p_output)
 {
-    uint16_t raw = (uint16_t)(value * gain); // 鏀惧ぇ
-    uint16_t bcd = DEC_TO_BCD_16(raw);       // 杞珺CD缂栫爜
+    uint16_t raw = (uint16_t)(value * gain); // 放大
+    uint16_t bcd = DEC_TO_BCD_16(raw);       // 转BCD编码
 
-    // 鍐欏叆澶х鏍煎紡锛岄珮瀛楄妭鍦ㄥ墠
-    p_output[0] = (bcd >> 8) & 0xFF; // 楂?浣?
-    p_output[1] = bcd & 0xFF;        // 浣?浣?
+    // 写入大端格式，高字节在前
+    p_output[0] = (bcd >> 8) & 0xFF; // 
+    p_output[1] = bcd & 0xFF;        // 
 }
 
-// 鏍稿績瑙ｇ爜鍑芥暟
+// 核心解码函数
 static float decode_from_big_endian_bcd(uint8_t *p_input, float gain)
 {
-    uint16_t bcd = ((uint16_t)p_input[0] << 8) | (uint16_t)p_input[1]; // 澶х鎷兼垚16浣?
-    uint16_t dec = BCD_TO_DEC_16(bcd);                                 // BCD杞垚鍗佽繘鍒?
-    return ((float)dec) * gain;                                        // 杩樺師娴偣鏁?
+    uint16_t bcd = ((uint16_t)p_input[0] << 8) | (uint16_t)p_input[1]; // 大端拼成16位
+    uint16_t dec = BCD_TO_DEC_16(bcd);                                 // BCD转成十进制
+    return ((float)dec) * gain;                                        // 还原浮点数
 }
 
 float data_com_get_rvs12_lmt(void)

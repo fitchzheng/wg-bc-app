@@ -1,7 +1,7 @@
 /**
  * @file rvc_address.c
- * @brief RV-C åœ°å€åˆ†é…æ ¸å¿ƒå®ç°
- * @note åŸºäº J1939 åœ°å€å£°æ˜æœºåˆ¶
+ * @brief RV-C µØÖ··ÖÅäºËĞÄÊµÏÖ
+ * @note »ùÓÚ J1939 µØÖ·ÉùÃ÷»úÖÆ
  */
 
 #include "rvc_address.h"
@@ -12,27 +12,27 @@
 #include "parallel_mode.h"
 
 extern uint32_t systemtime;
-/* ========== å†…éƒ¨æ•°æ®ç»“æ„ ========== */
+/* ========== ÄÚ²¿Êı¾İ½á¹¹ ========== */
 
 /**
- * @brief åœ°å€ç®¡ç†å™¨
+ * @brief µØÖ·¹ÜÀíÆ÷
  */
 typedef struct {
-    rvc_address_mode_t mode;            /**< åœ°å€æ¨¡å¼ */
-    rvc_address_state_t state;          /**< å½“å‰çŠ¶æ€ */
-    uint8_t current_address;            /**< å½“å‰åœ°å€ */
-    uint8_t claimed_address;            /**< å·²å£°æ˜çš„åœ°å€ */
-    rvc_name_t name;                    /**< NAME å­—æ®µ */
-    uint32_t claim_timestamp;           /**< å£°æ˜æ—¶é—´æˆ³ */
-    bool pending_claim;                 /**< å¾…å‘é€å£°æ˜ */
+    rvc_address_mode_t mode;            /**< µØÖ·Ä£Ê½ */
+    rvc_address_state_t state;          /**< µ±Ç°×´Ì¬ */
+    uint8_t current_address;            /**< µ±Ç°µØÖ· */
+    uint8_t claimed_address;            /**< ÒÑÉùÃ÷µÄµØÖ· */
+    rvc_name_t name;                    /**< NAME ×Ö¶Î */
+    uint32_t claim_timestamp;           /**< ÉùÃ÷Ê±¼ä´Á */
+    bool pending_claim;                 /**< ´ı·¢ËÍÉùÃ÷ */
 } address_manager_t;
 
-/* ========== å…¨å±€å˜é‡ ========== */
+/* ========== È«¾Ö±äÁ¿ ========== */
 
 static address_manager_t g_addr_mgr;
 
 /**
- * @brief åˆå§‹åŒ– NAME å­—æ®µ
+ * @brief ³õÊ¼»¯ NAME ×Ö¶Î
  */
 static void init_name(rvc_name_t *name, rvc_address_mode_t mode)
 {
@@ -40,7 +40,7 @@ static void init_name(rvc_name_t *name, rvc_address_mode_t mode)
 
     name->serial_number = RVC_DEVICE_SERIAL_NUMBER & 0x1FFFFF;
     name->manufacturer_code = RVC_MANUFACTURER_CODE & 0x7FF;
-    name->node_instance = 0xFF;  // å·²åºŸå¼ƒ
+    name->node_instance = 0xFF;  // ÒÑ·ÏÆú
     name->compatibility[0] = 0x00;
     name->compatibility[1] = 0x00;
     name->arbitrary_capable = (mode == RVC_ADDRESS_MODE_DYNAMIC) ? 1 : 0;
@@ -49,35 +49,35 @@ static void init_name(rvc_name_t *name, rvc_address_mode_t mode)
 }
 
 /**
- * @brief æ¯”è¾ƒä¸¤ä¸ª NAME å­—æ®µ
- * @return -1: name1 < name2 (name1 ä¼˜å…ˆçº§é«˜)
+ * @brief ±È½ÏÁ½¸ö NAME ×Ö¶Î
+ * @return -1: name1 < name2 (name1 ÓÅÏÈ¼¶¸ß)
  *          0: name1 == name2
- *          1: name1 > name2 (name2 ä¼˜å…ˆçº§é«˜)
- * @note æŒ‰å¤§ç«¯åºæ¯”è¾ƒï¼ˆä»é«˜å­—èŠ‚åˆ°ä½å­—èŠ‚ï¼‰
+ *          1: name1 > name2 (name2 ÓÅÏÈ¼¶¸ß)
+ * @note °´´ó¶ËĞò±È½Ï£¨´Ó¸ß×Ö½Úµ½µÍ×Ö½Ú£©
  */
 static int compare_name(const rvc_name_t *name1, const rvc_name_t *name2)
 {
-    // æŒ‰å­—èŠ‚ä»é«˜åˆ°ä½æ¯”è¾ƒï¼ˆå¤§ç«¯åºï¼‰
+    // °´×Ö½Ú´Ó¸ßµ½µÍ±È½Ï£¨´ó¶ËĞò£©
     const uint8_t *p1 = (const uint8_t *)name1 + 7;
     const uint8_t *p2 = (const uint8_t *)name2 + 7;
 
     for (int i = 0; i < 8; i++) {
-        if (*p1 < *p2) return -1;  // name1 ä¼˜å…ˆçº§é«˜
-        if (*p1 > *p2) return 1;   // name2 ä¼˜å…ˆçº§é«˜
+        if (*p1 < *p2) return -1;  // name1 ÓÅÏÈ¼¶¸ß
+        if (*p1 > *p2) return 1;   // name2 ÓÅÏÈ¼¶¸ß
         p1--;
         p2--;
     }
-    return 0;  // ç›¸ç­‰
+    return 0;  // ÏàµÈ
 }
 
 /**
- * @brief æ„é€  CAN ID
- * @param priority ä¼˜å…ˆçº§ï¼ˆ0-7ï¼‰
- * @param dgn DGNï¼ˆ17-bitï¼‰
- * @param sa æºåœ°å€ï¼ˆ8-bitï¼‰
- * @return CAN IDï¼ˆ29-bitï¼‰
+ * @brief ¹¹Ôì CAN ID
+ * @param priority ÓÅÏÈ¼¶£¨0-7£©
+ * @param dgn DGN£¨17-bit£©
+ * @param sa Ô´µØÖ·£¨8-bit£©
+ * @return CAN ID£¨29-bit£©
  *
- * CAN ID ç»“æ„ï¼ˆ29-bitï¼‰ï¼š
+ * CAN ID ½á¹¹£¨29-bit£©£º
  *   Bit 28-26: Priority (3-bit)
  *   Bit 25:    Reserved (1-bit, always 0)
  *   Bit 24-16: DGN-High (9-bit)
@@ -86,8 +86,8 @@ static int compare_name(const rvc_name_t *name1, const rvc_name_t *name2)
  */
 static uint32_t build_can_id(uint8_t priority, uint32_t dgn, uint8_t sa)
 {
-    uint32_t dgn_high = (dgn >> 8) & 0x1FF;  // DGN é«˜ 9 ä½
-    uint32_t dgn_low = dgn & 0xFF;           // DGN ä½ 8 ä½
+    uint32_t dgn_high = (dgn >> 8) & 0x1FF;  // DGN ¸ß 9 Î»
+    uint32_t dgn_low = dgn & 0xFF;           // DGN µÍ 8 Î»
 
     return ((uint32_t)priority << 26) |
            (dgn_high << 16)           |
@@ -96,7 +96,7 @@ static uint32_t build_can_id(uint8_t priority, uint32_t dgn, uint8_t sa)
 }
 
 /**
- * @brief å‘é€ ADDRESS_CLAIM
+ * @brief ·¢ËÍ ADDRESS_CLAIM
  */
 static uint8_t send_address_claim(uint8_t sa)
 {
@@ -111,7 +111,7 @@ static uint8_t send_address_claim(uint8_t sa)
 }
 
 /**
- * @brief å°è¯•å£°æ˜åœ°å€
+ * @brief ³¢ÊÔÉùÃ÷µØÖ·
  */
 static uint8_t try_claim_address(uint8_t address)
 {
@@ -123,7 +123,7 @@ static uint8_t try_claim_address(uint8_t address)
 }
 
 /**
- * @brief åŠ¨æ€åœ°å€ç”³è¯·ï¼ˆ143 â†’ 128ï¼‰
+ * @brief ¶¯Ì¬µØÖ·ÉêÇë£¨143 ¡ú 128£©
  */
 static bool claim_dynamic_address(void)
 {
@@ -135,32 +135,32 @@ static bool claim_dynamic_address(void)
         }
     }
 
-    // æ— å¯ç”¨åœ°å€
+    // ÎŞ¿ÉÓÃµØÖ·
     g_addr_mgr.state = RVC_ADDR_STATE_CANNOT_CLAIM;
     g_addr_mgr.current_address = RVC_NULL_ADDRESS;
     return false;
 }
 
 /**
- * @brief å¤„ç†åœ°å€å†²çª
+ * @brief ´¦ÀíµØÖ·³åÍ»
  */
 static void handle_address_conflict(uint8_t sa, const rvc_name_t *received_name)
 {
-    // æ¯”è¾ƒ NAME ä¼˜å…ˆçº§
+    // ±È½Ï NAME ÓÅÏÈ¼¶
     int cmp = compare_name(&g_addr_mgr.name, received_name);
 
     if (cmp < 0) {
-        // æˆ‘çš„ NAME æ›´å°ï¼ˆä¼˜å…ˆçº§æ›´é«˜ï¼‰ï¼Œé‡æ–°å£°æ˜åœ°å€
+        // ÎÒµÄ NAME ¸üĞ¡£¨ÓÅÏÈ¼¶¸ü¸ß£©£¬ÖØĞÂÉùÃ÷µØÖ·
         send_address_claim(g_addr_mgr.current_address);
     } else {
-        // å¯¹æ–¹ä¼˜å…ˆçº§æ›´é«˜ï¼Œæˆ‘å¿…é¡»è®©æ­¥
+        // ¶Ô·½ÓÅÏÈ¼¶¸ü¸ß£¬ÎÒ±ØĞëÈÃ²½
 
         if (g_addr_mgr.mode == RVC_ADDRESS_MODE_STATIC) {
-            // é™æ€åœ°å€å†²çªï¼šæ— æ³•è§£å†³
+            // ¾²Ì¬µØÖ·³åÍ»£ºÎŞ·¨½â¾ö
             g_addr_mgr.state = RVC_ADDR_STATE_CANNOT_CLAIM;
             g_addr_mgr.current_address = RVC_NULL_ADDRESS;
         } else {
-            // åŠ¨æ€åœ°å€ï¼šå°è¯•ä¸‹ä¸€ä¸ªåœ°å€
+            // ¶¯Ì¬µØÖ·£º³¢ÊÔÏÂÒ»¸öµØÖ·
             uint8_t next_addr = g_addr_mgr.current_address - 1;
             if (next_addr >= RVC_DYNAMIC_END_ADDRESS) {
                 try_claim_address(next_addr);
@@ -172,10 +172,10 @@ static void handle_address_conflict(uint8_t sa, const rvc_name_t *received_name)
     }
 }
 
-/* ========== å…¬å…± API å®ç° ========== */
+/* ========== ¹«¹² API ÊµÏÖ ========== */
 
 /**
- * @brief åˆå§‹åŒ–åœ°å€ç®¡ç†å™¨
+ * @brief ³õÊ¼»¯µØÖ·¹ÜÀíÆ÷
  */
 void rvc_address_init(rvc_address_mode_t mode)
 {
@@ -191,21 +191,21 @@ void rvc_address_init(rvc_address_mode_t mode)
 }
 
 /**
- * @brief å¯åŠ¨åœ°å€å£°æ˜æµç¨‹
+ * @brief Æô¶¯µØÖ·ÉùÃ÷Á÷³Ì
  */
 uint8_t rvc_address_claim_start(void)
 {
     if (g_addr_mgr.mode == RVC_ADDRESS_MODE_STATIC) {
-        // é™æ€åœ°å€ï¼šç›´æ¥å£°æ˜
+        // ¾²Ì¬µØÖ·£ºÖ±½ÓÉùÃ÷
         return try_claim_address(RVC_STATIC_ADDRESS);
     } else {
-        // åŠ¨æ€åœ°å€ï¼šä» 143 å¼€å§‹ç”³è¯·
+        // ¶¯Ì¬µØÖ·£º´Ó 143 ¿ªÊ¼ÉêÇë
         return claim_dynamic_address();
     }
 }
 
 /**
- * @brief å‘¨æœŸè°ƒç”¨å¤„ç†å‡½æ•°
+ * @brief ÖÜÆÚµ÷ÓÃ´¦Àíº¯Êı
  */
 void rvc_address_process(void)
 {
@@ -213,27 +213,27 @@ void rvc_address_process(void)
 
     switch (g_addr_mgr.state) {
     case RVC_ADDR_STATE_WAIT_CLAIM:
-        // å‘é€ ADDRESS_CLAIM åï¼Œè¿›å…¥éªŒè¯ç­‰å¾…
+        // ·¢ËÍ ADDRESS_CLAIM ºó£¬½øÈëÑéÖ¤µÈ´ı
         g_addr_mgr.state = RVC_ADDR_STATE_WAIT_VERIFY;
         g_addr_mgr.claim_timestamp = now;
         break;
     case RVC_ADDR_STATE_WAIT_VERIFY:
-        // ç­‰å¾… 250msï¼Œæ— å†²çªåˆ™å£°æ˜æˆåŠŸ
+        // µÈ´ı 250ms£¬ÎŞ³åÍ»ÔòÉùÃ÷³É¹¦
         if (now - g_addr_mgr.claim_timestamp >= RVC_ADDRESS_VERIFY_TIMEOUT) {
             g_addr_mgr.state = RVC_ADDR_STATE_CLAIMED;
             g_addr_mgr.claimed_address = g_addr_mgr.current_address;
 
-            // é…ç½® CAN è¿‡æ»¤å™¨
+            // ÅäÖÃ CAN ¹ıÂËÆ÷
             //rvc_can_filter_config(g_addr_mgr.claimed_address);
         }
         break;
 
     case RVC_ADDR_STATE_CLAIMED:
-        // åœ°å€å·²å£°æ˜ï¼Œæ­£å¸¸è¿è¡Œ
+        // µØÖ·ÒÑÉùÃ÷£¬Õı³£ÔËĞĞ
         break;
 
     case RVC_ADDR_STATE_CANNOT_CLAIM:
-        // æ— æ³•å£°æ˜åœ°å€ï¼Œåœæ­¢å·¥ä½œ
+        // ÎŞ·¨ÉùÃ÷µØÖ·£¬Í£Ö¹¹¤×÷
         break;
 
     default:
@@ -242,7 +242,7 @@ void rvc_address_process(void)
 }
 
 /**
- * @brief è·å–å½“å‰åœ°å€
+ * @brief »ñÈ¡µ±Ç°µØÖ·
  */
 uint8_t rvc_address_get_current(void)
 {
@@ -259,7 +259,7 @@ uint8_t rvc_address_get_current(void)
 }
 
 /**
- * @brief æ£€æŸ¥åœ°å€æ˜¯å¦å·²å£°æ˜
+ * @brief ¼ì²éµØÖ·ÊÇ·ñÒÑÉùÃ÷
  */
 uint8_t rvc_address_is_claimed(void)
 {
@@ -267,7 +267,7 @@ uint8_t rvc_address_is_claimed(void)
 }
 
 /**
- * @brief è·å–å½“å‰çŠ¶æ€
+ * @brief »ñÈ¡µ±Ç°×´Ì¬
  */
 rvc_address_state_t rvc_address_get_state(void)
 {
@@ -275,38 +275,38 @@ rvc_address_state_t rvc_address_get_state(void)
 }
 
 /**
- * @brief CAN æ¥æ”¶å›è°ƒå‡½æ•°
+ * @brief CAN ½ÓÊÕ»Øµ÷º¯Êı
  */
 void rvc_address_can_rx_callback(uint32_t can_id, uint8_t *data, uint8_t len)
 {
-    // æå– DGN å’Œ SA
+    // ÌáÈ¡ DGN ºÍ SA
     uint16_t dgn = (can_id >> 8) & 0x1FFFF;
     uint8_t sa = can_id & 0xFF;
 
-    // åªå¤„ç† ADDRESS_CLAIM
+    // Ö»´¦Àí ADDRESS_CLAIM
     if (dgn != RVC_ADDRESS_CLAIM_DGN) {
         return;
     }
 
-    // è§£æ NAME å­—æ®µ
+    // ½âÎö NAME ×Ö¶Î
     rvc_name_t received_name;
     memcpy(&received_name, data, 8);
 
-    // æ£€æŸ¥æ˜¯å¦æ˜¯è‡ªå·±å‘çš„
+    // ¼ì²éÊÇ·ñÊÇ×Ô¼º·¢µÄ
     if (compare_name(&received_name, &g_addr_mgr.name) == 0) {
-        // æ˜¯è‡ªå·±çš„ ADDRESS_CLAIMï¼Œå¿½ç•¥
+        // ÊÇ×Ô¼ºµÄ ADDRESS_CLAIM£¬ºöÂÔ
         return;
     }
 
 
-    // æ£€æŸ¥åœ°å€å†²çª
+    // ¼ì²éµØÖ·³åÍ»
     if (sa == g_addr_mgr.current_address) {
         handle_address_conflict(sa, &received_name);
     }
 }
 
 /**
- * @brief è·å– NAME å­—æ®µ
+ * @brief »ñÈ¡ NAME ×Ö¶Î
  */
 void rvc_address_get_name(rvc_name_t *name)
 {
@@ -321,33 +321,33 @@ void address_init(void)
 {
     rvc_address_init(RVC_ADDRESS_MODE_STATIC);
 
-    /* å¯åŠ¨åœ°å€å£°æ˜æµç¨‹ */
+    /* Æô¶¯µØÖ·ÉùÃ÷Á÷³Ì */
     if (!rvc_address_claim_start()) {
-        // å£°æ˜å¼‚å¸¸
+        // ÉùÃ÷Òì³£
     }
 }
 
 //REG_INIT_TP(address_init)
 
 /**
- * @brief å‘é€ CHARGER_STATUS ç¤ºä¾‹
+ * @brief ·¢ËÍ CHARGER_STATUS Ê¾Àı
  */
 void send_charger_status(uint8_t my_addr)
 {
     static uint32_t last_send_time = 0;
     uint32_t now = systemtime;
 
-    // æ¯ 5000ms å‘é€ä¸€æ¬¡ï¼ˆç©ºé—²çŠ¶æ€ï¼‰
+    // Ã¿ 5000ms ·¢ËÍÒ»´Î£¨¿ÕÏĞ×´Ì¬£©
     if (now - last_send_time < 5000) {
         return;
     }
     last_send_time = now;
 
-    // æ„é€  CAN ID
-    // Priority=6, DGN=0x1FFC7, DGN-Low=0xFFï¼ˆå¹¿æ’­ï¼‰
+    // ¹¹Ôì CAN ID
+    // Priority=6, DGN=0x1FFC7, DGN-Low=0xFF£¨¹ã²¥£©
     uint32_t can_id = (6 << 26) | (0x1FF << 17) | (0xC7 << 8) | 0xFF;
 
-    // æ„é€ æ•°æ®
+    // ¹¹ÔìÊı¾İ
     uint8_t data[8];
     data[0] = 1;                    // Instance
     data[1] = 0xE0;                 // Charge Voltage Low (24.0V)
@@ -358,34 +358,34 @@ void send_charger_status(uint8_t my_addr)
     data[6] = 0x02;                 // Operating State (Bulk)
     data[7] = 0x01;                 // Default state on power-up (Enabled)
 
-    // å‘é€
+    // ·¢ËÍ
     bsp_rvc_can_tx(can_id, data, 8);
 }
 
 //void rvc_address_run(void)
 //{
-//    /* å‘¨æœŸè°ƒç”¨åœ°å€ç®¡ç†å™¨ï¼ˆ10msï¼‰ */
+//    /* ÖÜÆÚµ÷ÓÃµØÖ·¹ÜÀíÆ÷£¨10ms£© */
 //    rvc_address_process();
 //    
-//    /* æ£€æŸ¥åœ°å€çŠ¶æ€ */
+//    /* ¼ì²éµØÖ·×´Ì¬ */
 //    if (rvc_address_is_claimed()) {
-//        // åœ°å€å·²å£°æ˜ï¼Œå¯ä»¥å‘é€å…¶ä»– RV-C æ¶ˆæ¯
+//        // µØÖ·ÒÑÉùÃ÷£¬¿ÉÒÔ·¢ËÍÆäËû RV-C ÏûÏ¢
 //        uint8_t my_addr = rvc_address_get_current();
 
-//        // ç¤ºä¾‹ï¼šå‘é€ CHARGER_STATUS
+//        // Ê¾Àı£º·¢ËÍ CHARGER_STATUS
 //        send_charger_status(my_addr);
 
-//        // æ­£å¸¸è¿è¡Œ
+//        // Õı³£ÔËĞĞ
 
 //    } else if (rvc_address_get_state() == RVC_ADDR_STATE_CANNOT_CLAIM) {
-//        // åœ°å€å†²çªï¼Œæ— æ³•å£°æ˜åœ°å€
+//        // µØÖ·³åÍ»£¬ÎŞ·¨ÉùÃ÷µØÖ·
 
-//        // é”™è¯¯çŠ¶æ€
+//        // ´íÎó×´Ì¬
 
-//        // åœæ­¢å·¥ä½œï¼Œç­‰å¾…äººå·¥å¤„ç†
+//        // Í£Ö¹¹¤×÷£¬µÈ´ıÈË¹¤´¦Àí
 //        
 //    } else {
-//        // æ­£åœ¨å£°æ˜åœ°å€
+//        // ÕıÔÚÉùÃ÷µØÖ·
 //    }
 
 //}

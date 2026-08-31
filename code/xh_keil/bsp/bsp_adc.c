@@ -1,33 +1,28 @@
 //ADC
-//GDåŠŸèƒ½ï¼š
-//1ã€ADC0ä¸ŽADC1ä½¿ç”¨è§„åˆ™ç»„å¹¶è¡Œæ¨¡å¼
-//2ã€ADC0è´Ÿè´£ ILA,ILV,FVS48,TEMP_INT,
-//3ã€ADC1è´Ÿè´£ ILB,IHV,RVS12,RMTVS,	
-//4ã€AADC0,1è¢«TIMER1åŒæ­¥è§¦å‘
-//5ã€è½¬æ¢ç»“æžœé€šè¿‡DMAæ¬è¿
-//6ã€ADC2ä½¿ç”¨è§„åˆ™ç»„ï¼Œè´Ÿè´£TEMP1,TEMP2,TEMP3,ACCVS,ADDRS,
-//7ã€ADC2ä½¿ç”¨è½¯ä»¶è§¦å‘ï¼Œç»“æžœä¹Ÿé€šè¿‡DMAæ¬è¿ã€‚
-//8ã€æœ€ç»ˆèŽ·å–é‡‡æ ·å€¼æŽ¥å£ bsp_adc_get_xxx
+//GD¹¦ÄÜ£º
+//1¡¢ADC0ÓëADC1Ê¹ÓÃ¹æÔò×é²¢ÐÐÄ£Ê½
+//2¡¢ADC0¸ºÔð ILA,ILV,FVS48,TEMP_INT,
+//3¡¢ADC1¸ºÔð ILB,IHV,RVS12,RMTVS,	
+//4¡¢AADC0,1±»TIMER1Í¬²½´¥·¢
+//5¡¢×ª»»½á¹ûÍ¨¹ýDMA°áÔË
+//6¡¢ADC2Ê¹ÓÃ¹æÔò×é£¬¸ºÔðTEMP1,TEMP2,TEMP3,ACCVS,ADDRS,
+//7¡¢ADC2Ê¹ÓÃÈí¼þ´¥·¢£¬½á¹ûÒ²Í¨¹ýDMA°áÔË¡£
+//8¡¢×îÖÕ»ñÈ¡²ÉÑùÖµ½Ó¿Ú bsp_adc_get_xxx
 
-//å°åŽF334å·®å¼‚:
-//1ã€ä¸‰ä¸ªç‹¬ç«‹é‡‡æ ·å•å…ƒï¼Œå¯è¢«åŒæ­¥è§¦å‘
-//2ã€æ¯ä¸ªé‡‡æ ·é€šé“éƒ½æœ‰ç‹¬ç«‹çš„ç»“æžœå¯„å­˜å™¨ï¼Œå¯ä»¥ä¸ä½¿ç”¨DMAæ¬è¿
+//Ð¡»ªF334²îÒì:
+//1¡¢Èý¸ö¶ÀÁ¢²ÉÑùµ¥Ôª£¬¿É±»Í¬²½´¥·¢
+//2¡¢Ã¿¸ö²ÉÑùÍ¨µÀ¶¼ÓÐ¶ÀÁ¢µÄ½á¹û¼Ä´æÆ÷£¬¿ÉÒÔ²»Ê¹ÓÃDMA°áÔË
 
-//è®¡åˆ’ä¿®æ”¹å¦‚ä¸‹ï¼š
-//1ã€ADC0è´Ÿè´£ ILA,ILV,FVS48,
-//2ã€ADC1è´Ÿè´£ ILB,IHV,RVS12,RMTVS,
-//3ã€ADC2è´Ÿè´£TEMP1,TEMP2,TEMP3,ACCVS,ADDRS,
-//4ã€ä¸‰ä¸ªå•å…ƒåŒæ­¥è§¦å‘ï¼Œè½¬æ¢ç»“æžœä¸éœ€è¦DMAæ¬è¿
-//5ã€ä½¿ç”¨bsp_adc_get_xxxæŽ¥å£è¿”å›žé‡‡æ ·å€¼ 
+//¼Æ»®ÐÞ¸ÄÈçÏÂ£º
+//1¡¢ADC0¸ºÔð ILA,ILV,FVS48,
+//2¡¢ADC1¸ºÔð ILB,IHV,RVS12,RMTVS,
+//3¡¢ADC2¸ºÔðTEMP1,TEMP2,TEMP3,ACCVS,ADDRS,
+//4¡¢Èý¸öµ¥ÔªÍ¬²½´¥·¢£¬×ª»»½á¹û²»ÐèÒªDMA°áÔË
+//5¡¢Ê¹ÓÃbsp_adc_get_xxx½Ó¿Ú·µ»Ø²ÉÑùÖµ 
 
 #include "bsp_adc.h"
 #include "hc32_ll_aos.h"
 #include "section.h"
-
-static uint16_t __attribute__((aligned(4))) adc0_value[ADC0_TABLE_MAX];
-static uint16_t __attribute__((aligned(4))) adc1_value[ADC1_TABLE_MAX];
-
-
 
 bsp_adc_linear_calib_t bsp_adc0_linear_calib[ADC0_TABLE_MAX] = {
     [ILA] = {
@@ -126,7 +121,7 @@ const bsp_adc_param_t bsp_adc1_param[ADC1_TABLE_MAX] = {
         BSP_ADC1_REG_PARM(ACCVS, GPIO_PORT_C, 01, 11),
     },
 //    {
-//        BSP_ADC1_REG_PARM(ADDRS, GPIO_PORT_C, 02, 12),  //æ­¤é€šé“åªèƒ½æ”¾åœ¨ADC0,1
+//        BSP_ADC1_REG_PARM(ADDRS, GPIO_PORT_C, 02, 12),  //´ËÍ¨µÀÖ»ÄÜ·ÅÔÚADC0,1
 //    },
     {
         BSP_ADC1_REG_PARM(TEMP3, GPIO_PORT_C, 00, 10),
@@ -138,7 +133,7 @@ const bsp_adc_param_t bsp_adc1_param[ADC1_TABLE_MAX] = {
 };
 
 
-//adc åˆå§‹åŒ–
+//adc ³õÊ¼»¯
 void bsp_adc_init(void)
 {
     stc_gpio_init_t stcGpioInit;
@@ -152,7 +147,7 @@ void bsp_adc_init(void)
 //    FCG_Fcg3PeriphClockCmd(FCG3_PERIPH_ADC3, ENABLE);
     FCG_Fcg0PeriphClockCmd(FCG0_PERIPH_AOS,  ENABLE);
     
-    stcAdcInit.u16ScanMode = ADC_MD_SEQA_SINGLESHOT; //åºåˆ—Aå•æ¬¡è§¦å‘æ¨¡å¼ï¼Œè§¦å‘ä¸€æ¬¡é‡‡é›†ä¸€æ¬¡
+    stcAdcInit.u16ScanMode = ADC_MD_SEQA_SINGLESHOT; //ÐòÁÐAµ¥´Î´¥·¢Ä£Ê½£¬´¥·¢Ò»´Î²É¼¯Ò»´Î
     
     (void)ADC_Init(CM_ADC1, &stcAdcInit);
     (void)ADC_Init(CM_ADC2, &stcAdcInit);
@@ -162,17 +157,17 @@ void bsp_adc_init(void)
     for (uint8_t i = 0; i < ADC0_TABLE_MAX; i++)
     {
         /*if (bsp_adc0_param[i].gpio_periph != NULL)
-        {   //IOé…ç½®*/
+        {   //IOÅäÖÃ*/
             GPIO_Init(bsp_adc0_param[i].gpio_periph, bsp_adc0_param[i].pin,&stcGpioInit);
         /*}*/
-        //ADCé€šé“é…ç½®
+        //ADCÍ¨µÀÅäÖÃ
         ADC_ChCmd((CM_ADC_TypeDef *)bsp_adc0_param[i].adc_periph, ADC_SEQ_A, bsp_adc0_param[i].adc_ch, ENABLE);
-        //ADCé‡‡æ ·æ—¶é—´é…ç½®
+        //ADC²ÉÑùÊ±¼äÅäÖÃ
         ADC_SetSampleTime((CM_ADC_TypeDef *)bsp_adc0_param[i].adc_periph,\
                            bsp_adc0_param[i].adc_ch, SAMPLE_TIME);
     }
     
-    //ADC1è§¦å‘é…ç½®
+    //ADC1´¥·¢ÅäÖÃ
     ADC_TriggerConfig(CM_ADC1, ADC_SEQ_A, ADC_HARDTRIG_EVT0);
     AOS_SetTriggerEventSrc(AOS_ADC1_0, ADC_ILA_TRIG_EVT);
     ADC_TriggerCmd(CM_ADC1, ADC_SEQ_A, ENABLE);
@@ -181,26 +176,26 @@ void bsp_adc_init(void)
 
     
     ////////////////////////////////////////
-    //ADC3é…ç½®
+    //ADC3ÅäÖÃ
     for (uint8_t i = 0; i < ADC1_TABLE_MAX; i++)
     {
         /*if (bsp_adc1_param[i].gpio_periph != NULL)
-        {   //IOé…ç½®*/
+        {   //IOÅäÖÃ*/
             GPIO_Init(bsp_adc1_param[i].gpio_periph, bsp_adc1_param[i].pin,&stcGpioInit);
         /*}*/
-        //ADCé€šé“é…ç½®
+        //ADCÍ¨µÀÅäÖÃ
         ADC_ChCmd((CM_ADC_TypeDef *)bsp_adc1_param[i].adc_periph, ADC_SEQ_A, bsp_adc1_param[i].adc_ch, ENABLE);
-        //ADCé‡‡æ ·æ—¶é—´é…ç½®
+        //ADC²ÉÑùÊ±¼äÅäÖÃ
         ADC_SetSampleTime((CM_ADC_TypeDef *)bsp_adc1_param[i].adc_periph,\
                            bsp_adc1_param[i].adc_ch, SAMPLE_TIME);
     }
-        //ADC2è§¦å‘é…ç½®
+        //ADC2´¥·¢ÅäÖÃ
     ADC_TriggerConfig(CM_ADC2, ADC_SEQ_A, ADC_HARDTRIG_EVT0);
     AOS_SetTriggerEventSrc(AOS_ADC2_0, ADC_ILB_TRIG_EVT);
     ADC_TriggerCmd(CM_ADC2, ADC_SEQ_A, ENABLE);
 }
 
-//adc åˆå§‹åŒ–
+//adc ³õÊ¼»¯
 void bsp_adc_init_pwc(void)
 {
     stc_gpio_init_t stcGpioInit;
@@ -214,7 +209,7 @@ void bsp_adc_init_pwc(void)
 //    FCG_Fcg3PeriphClockCmd(FCG3_PERIPH_ADC3, ENABLE);
     FCG_Fcg0PeriphClockCmd(FCG0_PERIPH_AOS,  ENABLE);
     
-    stcAdcInit.u16ScanMode = ADC_MD_SEQA_SINGLESHOT; //åºåˆ—Aå•æ¬¡è§¦å‘æ¨¡å¼ï¼Œè§¦å‘ä¸€æ¬¡é‡‡é›†ä¸€æ¬¡
+    stcAdcInit.u16ScanMode = ADC_MD_SEQA_SINGLESHOT; //ÐòÁÐAµ¥´Î´¥·¢Ä£Ê½£¬´¥·¢Ò»´Î²É¼¯Ò»´Î
     
     (void)ADC_Init(CM_ADC1, &stcAdcInit);
     (void)ADC_Init(CM_ADC2, &stcAdcInit);
@@ -224,17 +219,17 @@ void bsp_adc_init_pwc(void)
     for (uint8_t i = 0; i < ADC0_TABLE_MAX; i++)
     {
         /*if (bsp_adc0_param[i].gpio_periph != NULL)
-        {   //IOé…ç½®*/
+        {   //IOÅäÖÃ*/
             GPIO_Init(bsp_adc0_param[i].gpio_periph, bsp_adc0_param[i].pin,&stcGpioInit);
         /*}*/
-        //ADCé€šé“é…ç½®
+        //ADCÍ¨µÀÅäÖÃ
         ADC_ChCmd((CM_ADC_TypeDef *)bsp_adc0_param[i].adc_periph, ADC_SEQ_A, bsp_adc0_param[i].adc_ch, ENABLE);
-        //ADCé‡‡æ ·æ—¶é—´é…ç½®
+        //ADC²ÉÑùÊ±¼äÅäÖÃ
         ADC_SetSampleTime((CM_ADC_TypeDef *)bsp_adc0_param[i].adc_periph,\
                            bsp_adc0_param[i].adc_ch, SAMPLE_TIME);
     }
     
-    //ADC1è§¦å‘é…ç½®
+    //ADC1´¥·¢ÅäÖÃ
     ADC_TriggerConfig(CM_ADC1, ADC_SEQ_A, ADC_HARDTRIG_EVT0);
     AOS_SetTriggerEventSrc(AOS_ADC1_0, ADC_ILA_TRIG_EVT);
     ADC_TriggerCmd(CM_ADC1, ADC_SEQ_A, ENABLE);
@@ -243,20 +238,20 @@ void bsp_adc_init_pwc(void)
 
     
     ////////////////////////////////////////
-    //ADC3é…ç½®
+    //ADC3ÅäÖÃ
     for (uint8_t i = 0; i < ADC1_TABLE_MAX; i++)
     {
         /*if (bsp_adc1_param[i].gpio_periph != NULL)
-        {   //IOé…ç½®*/
+        {   //IOÅäÖÃ*/
             GPIO_Init(bsp_adc1_param[i].gpio_periph, bsp_adc1_param[i].pin,&stcGpioInit);
         /*}*/
-        //ADCé€šé“é…ç½®
+        //ADCÍ¨µÀÅäÖÃ
         ADC_ChCmd((CM_ADC_TypeDef *)bsp_adc1_param[i].adc_periph, ADC_SEQ_A, bsp_adc1_param[i].adc_ch, ENABLE);
-        //ADCé‡‡æ ·æ—¶é—´é…ç½®
+        //ADC²ÉÑùÊ±¼äÅäÖÃ
         ADC_SetSampleTime((CM_ADC_TypeDef *)bsp_adc1_param[i].adc_periph,\
                            bsp_adc1_param[i].adc_ch, SAMPLE_TIME);
     }
-        //ADC2è§¦å‘é…ç½®
+        //ADC2´¥·¢ÅäÖÃ
     ADC_TriggerConfig(CM_ADC2, ADC_SEQ_A, ADC_HARDTRIG_EVT0);
     AOS_SetTriggerEventSrc(AOS_ADC2_0, ADC_ILA_TRIG_EVT);
     ADC_TriggerCmd(CM_ADC2, ADC_SEQ_A, ENABLE);
@@ -354,7 +349,7 @@ float bsp_adc_get_vdd8v(void)
 {
     for (uint8_t i = 0; i < ADC0_TABLE_MAX; i++)
     {
-        //ADCé€šé“é…ç½®
+        //ADCÍ¨µÀÅäÖÃ
         ADC_ChCmd((CM_ADC_TypeDef *)bsp_adc0_param[i].adc_periph, ADC_SEQ_A, bsp_adc0_param[i].adc_ch, DISABLE);
     }
 
@@ -362,7 +357,7 @@ float bsp_adc_get_vdd8v(void)
 
     for (uint8_t i = 0; i < ADC1_TABLE_MAX; i++)
     {
-        //ADCé€šé“é…ç½®
+        //ADCÍ¨µÀÅäÖÃ
         ADC_ChCmd((CM_ADC_TypeDef *)bsp_adc1_param[i].adc_periph, ADC_SEQ_A, bsp_adc1_param[i].adc_ch, DISABLE);
     }
     ADC_TriggerCmd(CM_ADC2, ADC_SEQ_A, DISABLE);

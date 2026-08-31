@@ -45,7 +45,7 @@
 #define ADC_CHECK_ADDRS_BIDIRECTIONAL_DN 1.5f
 #define ADDRS_STATE_CONFIRM_TIME TIME_CNT_1S_IN_1MS
 
-// çŠ¶æ€æšä¸¾
+// ×´Ì¬Ã¶¾Ù
 typedef enum
 {
     ADC_CHECK_VOLT_NULL,
@@ -63,35 +63,35 @@ typedef enum
     ADDRS_MAX,
 } ADC_CHECK_ADDRS_E;
 
-// ç”µå‹æ£€æµ‹é…ç½®ç»“æ„ä½“
+// µçÑ¹¼ì²âÅäÖÃ½á¹¹Ìå
 typedef struct
 {
-    float ovp_threshold;    // è¿‡å‹ä¿æŠ¤é˜ˆå€¼
-    float uvp_threshold;    // æ¬ å‹ä¿æŠ¤é˜ˆå€¼
-    float normal_up;        // æ­£å¸¸èŒƒå›´ä¸Šé™
-    float normal_dn;        // æ­£å¸¸èŒƒå›´ä¸‹é™
-    float abnormal_up;      // å¼‚å¸¸èŒƒå›´ä¸Šé™
-    float abnormal_dn;      // å¼‚å¸¸èŒƒå›´ä¸‹é™
-    float ovp_hysteresis;   // OVPæ¢å¤è¿Ÿæ»
-    float uvp_hysteresis;   // UVPæ¢å¤è¿Ÿæ»
-    uint32_t ovp_time;      // OVPåˆ¤å®šæ—¶é—´
-    uint32_t uvp_time;      // UVPåˆ¤å®šæ—¶é—´
-    uint32_t normal_time;   // æ­£å¸¸åˆ¤å®šæ—¶é—´
-    uint32_t abnormal_time; // å¼‚å¸¸åˆ¤å®šæ—¶é—´
+    float ovp_threshold;    // ¹ıÑ¹±£»¤ãĞÖµ
+    float uvp_threshold;    // Ç·Ñ¹±£»¤ãĞÖµ
+    float normal_up;        // Õı³£·¶Î§ÉÏÏŞ
+    float normal_dn;        // Õı³£·¶Î§ÏÂÏŞ
+    float abnormal_up;      // Òì³£·¶Î§ÉÏÏŞ
+    float abnormal_dn;      // Òì³£·¶Î§ÏÂÏŞ
+    float ovp_hysteresis;   // OVP»Ö¸´³ÙÖÍ
+    float uvp_hysteresis;   // UVP»Ö¸´³ÙÖÍ
+    uint32_t ovp_time;      // OVPÅĞ¶¨Ê±¼ä
+    uint32_t uvp_time;      // UVPÅĞ¶¨Ê±¼ä
+    uint32_t normal_time;   // Õı³£ÅĞ¶¨Ê±¼ä
+    uint32_t abnormal_time; // Òì³£ÅĞ¶¨Ê±¼ä
 } voltage_check_config_t;
 
-// ç”µå‹æ£€æµ‹çŠ¶æ€ç»“æ„ä½“
+// µçÑ¹¼ì²â×´Ì¬½á¹¹Ìå
 typedef struct
 {
-    uint8_t is_ok;                        // çŠ¶æ€æ˜¯å¦æ­£å¸¸
-    uint32_t is_ok_cnt;                   // æ­£å¸¸è®¡æ•°å™¨
-    uint32_t ovp_cnt;                     // OVPè®¡æ•°å™¨
-    uint32_t uvp_cnt;                     // UVPè®¡æ•°å™¨
-    ADC_CHECK_VOLT_E status;              // å½“å‰çŠ¶æ€
-    const voltage_check_config_t *config; // é…ç½®æŒ‡é’ˆ
+    uint8_t is_ok;                        // ×´Ì¬ÊÇ·ñÕı³£
+    uint32_t is_ok_cnt;                   // Õı³£¼ÆÊıÆ÷
+    uint32_t ovp_cnt;                     // OVP¼ÆÊıÆ÷
+    uint32_t uvp_cnt;                     // UVP¼ÆÊıÆ÷
+    ADC_CHECK_VOLT_E status;              // µ±Ç°×´Ì¬
+    const voltage_check_config_t *config; // ÅäÖÃÖ¸Õë
 } voltage_check_state_t;
 
-// ä½¿ç”¨ç»“æ„ä½“å°è£…çŠ¶æ€å˜é‡
+// Ê¹ÓÃ½á¹¹Ìå·â×°×´Ì¬±äÁ¿
 typedef struct
 {
     uint8_t is_ok;

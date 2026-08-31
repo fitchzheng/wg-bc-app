@@ -47,14 +47,14 @@ int32_t flash_erase(uint32_t zone_index, uint32_t offset)
     return page_index;
 }
 
-// æ•´é¡µå†™å…¥ï¼š2KB/é¡µï¼Œpdata é•¿åº¦è¦æ±‚ä¸º FLASH_LOGICAL_PAGE_SIZE/2 ä¸ª uint16_t
+// ÕûÒ³Ð´Èë£º2KB/Ò³£¬pdata ³¤¶ÈÒªÇóÎª FLASH_LOGICAL_PAGE_SIZE/2 ¸ö uint16_t
 uint8_t flash_write(uint32_t zone_index, uint32_t offset, const uint16_t *pdata)
 {
     if ((zone_index >= FLASH_ZONE_MAX) || (pdata == NULL))
     {
         return 0;
     }
-    // å¿…é¡»é¡µå¯¹é½ï¼Œä¸”ä¸èƒ½è¶Šç•Œåˆ†åŒº
+    // ±ØÐëÒ³¶ÔÆë£¬ÇÒ²»ÄÜÔ½½ç·ÖÇø
     if ((offset % FLASH_LOGICAL_PAGE_SIZE) != 0 ||
         (offset + FLASH_LOGICAL_PAGE_SIZE) > flash_zone[zone_index].size)
     {
@@ -70,14 +70,14 @@ uint8_t flash_write(uint32_t zone_index, uint32_t offset, const uint16_t *pdata)
     return bsp_flash_write_page((uint32_t)page_index, (uint32_t*)pdata) ? 1 : 0;
 }
 
-// æ•´é¡µè¯»å–ï¼š2KB/é¡µï¼Œpdata é•¿åº¦è¦æ±‚ä¸º FLASH_LOGICAL_PAGE_SIZE/2 ä¸ª uint16_t
+// ÕûÒ³¶ÁÈ¡£º2KB/Ò³£¬pdata ³¤¶ÈÒªÇóÎª FLASH_LOGICAL_PAGE_SIZE/2 ¸ö uint16_t
 uint8_t flash_read(uint32_t zone_index, uint32_t offset, uint16_t *pdata)
 {
     if ((zone_index >= FLASH_ZONE_MAX) || (pdata == NULL))
     {
         return 0;
     }
-    // å¿…é¡»é¡µå¯¹é½ï¼Œä¸”ä¸èƒ½è¶Šç•Œåˆ†åŒº
+    // ±ØÐëÒ³¶ÔÆë£¬ÇÒ²»ÄÜÔ½½ç·ÖÇø
     if ((offset % FLASH_LOGICAL_PAGE_SIZE) != 0 ||
         (offset + FLASH_LOGICAL_PAGE_SIZE) > flash_zone[zone_index].size)
     {

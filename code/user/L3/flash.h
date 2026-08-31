@@ -24,7 +24,7 @@ extern flash_zone_t flash_zone[];
 
 int32_t flash_get_page_index(uint32_t zone_index, uint32_t offset);
 int32_t flash_erase(uint32_t zone_index, uint32_t offset);
-// æ•´é¡µå†™å…¥/è¯»å–ï¼šoffset å¿…é¡»ä¸ºé¡µå¯¹é½(2KB)ï¼Œpdata é•¿åº¦å¿…é¡»ä¸º FLASH_LOGICAL_PAGE_SIZE/2(uint16_t)
+// ÕûÒ³Ğ´Èë/¶ÁÈ¡£ºoffset ±ØĞëÎªÒ³¶ÔÆë(2KB)£¬pdata ³¤¶È±ØĞëÎª FLASH_LOGICAL_PAGE_SIZE/2(uint16_t)
 uint8_t flash_write(uint32_t zone_index, uint32_t offset, const uint16_t *pdata);
 uint8_t flash_read(uint32_t zone_index, uint32_t offset, uint16_t *pdata);
 

@@ -2,7 +2,7 @@
 #include "wg_com_v2.h"
 #include "section.h"
 
-get_wg_com_v2_data_t get_wg_com_v2_data;    // 鑾峰彇WG_COM_V2鏁版嵁
+get_wg_com_v2_data_t get_wg_com_v2_data;    // 获取WG_COM_V2数据
 charge_state_data_t  charge_state_data;     // charge state data
 state_control_data_t State_Control_Data;    // state control data
 static uint8_t force_update_parameter = 0;
@@ -181,68 +181,68 @@ void get_wg_com_data_fast_rum(void)
 void get_wg_com_data_rum(void)
 {
     normalize_exclusive_power_mode();
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.BatModeFRState, wg_com_v2_ctrl.BatModeFR);                                                // 涓婁綅鏈鸿缃鍙嶅悜鐘舵�?   // P01瀹炴椂鏁版嵁鍖?
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.InpVolt,wg_com_v2_realtime_data.InpVolt);                               // A绔數鍘?
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.InpCurr,wg_com_v2_realtime_data.InpCurr);                               // A绔數娴?
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.InpCurrPower,wg_com_v2_realtime_data.InpCurrPower);                     // A绔姛鐜?
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.OutVolt,wg_com_v2_realtime_data.OutVolt);                               // B绔數鍘?
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.OutCurr,wg_com_v2_realtime_data.OutCurr);                               // B绔數娴?
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.OutCurrPower,wg_com_v2_realtime_data.OutCurrPower);                     // B绔姛鐜?
-    WG_COM_V2_GET_DATA_INT(get_wg_com_v2_data.com_realtime_data.InsideTemp,wg_com_v2_realtime_data.InsideTemp);                          // 鍐呴儴娓╁害
-    WG_COM_V2_GET_DATA_INT(get_wg_com_v2_data.com_realtime_data.OutsideTemp,wg_com_v2_realtime_data.OutsideTemp);                        // 澶栭儴娓╁害
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.PowerMode,wg_com_v2_realtime_data.PowerMode);                           // 鐢垫簮妯″紡
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.ChargMode,wg_com_v2_realtime_data.ChargMode);                           // 鍏呯數妯″紡
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.FaultSign,wg_com_v2_realtime_data.FaultSign);                           // 鏁呴殰淇″彿
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.AlarmSign,wg_com_v2_realtime_data.AlarmSign);                           // 鍛婅淇″彿
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.CompensationVoltA,wg_com_v2_realtime_data.CompensationVoltA);           // A绔ˉ鍋?
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.CompensationVoltB,wg_com_v2_realtime_data.CompensationVoltB);           // B绔ˉ鍋?
-    WG_COM_V2_GET_DATA_INT(get_wg_com_v2_data.com_realtime_data.Temp2,wg_com_v2_realtime_data.Temp2);                                    // 鍣ㄤ欢娓╁害2
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.StateCharge,wg_com_v2_realtime_data.StateCharge);                       // 鍏呯數鐘舵�?
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.ADDVolt,wg_com_v2_realtime_data.ADDVolt);                               // ADD杈呮簮鐢靛帇
-    // P02鎺у埗璁剧疆
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.FactoryReset,wg_com_v2_ctrl.FactoryReset);                                       // 鎭㈠鍑哄巶璁剧疆
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.PowerOnOff,wg_com_v2_ctrl.PowerOnOff);                                           // 寮�鍏虫満鐘舵�?
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.SetPowerMode,wg_com_v2_ctrl.SetPowerMode);                                       // 鐢垫簮妯″紡
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.SetChargMode,wg_com_v2_ctrl.SetChargMode);                                       // 鍏呯數妯″紡
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.InpBatyType,wg_com_v2_ctrl.InpBatyType);                                         // A绔數姹犵被鍨嬶紝楂樹綅绫诲瀷锛屼綆浣嶇數鍘?
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.OutBatyType,wg_com_v2_ctrl.OutBatyType);                                         // B绔數姹犵被鍨嬶紝楂樹綅绫诲瀷锛屼綆浣嶇數鍘?
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.SetBootTimeA,wg_com_v2_ctrl.SetBootTimeA);                                       // A绔紑鏈烘椂闂?
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.SetBootTimeB,wg_com_v2_ctrl.SetBootTimeB);                                       // B绔紑鏈烘椂闂?
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.SetOnCurrStartTimeA,wg_com_v2_ctrl.SetOnCurrStartTimeA);                         // A绔紑鏈虹數娴佽蒋璧峰姩鏃堕棿
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.SetOnCurrStartTimeB,wg_com_v2_ctrl.SetOnCurrStartTimeB);                         // B绔紑鏈虹數娴佽蒋璧峰姩鏃堕棿
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.ZeroCurrCalibration,wg_com_v2_ctrl.ZeroCurrCalibration);                         // 绔浂鐢垫祦鏍″噯
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.ResetFactoryData,wg_com_v2_ctrl.ResetFactoryData);                               // 鎭㈠鍘傚鏁版嵁
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.BatModeFR,wg_com_v2_ctrl.BatModeFR);                                             // 鐢垫睜妯″紡姝ｅ弽鍚戝垏鎹?
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.BatModeFRState, wg_com_v2_ctrl.BatModeFR);                                                // 上位机设置正反向状态   // P01实时数据帧
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.InpVolt,wg_com_v2_realtime_data.InpVolt);                               // A端电压
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.InpCurr,wg_com_v2_realtime_data.InpCurr);                               // A端电流
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.InpCurrPower,wg_com_v2_realtime_data.InpCurrPower);                     // A端功率
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.OutVolt,wg_com_v2_realtime_data.OutVolt);                               // B端电压
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.OutCurr,wg_com_v2_realtime_data.OutCurr);                               // B端电流
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.OutCurrPower,wg_com_v2_realtime_data.OutCurrPower);                     // B端功率
+    WG_COM_V2_GET_DATA_INT(get_wg_com_v2_data.com_realtime_data.InsideTemp,wg_com_v2_realtime_data.InsideTemp);                          // 内部温度
+    WG_COM_V2_GET_DATA_INT(get_wg_com_v2_data.com_realtime_data.OutsideTemp,wg_com_v2_realtime_data.OutsideTemp);                        // 外部温度
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.PowerMode,wg_com_v2_realtime_data.PowerMode);                           // 电源模式
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.ChargMode,wg_com_v2_realtime_data.ChargMode);                           // 充电模式
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.FaultSign,wg_com_v2_realtime_data.FaultSign);                           // 故障信号
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.AlarmSign,wg_com_v2_realtime_data.AlarmSign);                           // 告警信号
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.CompensationVoltA,wg_com_v2_realtime_data.CompensationVoltA);           // A端补偿
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.CompensationVoltB,wg_com_v2_realtime_data.CompensationVoltB);           // B端补偿
+    WG_COM_V2_GET_DATA_INT(get_wg_com_v2_data.com_realtime_data.Temp2,wg_com_v2_realtime_data.Temp2);                                    // 器件温度2
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.StateCharge,wg_com_v2_realtime_data.StateCharge);                       // 充电状态
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_realtime_data.ADDVolt,wg_com_v2_realtime_data.ADDVolt);                               // ADD辅源电压
+    // P02控制设置
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.FactoryReset,wg_com_v2_ctrl.FactoryReset);                                       // 恢复出厂设置
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.PowerOnOff,wg_com_v2_ctrl.PowerOnOff);                                           // 开关机状态
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.SetPowerMode,wg_com_v2_ctrl.SetPowerMode);                                       // 电源模式
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.SetChargMode,wg_com_v2_ctrl.SetChargMode);                                       // 充电模式
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.InpBatyType,wg_com_v2_ctrl.InpBatyType);                                         // A端电池类型，高位类型，低位电压
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.OutBatyType,wg_com_v2_ctrl.OutBatyType);                                         // B端电池类型，高位类型，低位电压
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.SetBootTimeA,wg_com_v2_ctrl.SetBootTimeA);                                       // A端开机时间
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.SetBootTimeB,wg_com_v2_ctrl.SetBootTimeB);                                       // B端开机时间
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.SetOnCurrStartTimeA,wg_com_v2_ctrl.SetOnCurrStartTimeA);                         // A端开机电流软起动时间
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.SetOnCurrStartTimeB,wg_com_v2_ctrl.SetOnCurrStartTimeB);                         // B端开机电流软起动时间
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.ZeroCurrCalibration,wg_com_v2_ctrl.ZeroCurrCalibration);                         // 端零电流校准
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.ResetFactoryData,wg_com_v2_ctrl.ResetFactoryData);                               // 恢复厂家数据
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.BatModeFR,wg_com_v2_ctrl.BatModeFR);                                             // 电池模式正反向切换
     WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.MpptSwitch,wg_com_v2_ctrl.MpptSwitch);                                           // 40D MPPT mode switch
     WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_ctrl.SleepModeOnOff,wg_com_v2_ctrl.SleepModeOnOff);                                   // 40E sleep mode switch
-    // P03璁剧疆鍙傛暟鍖?
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetInpVolt,wg_com_v2_param.SetInpVolt);                                         // A绔數鍘?
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetInpCurr,wg_com_v2_param.SetInpCurr);                                         // A绔數娴?
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetInpCurrPower,wg_com_v2_param.SetInpCurrPower);                               // A绔姛鐜?
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetOutVolt,wg_com_v2_param.SetOutVolt);                                         // B绔數鍘?
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetOutCurr,wg_com_v2_param.SetOutCurr);                                         // B绔數娴?
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetOutCurrPower,wg_com_v2_param.SetOutCurrPower);                               // B绔姛鐜?
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetInpUvlo,wg_com_v2_param.SetInpUvlo);                                         // A绔瑺鍘嬩繚鎶?
+    // P03设置参数区
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetInpVolt,wg_com_v2_param.SetInpVolt);                                         // A端电压
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetInpCurr,wg_com_v2_param.SetInpCurr);                                         // A端电流
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetInpCurrPower,wg_com_v2_param.SetInpCurrPower);                               // A端功率
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetOutVolt,wg_com_v2_param.SetOutVolt);                                         // B端电压
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetOutCurr,wg_com_v2_param.SetOutCurr);                                         // B端电流
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetOutCurrPower,wg_com_v2_param.SetOutCurrPower);                               // B端功率
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetInpUvlo,wg_com_v2_param.SetInpUvlo);                                         // A端欠压保护
     
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetInpUvloRecover,wg_com_v2_param.SetInpUvloRecover);                           // A绔瑺鍘嬩繚鎶ゆ仮澶?
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetInpOVP,wg_com_v2_param.SetInpOVP);                                           // A绔繃鍘嬩繚鎶?
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetInpOVPRecover,wg_com_v2_param.SetInpOVPRecover);                             // A绔繃鍘嬩繚鎶ゆ仮澶?
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetOutUvlo,wg_com_v2_param.SetOutUvlo);                                         // B绔瑺鍘嬩繚鎶?
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetOutUvloRecover,wg_com_v2_param.SetOutUvloRecover);                           // B绔瑺鍘嬩繚鎶ゆ仮澶?
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetOutOVP,wg_com_v2_param.SetOutOVP);                                           // B绔繃鍘嬩繚鎶?
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetOutOVPRecover,wg_com_v2_param.SetOutOVPRecover);                             // B绔繃鍘嬩繚鎶ゆ仮澶?
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetInsideTemp,wg_com_v2_param.SetInsideTemp);                                   // 鍐呴儴娓╁害
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetOutsideTemp,wg_com_v2_param.SetOutsideTemp);                                 // 澶栭儴娓╁害
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetInpChargLedCurr,wg_com_v2_param.SetInpChargLedCurr);                         // A绔厖鐢垫寚绀虹伅鐢垫祦
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetInpFullLedCurr,wg_com_v2_param.SetInpFullLedCurr);                           // A绔厖婊℃寚绀虹伅鐢垫祦
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetOutChargLedCurr,wg_com_v2_param.SetOutChargLedCurr);                         // B绔厖鐢垫寚绀虹伅鐢垫祦
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetOutFullLedCurr,wg_com_v2_param.SetOutFullLedCurr);                           // B绔厖婊℃寚绀虹伅鐢垫祦
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.AuotForwardOpenVoltA,wg_com_v2_param.AuotForwardOpenVoltA);                     // 鑷姩妯″紡姝ｅ悜A绔紑鍚數鍘?
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.AuotForwardVeerVoltA,wg_com_v2_param.AuotForwardVeerVoltA);                     // 鑷姩妯″紡姝ｅ悜杞悜A鐢靛帇
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.AuotForwardShutVoltA,wg_com_v2_param.AuotForwardShutVoltA);                     // 鑷姩妯″紡姝ｅ悜A绔叧闂數鍘?
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.AuotReverseOpenVoltB,wg_com_v2_param.AuotReverseOpenVoltB);                     // 鑷姩妯″紡鍙嶅悜B绔紑鍚數鍘?
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.AuotReverseShutVoltB,wg_com_v2_param.AuotReverseShutVoltB);                     // 鑷姩妯″紡鍙嶅悜B绔叧闂數鍘?
-    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetTemp2,wg_com_v2_param.SetTemp2);                                             // 鍐呴儴娓╁害
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetInpUvloRecover,wg_com_v2_param.SetInpUvloRecover);                           // A端欠压保护恢复
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetInpOVP,wg_com_v2_param.SetInpOVP);                                           // A端过压保护
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetInpOVPRecover,wg_com_v2_param.SetInpOVPRecover);                             // A端过压保护恢复
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetOutUvlo,wg_com_v2_param.SetOutUvlo);                                         // B端欠压保护
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetOutUvloRecover,wg_com_v2_param.SetOutUvloRecover);                           // B端欠压保护恢复
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetOutOVP,wg_com_v2_param.SetOutOVP);                                           // B端过压保护
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetOutOVPRecover,wg_com_v2_param.SetOutOVPRecover);                             // B端过压保护恢复
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetInsideTemp,wg_com_v2_param.SetInsideTemp);                                   // 内部温度
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetOutsideTemp,wg_com_v2_param.SetOutsideTemp);                                 // 外部温度
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetInpChargLedCurr,wg_com_v2_param.SetInpChargLedCurr);                         // A端充电指示灯电流
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetInpFullLedCurr,wg_com_v2_param.SetInpFullLedCurr);                           // A端充满指示灯电流
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetOutChargLedCurr,wg_com_v2_param.SetOutChargLedCurr);                         // B端充电指示灯电流
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetOutFullLedCurr,wg_com_v2_param.SetOutFullLedCurr);                           // B端充满指示灯电流
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.AuotForwardOpenVoltA,wg_com_v2_param.AuotForwardOpenVoltA);                     // 自动模式正向A端开启电压
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.AuotForwardVeerVoltA,wg_com_v2_param.AuotForwardVeerVoltA);                     // 自动模式正向转向A电压
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.AuotForwardShutVoltA,wg_com_v2_param.AuotForwardShutVoltA);                     // 自动模式正向A端关闭电压
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.AuotReverseOpenVoltB,wg_com_v2_param.AuotReverseOpenVoltB);                     // 自动模式反向B端开启电压
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.AuotReverseShutVoltB,wg_com_v2_param.AuotReverseShutVoltB);                     // 自动模式反向B端关闭电压
+    WG_COM_V2_GET_DATA_UINT(get_wg_com_v2_data.com_param.SetTemp2,wg_com_v2_param.SetTemp2);                                             // 内部温度
     if(get_wg_com_v2_data.com_realtime_data.PowerMode != get_wg_com_v2_data.com_ctrl.SetPowerMode)
     {
         WG_COM_V2_SET_DATA_UINT(get_wg_com_v2_data.com_ctrl.SetPowerMode, wg_com_v2_realtime_data.PowerMode);
@@ -253,7 +253,7 @@ void get_wg_com_data_rum(void)
 uint8_t float_equal(float x, float y) {
     if(fabsf(x - y) < 1e-6f)
     {
-        return 0;   // 浣跨敤鍗曠簿搴?fabsf 鏇撮珮鏁?
+        return 0;   // 使用单精度 fabsf 更高效
     }
     return 1;
 }

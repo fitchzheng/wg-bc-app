@@ -5,7 +5,7 @@
 #include "hc32_ll_usart.h"
 #include "hc32_ll_dma.h"
 
-//usart1 ä¸²å£å¼•è„šé…ç½®
+//usart1 ´®¿ÚÒı½ÅÅäÖÃ
 #define USART1_TX_PORT GPIO_PORT_B
 #define USART1_TX_PIN  GPIO_PIN_06
 #define USART1_TX_FUNC GPIO_FUNC_32
@@ -14,7 +14,7 @@
 #define USART1_RX_PIN  GPIO_PIN_07
 #define USART1_RX_FUNC GPIO_FUNC_33
 
-//usart2 ä¸²å£å¼•è„šé…ç½®
+//usart2 ´®¿ÚÒı½ÅÅäÖÃ
 #define USART2_TX_PORT GPIO_PORT_C
 #define USART2_TX_PIN  GPIO_PIN_10
 #define USART2_TX_FUNC GPIO_FUNC_36
@@ -23,7 +23,7 @@
 #define USART2_RX_PIN  GPIO_PIN_11
 #define USART2_RX_FUNC GPIO_FUNC_37
 
-//usart3 ä¸²å£å¼•è„šé…ç½®
+//usart3 ´®¿ÚÒı½ÅÅäÖÃ
 #define USART3_TX_PORT GPIO_PORT_B
 #define USART3_TX_PIN  GPIO_PIN_04
 #define USART3_TX_FUNC GPIO_FUNC_40
@@ -32,12 +32,12 @@
 #define USART3_RX_PIN  GPIO_PIN_03
 #define USART3_RX_FUNC GPIO_FUNC_41
 
-//ä¸²å£æ³¢ç‰¹ç‡
+//´®¿Ú²¨ÌØÂÊ
 #define USART1_BAUD 9600
 #define USART2_BAUD 9600
 #define USART3_BAUD 115200
 
-//ä¸²å£æ ¡éªŒä½ï¼Œä»¥ä¸‹ä¸‰é€‰ä¸€
+//´®¿ÚĞ£ÑéÎ»£¬ÒÔÏÂÈıÑ¡Ò»
 // USART_PARITY_NONE  
 // USART_PARITY_EVEN 
 // USART_PARITY_ODD  
@@ -45,9 +45,9 @@
 #define USART2_PARITY  USART_PARITY_NONE
 #define USART3_PARITY  USART_PARITY_NONE
 
-//ä¸²å£æ¥å—è¶…æ—¶æ—¶é—´ï¼Œå•ä½bits
-#define USART1_TIMOUT_BITS 20 //æ€»çº¿ç©ºé—²20ä¸ªbitç®—è¶…æ—¶ï¼Œå³ä¸€å¸§ç»“æŸ
-#define USART2_TIMOUT_BITS 20 //ç©ºé—²20ä¸ªbitç®—è¶…æ—¶
+//´®¿Ú½ÓÊÜ³¬Ê±Ê±¼ä£¬µ¥Î»bits
+#define USART1_TIMOUT_BITS 20 //×ÜÏß¿ÕÏĞ20¸öbitËã³¬Ê±£¬¼´Ò»Ö¡½áÊø
+#define USART2_TIMOUT_BITS 20 //¿ÕÏĞ20¸öbitËã³¬Ê±
 
 
 
@@ -78,13 +78,13 @@ extern volatile uint8_t usart3_rx_buffer[Usart3_RxBuff_Size];
 #define USART3_RX_BUFFER_SIZE Usart3_RxBuff_Size
 #define USART3_TX_BUFFER_SIZE Usart3_TxBuff_Size
 
-extern uint16_t  Usart1_Rx_Lenth ; //æ¥æ”¶é•¿åº¦
+extern uint16_t  Usart1_Rx_Lenth ; //½ÓÊÕ³¤¶È
 extern uint16_t  Usart1_Rx_Evt ;
 
-extern uint16_t  Usart2_Rx_Lenth ; //æ¥æ”¶é•¿åº¦
+extern uint16_t  Usart2_Rx_Lenth ; //½ÓÊÕ³¤¶È
 extern uint16_t  Usart2_Rx_Evt ;
 
-extern uint16_t  Usart3_Rx_Lenth ; //æ¥æ”¶é•¿åº¦
+extern uint16_t  Usart3_Rx_Lenth ; //½ÓÊÕ³¤¶È
 extern uint16_t  Usart3_Rx_Evt ;
 
 typedef enum {

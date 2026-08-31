@@ -6,8 +6,8 @@
 #include "my_math.h"
 #include "hc32f334.h"
 
-#define TIMER_FREQ (120000000) //ä¸»é¢‘120M
-#define DEAD_TIME  (100)   //æ­»åŒºæ—¶é—´ï¼Œ100ns
+#define TIMER_FREQ (120000000) //Ö÷Æµ120M
+#define DEAD_TIME  (100)   //ËÀÇøÊ±¼ä£¬100ns
 #define CTRL_PERIOD ((uint32_t)(((float)TIMER_FREQ / PWM_FREQ/2)*64))
 #define DEAD_SET_VAL (DEAD_TIME*12/100*64)
 
@@ -41,28 +41,28 @@
 #define HRPWM_PC8_PORT  GPIO_HRPWM6_PWMA  /* PC8  */
 #define HRPWM_PC9_PORT  GPIO_HRPWM6_PWMB  /* PC9  */
 
-#define HA1_EN_BIT  (0x01)  //é€šé“ä½¿èƒ½
+#define HA1_EN_BIT  (0x01)  //Í¨µÀÊ¹ÄÜ
 #define LA1_EN_BIT  (0x02)
 #define HA2_EN_BIT  (0x04)
 #define LA2_EN_BIT  (0x08)
-#define HA1_INV_BIT (0x10)  //æœ‰æ•ˆæžæ€§ç¿»è½¬
+#define HA1_INV_BIT (0x10)  //ÓÐÐ§¼«ÐÔ·­×ª
 #define LA1_INV_BIT (0x20)
 #define HA2_INV_BIT (0x40)
 #define LA2_INV_BIT (0x80)
 
-#define HB1_EN_BIT  (0x01)  //é€šé“ä½¿èƒ½
+#define HB1_EN_BIT  (0x01)  //Í¨µÀÊ¹ÄÜ
 #define LB1_EN_BIT  (0x02)
 #define HB2_EN_BIT  (0x04)
 #define LB2_EN_BIT  (0x08)
-#define HB1_INV_BIT (0x10)  //æœ‰æ•ˆæžæ€§ç¿»è½¬
+#define HB1_INV_BIT (0x10)  //ÓÐÐ§¼«ÐÔ·­×ª
 #define LB1_INV_BIT (0x20)
 #define HB2_INV_BIT (0x40)
 #define LB2_INV_BIT (0x80)
 
-#define PWM_DEAD_TIME (DEAD_SET_VAL)   //æ­»åŒºæ—¶é—´è®¾ç½®,100ns
+#define PWM_DEAD_TIME (DEAD_SET_VAL)   //ËÀÇøÊ±¼äÉèÖÃ,100ns
 
-#define HRPWM_PHSCMP1_VALUE (0)           //ç›¸ä½å€¼è®¾ç½®1
-#define HRPWM_PHSCMP2_VALUE (((CTRL_PERIOD * 2 / 2U) - 64U)) //ç›¸ä½å€¼è®¾ç½®2
+#define HRPWM_PHSCMP1_VALUE (0)           //ÏàÎ»ÖµÉèÖÃ1
+#define HRPWM_PHSCMP2_VALUE (((CTRL_PERIOD * 2 / 2U) - 64U)) //ÏàÎ»ÖµÉèÖÃ2
 
 #define HRPWM_AUX_PHSCMP_90_FULL (((CTRL_PERIOD / 2U) > 64U) ? ((CTRL_PERIOD / 2U) - 64U) : 0U)
 #define HRPWM_AUX_PHSCMP_90_HALF ((CTRL_PERIOD > 64U) ? (CTRL_PERIOD - 64U) : 0U)
@@ -70,7 +70,7 @@
 #define FULL_FREQ_REPEAT_CNT (0x04)
 #define HALF_FREQ_REPEAT_CNT (0x02)
 
-//æ­£æžæ€§
+//Õý¼«ÐÔ
 //     /\        /\
 //    /  \      /  \
 //   /    \    /    \
@@ -80,13 +80,13 @@
 // __|     |___|     |__
 
 
-//PWMæœ‰æ•ˆæžæ€§
-#define P_HIGH  (1)  //æ­£æžæ€§
-#define P_LOW   (0)  //åæžæ€§
-//#define HRPWM_PWM_ACTIVE  (P_HIGH)    //é»˜è®¤æœ‰æ•ˆé«˜ å‘ä¸Šè®¡æ•°åŒ¹é…ä¸ºé«˜ï¼Œå‘ä¸‹è®¡æ•°åŒ¹é…ä¸ºä½Ž
-#define HRPWM_PWM_ACTIVE  (P_LOW)   //é»˜è®¤æœ‰æ•ˆä½Ž å‘ä¸Šè®¡æ•°åŒ¹é…ä¸ºä½Žï¼Œå‘ä¸‹è®¡æ•°åŒ¹é…ä¸ºé«˜
+//PWMÓÐÐ§¼«ÐÔ
+#define P_HIGH  (1)  //Õý¼«ÐÔ
+#define P_LOW   (0)  //·´¼«ÐÔ
+//#define HRPWM_PWM_ACTIVE  (P_HIGH)    //Ä¬ÈÏÓÐÐ§¸ß ÏòÉÏ¼ÆÊýÆ¥ÅäÎª¸ß£¬ÏòÏÂ¼ÆÊýÆ¥ÅäÎªµÍ
+#define HRPWM_PWM_ACTIVE  (P_LOW)   //Ä¬ÈÏÓÐÐ§µÍ ÏòÉÏ¼ÆÊýÆ¥ÅäÎªµÍ£¬ÏòÏÂ¼ÆÊýÆ¥ÅäÎª¸ß
 
-    //HRPWM4æžæ€§ HA1 LA1ï¼Œé»˜è®¤æ­£æžæ€§
+    //HRPWM4¼«ÐÔ HA1 LA1£¬Ä¬ÈÏÕý¼«ÐÔ
     #if (HRPWM_PWM_ACTIVE == P_HIGH)
         #define HRPWM4_HA1_START         HRPWM_PWM_START_HIGH
         #define HRPWM4_HA1_UP_MATCH      HRPWM_PWM_UP_MATCH_A_LOW
@@ -105,7 +105,7 @@
         #define HRPWM4_LA1_DOWN_MATCH    HRPWM_PWM_DOWN_MATCH_A_HIGH
     #endif
 
-    //HRPWM5æžæ€§ HA2 LA2ï¼Œé»˜è®¤åæžæ€§
+    //HRPWM5¼«ÐÔ HA2 LA2£¬Ä¬ÈÏ·´¼«ÐÔ
     #if (HRPWM_PWM_ACTIVE == P_HIGH)
         #define HRPWM5_HA2_START         HRPWM_PWM_START_LOW
         #define HRPWM5_HA2_UP_MATCH      HRPWM_PWM_UP_MATCH_A_HIGH
@@ -124,7 +124,7 @@
         #define HRPWM5_LA2_DOWN_MATCH    HRPWM_PWM_DOWN_MATCH_A_LOW
     #endif
 
-    //HRPWM3æžæ€§ HB1 LB1ï¼Œé»˜è®¤æ­£æžæ€§
+    //HRPWM3¼«ÐÔ HB1 LB1£¬Ä¬ÈÏÕý¼«ÐÔ
     #if (HRPWM_PWM_ACTIVE == P_HIGH)
         #define HRPWM3_HB1_START         HRPWM_PWM_START_LOW
         #define HRPWM3_HB1_UP_MATCH      HRPWM_PWM_UP_MATCH_A_HIGH
@@ -141,7 +141,7 @@
         #define HRPWM3_LB1_DOWN_MATCH    HRPWM_PWM_DOWN_MATCH_A_LOW
     #endif
 
-    //HRPWM2æžæ€§ HB2 LB2ï¼Œé»˜è®¤åæžæ€§
+    //HRPWM2¼«ÐÔ HB2 LB2£¬Ä¬ÈÏ·´¼«ÐÔ
     #if (HRPWM_PWM_ACTIVE == P_HIGH)
         #define HRPWM2_HB2_START         HRPWM_PWM_START_HIGH 
         #define HRPWM2_HB2_UP_MATCH      HRPWM_PWM_UP_MATCH_A_LOW
@@ -159,7 +159,7 @@
 
     #endif
 
-    //HRPWM1æžæ€§ HB1 LB1ï¼Œé»˜è®¤æ­£æžæ€§
+    //HRPWM1¼«ÐÔ HB1 LB1£¬Ä¬ÈÏÕý¼«ÐÔ
     #if (HRPWM_PWM_ACTIVE == P_HIGH)
         #define HRPWM1_HB1_START         HRPWM_PWM_START_LOW
         #define HRPWM1_HB1_UP_MATCH      HRPWM_PWM_UP_MATCH_A_HIGH

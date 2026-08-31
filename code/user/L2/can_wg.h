@@ -7,43 +7,43 @@
 
 #define HOST_ADDR 0x01
 
-#define CAN_WG_MSGTYPE_SET_MFG 0x00    // è®¾ç½®å‚å®¶æ•°æ®
-#define CAN_WG_MSGTYPE_GET_MFG 0x01    // è·å–å‚å®¶æ•°æ®
-#define CAN_WG_MSGTYPE_GET_RTDATA 0x02 // è·å–å®æ—¶æ•°æ®
-#define CAN_WG_MSGTYPE_SET_CTRL 0x03   // è®¾ç½®æ§åˆ¶æ•°æ®
-#define CAN_WG_MSGTYPE_GET_CTRL 0x04   // è·å–æ§åˆ¶æ•°æ®
-#define CAN_WG_MSGTYPE_SET_PARAM 0x05  // è®¾ç½®å‚æ•°æ•°æ®
-#define CAN_WG_MSGTYPE_GET_PARAM 0x06  // è·å–å‚æ•°æ•°æ®
+#define CAN_WG_MSGTYPE_SET_MFG 0x00    // ÉèÖÃ³§¼ÒÊı¾İ
+#define CAN_WG_MSGTYPE_GET_MFG 0x01    // »ñÈ¡³§¼ÒÊı¾İ
+#define CAN_WG_MSGTYPE_GET_RTDATA 0x02 // »ñÈ¡ÊµÊ±Êı¾İ
+#define CAN_WG_MSGTYPE_SET_CTRL 0x03   // ÉèÖÃ¿ØÖÆÊı¾İ
+#define CAN_WG_MSGTYPE_GET_CTRL 0x04   // »ñÈ¡¿ØÖÆÊı¾İ
+#define CAN_WG_MSGTYPE_SET_PARAM 0x05  // ÉèÖÃ²ÎÊıÊı¾İ
+#define CAN_WG_MSGTYPE_GET_PARAM 0x06  // »ñÈ¡²ÎÊıÊı¾İ
 
-#define CAN_WG_MSGTYPE_VOLTCOMP 0x07 // ä¸»æœºä¸»åŠ¨è®¾ç½®ä»æœºè¾“å‡ºç”µæµ
+#define CAN_WG_MSGTYPE_VOLTCOMP 0x07 // Ö÷»úÖ÷¶¯ÉèÖÃ´Ó»úÊä³öµçÁ÷
 
-#define CAN_WG_MFG_VALUETYPE_PROTOCOL 0x00             // åè®®ç‰ˆæœ¬
-#define CAN_WG_MFG_VALUETYPE_PRODUCT_TYPE 0x01         // äº§å“ç±»å‹
-#define CAN_WG_MFG_VALUETYPE_HARDWARE_VERSION 0x02     // ç¡¬ä»¶ç‰ˆæœ¬
-#define CAN_WG_MFG_VALUETYPE_SOFTWARE_VERSION 0x03     // è½¯ä»¶ç‰ˆæœ¬
-#define CAN_WG_MFG_VALUETYPE_SN 0x04                   // SNåºåˆ—å·
-#define CAN_WG_MFG_VALUETYPE_PRODUCT_NAME 0x05         // äº§å“åç§°
-#define CAN_WG_MFG_VALUETYPE_ADDRESS 0x06              // åœ°å€
-#define CAN_WG_MFG_VALUETYPE_APPLICATION_SCENARIO 0x07 // åº”ç”¨åœºæ™¯
-#define CAN_WG_MFG_VALUETYPE_PROTOCOL_CUSTOM 0x08      // åè®®å®šåˆ¶
+#define CAN_WG_MFG_VALUETYPE_PROTOCOL 0x00             // Ğ­Òé°æ±¾
+#define CAN_WG_MFG_VALUETYPE_PRODUCT_TYPE 0x01         // ²úÆ·ÀàĞÍ
+#define CAN_WG_MFG_VALUETYPE_HARDWARE_VERSION 0x02     // Ó²¼ş°æ±¾
+#define CAN_WG_MFG_VALUETYPE_SOFTWARE_VERSION 0x03     // Èí¼ş°æ±¾
+#define CAN_WG_MFG_VALUETYPE_SN 0x04                   // SNĞòÁĞºÅ
+#define CAN_WG_MFG_VALUETYPE_PRODUCT_NAME 0x05         // ²úÆ·Ãû³Æ
+#define CAN_WG_MFG_VALUETYPE_ADDRESS 0x06              // µØÖ·
+#define CAN_WG_MFG_VALUETYPE_APPLICATION_SCENARIO 0x07 // Ó¦ÓÃ³¡¾°
+#define CAN_WG_MFG_VALUETYPE_PROTOCOL_CUSTOM 0x08      // Ğ­Òé¶¨ÖÆ
 
-#define CAN_WG_CTRL_VALUETYPE_COMMON 0x00       // é€šç”¨æ§åˆ¶
-#define CAN_WG_CTRL_VALUETYPE_BATTERY_TYPE 0x01 // ç”µæ± ç±»å‹
-#define CAN_WG_CTRL_VALUETYPE_BOOT_TIME 0x02    // å¼€æœºæ—¶é—´
-#define CAN_WG_CTRL_VALUETYPE_SOFT_START 0x03   // è½¯èµ·æ—¶é—´
+#define CAN_WG_CTRL_VALUETYPE_COMMON 0x00       // Í¨ÓÃ¿ØÖÆ
+#define CAN_WG_CTRL_VALUETYPE_BATTERY_TYPE 0x01 // µç³ØÀàĞÍ
+#define CAN_WG_CTRL_VALUETYPE_BOOT_TIME 0x02    // ¿ª»úÊ±¼ä
+#define CAN_WG_CTRL_VALUETYPE_SOFT_START 0x03   // ÈíÆğÊ±¼ä
 
-#define CAN_WG_CTRL_COMMON_CHARG_MODE_AUTO 0x02     // è‡ªåŠ¨æ­£åå‘æ¨¡å¼
-#define CAN_WG_CTRL_COMMON_CHARG_MODE_BACKWARD 0x01 // åå‘æ¨¡å¼
-#define CAN_WG_CTRL_COMMON_CHARG_MODE_FORWARD 0x00  // æ­£å‘æ¨¡å¼
+#define CAN_WG_CTRL_COMMON_CHARG_MODE_AUTO 0x02     // ×Ô¶¯Õı·´ÏòÄ£Ê½
+#define CAN_WG_CTRL_COMMON_CHARG_MODE_BACKWARD 0x01 // ·´ÏòÄ£Ê½
+#define CAN_WG_CTRL_COMMON_CHARG_MODE_FORWARD 0x00  // ÕıÏòÄ£Ê½
 
-#define CAN_WG_CTRL_COMMON_POWER_MODE_BATTERY 0x01 // ç”µæ± æ¨¡å¼
-#define CAN_WG_CTRL_COMMON_POWER_MODE_NORMAL 0x00  // æ­£å¸¸æ¨¡å¼
+#define CAN_WG_CTRL_COMMON_POWER_MODE_BATTERY 0x01 // µç³ØÄ£Ê½
+#define CAN_WG_CTRL_COMMON_POWER_MODE_NORMAL 0x00  // Õı³£Ä£Ê½
 
-#define CAN_WG_CTRL_COMMON_POWER_ONOFF_OFF 0x01 // å…³æœºçŠ¶æ€
-#define CAN_WG_CTRL_COMMON_POWER_ONOFF_ON 0x00  // å¼€æœºçŠ¶æ€
+#define CAN_WG_CTRL_COMMON_POWER_ONOFF_OFF 0x01 // ¹Ø»ú×´Ì¬
+#define CAN_WG_CTRL_COMMON_POWER_ONOFF_ON 0x00  // ¿ª»ú×´Ì¬
 
-#define CAN_WG_CTRL_COMMON_FACTORY_RESET_RESET 0x01  // æ¢å¤å‡ºå‚è®¾ç½®
-#define CAN_WG_CTRL_COMMON_FACTORY_RESET_NORMAL 0x00 // æ­£å¸¸
+#define CAN_WG_CTRL_COMMON_FACTORY_RESET_RESET 0x01  // »Ö¸´³ö³§ÉèÖÃ
+#define CAN_WG_CTRL_COMMON_FACTORY_RESET_NORMAL 0x00 // Õı³£
 
 typedef struct
 {
@@ -59,66 +59,66 @@ typedef struct
 typedef struct
 {
     can_wg_mfg_byte2_3_t byte2_3; // valuetype + offset
-    can_wg_mfg_byte4_7_t byte4_7; // æ•°æ®å†…å®¹ï¼Œ4å­—èŠ‚
+    can_wg_mfg_byte4_7_t byte4_7; // Êı¾İÄÚÈİ£¬4×Ö½Ú
 } can_wg_mfg_t;
 
 typedef struct
 {
     uint8_t data_offset;
-    uint8_t data_num; // æ•°æ®ä¸ªæ•°
+    uint8_t data_num; // Êı¾İ¸öÊı
 } can_wg_get_rtdata_byte2_3_t;
 
 typedef struct
 {
-    uint8_t data[4]; // å®æ—¶æ•°æ®å†…å®¹ï¼Œ8å­—èŠ‚
+    uint8_t data[4]; // ÊµÊ±Êı¾İÄÚÈİ£¬8×Ö½Ú
 } can_wg_get_rtdata_byte4_7_t;
 
 typedef struct
 {
-    can_wg_get_rtdata_byte2_3_t byte2_3; // æ•°æ®åç§» + æ•°æ®ä¸ªæ•°
-    can_wg_get_rtdata_byte4_7_t byte4_7; // å®æ—¶æ•°æ®å†…å®¹
+    can_wg_get_rtdata_byte2_3_t byte2_3; // Êı¾İÆ«ÒÆ + Êı¾İ¸öÊı
+    can_wg_get_rtdata_byte4_7_t byte4_7; // ÊµÊ±Êı¾İÄÚÈİ
 } can_wg_get_rtdata_t;
 
 typedef struct
 {
-    uint8_t data_offset; // æ•°æ®åç§»
-    uint8_t data_num;    // æ•°æ®ä¸ªæ•°
+    uint8_t data_offset; // Êı¾İÆ«ÒÆ
+    uint8_t data_num;    // Êı¾İ¸öÊı
     uint8_t data[4];
 } can_wg_param_t;
 
 typedef struct
 {
-    uint8_t factory_reset : 1; // bit0: æ¢å¤å‡ºå‚è®¾ç½®(1:å¤ä½, 0:æ­£å¸¸)
-    uint8_t power_onoff : 1;   // bit1: å¼€å…³æœºçŠ¶æ€(1:å…³æœº, 0:å¼€æœº)
-    uint8_t power_mode : 1;    // bit2: ç”µæºæ¨¡å¼(1:ç”µæ± , 0:æ­£å¸¸)
-    uint8_t charg_mode : 2;    // bit3~bit4: å……ç”µæ¨¡å¼(0b10:è‡ªåŠ¨, 0b01:åå‘, 0b00:æ­£å‘)
-    uint8_t reserved : 3;      // bit5~bit7: ä¿ç•™
+    uint8_t factory_reset : 1; // bit0: »Ö¸´³ö³§ÉèÖÃ(1:¸´Î», 0:Õı³£)
+    uint8_t power_onoff : 1;   // bit1: ¿ª¹Ø»ú×´Ì¬(1:¹Ø»ú, 0:¿ª»ú)
+    uint8_t power_mode : 1;    // bit2: µçÔ´Ä£Ê½(1:µç³Ø, 0:Õı³£)
+    uint8_t charg_mode : 2;    // bit3~bit4: ³äµçÄ£Ê½(0b10:×Ô¶¯, 0b01:·´Ïò, 0b00:ÕıÏò)
+    uint8_t reserved : 3;      // bit5~bit7: ±£Áô
 } can_wg_ctrl_common_byte4_t;
 
 typedef struct
 {
-    can_wg_ctrl_common_byte4_t byte4; // æ§åˆ¶å­—èŠ‚
-    uint8_t rsvd[3];                  // ä¿ç•™å­—èŠ‚
+    can_wg_ctrl_common_byte4_t byte4; // ¿ØÖÆ×Ö½Ú
+    uint8_t rsvd[3];                  // ±£Áô×Ö½Ú
 } can_wg_ctrl_common_t;
 
 typedef struct
 {
-    uint8_t a_battery_type; // Byte 4: Aç«¯ç”µæ± ç±»å‹
-    uint8_t a_battery_volt; // Byte 5: Aç«¯ç”µæ± ç”µå‹
-    uint8_t b_battery_type; // Byte 6: Bç«¯ç”µæ± ç±»å‹
-    uint8_t b_battery_volt; // Byte 7: Bç«¯ç”µæ± ç”µå‹
+    uint8_t a_battery_type; // Byte 4: A¶Ëµç³ØÀàĞÍ
+    uint8_t a_battery_volt; // Byte 5: A¶Ëµç³ØµçÑ¹
+    uint8_t b_battery_type; // Byte 6: B¶Ëµç³ØÀàĞÍ
+    uint8_t b_battery_volt; // Byte 7: B¶Ëµç³ØµçÑ¹
 } can_wg_ctrl_battery_t;
 
 typedef struct
 {
-    uint16_t a_boot_time; // Byte 4: Aç«¯å¼€æœºæ—¶é—´
-    uint16_t b_boot_time; // Byte 5: Bç«¯å¼€æœºæ—¶é—´
+    uint16_t a_boot_time; // Byte 4: A¶Ë¿ª»úÊ±¼ä
+    uint16_t b_boot_time; // Byte 5: B¶Ë¿ª»úÊ±¼ä
 } can_wg_ctrl_boot_time_t;
 
 typedef struct
 {
-    uint16_t a_soft_start_time; // Byte 4~5: Aç«¯å¼€æœºç”µæµè½¯èµ·åŠ¨æ—¶é—´
-    uint16_t b_soft_start_time; // Byte 6~7: Bç«¯å¼€æœºç”µæµè½¯èµ·åŠ¨æ—¶é—´
+    uint16_t a_soft_start_time; // Byte 4~5: A¶Ë¿ª»úµçÁ÷ÈíÆğ¶¯Ê±¼ä
+    uint16_t b_soft_start_time; // Byte 6~7: B¶Ë¿ª»úµçÁ÷ÈíÆğ¶¯Ê±¼ä
 } can_wg_ctrl_soft_start_t;
 
 void can_comm_wg_dispatch(const can_packet_t *packet);

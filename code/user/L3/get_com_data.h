@@ -16,20 +16,20 @@ typedef enum
 
 typedef enum
 {
-    eSET_STANDARD_MODE,             // 标准模式
-    eSET_CUSTOM_MODE,               // 定制模式
-    eSET_BAT_MODE,                  // 电池模式
-    eMPPT_MODE,                     // MPPT模式
+    eSET_STANDARD_MODE,             // ��׼ģʽ
+    eSET_CUSTOM_MODE,               // ����ģʽ
+    eSET_BAT_MODE,                  // ���ģʽ
+    eMPPT_MODE,                     // MPPTģʽ
     eSET_MODE_MAX,
 } MODE_STATE_E;
 
 typedef enum
 {
-    eSET_FORWARD,          // 正向
-    eSET_BACKWARD,         // 反向
-    eSET_AUTO_MODE,        // 自动
-    eSET_MANUAL_MODE,      // 手动
-    eSET_PG_CUSTOM_MODE,   // 外设
+    eSET_FORWARD,          // ����
+    eSET_BACKWARD,         // ����
+    eSET_AUTO_MODE,        // �Զ�
+    eSET_MANUAL_MODE,      // �ֶ�
+    eSET_PG_CUSTOM_MODE,   // ����
     eSET_CHARG_MAX,
 }SET_MODE_STATE_E;
 
@@ -90,102 +90,102 @@ typedef enum
 
 typedef struct
 {
-    float InpVolt;      // A端电�?
-    float InpCurr;      // A端电�?
-    uint16_t InpCurrPower; // A端功�?
-    float OutVolt;      // B端电�?
-    float OutCurr;      // B端电�?
-    uint16_t OutCurrPower; // B端功�?
-    int16_t InsideTemp;   // 内部温度
-    int16_t OutsideTemp;  // 外部温度
-    uint16_t PowerMode;    // 电源模式
-    uint16_t ChargMode;    // 充电模式
-    uint16_t FaultSign;    // 故障信号
-    uint16_t AlarmSign;    // 告警信号
-    float CompensationVoltA; // A端补�?
-    float CompensationVoltB; // B端补�?
-    int16_t Temp2;                // 器件温度2
-    uint16_t StateCharge;         // 充电状�? 
-    float ADDVolt;                // ADD辅源电压
+    float InpVolt;      // A�˵�ѹ
+    float InpCurr;      // A�˵���
+    uint16_t InpCurrPower; // A�˹���
+    float OutVolt;      // B�˵�ѹ
+    float OutCurr;      // B�˵���
+    uint16_t OutCurrPower; // B�˹���
+    int16_t InsideTemp;   // �ڲ��¶�
+    int16_t OutsideTemp;  // �ⲿ�¶�
+    uint16_t PowerMode;    // ��Դģʽ
+    uint16_t ChargMode;    // ���ģʽ
+    uint16_t FaultSign;    // �����ź�
+    uint16_t AlarmSign;    // �澯�ź�
+    float CompensationVoltA; // A�˲���
+    float CompensationVoltB; // B�˲���
+    int16_t Temp2;                // �����¶�2
+    uint16_t StateCharge;         // ���״̬ 
+    float ADDVolt;                // ADD��Դ��ѹ
 } com_realtime_data_t;
 
 typedef struct
 {
-    uint16_t FactoryReset;        // 400: 恢复出厂设置
-    uint16_t PowerOnOff;          // 401: 开关机状�?
-    uint16_t SetPowerMode;        // 402: 电源模式
-    uint16_t SetChargMode;        // 403: 充电模式
-    uint16_t InpBatyType;         // 404: A端电池类型（�?位类型，�?位电压）
-    uint16_t OutBatyType;         // 405: B端电池类型（�?位类型，�?位电压）
-    uint16_t SetBootTimeA;        // 406: A端开机时�?
-    uint16_t SetBootTimeB;        // 407: B端开机时�?
-    uint16_t SetOnCurrStartTimeA; // 408: A端开机电流软起动时间
-    uint16_t SetOnCurrStartTimeB; // 409: B端开机电流软起动时间
-    uint16_t ZeroCurrCalibration; // 40A: 端零电流校准
-    uint16_t ResetFactoryData;    // 40B: 恢复厂家数据
-    uint16_t BatModeFR;           // 40C: 电池模式正反向切�?
+    uint16_t FactoryReset;        // 400: �ָ���������
+    uint16_t PowerOnOff;          // 401: ���ػ�״̬
+    uint16_t SetPowerMode;        // 402: ��Դģʽ
+    uint16_t SetChargMode;        // 403: ���ģʽ
+    uint16_t InpBatyType;         // 404: A�˵�����ͣ���λ���ͣ���λ��ѹ��
+    uint16_t OutBatyType;         // 405: B�˵�����ͣ���λ���ͣ���λ��ѹ��
+    uint16_t SetBootTimeA;        // 406: A�˿���ʱ��
+    uint16_t SetBootTimeB;        // 407: B�˿���ʱ��
+    uint16_t SetOnCurrStartTimeA; // 408: A�˿�����������ʱ��
+    uint16_t SetOnCurrStartTimeB; // 409: B�˿�����������ʱ��
+    uint16_t ZeroCurrCalibration; // 40A: �������У׼
+    uint16_t ResetFactoryData;    // 40B: �ָ���������
+    uint16_t BatModeFR;           // 40C: ���ģʽ�������л�
     uint16_t MpptSwitch;          // 40D: MPPT mode switch
     uint16_t SleepModeOnOff;      // 40E: sleep mode switch
 } com_ctrl_t;
 
 typedef struct
 {
-    uint16_t InpVoltCalibrK;     // A端电压校准K�?
-    uint16_t InpVoltCalibrB;     // A端电压校准B�?
-    uint16_t InpCurrCalibrK;     // A端电流校准K�?
-    uint16_t InpCurrCalibrB;     // A端电流校准B�?
-    uint16_t InpShowVoltCalibrK; // A端显示电压校准K�?
-    uint16_t InpShowVoltCalibrB; // A端显示电压校准B�?
-    uint16_t InpShowCurrCalibrK; // A端显示电流校准K�?
-    uint16_t InpShowCurrCalibrB; // A端显示电流校准B�?
-    uint16_t OutVoltCalibrK;     // B端电压校准K�?
-    uint16_t OutVoltCalibrB;     // B端电压校准B�?
-    uint16_t OutCurrCalibrK;     // B端电流校准K�?
-    uint16_t OutCurrCalibrB;     // B端电流校准B�?
-    uint16_t OutShowVoltCalibrK; // B端显示电压校准K�?
-    uint16_t OutShowVoltCalibrB; // B端显示电压校准B�?
-    uint16_t OutShowCurrCalibrK; // B端显示电流校准K�?
-    uint16_t OutShowCurrCalibrB; // B端显示电流校准B�?
-    uint16_t BOutShowCurrCalibrK;// B端显示电流校准K�?
-    uint16_t BOutShowCurrCalibrB;// B端显示电流校准B�?
-    uint16_t AOutShowCurrCalibrK;// A端显示电流校准K�?
-    uint16_t AOutShowCurrCalibrB;// A端显示电流校准B�?
-    uint16_t VoltCompensationAK; // ACC/A端电压补偿校准K�?
-    uint16_t VoltCompensationAB; // ACC/A端电压补偿校准B�?
-    uint16_t VoltCompensationBK; // RTM/B端电压补偿校准K�?
-    uint16_t VoltCompensationBB; // RTM/B端电压补偿校准B�?
-    uint16_t Retain10[2];        // 保留
-    float SetInpVolt;            // A端电�?
-    float SetInpCurr;            // A端电�?
-    uint16_t SetInpCurrPower;    // A端功�?
-    float SetOutVolt;            // B端电�?
-    float SetOutCurr;            // B端电�?
-    uint16_t SetOutCurrPower;    // B端功�?
-    float SetInpUvlo;            // A端欠压保�?
-    float SetInpUvloRecover;     // A端欠压保护恢�?
-    float SetInpOVP;             // A端过压保�?
-    float SetInpOVPRecover;      // A端过压保护恢�?
-    float SetOutUvlo;            // B端欠压保�?
-    float SetOutUvloRecover;     // B端欠压保护恢�?
-    float SetOutOVP;             // B端过压保�?
-    float SetOutOVPRecover;      // B端过压保护恢�?
-    int16_t SetInsideTemp;       // 内部温度
-    int16_t SetOutsideTemp;      // 外部温度
-    float SetInpChargLedCurr;    // A端充电指示灯电流
-    float SetInpFullLedCurr;     // A端充满指示灯电流
-    float SetOutChargLedCurr;    // B端充电指示灯电流
-    float SetOutFullLedCurr;     // B端充满指示灯电流
-    float AuotForwardOpenVoltA;  // 自动模式正向A端开启电�?
-    float AuotForwardVeerVoltA;  // 自动模式正向转向A电压
-    float AuotForwardShutVoltA;  // 自动模式正向A端关闭电�?
-    float AuotReverseOpenVoltB;  // 自动模式反向B端开启电�?
-    float AuotReverseShutVoltB;  // 自动模式反向B端关闭电�?
-    int16_t SetTemp2;            // 内部温度
+    uint16_t InpVoltCalibrK;     // A�˵�ѹУ׼Kֵ
+    uint16_t InpVoltCalibrB;     // A�˵�ѹУ׼Bֵ
+    uint16_t InpCurrCalibrK;     // A�˵���У׼Kֵ
+    uint16_t InpCurrCalibrB;     // A�˵���У׼Bֵ
+    uint16_t InpShowVoltCalibrK; // A����ʾ��ѹУ׼Kֵ
+    uint16_t InpShowVoltCalibrB; // A����ʾ��ѹУ׼Bֵ
+    uint16_t InpShowCurrCalibrK; // A����ʾ����У׼Kֵ
+    uint16_t InpShowCurrCalibrB; // A����ʾ����У׼Bֵ
+    uint16_t OutVoltCalibrK;     // B�˵�ѹУ׼Kֵ
+    uint16_t OutVoltCalibrB;     // B�˵�ѹУ׼Bֵ
+    uint16_t OutCurrCalibrK;     // B�˵���У׼Kֵ
+    uint16_t OutCurrCalibrB;     // B�˵���У׼Bֵ
+    uint16_t OutShowVoltCalibrK; // B����ʾ��ѹУ׼Kֵ
+    uint16_t OutShowVoltCalibrB; // B����ʾ��ѹУ׼Bֵ
+    uint16_t OutShowCurrCalibrK; // B����ʾ����У׼Kֵ
+    uint16_t OutShowCurrCalibrB; // B����ʾ����У׼Bֵ
+    uint16_t BOutShowCurrCalibrK;// B����ʾ����У׼Kֵ
+    uint16_t BOutShowCurrCalibrB;// B����ʾ����У׼Bֵ
+    uint16_t AOutShowCurrCalibrK;// A����ʾ����У׼Kֵ
+    uint16_t AOutShowCurrCalibrB;// A����ʾ����У׼Bֵ
+    uint16_t VoltCompensationAK; // ACC/A�˵�ѹ����У׼Kֵ
+    uint16_t VoltCompensationAB; // ACC/A�˵�ѹ����У׼Bֵ
+    uint16_t VoltCompensationBK; // RTM/B�˵�ѹ����У׼Kֵ
+    uint16_t VoltCompensationBB; // RTM/B�˵�ѹ����У׼Bֵ
+    uint16_t Retain10[2];        // ����
+    float SetInpVolt;            // A�˵�ѹ
+    float SetInpCurr;            // A�˵���
+    uint16_t SetInpCurrPower;    // A�˹���
+    float SetOutVolt;            // B�˵�ѹ
+    float SetOutCurr;            // B�˵���
+    uint16_t SetOutCurrPower;    // B�˹���
+    float SetInpUvlo;            // A��Ƿѹ����
+    float SetInpUvloRecover;     // A��Ƿѹ�����ָ�
+    float SetInpOVP;             // A�˹�ѹ����
+    float SetInpOVPRecover;      // A�˹�ѹ�����ָ�
+    float SetOutUvlo;            // B��Ƿѹ����
+    float SetOutUvloRecover;     // B��Ƿѹ�����ָ�
+    float SetOutOVP;             // B�˹�ѹ����
+    float SetOutOVPRecover;      // B�˹�ѹ�����ָ�
+    int16_t SetInsideTemp;       // �ڲ��¶�
+    int16_t SetOutsideTemp;      // �ⲿ�¶�
+    float SetInpChargLedCurr;    // A�˳��ָʾ�Ƶ���
+    float SetInpFullLedCurr;     // A�˳���ָʾ�Ƶ���
+    float SetOutChargLedCurr;    // B�˳��ָʾ�Ƶ���
+    float SetOutFullLedCurr;     // B�˳���ָʾ�Ƶ���
+    float AuotForwardOpenVoltA;  // �Զ�ģʽ����A�˿�����ѹ
+    float AuotForwardVeerVoltA;  // �Զ�ģʽ����ת��A��ѹ
+    float AuotForwardShutVoltA;  // �Զ�ģʽ����A�˹رյ�ѹ
+    float AuotReverseOpenVoltB;  // �Զ�ģʽ����B�˿�����ѹ
+    float AuotReverseShutVoltB;  // �Զ�ģʽ����B�˹رյ�ѹ
+    int16_t SetTemp2;            // �ڲ��¶�
 } com_param_t;
 
 typedef struct
 {
-    uint16_t BatModeFRState;     // 上位机设置正反向状�?
+    uint16_t BatModeFRState;     // ��λ������������״̬
     // P01
     com_realtime_data_t com_realtime_data;
     // P02
@@ -206,10 +206,10 @@ typedef struct
 
 typedef struct
 {
-    float val;                         // 当前�?
-    float limit;                       // 触发阈�?
-    float recover;                     // 恢复阈�?   
-    uint8_t enable;                    // 使能
+    float val;                         // ��ǰҳ
+    float limit;                       // ������ֵ
+    float recover;                     // �ָ���ֵ   
+    uint8_t enable;                    // ʹ��
 } protect_item_data_t;
 
 typedef struct
@@ -225,41 +225,41 @@ typedef struct
 
 typedef struct
 {
-    uint8_t SetBootTimeFlag;     // 启动开机延时标志位
-    uint8_t retain;              // 保留
-    uint16_t BootTimeDelay;      // 开机延时计�?
-    uint16_t SetBootTime;        // 开机时�?
+    uint8_t SetBootTimeFlag;     // ����������ʱ��־λ
+    uint8_t retain;              // ����
+    uint16_t BootTimeDelay;      // ������ʱ����
+    uint16_t SetBootTime;        // ����ʱ��
 }Boot_Time_Delay_t;
 
 typedef struct
 {
-    uint8_t get_is_run;          // 获取是否允许启动输出电流
-    uint8_t dysfunction_is_run;  // 异常功能
+    uint8_t get_is_run;          // ��ȡ�Ƿ����������������
+    uint8_t dysfunction_is_run;  // �쳣����
     uint8_t soft_start_flag;
     uint8_t soft_close_flag;
-    uint8_t mppt_mode_flag;      // mppt模式
+    uint8_t mppt_mode_flag;      // mpptģʽ
     uint8_t retain;
-    uint16_t check_state;        // 输出状�?
-    uint16_t OutBatyType;        // 电池类型
+    uint16_t check_state;        // ���״̬
+    uint16_t OutBatyType;        // �������
     uint16_t fvs48_pwr_lmt;
     uint16_t rvs12_pwr_lmt;
     uint16_t ActiveOnCurrStartTime;
-    uint16_t SetCharState;       // 充电状�?
-    float SetInpCurr;            // 输入电流
-    float SetOutVolt;            // 输出电压
-    float SetOutCurr;            // 输出电流
-    float ActualOutVolt;         // 真实输出电压
-    float ActualOutCurr;         // 真实输出电流
-    float set_out_lmt_curr;      // 最小输出电�?
+    uint16_t SetCharState;       // ���״̬
+    float SetInpCurr;            // �������
+    float SetOutVolt;            // �����ѹ
+    float SetOutCurr;            // �������
+    float ActualOutVolt;         // ��ʵ�����ѹ
+    float ActualOutCurr;         // ��ʵ�������
+    float set_out_lmt_curr;      // ��С�����ѹ
     float rvs12_lmt;
     float fvs48_lmt;
     float ilv_lmt;
     float ihv_lmt;
-    float temp_derate_curr;      // 温度降额电流
+    float temp_derate_curr;      // �¶Ƚ������
     float temp_derate_ratio;
     Boot_Time_Delay_t Boot_Time_Delay;
     bat_state_t bat_state;
-    protect_data_t protect_data; // 保护
+    protect_data_t protect_data; // ����
 } charge_state_data_t;
 
 extern charge_state_data_t charge_state_data;

@@ -5,8 +5,8 @@
 
 typedef struct
 {
-    float temp;                         // å½“å‰æ¸©åº¦
-    float set_temp;                     // è®¾ç½®æ¸©åº¦
+    float temp;                         // µ±Ç°ÎÂ¶È
+    float set_temp;                     // ÉèÖÃÎÂ¶È
     float current;
     float temp_current;
     uint8_t enable;

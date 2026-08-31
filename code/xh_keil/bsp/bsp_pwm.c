@@ -53,7 +53,7 @@ static void bsp_pwm_init_adc_sample_event_port_probe(void)
     AOS_SetTriggerEventSrc(AOS_EVTPORT34, EVT_SRC_HRPWM_1_SCMP_B);
 }
 #endif
-// pwm输出端口使能
+// pwm����˿�ʹ��
 void hrpwm_port_init(void)
 {
     GPIO_SetFunc(GPIO_PORT_C, GPIO_PIN_06, GPIO_FUNC_14);
@@ -78,7 +78,7 @@ uint32_t RAMFUNC HRPWM_GetPeriodValue_Buff(const CM_HRPWM_TypeDef *HRPWMx)
     return READ_REG32(HRPWMx->HRPERBR);
 }
 
-// HRPWM4极�?HA1 LA1
+// HRPWM4���ԣ�HA1 LA1
 void A1PWM_polarity_set(void)
 {
     stc_hrpwm_init_t stcHrpwmInit;
@@ -86,20 +86,20 @@ void A1PWM_polarity_set(void)
 
     (void)HRPWM_StructInit(&stcHrpwmInit);
     /* HRPWM general count function configure */
-    stcHrpwmInit.u32CountMode = HRPWM_MD_TRIANGLE;     // 三角波计�?
-    stcHrpwmInit.u32CountReload = HRPWM_CNT_RELOAD_ON; // 计数器自动重�?
-    stcHrpwmInit.u32PeriodValue = CTRL_PERIOD;         // 周期�?
+    stcHrpwmInit.u32CountMode = HRPWM_MD_TRIANGLE;     // ���ǲ�����
+    stcHrpwmInit.u32CountReload = HRPWM_CNT_RELOAD_ON; // �������Զ�����
+    stcHrpwmInit.u32PeriodValue = CTRL_PERIOD;         // ����ֵ
     (void)HRPWM_Init(A1_PWM_UNIT, &stcHrpwmInit);
 
     (void)HRPWM_PWM_StructInit(&stcPwmInit);
     /* Configure PWM output */
-    stcPwmInit.u32CompareValue = CTRL_PERIOD / 2;               // 默认比较值，50%
-    stcPwmInit.u32StartPolarity = HRPWM4_HA1_START;             // 起始电平
-    stcPwmInit.u32PeakPolarity = HRPWM_PWM_PEAK_HOLD;           // 峰值电平保�?
-    stcPwmInit.u32ValleyPolarity = HRPWM_PWM_VALLEY_HOLD;       // 谷值电平保�?
-    stcPwmInit.u32UpMatchAPolarity = HRPWM4_HA1_UP_MATCH;       // 上升沿A比较匹配电平
-    stcPwmInit.u32DownMatchAPolarity = HRPWM4_HA1_DOWN_MATCH;   // 下降沿A比较匹配电平
-    stcPwmInit.u32UpMatchBPolarity = HRPWM_PWM_UP_MATCH_B_HOLD; // 其他保持电平不变
+    stcPwmInit.u32CompareValue = CTRL_PERIOD / 2;               // Ĭ�ϱȽ�ֵ��50%
+    stcPwmInit.u32StartPolarity = HRPWM4_HA1_START;             // ��ʼ��ƽ
+    stcPwmInit.u32PeakPolarity = HRPWM_PWM_PEAK_HOLD;           // ��ֵ��ƽ����
+    stcPwmInit.u32ValleyPolarity = HRPWM_PWM_VALLEY_HOLD;       // ��ֵ��ƽ����
+    stcPwmInit.u32UpMatchAPolarity = HRPWM4_HA1_UP_MATCH;       // ������A�Ƚ�ƥ���ƽ
+    stcPwmInit.u32DownMatchAPolarity = HRPWM4_HA1_DOWN_MATCH;   // �½���A�Ƚ�ƥ���ƽ
+    stcPwmInit.u32UpMatchBPolarity = HRPWM_PWM_UP_MATCH_B_HOLD; // �������ֵ�ƽ����
     stcPwmInit.u32DownMatchBPolarity = HRPWM_PWM_DOWN_MATCH_B_HOLD;
     stcPwmInit.u32UpMatchEPolarity = HRPWM_PWM_UP_MATCH_E_HOLD;
     stcPwmInit.u32DownMatchEPolarity = HRPWM_PWM_DOWN_MATCH_E_HOLD;
@@ -109,10 +109,10 @@ void A1PWM_polarity_set(void)
     stcPwmInit.u32DownMatchSpecialAPolarity = HRPWM_PWM_DOWN_MATCH_SPECIAL_A_HOLD;
     stcPwmInit.u32UpMatchSpecialBPolarity = HRPWM_PWM_UP_MATCH_SPECIAL_B_HOLD;
     stcPwmInit.u32DownMatchSpecialBPolarity = HRPWM_PWM_DOWN_MATCH_SPECIAL_B_HOLD;
-    (void)HRPWM_PWM_ChAInit_Buf(A1_PWM_UNIT, &stcPwmInit);    // 初始化通道A
-    stcPwmInit.u32StartPolarity = HRPWM4_LA1_START;           // 起始电平�?
-    stcPwmInit.u32UpMatchAPolarity = HRPWM4_LA1_UP_MATCH;     // 上升沿A比较匹配电平
-    stcPwmInit.u32DownMatchAPolarity = HRPWM4_LA1_DOWN_MATCH; // 下降沿A比较匹配电平
+    (void)HRPWM_PWM_ChAInit_Buf(A1_PWM_UNIT, &stcPwmInit);    // ��ʼ��ͨ��A
+    stcPwmInit.u32StartPolarity = HRPWM4_LA1_START;           // ��ʼ��ƽ����
+    stcPwmInit.u32UpMatchAPolarity = HRPWM4_LA1_UP_MATCH;     // ������A�Ƚ�ƥ���ƽ
+    stcPwmInit.u32DownMatchAPolarity = HRPWM4_LA1_DOWN_MATCH; // �½���A�Ƚ�ƥ���ƽ
     (void)HRPWM_PWM_ChBInit_Buf(A1_PWM_UNIT, &stcPwmInit);
     /* PWM output enable */
     //    HRPWM_PWM_ChAOutputEnable(A1_PWM_UNIT);
@@ -122,7 +122,7 @@ void A1PWM_polarity_set(void)
     //    HRPWM_PWM_ChBOutputEnable_Buf(A1_PWM_UNIT);
 }
 
-// HRPWM5极�?HA2 LA2
+// HRPWM5���ԣ�HA2 LA2
 void A2PWM_polarity_set(void)
 {
     stc_hrpwm_init_t stcHrpwmInit;
@@ -131,9 +131,9 @@ void A2PWM_polarity_set(void)
 
     (void)HRPWM_StructInit(&stcHrpwmInit);
     /* HRPWM general count function configure */
-    stcHrpwmInit.u32CountMode = HRPWM_MD_TRIANGLE;     // 三角波计�?
-    stcHrpwmInit.u32CountReload = HRPWM_CNT_RELOAD_ON; // 计数器自动重�?
-    stcHrpwmInit.u32PeriodValue = CTRL_PERIOD;         // 周期�?
+    stcHrpwmInit.u32CountMode = HRPWM_MD_TRIANGLE;     // ���ǲ�����
+    stcHrpwmInit.u32CountReload = HRPWM_CNT_RELOAD_ON; // �������Զ�����
+    stcHrpwmInit.u32PeriodValue = CTRL_PERIOD;         // ����ֵ
     (void)HRPWM_Init(A2_PWM_UNIT, &stcHrpwmInit);
 
     HRPWM_PWM_OutputStructInit(&pstcPwmOutputInit);
@@ -142,13 +142,13 @@ void A2PWM_polarity_set(void)
 
     (void)HRPWM_PWM_StructInit(&stcPwmInit);
     /* Configure PWM output */
-    stcPwmInit.u32CompareValue = CTRL_PERIOD / 2;               // 默认比较值，50%
-    stcPwmInit.u32StartPolarity = HRPWM5_HA2_START;             // 起始电平
-    stcPwmInit.u32PeakPolarity = HRPWM_PWM_PEAK_HOLD;           // 峰值电平保�?
-    stcPwmInit.u32ValleyPolarity = HRPWM_PWM_VALLEY_HOLD;       // 谷值电平保�?
-    stcPwmInit.u32UpMatchAPolarity = HRPWM5_HA2_UP_MATCH;       // 上升沿A比较匹配电平
-    stcPwmInit.u32DownMatchAPolarity = HRPWM5_HA2_DOWN_MATCH;   // 下降沿A比较匹配电平
-    stcPwmInit.u32UpMatchBPolarity = HRPWM_PWM_UP_MATCH_B_HOLD; // 其他保持电平不变
+    stcPwmInit.u32CompareValue = CTRL_PERIOD / 2;               // Ĭ�ϱȽ�ֵ��50%
+    stcPwmInit.u32StartPolarity = HRPWM5_HA2_START;             // ��ʼ��ƽ
+    stcPwmInit.u32PeakPolarity = HRPWM_PWM_PEAK_HOLD;           // ��ֵ��ƽ����
+    stcPwmInit.u32ValleyPolarity = HRPWM_PWM_VALLEY_HOLD;       // ��ֵ��ƽ����
+    stcPwmInit.u32UpMatchAPolarity = HRPWM5_HA2_UP_MATCH;       // ������A�Ƚ�ƥ���ƽ
+    stcPwmInit.u32DownMatchAPolarity = HRPWM5_HA2_DOWN_MATCH;   // �½���A�Ƚ�ƥ���ƽ
+    stcPwmInit.u32UpMatchBPolarity = HRPWM_PWM_UP_MATCH_B_HOLD; // �������ֵ�ƽ����
     stcPwmInit.u32DownMatchBPolarity = HRPWM_PWM_DOWN_MATCH_B_HOLD;
     stcPwmInit.u32UpMatchEPolarity = HRPWM_PWM_UP_MATCH_E_HOLD;
     stcPwmInit.u32DownMatchEPolarity = HRPWM_PWM_DOWN_MATCH_E_HOLD;
@@ -158,10 +158,10 @@ void A2PWM_polarity_set(void)
     stcPwmInit.u32DownMatchSpecialAPolarity = HRPWM_PWM_DOWN_MATCH_SPECIAL_A_HOLD;
     stcPwmInit.u32UpMatchSpecialBPolarity = HRPWM_PWM_UP_MATCH_SPECIAL_B_HOLD;
     stcPwmInit.u32DownMatchSpecialBPolarity = HRPWM_PWM_DOWN_MATCH_SPECIAL_B_HOLD;
-    (void)HRPWM_PWM_ChAInit_Buf(A2_PWM_UNIT, &stcPwmInit);    // 初始化通道A
-    stcPwmInit.u32StartPolarity = HRPWM5_LA2_START;           // 起始电平�?
-    stcPwmInit.u32UpMatchAPolarity = HRPWM5_LA2_UP_MATCH;     // 上升沿A比较匹配电平
-    stcPwmInit.u32DownMatchAPolarity = HRPWM5_LA2_DOWN_MATCH; // 下降沿A比较匹配电平
+    (void)HRPWM_PWM_ChAInit_Buf(A2_PWM_UNIT, &stcPwmInit);    // ��ʼ��ͨ��A
+    stcPwmInit.u32StartPolarity = HRPWM5_LA2_START;           // ��ʼ��ƽ����
+    stcPwmInit.u32UpMatchAPolarity = HRPWM5_LA2_UP_MATCH;     // ������A�Ƚ�ƥ���ƽ
+    stcPwmInit.u32DownMatchAPolarity = HRPWM5_LA2_DOWN_MATCH; // �½���A�Ƚ�ƥ���ƽ
     (void)HRPWM_PWM_ChBInit_Buf(A2_PWM_UNIT, &stcPwmInit);
 
     /* PWM output enable */
@@ -171,7 +171,7 @@ void A2PWM_polarity_set(void)
     //    HRPWM_PWM_ChBOutputEnable_Buf(A2_PWM_UNIT);
 }
 
-// HRPWM3极�?HB1 LB1
+// HRPWM3���ԣ�HB1 LB1
 void B1PWM_polarity_set(void)
 {
     stc_hrpwm_init_t stcHrpwmInit;
@@ -179,20 +179,20 @@ void B1PWM_polarity_set(void)
 
     (void)HRPWM_StructInit(&stcHrpwmInit);
     /* HRPWM general count function configure */
-    stcHrpwmInit.u32CountMode = HRPWM_MD_TRIANGLE;     // 三角波计�?
-    stcHrpwmInit.u32CountReload = HRPWM_CNT_RELOAD_ON; // 计数器自动重�?
-    stcHrpwmInit.u32PeriodValue = CTRL_PERIOD;         // 周期�?
+    stcHrpwmInit.u32CountMode = HRPWM_MD_TRIANGLE;     // ���ǲ�����
+    stcHrpwmInit.u32CountReload = HRPWM_CNT_RELOAD_ON; // �������Զ�����
+    stcHrpwmInit.u32PeriodValue = CTRL_PERIOD;         // ����ֵ
     (void)HRPWM_Init(B1_PWM_UNIT, &stcHrpwmInit);
 
     (void)HRPWM_PWM_StructInit(&stcPwmInit);
     /* Configure PWM output */
-    stcPwmInit.u32CompareValue = CTRL_PERIOD / 2;               // 默认比较值，50%
-    stcPwmInit.u32StartPolarity = HRPWM3_HB1_START;             // 起始电平�?
-    stcPwmInit.u32PeakPolarity = HRPWM_PWM_PEAK_HOLD;           // 峰值电平保�?
-    stcPwmInit.u32ValleyPolarity = HRPWM_PWM_VALLEY_HOLD;       // 谷值电平保�?
-    stcPwmInit.u32UpMatchAPolarity = HRPWM3_HB1_UP_MATCH;       // 上升沿A比较匹配低电�?
-    stcPwmInit.u32DownMatchAPolarity = HRPWM3_HB1_DOWN_MATCH;   // 下降沿A比较匹配高电�?
-    stcPwmInit.u32UpMatchBPolarity = HRPWM_PWM_UP_MATCH_B_HOLD; // 其他保持电平不变
+    stcPwmInit.u32CompareValue = CTRL_PERIOD / 2;               // Ĭ�ϱȽ�ֵ��50%
+    stcPwmInit.u32StartPolarity = HRPWM3_HB1_START;             // ��ʼ��ƽ����
+    stcPwmInit.u32PeakPolarity = HRPWM_PWM_PEAK_HOLD;           // ��ֵ��ƽ����
+    stcPwmInit.u32ValleyPolarity = HRPWM_PWM_VALLEY_HOLD;       // ��ֵ��ƽ����
+    stcPwmInit.u32UpMatchAPolarity = HRPWM3_HB1_UP_MATCH;       // ������A�Ƚ�ƥ��͵�ƽ
+    stcPwmInit.u32DownMatchAPolarity = HRPWM3_HB1_DOWN_MATCH;   // �½���A�Ƚ�ƥ��ߵ�ƽ
+    stcPwmInit.u32UpMatchBPolarity = HRPWM_PWM_UP_MATCH_B_HOLD; // �������ֵ�ƽ����
     stcPwmInit.u32DownMatchBPolarity = HRPWM_PWM_DOWN_MATCH_B_HOLD;
     stcPwmInit.u32UpMatchEPolarity = HRPWM_PWM_UP_MATCH_E_HOLD;
     stcPwmInit.u32DownMatchEPolarity = HRPWM_PWM_DOWN_MATCH_E_HOLD;
@@ -202,10 +202,10 @@ void B1PWM_polarity_set(void)
     stcPwmInit.u32DownMatchSpecialAPolarity = HRPWM_PWM_DOWN_MATCH_SPECIAL_A_HOLD;
     stcPwmInit.u32UpMatchSpecialBPolarity = HRPWM_PWM_UP_MATCH_SPECIAL_B_HOLD;
     stcPwmInit.u32DownMatchSpecialBPolarity = HRPWM_PWM_DOWN_MATCH_SPECIAL_B_HOLD;
-    (void)HRPWM_PWM_ChAInit_Buf(B1_PWM_UNIT, &stcPwmInit);    // 初始化通道A
-    stcPwmInit.u32StartPolarity = HRPWM3_LB1_START;           // 起始电平�?
-    stcPwmInit.u32UpMatchAPolarity = HRPWM3_LB1_UP_MATCH;     // 上升沿A比较匹配高电�?
-    stcPwmInit.u32DownMatchAPolarity = HRPWM3_LB1_DOWN_MATCH; // 下降沿A比较匹配低电�?
+    (void)HRPWM_PWM_ChAInit_Buf(B1_PWM_UNIT, &stcPwmInit);    // ��ʼ��ͨ��A
+    stcPwmInit.u32StartPolarity = HRPWM3_LB1_START;           // ��ʼ��ƽ����
+    stcPwmInit.u32UpMatchAPolarity = HRPWM3_LB1_UP_MATCH;     // ������A�Ƚ�ƥ��ߵ�ƽ
+    stcPwmInit.u32DownMatchAPolarity = HRPWM3_LB1_DOWN_MATCH; // �½���A�Ƚ�ƥ��͵�ƽ
     (void)HRPWM_PWM_ChBInit_Buf(B1_PWM_UNIT, &stcPwmInit);
     /* PWM output enable */
     //    HRPWM_PWM_ChAOutputEnable(B1_PWM_UNIT);
@@ -214,7 +214,7 @@ void B1PWM_polarity_set(void)
     //    HRPWM_PWM_ChBOutputEnable_Buf(B1_PWM_UNIT);
 }
 
-// HRPWM2极�?HB2 LB2
+// HRPWM2���ԣ�HB2 LB2
 void B2PWM_polarity_set(void)
 {
     stc_hrpwm_init_t stcHrpwmInit;
@@ -222,20 +222,20 @@ void B2PWM_polarity_set(void)
 
     (void)HRPWM_StructInit(&stcHrpwmInit);
     /* HRPWM general count function configure */
-    stcHrpwmInit.u32CountMode = HRPWM_MD_TRIANGLE;     // 三角波计�?
-    stcHrpwmInit.u32CountReload = HRPWM_CNT_RELOAD_ON; // 计数器自动重�?
-    stcHrpwmInit.u32PeriodValue = CTRL_PERIOD;         // 周期�?
+    stcHrpwmInit.u32CountMode = HRPWM_MD_TRIANGLE;     // ���ǲ�����
+    stcHrpwmInit.u32CountReload = HRPWM_CNT_RELOAD_ON; // �������Զ�����
+    stcHrpwmInit.u32PeriodValue = CTRL_PERIOD;         // ����ֵ
     (void)HRPWM_Init(B2_PWM_UNIT, &stcHrpwmInit);
 
     (void)HRPWM_PWM_StructInit(&stcPwmInit);
     /* Configure PWM output */
-    stcPwmInit.u32CompareValue = CTRL_PERIOD / 2;               // 默认比较值，50%
-    stcPwmInit.u32StartPolarity = HRPWM2_HB2_START;             // 起始电平
-    stcPwmInit.u32PeakPolarity = HRPWM_PWM_PEAK_HOLD;           // 峰值电平保�?
-    stcPwmInit.u32ValleyPolarity = HRPWM_PWM_VALLEY_HOLD;       // 谷值电平保�?
-    stcPwmInit.u32UpMatchAPolarity = HRPWM2_HB2_UP_MATCH;       // 上升沿A比较匹配电平
-    stcPwmInit.u32DownMatchAPolarity = HRPWM2_HB2_DOWN_MATCH;   // 下降沿A比较匹配电平
-    stcPwmInit.u32UpMatchBPolarity = HRPWM_PWM_UP_MATCH_B_HOLD; // 其他保持电平不变
+    stcPwmInit.u32CompareValue = CTRL_PERIOD / 2;               // Ĭ�ϱȽ�ֵ��50%
+    stcPwmInit.u32StartPolarity = HRPWM2_HB2_START;             // ��ʼ��ƽ
+    stcPwmInit.u32PeakPolarity = HRPWM_PWM_PEAK_HOLD;           // ��ֵ��ƽ����
+    stcPwmInit.u32ValleyPolarity = HRPWM_PWM_VALLEY_HOLD;       // ��ֵ��ƽ����
+    stcPwmInit.u32UpMatchAPolarity = HRPWM2_HB2_UP_MATCH;       // ������A�Ƚ�ƥ���ƽ
+    stcPwmInit.u32DownMatchAPolarity = HRPWM2_HB2_DOWN_MATCH;   // �½���A�Ƚ�ƥ���ƽ
+    stcPwmInit.u32UpMatchBPolarity = HRPWM_PWM_UP_MATCH_B_HOLD; // �������ֵ�ƽ����
     stcPwmInit.u32DownMatchBPolarity = HRPWM_PWM_DOWN_MATCH_B_HOLD;
     stcPwmInit.u32UpMatchEPolarity = HRPWM_PWM_UP_MATCH_E_HOLD;
     stcPwmInit.u32DownMatchEPolarity = HRPWM_PWM_DOWN_MATCH_E_HOLD;
@@ -245,10 +245,10 @@ void B2PWM_polarity_set(void)
     stcPwmInit.u32DownMatchSpecialAPolarity = HRPWM_PWM_DOWN_MATCH_SPECIAL_A_HOLD;
     stcPwmInit.u32UpMatchSpecialBPolarity = HRPWM_PWM_UP_MATCH_SPECIAL_B_HOLD;
     stcPwmInit.u32DownMatchSpecialBPolarity = HRPWM_PWM_DOWN_MATCH_SPECIAL_B_HOLD;
-    (void)HRPWM_PWM_ChAInit_Buf(B2_PWM_UNIT, &stcPwmInit);    // 初始化通道A
-    stcPwmInit.u32StartPolarity = HRPWM2_LB2_START;           // 起始电平�?
-    stcPwmInit.u32UpMatchAPolarity = HRPWM2_LB2_UP_MATCH;     // 上升沿A比较匹配电平
-    stcPwmInit.u32DownMatchAPolarity = HRPWM2_LB2_DOWN_MATCH; // 下降沿A比较匹配电平
+    (void)HRPWM_PWM_ChAInit_Buf(B2_PWM_UNIT, &stcPwmInit);    // ��ʼ��ͨ��A
+    stcPwmInit.u32StartPolarity = HRPWM2_LB2_START;           // ��ʼ��ƽ����
+    stcPwmInit.u32UpMatchAPolarity = HRPWM2_LB2_UP_MATCH;     // ������A�Ƚ�ƥ���ƽ
+    stcPwmInit.u32DownMatchAPolarity = HRPWM2_LB2_DOWN_MATCH; // �½���A�Ƚ�ƥ���ƽ
     (void)HRPWM_PWM_ChBInit_Buf(B2_PWM_UNIT, &stcPwmInit);
     /* PWM output enable */
     //    HRPWM_PWM_ChAOutputEnable(B2_PWM_UNIT);
@@ -257,7 +257,7 @@ void B2PWM_polarity_set(void)
     //    HRPWM_PWM_ChBOutputEnable_Buf(B2_PWM_UNIT);
 }
 
-// HRPWM1极�?
+// HRPWM1����
 void PWM_polarity_set(void)
 {
     stc_hrpwm_init_t stcHrpwmInit;
@@ -265,20 +265,20 @@ void PWM_polarity_set(void)
 
     (void)HRPWM_StructInit(&stcHrpwmInit);
     /* HRPWM general count function configure */
-    stcHrpwmInit.u32CountMode = HRPWM_MD_TRIANGLE;     // 三角波计�?
-    stcHrpwmInit.u32CountReload = HRPWM_CNT_RELOAD_ON; // 计数器自动重�?
-    stcHrpwmInit.u32PeriodValue = CTRL_PERIOD * 4;     // 周期�?
+    stcHrpwmInit.u32CountMode = HRPWM_MD_TRIANGLE;     // ���ǲ�����
+    stcHrpwmInit.u32CountReload = HRPWM_CNT_RELOAD_ON; // �������Զ�����
+    stcHrpwmInit.u32PeriodValue = CTRL_PERIOD * 4;     // ����ֵ
     (void)HRPWM_Init(PWM_UNIT, &stcHrpwmInit);
 
     (void)HRPWM_PWM_StructInit(&stcPwmInit);
     /* Configure PWM output */
-    stcPwmInit.u32CompareValue = CTRL_PERIOD / 8;               // 默认比较值，50%
-    stcPwmInit.u32StartPolarity = HRPWM1_HB1_START;             // 起始电平�?
-    stcPwmInit.u32PeakPolarity = HRPWM_PWM_PEAK_HOLD;           // 峰值电平保�?
-    stcPwmInit.u32ValleyPolarity = HRPWM_PWM_VALLEY_HOLD;       // 谷值电平保�?
-    stcPwmInit.u32UpMatchAPolarity = HRPWM1_HB1_UP_MATCH;       // 上升沿A比较匹配低电�?
-    stcPwmInit.u32DownMatchAPolarity = HRPWM1_HB1_DOWN_MATCH;   // 下降沿A比较匹配高电�?
-    stcPwmInit.u32UpMatchBPolarity = HRPWM_PWM_UP_MATCH_B_HOLD; // 其他保持电平不变
+    stcPwmInit.u32CompareValue = CTRL_PERIOD / 8;               // Ĭ�ϱȽ�ֵ��50%
+    stcPwmInit.u32StartPolarity = HRPWM1_HB1_START;             // ��ʼ��ƽ����
+    stcPwmInit.u32PeakPolarity = HRPWM_PWM_PEAK_HOLD;           // ��ֵ��ƽ����
+    stcPwmInit.u32ValleyPolarity = HRPWM_PWM_VALLEY_HOLD;       // ��ֵ��ƽ����
+    stcPwmInit.u32UpMatchAPolarity = HRPWM1_HB1_UP_MATCH;       // ������A�Ƚ�ƥ��͵�ƽ
+    stcPwmInit.u32DownMatchAPolarity = HRPWM1_HB1_DOWN_MATCH;   // �½���A�Ƚ�ƥ��ߵ�ƽ
+    stcPwmInit.u32UpMatchBPolarity = HRPWM_PWM_UP_MATCH_B_HOLD; // �������ֵ�ƽ����
     stcPwmInit.u32DownMatchBPolarity = HRPWM_PWM_DOWN_MATCH_B_HOLD;
     stcPwmInit.u32UpMatchEPolarity = HRPWM_PWM_UP_MATCH_E_HOLD;
     stcPwmInit.u32DownMatchEPolarity = HRPWM_PWM_DOWN_MATCH_E_HOLD;
@@ -288,10 +288,10 @@ void PWM_polarity_set(void)
     stcPwmInit.u32DownMatchSpecialAPolarity = HRPWM_PWM_DOWN_MATCH_SPECIAL_A_HOLD;
     stcPwmInit.u32UpMatchSpecialBPolarity = HRPWM_PWM_UP_MATCH_SPECIAL_B_HOLD;
     stcPwmInit.u32DownMatchSpecialBPolarity = HRPWM_PWM_DOWN_MATCH_SPECIAL_B_HOLD;
-    (void)HRPWM_PWM_ChAInit_Buf(PWM_UNIT, &stcPwmInit);       // 初始化通道A
-    stcPwmInit.u32StartPolarity = HRPWM1_LB1_START;           // 起始电平�?
-    stcPwmInit.u32UpMatchAPolarity = HRPWM1_LB1_UP_MATCH;     // 上升沿A比较匹配高电�?
-    stcPwmInit.u32DownMatchAPolarity = HRPWM1_LB1_DOWN_MATCH; // 下降沿A比较匹配低电�?
+    (void)HRPWM_PWM_ChAInit_Buf(PWM_UNIT, &stcPwmInit);       // ��ʼ��ͨ��A
+    stcPwmInit.u32StartPolarity = HRPWM1_LB1_START;           // ��ʼ��ƽ����
+    stcPwmInit.u32UpMatchAPolarity = HRPWM1_LB1_UP_MATCH;     // ������A�Ƚ�ƥ��ߵ�ƽ
+    stcPwmInit.u32DownMatchAPolarity = HRPWM1_LB1_DOWN_MATCH; // �½���A�Ƚ�ƥ��͵�ƽ
     (void)HRPWM_PWM_ChBInit_Buf(PWM_UNIT, &stcPwmInit);
     /* PWM output enable */
     //    HRPWM_PWM_ChAOutputEnable(PWM_UNIT);
@@ -300,22 +300,22 @@ void PWM_polarity_set(void)
     //    HRPWM_PWM_ChBOutputEnable_Buf(PWM_UNIT);
 }
 
-// 使用RPWM1的专用比较事件做周期响应功能(SMCA 向上匹配)
+// ʹ��RPWM1��ר�ñȽ��¼���������Ӧ����(SMCA ����ƥ��)
 void bsp_hrpwm_ValidPeriod_cfg(void)
 {
     stc_hrpwm_valid_period_config_t stcValidPeriodConfig;
     HRPWM_ValidPeriodStructInit(&stcValidPeriodConfig);
 
-    HRPWM_MatchSpecialEventEnable(PWM_UNIT, HRPWM_EVT_UP_MATCH_SPECIAL_A);     // 使能专用A匹配事件
-    HRPWM_MatchSpecialEventEnable_Buf(PWM_UNIT, HRPWM_EVT_UP_MATCH_SPECIAL_A); // 使能专用A匹配事件，缓存寄存器
+    HRPWM_MatchSpecialEventEnable(PWM_UNIT, HRPWM_EVT_UP_MATCH_SPECIAL_A);     // ʹ��ר��Aƥ���¼�
+    HRPWM_MatchSpecialEventEnable_Buf(PWM_UNIT, HRPWM_EVT_UP_MATCH_SPECIAL_A); // ʹ��ר��Aƥ���¼�������Ĵ���
     HRPWM_MatchSpecialEventEnable(PWM_UNIT, HRPWM_EVT_UP_MATCH_SPECIAL_B);
     HRPWM_MatchSpecialEventEnable_Buf(PWM_UNIT, HRPWM_EVT_UP_MATCH_SPECIAL_B);
     /* Set special compare register */
-    HRPWM_SetSpecialCompareAValue(PWM_UNIT, CTRL_PERIOD / 4);     // 专用比较器初始�?
-    HRPWM_SetSpecialCompareAValue_Buf(PWM_UNIT, CTRL_PERIOD / 4); // 专用比较器缓存初始�?
+    HRPWM_SetSpecialCompareAValue(PWM_UNIT, CTRL_PERIOD / 4);     // ר�ñȽ�����ʼ��
+    HRPWM_SetSpecialCompareAValue_Buf(PWM_UNIT, CTRL_PERIOD / 4); // ר�ñȽ��������ʼ��
 }
 
-// 配置HRPWM的缓存功�?
+// ����HRPWM�Ļ��湦��
 void bsp_hrpwm_buffer_cfg(void)
 {
     stc_hrpwm_buf_config_t stcBufConfig;
@@ -323,8 +323,8 @@ void bsp_hrpwm_buffer_cfg(void)
     (void)HRPWM_BufStructInit(&stcBufConfig);
     /* General compare buffer function configure */
     stcBufConfig.enBufTransU1Single = ENABLE;
-    //    stcBufConfig.enBufTransAfterU1Single = ENABLE;  //传送条件，hrpwm1单次缓存
-    (void)HRPWM_GeneralAEBufConfig(A1_PWM_UNIT, &stcBufConfig); // 使能比较器缓�?
+    //    stcBufConfig.enBufTransAfterU1Single = ENABLE;  //����������hrpwm1���λ���
+    (void)HRPWM_GeneralAEBufConfig(A1_PWM_UNIT, &stcBufConfig); // ʹ�ܱȽ�������
     (void)HRPWM_GeneralAEBufConfig(A2_PWM_UNIT, &stcBufConfig);
     (void)HRPWM_GeneralAEBufConfig(B1_PWM_UNIT, &stcBufConfig);
     (void)HRPWM_GeneralAEBufConfig(B2_PWM_UNIT, &stcBufConfig);
@@ -359,7 +359,7 @@ void bsp_hrpwm_buffer_cfg(void)
     HRPWM_DeadTimeDownBufEnable(B1_PWM_UNIT);
     HRPWM_DeadTimeDownBufEnable(B2_PWM_UNIT);
 
-    HRPWM_ControlRegBufConfig(A1_PWM_UNIT, &stcBufConfig); // 使能控制寄存器缓�?
+    HRPWM_ControlRegBufConfig(A1_PWM_UNIT, &stcBufConfig); // ʹ�ܿ��ƼĴ�������
     HRPWM_ControlRegBufConfig(A2_PWM_UNIT, &stcBufConfig);
     HRPWM_ControlRegBufConfig(B1_PWM_UNIT, &stcBufConfig);
     HRPWM_ControlRegBufConfig(B2_PWM_UNIT, &stcBufConfig);
@@ -376,7 +376,7 @@ void bsp_hrpwm_buffer_cfg(void)
 
     (void)HRPWM_BufStructInit(&stcBufConfig);
     stcBufConfig.enBufTransU1Single = ENABLE;
-    stcBufConfig.enBufTransAfterU1Single = DISABLE; // 传送条件，hrpwm1单次缓存
+    stcBufConfig.enBufTransAfterU1Single = DISABLE; // ����������hrpwm1���λ���
     (void)HRPWM_GeneralAEBufConfig(PWM_UNIT, &stcBufConfig);
     HRPWM_GeneralAEBufEnable(PWM_UNIT);
     HRPWM_PeriodBufConfig(PWM_UNIT, &stcBufConfig);
@@ -387,10 +387,10 @@ void bsp_hrpwm_buffer_cfg(void)
     HRPWM_ControlRegBufConfig(PWM_UNIT, &stcBufConfig);
     HRPWM_ControlRegBufEnable(PWM_UNIT);
 
-    HRPWM_SpecialABufEnable(PWM_UNIT); // 使能专用比较器缓存，只有通道1需�?    HRPWM_SpecialBBufEnable(PWM_UNIT);
+    HRPWM_SpecialABufEnable(PWM_UNIT); // ʹ��ר�ñȽ������棬ֻ��ͨ��1��Ҫ    HRPWM_SpecialBBufEnable(PWM_UNIT);
 
-    HRPWM_U1SingleTransBufConfig(HRPWM_BUF_U1_SINGLE_TRANS_ON); // 使能hrpwm1单次缓存模式
-    //   HRPWM_U1SingleTransBufTrigger(); //触发U1单次缓存
+    HRPWM_U1SingleTransBufConfig(HRPWM_BUF_U1_SINGLE_TRANS_ON); // ʹ��hrpwm1���λ���ģʽ
+    //   HRPWM_U1SingleTransBufTrigger(); //����U1���λ���
 }
 
 __STATIC_INLINE void RAMFUNC HRPWM_IDLE_Exit_32bit(uint32_t u32Unit, uint32_t u32Ch)
@@ -481,41 +481,41 @@ void Set_channelB_outen(uint8_t set)
     }
 }
 
-// A1 IDLE处理
+// A1 IDLE����
 void RAMFUNC bsp_idleA1_process(uint8_t set)
 {
     static uint8_t Last_Set = 0;
-    static uint8_t wait_fresh_CHA = 0; // 每次进入/退出IDLE操作 都等待占空比或极性更新后再进�?
+    static uint8_t wait_fresh_CHA = 0; // ÿ�ν���/�˳�IDLE���� ���ȴ�ռ�ձȻ��Ը��º��ٽ���
     static uint8_t wait_fresh_CHB = 0;
     if ((Last_Set & (HA1_EN_BIT | LA1_EN_BIT)) == (set & (HA1_EN_BIT | LA1_EN_BIT)))
     {
         return;
     }
-    if (set & HA1_EN_BIT) // HA1输出状态，退出IDLE
+    if (set & HA1_EN_BIT) // HA1���״̬���˳�IDLE
     {
-        if (HRPWM_IDLE_GetChStatus(A1_SW_PWM_UNIT, HRPWM_SW_SYNC_CHA) == RESET) // 判断当前通道处于IDLE状�?
+        if (HRPWM_IDLE_GetChStatus(A1_SW_PWM_UNIT, HRPWM_SW_SYNC_CHA) == RESET) // �жϵ�ǰͨ������IDLE״̬
         {
-            if (wait_fresh_CHA == 0) // 等待一个中断周期，等待占空比信息更�?
+            if (wait_fresh_CHA == 0) // �ȴ�һ���ж����ڣ��ȴ�ռ�ձ���Ϣ����
             {
                 wait_fresh_CHA = 1;
             }
             else if (wait_fresh_CHA == 1)
             {
                 wait_fresh_CHA = 0;
-                HRPWM_IDLE_Exit_32bit(A1_SW_PWM_UNIT, HRPWM_SW_SYNC_CHA); // 退出IDLE状�?
+                HRPWM_IDLE_Exit_32bit(A1_SW_PWM_UNIT, HRPWM_SW_SYNC_CHA); // �˳�IDLE״̬
             }
         }
     }
-    else // HA1进入IDLE
+    else // HA1����IDLE
     {
         if (HRPWM_IDLE_GetChStatus(A1_SW_PWM_UNIT, HRPWM_SW_SYNC_CHA) == SET)
         {
             HRPWM_IDLE_EnterImmediate(A1_SW_PWM_UNIT, HRPWM_SW_SYNC_CHA);
         }
     }
-    if (set & LA1_EN_BIT) // LA1输出状�?
+    if (set & LA1_EN_BIT) // LA1���״̬
     {
-        if (HRPWM_IDLE_GetChStatus(A1_SW_PWM_UNIT, HRPWM_SW_SYNC_CHB) == RESET) // 判断当前通道处于IDLE状�?
+        if (HRPWM_IDLE_GetChStatus(A1_SW_PWM_UNIT, HRPWM_SW_SYNC_CHB) == RESET) // �жϵ�ǰͨ������IDLE״̬
         {
             if (wait_fresh_CHB == 0)
             {
@@ -524,7 +524,7 @@ void RAMFUNC bsp_idleA1_process(uint8_t set)
             else if (wait_fresh_CHB == 1)
             {
                 wait_fresh_CHB = 0;
-                HRPWM_IDLE_Exit_32bit(A1_SW_PWM_UNIT, HRPWM_SW_SYNC_CHB); // 退出IDLE状�?
+                HRPWM_IDLE_Exit_32bit(A1_SW_PWM_UNIT, HRPWM_SW_SYNC_CHB); // �˳�IDLE״̬
             }
         }
     }
@@ -541,43 +541,43 @@ void RAMFUNC bsp_idleA1_process(uint8_t set)
     }
 }
 
-// A2 IDLE处理
-// 如果有一路空闲，就开启软件触发事�?
-// 如果有一路输出，就退出相应的通道空闲
+// A2 IDLE����
+// �����һ·���У��Ϳ������������¼�
+// �����һ·��������˳���Ӧ��ͨ������
 void RAMFUNC bsp_idleA2_process(uint8_t set)
 {
     static uint8_t Last_Set = 0;
-    static uint8_t wait_fresh_CHA = 0; // 每次进入/退出IDLE操作 都等待占空比或极性更新后再进�?
+    static uint8_t wait_fresh_CHA = 0; // ÿ�ν���/�˳�IDLE���� ���ȴ�ռ�ձȻ��Ը��º��ٽ���
     static uint8_t wait_fresh_CHB = 0;
     if ((Last_Set & (HA2_EN_BIT | LA2_EN_BIT)) == (set & (HA2_EN_BIT | LA2_EN_BIT)))
     {
         return;
     }
-    if (set & HA2_EN_BIT) // HA1输出状态，退出IDLE
+    if (set & HA2_EN_BIT) // HA1���״̬���˳�IDLE
     {
-        if (HRPWM_IDLE_GetChStatus(A2_SW_PWM_UNIT, HRPWM_SW_SYNC_CHA) == RESET) // 判断当前通道处于IDLE状�?
+        if (HRPWM_IDLE_GetChStatus(A2_SW_PWM_UNIT, HRPWM_SW_SYNC_CHA) == RESET) // �жϵ�ǰͨ������IDLE״̬
         {
-            if (wait_fresh_CHA == 0) // 等待一个中断周期，等待占空比信息更�?
+            if (wait_fresh_CHA == 0) // �ȴ�һ���ж����ڣ��ȴ�ռ�ձ���Ϣ����
             {
                 wait_fresh_CHA = 1;
             }
             else if (wait_fresh_CHA == 1)
             {
                 wait_fresh_CHA = 0;
-                HRPWM_IDLE_Exit_32bit(A2_SW_PWM_UNIT, HRPWM_SW_SYNC_CHA); // 退出IDLE状�?
+                HRPWM_IDLE_Exit_32bit(A2_SW_PWM_UNIT, HRPWM_SW_SYNC_CHA); // �˳�IDLE״̬
             }
         }
     }
-    else // HA1进入IDLE
+    else // HA1����IDLE
     {
         if (HRPWM_IDLE_GetChStatus(A2_SW_PWM_UNIT, HRPWM_SW_SYNC_CHA) == SET)
         {
             HRPWM_IDLE_EnterImmediate(A2_SW_PWM_UNIT, HRPWM_SW_SYNC_CHA);
         }
     }
-    if (set & LA2_EN_BIT) // LA1输出状�?
+    if (set & LA2_EN_BIT) // LA1���״̬
     {
-        if (HRPWM_IDLE_GetChStatus(A2_SW_PWM_UNIT, HRPWM_SW_SYNC_CHB) == RESET) // 判断当前通道处于IDLE状�?
+        if (HRPWM_IDLE_GetChStatus(A2_SW_PWM_UNIT, HRPWM_SW_SYNC_CHB) == RESET) // �жϵ�ǰͨ������IDLE״̬
         {
             if (wait_fresh_CHB == 0)
             {
@@ -586,7 +586,7 @@ void RAMFUNC bsp_idleA2_process(uint8_t set)
             else if (wait_fresh_CHB == 1)
             {
                 wait_fresh_CHB = 0;
-                HRPWM_IDLE_Exit_32bit(A2_SW_PWM_UNIT, HRPWM_SW_SYNC_CHB); // 退出IDLE状�?
+                HRPWM_IDLE_Exit_32bit(A2_SW_PWM_UNIT, HRPWM_SW_SYNC_CHB); // �˳�IDLE״̬
             }
         }
     }
@@ -603,43 +603,43 @@ void RAMFUNC bsp_idleA2_process(uint8_t set)
     }
 }
 
-// B1 IDLE处理
-// 如果有一路空闲，就开启软件触发事�?
-// 如果有一路输出，就退出相应的通道空闲
+// B1 IDLE����
+// �����һ·���У��Ϳ������������¼�
+// �����һ·��������˳���Ӧ��ͨ������
 void RAMFUNC bsp_idleB1_process(uint8_t set)
 {
     static uint8_t Last_Set = 0;
-    static uint8_t wait_fresh_CHA = 0; // 每次进入/退出IDLE操作 都等待占空比或极性更新后再进�?
+    static uint8_t wait_fresh_CHA = 0; // ÿ�ν���/�˳�IDLE���� ���ȴ�ռ�ձȻ��Ը��º��ٽ���
     static uint8_t wait_fresh_CHB = 0;
     if ((Last_Set & (HB1_EN_BIT | LB1_EN_BIT)) == (set & (HB1_EN_BIT | LB1_EN_BIT)))
     {
         return;
     }
-    if (set & HB1_EN_BIT) // HA1输出状态，退出IDLE
+    if (set & HB1_EN_BIT) // HA1���״̬���˳�IDLE
     {
-        if (HRPWM_IDLE_GetChStatus(B1_SW_PWM_UNIT, HRPWM_SW_SYNC_CHA) == RESET) // 判断当前通道处于IDLE状�?
+        if (HRPWM_IDLE_GetChStatus(B1_SW_PWM_UNIT, HRPWM_SW_SYNC_CHA) == RESET) // �жϵ�ǰͨ������IDLE״̬
         {
-            if (wait_fresh_CHA == 0) // 等待一个中断周期，等待占空比信息更�?
+            if (wait_fresh_CHA == 0) // �ȴ�һ���ж����ڣ��ȴ�ռ�ձ���Ϣ����
             {
                 wait_fresh_CHA = 1;
             }
             else if (wait_fresh_CHA == 1)
             {
                 wait_fresh_CHA = 0;
-                HRPWM_IDLE_Exit_32bit(B1_SW_PWM_UNIT, HRPWM_SW_SYNC_CHA); // 退出IDLE状�?
+                HRPWM_IDLE_Exit_32bit(B1_SW_PWM_UNIT, HRPWM_SW_SYNC_CHA); // �˳�IDLE״̬
             }
         }
     }
-    else // HA1进入IDLE
+    else // HA1����IDLE
     {
         if (HRPWM_IDLE_GetChStatus(B1_SW_PWM_UNIT, HRPWM_SW_SYNC_CHA) == SET)
         {
             HRPWM_IDLE_EnterImmediate(B1_SW_PWM_UNIT, HRPWM_SW_SYNC_CHA);
         }
     }
-    if (set & LB1_EN_BIT) // LA1输出状�?
+    if (set & LB1_EN_BIT) // LA1���״̬
     {
-        if (HRPWM_IDLE_GetChStatus(B1_SW_PWM_UNIT, HRPWM_SW_SYNC_CHB) == RESET) // 判断当前通道处于IDLE状�?
+        if (HRPWM_IDLE_GetChStatus(B1_SW_PWM_UNIT, HRPWM_SW_SYNC_CHB) == RESET) // �жϵ�ǰͨ������IDLE״̬
         {
             if (wait_fresh_CHB == 0)
             {
@@ -648,7 +648,7 @@ void RAMFUNC bsp_idleB1_process(uint8_t set)
             else if (wait_fresh_CHB == 1)
             {
                 wait_fresh_CHB = 0;
-                HRPWM_IDLE_Exit_32bit(B1_SW_PWM_UNIT, HRPWM_SW_SYNC_CHB); // 退出IDLE状�?
+                HRPWM_IDLE_Exit_32bit(B1_SW_PWM_UNIT, HRPWM_SW_SYNC_CHB); // �˳�IDLE״̬
             }
         }
     }
@@ -665,43 +665,43 @@ void RAMFUNC bsp_idleB1_process(uint8_t set)
     }
 }
 
-// B2 IDLE处理
-// 如果有一路空闲，就开启软件触发事�?
-// 如果有一路输出，就退出相应的通道空闲
+// B2 IDLE����
+// �����һ·���У��Ϳ������������¼�
+// �����һ·��������˳���Ӧ��ͨ������
 void RAMFUNC bsp_idleB2_process(uint8_t set)
 {
     static uint8_t Last_Set = 0;
-    static uint8_t wait_fresh_CHA = 0; // 每次进入/退出IDLE操作 都等待占空比或极性更新后再进�?
+    static uint8_t wait_fresh_CHA = 0; // ÿ�ν���/�˳�IDLE���� ���ȴ�ռ�ձȻ��Ը��º��ٽ���
     static uint8_t wait_fresh_CHB = 0;
     if ((Last_Set & (HB2_EN_BIT | LB2_EN_BIT)) == (set & (HB2_EN_BIT | LB2_EN_BIT)))
     {
         return;
     }
-    if (set & HB2_EN_BIT) // HA1输出状态，退出IDLE
+    if (set & HB2_EN_BIT) // HA1���״̬���˳�IDLE
     {
-        if (HRPWM_IDLE_GetChStatus(B2_SW_PWM_UNIT, HRPWM_SW_SYNC_CHA) == RESET) // 判断当前通道处于IDLE状�?
+        if (HRPWM_IDLE_GetChStatus(B2_SW_PWM_UNIT, HRPWM_SW_SYNC_CHA) == RESET) // �жϵ�ǰͨ������IDLE״̬
         {
-            if (wait_fresh_CHA == 0) // 等待一个中断周期，等待占空比信息更�?
+            if (wait_fresh_CHA == 0) // �ȴ�һ���ж����ڣ��ȴ�ռ�ձ���Ϣ����
             {
                 wait_fresh_CHA = 1;
             }
             else if (wait_fresh_CHA == 1)
             {
                 wait_fresh_CHA = 0;
-                HRPWM_IDLE_Exit_32bit(B2_SW_PWM_UNIT, HRPWM_SW_SYNC_CHA); // 退出IDLE状�?
+                HRPWM_IDLE_Exit_32bit(B2_SW_PWM_UNIT, HRPWM_SW_SYNC_CHA); // �˳�IDLE״̬
             }
         }
     }
-    else // HA1进入IDLE
+    else // HA1����IDLE
     {
         if (HRPWM_IDLE_GetChStatus(B2_SW_PWM_UNIT, HRPWM_SW_SYNC_CHA) == SET)
         {
             HRPWM_IDLE_EnterImmediate(B2_SW_PWM_UNIT, HRPWM_SW_SYNC_CHA);
         }
     }
-    if (set & LB2_EN_BIT) // LA1输出状�?
+    if (set & LB2_EN_BIT) // LA1���״̬
     {
-        if (HRPWM_IDLE_GetChStatus(B2_SW_PWM_UNIT, HRPWM_SW_SYNC_CHB) == RESET) // 判断当前通道处于IDLE状�?
+        if (HRPWM_IDLE_GetChStatus(B2_SW_PWM_UNIT, HRPWM_SW_SYNC_CHB) == RESET) // �жϵ�ǰͨ������IDLE״̬
         {
             if (wait_fresh_CHB == 0)
             {
@@ -710,7 +710,7 @@ void RAMFUNC bsp_idleB2_process(uint8_t set)
             else if (wait_fresh_CHB == 1)
             {
                 wait_fresh_CHB = 0;
-                HRPWM_IDLE_Exit_32bit(B2_SW_PWM_UNIT, HRPWM_SW_SYNC_CHB); // 退出IDLE状�?
+                HRPWM_IDLE_Exit_32bit(B2_SW_PWM_UNIT, HRPWM_SW_SYNC_CHB); // �˳�IDLE״̬
             }
         }
     }
@@ -785,11 +785,11 @@ void bsp_phase_config(void)
 
 void bsp_pwm_idle_Level(void)
 {
-    // 开启延时空�?
+    // ������ʱ����״̬
     stc_hrpwm_idle_delay_init_t stcIdleDelay;
     (void)HRPWM_IDLE_DELAY_StructInit(&stcIdleDelay);
-    stcIdleDelay.u32TriggerSrc = HRPWM_IDLE_DELAY_TRIG_SW;  // 软件触发延时空闲
-    stcIdleDelay.u32PeriodPoint = HRPWM_CPLT_PERIOD_VALLEY; // 波谷匹配
+    stcIdleDelay.u32TriggerSrc = HRPWM_IDLE_DELAY_TRIG_SW;  // ����������ʱ����
+    stcIdleDelay.u32PeriodPoint = HRPWM_CPLT_PERIOD_VALLEY; // ����ƥ��
     stcIdleDelay.u32IdleOutputChAStatus = HRPWM_IDLE_OUTPUT_CHA_ON;
     stcIdleDelay.u32IdleOutputChBStatus = HRPWM_IDLE_OUTPUT_CHB_ON;
     (void)HRPWM_IDLE_DELAY_Init(A1_PWM_UNIT, &stcIdleDelay);
@@ -837,26 +837,26 @@ void bsp_hrpwm_init_pwc(void)
 
     PWM_polarity_set();
 
-    bsp_DeadTime_Config();       // 死区时间配置
-    bsp_phase_config();          // 相位同步配置
-    bsp_hrpwm_buffer_cfg();      // 缓存配置（影子寄存器�?
-    bsp_hrpwm_ValidPeriod_cfg(); // 周期响应配置（重复次数）
-    bsp_pwm_idle_Level();        // 指定IDLE电平
-    //    HRPWM_IDLE_Exit(HRPWM_PWM_SYNC_UNIT, HRPWM_SW_SYNC_CH_ALL);  //所有通道都退出空�?
-    HRPWM_CountStart(PWM_UNIT); // 启动定时器必须从HRPWM1开始，1是主通道
+    bsp_DeadTime_Config();       // ����ʱ������
+    bsp_phase_config();          // ��λͬ������
+    bsp_hrpwm_buffer_cfg();      // �������ã�Ӱ�ӼĴ�����
+    bsp_hrpwm_ValidPeriod_cfg(); // ������Ӧ���ã��ظ�������
+    bsp_pwm_idle_Level();        // ָ��IDLE��ƽ
+    //    HRPWM_IDLE_Exit(HRPWM_PWM_SYNC_UNIT, HRPWM_SW_SYNC_CH_ALL);  //����ͨ�����˳�����
+    HRPWM_CountStart(PWM_UNIT); // ������ʱ�������HRPWM1��ʼ��1����ͨ��
 
-    HRPWM_IntEnable(PWM_UNIT, HRPWM_INT_UP_MATCH_SPECIAL_A); // 使能定时器中�?    HRPWM_IntEnable_Buf(PWM_UNIT, HRPWM_INT_UP_MATCH_SPECIAL_A);
+    HRPWM_IntEnable(PWM_UNIT, HRPWM_INT_UP_MATCH_SPECIAL_A); // ʹ�ܶ�ʱ���ж϶�    HRPWM_IntEnable_Buf(PWM_UNIT, HRPWM_INT_UP_MATCH_SPECIAL_A);
     HRPWM_IntEnable(PWM_UNIT, HRPWM_INT_UP_MATCH_SPECIAL_B);
     HRPWM_IntEnable_Buf(PWM_UNIT, HRPWM_INT_UP_MATCH_SPECIAL_B);
 }
 
 extern void PWM_para_config(void);
 
-// 设置PWMA通道占空�?
-// 左上 PA8 HA1
-// 左下 PB13 LA1
-// 右上 PA9 HA2
-// 右下 PB14 LA2
+// ����PWMAͨ��ռ�ձ�
+// ���� PA8 HA1
+// ���� PB13 LA1
+// ���� PA9 HA2
+// ���� PB14 LA2
 void RAMFUNC bsp_pwm_set_a_duty(bsp_pwm_t *str)
 {
     CM_HRPWM4->BPCNAR1 &= ~(3 << 16);
@@ -979,11 +979,11 @@ void RAMFUNC bsp_pwm_set_a_duty(bsp_pwm_t *str)
     }
 }
 
-// 设置PWMB通道占空�?
-// 左上 PB8 HA1
-// 左下 PB9 LA1
-// 右上 PB10 HA2
-// 右下 PB11 LA2
+// ����PWMBͨ��ռ�ձ�
+// ���� PB8 HA1
+// ���� PB9 LA1
+// ���� PB10 HA2
+// ���� PB11 LA2
 void RAMFUNC bsp_pwm_set_b_duty(bsp_pwm_t *str)
 {
     CM_HRPWM3->BPCNAR1 &= ~(3 << 16);
@@ -1120,17 +1120,17 @@ void RAMFUNC bsp_pwm_update_chclt2(void)
     Set_channelA_outen(timer_pwma_chctl2);
     Set_channelB_outen(timer_pwmb_chctl2);
 
-    HRPWM_IDLE_Exit_32bit(SW_PWM_UNIT, HRPWM_SW_SYNC_CHA); // 退出IDLE状�?
-    HRPWM_IDLE_Exit_32bit(SW_PWM_UNIT, HRPWM_SW_SYNC_CHB); // 退出IDLE状�?
+    HRPWM_IDLE_Exit_32bit(SW_PWM_UNIT, HRPWM_SW_SYNC_CHA); // �˳�IDLE״̬
+    HRPWM_IDLE_Exit_32bit(SW_PWM_UNIT, HRPWM_SW_SYNC_CHB); // �˳�IDLE״̬
 }
 
-// 设定PWM1的重载值为全频�?
+// �趨PWM1������ֵΪȫƵ��
 void RAMFUNC bsp_pwm_change_freq_pwma(void)
 {
     HRPWM_SetPeriodValue_Buf(PWM_UNIT, CTRL_PERIOD * 4);
 }
 
-// 设定PWMA的重载值为全频�?
+// �趨PWMA������ֵΪȫƵ��
 void RAMFUNC bsp_pwm_change_full_freq_pwma(void)
 {
     HRPWM_SetPeriodValue_Buf(A1_PWM_UNIT, CTRL_PERIOD);
@@ -1140,7 +1140,7 @@ void RAMFUNC bsp_pwm_change_full_freq_pwma(void)
     bsp_pwm_set_aux_phase_90(HRPWM_AUX_PHSCMP_90_FULL);
 }
 
-// 设定PWMB的重载值为全频�?
+// �趨PWMB������ֵΪȫƵ��
 void RAMFUNC bsp_pwm_change_full_freq_pwmb(void)
 {
     HRPWM_SetPeriodValue_Buf(B1_PWM_UNIT, CTRL_PERIOD);
@@ -1150,7 +1150,7 @@ void RAMFUNC bsp_pwm_change_full_freq_pwmb(void)
     bsp_pwm_set_aux_phase_90(HRPWM_AUX_PHSCMP_90_FULL);
 }
 
-// 设定PWMA的重载值为半频�?
+// �趨PWMA������ֵΪ��Ƶ��
 void RAMFUNC bsp_pwm_change_half_freq_pwma(void)
 {
     HRPWM_SetPeriodValue_Buf(A1_PWM_UNIT, ((CTRL_PERIOD) << 1));
@@ -1160,7 +1160,7 @@ void RAMFUNC bsp_pwm_change_half_freq_pwma(void)
     bsp_pwm_set_aux_phase_90(HRPWM_AUX_PHSCMP_90_HALF);
 }
 
-// 设定PWMB的重载值为半频�?
+// �趨PWMB������ֵΪ��Ƶ��
 void RAMFUNC bsp_pwm_change_half_freq_pwmb(void)
 {
     HRPWM_SetPeriodValue_Buf(B1_PWM_UNIT, ((CTRL_PERIOD) << 1));
@@ -1218,12 +1218,12 @@ void RAMFUNC bsp_pwm_update_aux_by_main_pwm(const bsp_pwm_t *pwma, const bsp_pwm
 
 void RAMFUNC bsp_hrpwm1_update_trig(void)
 {
-    HRPWM_U1SingleTransBufTrigger(); // 触发U1单次缓存
+    HRPWM_U1SingleTransBufTrigger(); // ����U1���λ���
 }
 
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
-// 以下代码暂时没有用到
+// ���´�����ʱû���õ�
 
 void set_channelA_inv(uint8_t set)
 {
@@ -1297,11 +1297,11 @@ void set_channelB_inv(uint8_t set)
     }
 }
 
-// 获取A1,A2通道的输出状�?
-// 1使能 0不使�?
+// ��ȡA1,A2ͨ�������״̬
+// 1ʹ�ܣ�0��ʹ��
 // BIT0: HA1   PWM4_A
 // BIT1: LA1   PWM4_B
-// BIT2: HA2   PWM5_B  //注意此处硬件PWMA/B和H/L是反�?
+// BIT2: HA2   PWM5_B  //ע��˴�Ӳ��PWMA/B��H/L�෴
 // BIT3: LA2   PWM5_A
 uint8_t get_channelA_outen(void)
 {
@@ -1345,8 +1345,8 @@ uint8_t get_channelA_outen(void)
     return temp;
 }
 
-// 获取B1,B2通道的输出状�?
-// 1使能 0不使�?
+// ��ȡB1,B2ͨ�������״̬
+// 1ʹ�ܣ�0��ʹ��
 // BIT0: HB1   PWM1_A
 // BIT1: LB1   PWM1_B
 // BIT2: HB2   PWM2_A
@@ -1416,7 +1416,7 @@ void bsp_pwm_deinit(void)
 
     HRPWM_CountStop(PWM_UNIT);
 
-    HRPWM_IntDisable(PWM_UNIT, HRPWM_INT_UP_MATCH_SPECIAL_A); // 使能定时器中�?
+    HRPWM_IntDisable(PWM_UNIT, HRPWM_INT_UP_MATCH_SPECIAL_A); // ʹ�ܶ�ʱ���ж�
     HRPWM_IntDisable_Buf(PWM_UNIT, HRPWM_INT_UP_MATCH_SPECIAL_A);
 
     FCG_Fcg2PeriphClockCmd(HRPWM_PWM_FCG, DISABLE);
@@ -1443,11 +1443,11 @@ void bsp_pwm_init(void)
         // add code here if calibration failed
     }
 
-    CM_HRPWM1->CR |= 1 << 3; /* 1：使能高精度HRPWM */
-    CM_HRPWM2->CR |= 1 << 3; /* 1：使能高精度HRPWM */
-    CM_HRPWM3->CR |= 1 << 3; /* 1：使能高精度HRPWM */
-    CM_HRPWM4->CR |= 1 << 3; /* 1：使能高精度HRPWM */
-    CM_HRPWM5->CR |= 1 << 3; /* 1：使能高精度HRPWM */
+    CM_HRPWM1->CR |= 1 << 3; /* 1��ʹ�ܸ߾���HRPWM */
+    CM_HRPWM2->CR |= 1 << 3; /* 1��ʹ�ܸ߾���HRPWM */
+    CM_HRPWM3->CR |= 1 << 3; /* 1��ʹ�ܸ߾���HRPWM */
+    CM_HRPWM4->CR |= 1 << 3; /* 1��ʹ�ܸ߾���HRPWM */
+    CM_HRPWM5->CR |= 1 << 3; /* 1��ʹ�ܸ߾���HRPWM */
 
     CM_HRPWM6->CR |= 1 << 3;
 
@@ -1499,7 +1499,7 @@ void bsp_pwm_init(void)
     bCM_HRPWM5->BCONR2_b.BENCTL = 1;
     bCM_HRPWM6->BCONR2_b.BENCTL = 1;
 
-    /* 设置缓存传送条�?*/
+    /* ���û��洫������*/
     bCM_HRPWM2->BCONR2_b.BTRU0PCTL = 1;
     bCM_HRPWM2->BCONR2_b.BTRU0PAE = 1;
     bCM_HRPWM2->BCONR2_b.BTRU0PBF = 1;
@@ -1538,138 +1538,138 @@ void bsp_pwm_init(void)
 
     CM_HRPWM2->BPCNAR1 = 0;
 
-    CM_HRPWM2->BPCNAR1 |= (2 << 0) |  /* 10：计数开始时，HRPWM_<t>_PWMA端口输出保持先前状�?*/
-                          (0 << 2) |  /* 00：计数停止时，HRPWM_<t>_PWMA端口输出设定为低电平 */
-                          (2 << 4) |  /* 10：计数值等于周期值或者锯齿波硬件清零时，HRPWM_<t>_PWMA端口输出不受影响 */
-                          (2 << 6) |  /* 10：计数值等�?时，HRPWM_<t>_PWMA端口输出不受影响 */
-                          (0 << 8) |  /* 00：在向上计数期间，定时器计数值与GCMAR相等时，HRPWM_<t>_PWMA端口输出设定为低电平 */
-                          (1 << 10) | /* 01：在向下计数期间，定时器计数值与GCMAR相等时，HRPWM_<t>_PWMA端口输出设定为高电平 */
-                          (2 << 12) | /* 10：在向上计数期间，定时器计数值与GCMBR相等时，HRPWM_<t>_PWMA端口输出不受影响 */
-                          (2 << 14) | /* 10：在向下计数期间，定时器计数值与GCMBR相等时，HRPWM_<t>_PWMA端口输出不受影响 */
-                          (2 << 16) | /* 10：下周期开始，HRPWM_<t>_PWMA端口输出设定为低电平 �?：该寄存器位可用于实现PWM输出占空�?%�?00%的控�?*/
-                          (0 << 20) | /* 00：被选择的通道发生EMB事件时，HRPWM_<t>_PWMA端口正常输出 */
-                          (0 << 22) | /* 00：被选择的通道EMB事件无效时，立即释放HRPWM_<t>_PWMA端口（One Shot�?*/
-                          (0 << 24) | /* 000：选择EMB事件通道0有效 */
-                          (1 << 28)   /* 0：HRPWM功能时的HRPWM_<t>_PWMA端口输出无效 */
+    CM_HRPWM2->BPCNAR1 |= (2 << 0) |  /* 10��������ʼʱ��HRPWM_<t>_PWMA�˿����������ǰ״̬*/
+                          (0 << 2) |  /* 00������ֹͣʱ��HRPWM_<t>_PWMA�˿�����趨Ϊ�͵�ƽ */
+                          (2 << 4) |  /* 10������ֵ��������ֵ���߾�ݲ�Ӳ������ʱ��HRPWM_<t>_PWMA�˿��������Ӱ�� */
+                          (2 << 6) |  /* 10������ֵ���ʱ��HRPWM_<t>_PWMA�˿��������Ӱ�� */
+                          (0 << 8) |  /* 00�������ϼ����ڼ䣬��ʱ������ֵ��GCMAR���ʱ��HRPWM_<t>_PWMA�˿�����趨Ϊ�͵�ƽ */
+                          (1 << 10) | /* 01�������¼����ڼ䣬��ʱ������ֵ��GCMAR���ʱ��HRPWM_<t>_PWMA�˿�����趨Ϊ�ߵ�ƽ */
+                          (2 << 12) | /* 10�������ϼ����ڼ䣬��ʱ������ֵ��GCMBR���ʱ��HRPWM_<t>_PWMA�˿��������Ӱ�� */
+                          (2 << 14) | /* 10�������¼����ڼ䣬��ʱ������ֵ��GCMBR���ʱ��HRPWM_<t>_PWMA�˿��������Ӱ�� */
+                          (2 << 16) | /* 10�������ڿ�ʼ��HRPWM_<t>_PWMA�˿�����趨Ϊ�͵�ƽ��ע���üĴ���λ������ʵ��PWM���ռ�ձ�0%��100%�Ŀ���*/
+                          (0 << 20) | /* 00����ѡ���ͨ������EMB�¼�ʱ��HRPWM_<t>_PWMA�˿�������� */
+                          (0 << 22) | /* 00����ѡ���ͨ��EMB�¼���Чʱ�������ͷ�HRPWM_<t>_PWMA�˿ڣ�One Shot��*/
+                          (0 << 24) | /* 000��ѡ��EMB�¼�ͨ��0��Ч */
+                          (1 << 28)   /* 0��HRPWM����ʱ��HRPWM_<t>_PWMA�˿������Ч */
         ;
 
     CM_HRPWM2->BPCNBR1 = 0;
 
-    CM_HRPWM2->BPCNBR1 |= (2 << 0) |  /* 10：计数开始时，HRPWM_<t>_PWMB端口输出保持先前状�?*/
-                          (0 << 2) |  /* 00：计数停止时，HRPWM_<t>_PWMB端口输出设定为低电平 */
-                          (2 << 4) |  /* 10：计数值等于周期值或者锯齿波硬件清零时，HRPWM_<t>_PWMB端口输出不受影响 */
-                          (2 << 6) |  /* 10：计数值等�?时，HRPWM_<t>_PWMB端口输出不受影响 */
-                          (2 << 8) |  /* 00：在向上计数期间，定时器计数值与GCMBR相等时，HRPWM_<t>_PWMB端口输出不受影响 */
-                          (2 << 10) | /* 01：在向下计数期间，定时器计数值与GCMBR相等时，HRPWM_<t>_PWMB端口输出不受影响 */
-                          (1 << 12) | /* 10：在向上计数期间，定时器计数值与GCMBR相等时，HRPWM_<t>_PWMB端口输出设定为高电平 */
-                          (0 << 14) | /* 10：在向下计数期间，定时器计数值与GCMBR相等时，HRPWM_<t>_PWMB端口输出设定为低电平 */
-                          (2 << 16) | /* 10：下周期开始，HRPWM_<t>_PWMB端口输出设定为低电平 �?：该寄存器位可用于实现PWM输出占空�?%�?00%的控�?*/
-                          (0 << 20) | /* 00：被选择的通道发生EMB事件时，HRPWM_<t>_PWMB端口正常输出 */
-                          (0 << 22) | /* 00：被选择的通道EMB事件无效时，立即释放HRPWM_<t>_PWMB端口（One Shot�?*/
-                          (0 << 24) | /* 000：选择EMB事件通道0有效 */
-                          (1 << 28)   /* 0：HRPWM功能时的HRPWM_<t>_PWMB端口输出无效 */
+    CM_HRPWM2->BPCNBR1 |= (2 << 0) |  /* 10��������ʼʱ��HRPWM_<t>_PWMB�˿����������ǰ״̬*/
+                          (0 << 2) |  /* 00������ֹͣʱ��HRPWM_<t>_PWMB�˿�����趨Ϊ�͵�ƽ */
+                          (2 << 4) |  /* 10������ֵ��������ֵ���߾�ݲ�Ӳ������ʱ��HRPWM_<t>_PWMB�˿��������Ӱ�� */
+                          (2 << 6) |  /* 10������ֵ���ʱ��HRPWM_<t>_PWMB�˿��������Ӱ�� */
+                          (2 << 8) |  /* 00�������ϼ����ڼ䣬��ʱ������ֵ��GCMBR���ʱ��HRPWM_<t>_PWMB�˿��������Ӱ�� */
+                          (2 << 10) | /* 01�������¼����ڼ䣬��ʱ������ֵ��GCMBR���ʱ��HRPWM_<t>_PWMB�˿��������Ӱ�� */
+                          (1 << 12) | /* 10�������ϼ����ڼ䣬��ʱ������ֵ��GCMBR���ʱ��HRPWM_<t>_PWMB�˿�����趨Ϊ�ߵ�ƽ */
+                          (0 << 14) | /* 10�������¼����ڼ䣬��ʱ������ֵ��GCMBR���ʱ��HRPWM_<t>_PWMB�˿�����趨Ϊ�͵�ƽ */
+                          (2 << 16) | /* 10�������ڿ�ʼ��HRPWM_<t>_PWMB�˿�����趨Ϊ�͵�ƽ��ע���üĴ���λ������ʵ��PWM���ռ�ձ�0%��100%�Ŀ���*/
+                          (0 << 20) | /* 00����ѡ���ͨ������EMB�¼�ʱ��HRPWM_<t>_PWMB�˿�������� */
+                          (0 << 22) | /* 00����ѡ���ͨ��EMB�¼���Чʱ�������ͷ�HRPWM_<t>_PWMB�˿ڣ�One Shot��*/
+                          (0 << 24) | /* 000��ѡ��EMB�¼�ͨ��0��Ч */
+                          (1 << 28)   /* 0��HRPWM����ʱ��HRPWM_<t>_PWMB�˿������Ч */
         ;
 
     CM_HRPWM3->BPCNAR1 = 0;
 
-    CM_HRPWM3->BPCNAR1 |= (2 << 0) |  /* 10：计数开始时，HRPWM_<t>_PWMA端口输出保持先前状�?*/
-                          (0 << 2) |  /* 00：计数停止时，HRPWM_<t>_PWMA端口输出设定为低电平 */
-                          (2 << 4) |  /* 10：计数值等于周期值或者锯齿波硬件清零时，HRPWM_<t>_PWMA端口输出不受影响 */
-                          (2 << 6) |  /* 10：计数值等�?时，HRPWM_<t>_PWMA端口输出不受影响 */
-                          (1 << 8) |  /* 00：在向上计数期间，定时器计数值与GCMAR相等时，HRPWM_<t>_PWMA端口输出设定为高电平 */
-                          (0 << 10) | /* 01：在向下计数期间，定时器计数值与GCMAR相等时，HRPWM_<t>_PWMA端口输出设定为低电平 */
-                          (2 << 12) | /* 10：在向上计数期间，定时器计数值与GCMBR相等时，HRPWM_<t>_PWMA端口输出不受影响 */
-                          (2 << 14) | /* 10：在向下计数期间，定时器计数值与GCMBR相等时，HRPWM_<t>_PWMA端口输出不受影响 */
-                          (2 << 16) | /* 10：下周期开始，HRPWM_<t>_PWMA端口输出设定为低电平 �?：该寄存器位可用于实现PWM输出占空�?%�?00%的控�?*/
-                          (0 << 20) | /* 00：被选择的通道发生EMB事件时，HRPWM_<t>_PWMA端口正常输出 */
-                          (0 << 22) | /* 00：被选择的通道EMB事件无效时，立即释放HRPWM_<t>_PWMA端口（One Shot�?*/
-                          (0 << 24) | /* 000：选择EMB事件通道0有效 */
-                          (1 << 28)   /* 0：HRPWM功能时的HRPWM_<t>_PWMA端口输出无效 */
+    CM_HRPWM3->BPCNAR1 |= (2 << 0) |  /* 10��������ʼʱ��HRPWM_<t>_PWMA�˿����������ǰ״̬*/
+                          (0 << 2) |  /* 00������ֹͣʱ��HRPWM_<t>_PWMA�˿�����趨Ϊ�͵�ƽ */
+                          (2 << 4) |  /* 10������ֵ��������ֵ���߾�ݲ�Ӳ������ʱ��HRPWM_<t>_PWMA�˿��������Ӱ�� */
+                          (2 << 6) |  /* 10������ֵ���ʱ��HRPWM_<t>_PWMA�˿��������Ӱ�� */
+                          (1 << 8) |  /* 00�������ϼ����ڼ䣬��ʱ������ֵ��GCMAR���ʱ��HRPWM_<t>_PWMA�˿�����趨Ϊ�ߵ�ƽ */
+                          (0 << 10) | /* 01�������¼����ڼ䣬��ʱ������ֵ��GCMAR���ʱ��HRPWM_<t>_PWMA�˿�����趨Ϊ�͵�ƽ */
+                          (2 << 12) | /* 10�������ϼ����ڼ䣬��ʱ������ֵ��GCMBR���ʱ��HRPWM_<t>_PWMA�˿��������Ӱ�� */
+                          (2 << 14) | /* 10�������¼����ڼ䣬��ʱ������ֵ��GCMBR���ʱ��HRPWM_<t>_PWMA�˿��������Ӱ�� */
+                          (2 << 16) | /* 10�������ڿ�ʼ��HRPWM_<t>_PWMA�˿�����趨Ϊ�͵�ƽ��ע���üĴ���λ������ʵ��PWM���ռ�ձ�0%��100%�Ŀ���*/
+                          (0 << 20) | /* 00����ѡ���ͨ������EMB�¼�ʱ��HRPWM_<t>_PWMA�˿�������� */
+                          (0 << 22) | /* 00����ѡ���ͨ��EMB�¼���Чʱ�������ͷ�HRPWM_<t>_PWMA�˿ڣ�One Shot��*/
+                          (0 << 24) | /* 000��ѡ��EMB�¼�ͨ��0��Ч */
+                          (1 << 28)   /* 0��HRPWM����ʱ��HRPWM_<t>_PWMA�˿������Ч */
         ;
 
     CM_HRPWM3->BPCNBR1 = 0;
 
-    CM_HRPWM3->BPCNBR1 |= (2 << 0) |  /* 10：计数开始时，HRPWM_<t>_PWMB端口输出保持先前状�?*/
-                          (0 << 2) |  /* 00：计数停止时，HRPWM_<t>_PWMB端口输出设定为低电平 */
-                          (2 << 4) |  /* 10：计数值等于周期值或者锯齿波硬件清零时，HRPWM_<t>_PWMB端口输出不受影响 */
-                          (2 << 6) |  /* 10：计数值等�?时，HRPWM_<t>_PWMB端口输出不受影响 */
-                          (2 << 8) |  /* 00：在向上计数期间，定时器计数值与GCMBR相等时，HRPWM_<t>_PWMB端口输出不受影响 */
-                          (2 << 10) | /* 01：在向下计数期间，定时器计数值与GCMBR相等时，HRPWM_<t>_PWMB端口输出不受影响 */
-                          (0 << 12) | /* 10：在向上计数期间，定时器计数值与GCMBR相等时，HRPWM_<t>_PWMB端口输出设定为低电平 */
-                          (1 << 14) | /* 10：在向下计数期间，定时器计数值与GCMBR相等时，HRPWM_<t>_PWMB端口输出设定为高电平 */
-                          (2 << 16) | /* 10：下周期开始，HRPWM_<t>_PWMB端口输出设定为低电平 �?：该寄存器位可用于实现PWM输出占空�?%�?00%的控�?*/
-                          (0 << 20) | /* 00：被选择的通道发生EMB事件时，HRPWM_<t>_PWMB端口正常输出 */
-                          (0 << 22) | /* 00：被选择的通道EMB事件无效时，立即释放HRPWM_<t>_PWMB端口（One Shot�?*/
-                          (0 << 24) | /* 000：选择EMB事件通道0有效 */
-                          (1 << 28)   /* 0：HRPWM功能时的HRPWM_<t>_PWMB端口输出无效 */
+    CM_HRPWM3->BPCNBR1 |= (2 << 0) |  /* 10��������ʼʱ��HRPWM_<t>_PWMB�˿����������ǰ״̬*/
+                          (0 << 2) |  /* 00������ֹͣʱ��HRPWM_<t>_PWMB�˿�����趨Ϊ�͵�ƽ */
+                          (2 << 4) |  /* 10������ֵ��������ֵ���߾�ݲ�Ӳ������ʱ��HRPWM_<t>_PWMB�˿��������Ӱ�� */
+                          (2 << 6) |  /* 10������ֵ���ʱ��HRPWM_<t>_PWMB�˿��������Ӱ�� */
+                          (2 << 8) |  /* 00�������ϼ����ڼ䣬��ʱ������ֵ��GCMBR���ʱ��HRPWM_<t>_PWMB�˿��������Ӱ�� */
+                          (2 << 10) | /* 01�������¼����ڼ䣬��ʱ������ֵ��GCMBR���ʱ��HRPWM_<t>_PWMB�˿��������Ӱ�� */
+                          (0 << 12) | /* 10�������ϼ����ڼ䣬��ʱ������ֵ��GCMBR���ʱ��HRPWM_<t>_PWMB�˿�����趨Ϊ�͵�ƽ */
+                          (1 << 14) | /* 10�������¼����ڼ䣬��ʱ������ֵ��GCMBR���ʱ��HRPWM_<t>_PWMB�˿�����趨Ϊ�ߵ�ƽ */
+                          (2 << 16) | /* 10�������ڿ�ʼ��HRPWM_<t>_PWMB�˿�����趨Ϊ�͵�ƽ��ע���üĴ���λ������ʵ��PWM���ռ�ձ�0%��100%�Ŀ���*/
+                          (0 << 20) | /* 00����ѡ���ͨ������EMB�¼�ʱ��HRPWM_<t>_PWMB�˿�������� */
+                          (0 << 22) | /* 00����ѡ���ͨ��EMB�¼���Чʱ�������ͷ�HRPWM_<t>_PWMB�˿ڣ�One Shot��*/
+                          (0 << 24) | /* 000��ѡ��EMB�¼�ͨ��0��Ч */
+                          (1 << 28)   /* 0��HRPWM����ʱ��HRPWM_<t>_PWMB�˿������Ч */
         ;
 
     CM_HRPWM4->BPCNAR1 = 0;
 
-    CM_HRPWM4->BPCNAR1 |= (2 << 0) |  /* 10：计数开始时，HRPWM_<t>_PWMA端口输出保持先前状�?*/
-                          (0 << 2) |  /* 00：计数停止时，HRPWM_<t>_PWMA端口输出设定为低电平 */
-                          (2 << 4) |  /* 10：计数值等于周期值或者锯齿波硬件清零时，HRPWM_<t>_PWMA端口输出不受影响 */
-                          (2 << 6) |  /* 10：计数值等�?时，HRPWM_<t>_PWMA端口输出不受影响 */
-                          (0 << 8) |  /* 00：在向上计数期间，定时器计数值与GCMAR相等时，HRPWM_<t>_PWMA端口输出设定为低电平 */
-                          (1 << 10) | /* 01：在向下计数期间，定时器计数值与GCMAR相等时，HRPWM_<t>_PWMA端口输出设定为高电平 */
-                          (2 << 12) | /* 10：在向上计数期间，定时器计数值与GCMBR相等时，HRPWM_<t>_PWMA端口输出不受影响 */
-                          (2 << 14) | /* 10：在向下计数期间，定时器计数值与GCMBR相等时，HRPWM_<t>_PWMA端口输出不受影响 */
-                          (2 << 16) | /* 10：下周期开始，HRPWM_<t>_PWMA端口输出设定为低电平 �?：该寄存器位可用于实现PWM输出占空�?%�?00%的控�?*/
-                          (0 << 20) | /* 00：被选择的通道发生EMB事件时，HRPWM_<t>_PWMA端口正常输出 */
-                          (0 << 22) | /* 00：被选择的通道EMB事件无效时，立即释放HRPWM_<t>_PWMA端口（One Shot�?*/
-                          (0 << 24) | /* 000：选择EMB事件通道0有效 */
-                          (1 << 28)   /* 0：HRPWM功能时的HRPWM_<t>_PWMA端口输出无效 */
+    CM_HRPWM4->BPCNAR1 |= (2 << 0) |  /* 10��������ʼʱ��HRPWM_<t>_PWMA�˿����������ǰ״̬*/
+                          (0 << 2) |  /* 00������ֹͣʱ��HRPWM_<t>_PWMA�˿�����趨Ϊ�͵�ƽ */
+                          (2 << 4) |  /* 10������ֵ��������ֵ���߾�ݲ�Ӳ������ʱ��HRPWM_<t>_PWMA�˿��������Ӱ�� */
+                          (2 << 6) |  /* 10������ֵ���ʱ��HRPWM_<t>_PWMA�˿��������Ӱ�� */
+                          (0 << 8) |  /* 00�������ϼ����ڼ䣬��ʱ������ֵ��GCMAR���ʱ��HRPWM_<t>_PWMA�˿�����趨Ϊ�͵�ƽ */
+                          (1 << 10) | /* 01�������¼����ڼ䣬��ʱ������ֵ��GCMAR���ʱ��HRPWM_<t>_PWMA�˿�����趨Ϊ�ߵ�ƽ */
+                          (2 << 12) | /* 10�������ϼ����ڼ䣬��ʱ������ֵ��GCMBR���ʱ��HRPWM_<t>_PWMA�˿��������Ӱ�� */
+                          (2 << 14) | /* 10�������¼����ڼ䣬��ʱ������ֵ��GCMBR���ʱ��HRPWM_<t>_PWMA�˿��������Ӱ�� */
+                          (2 << 16) | /* 10�������ڿ�ʼ��HRPWM_<t>_PWMA�˿�����趨Ϊ�͵�ƽ��ע���üĴ���λ������ʵ��PWM���ռ�ձ�0%��100%�Ŀ���*/
+                          (0 << 20) | /* 00����ѡ���ͨ������EMB�¼�ʱ��HRPWM_<t>_PWMA�˿�������� */
+                          (0 << 22) | /* 00����ѡ���ͨ��EMB�¼���Чʱ�������ͷ�HRPWM_<t>_PWMA�˿ڣ�One Shot��*/
+                          (0 << 24) | /* 000��ѡ��EMB�¼�ͨ��0��Ч */
+                          (1 << 28)   /* 0��HRPWM����ʱ��HRPWM_<t>_PWMA�˿������Ч */
         ;
 
     CM_HRPWM4->BPCNBR1 = 0;
 
-    CM_HRPWM4->BPCNBR1 |= (2 << 0) |  /* 10：计数开始时，HRPWM_<t>_PWMB端口输出保持先前状�?*/
-                          (0 << 2) |  /* 00：计数停止时，HRPWM_<t>_PWMB端口输出设定为低电平 */
-                          (2 << 4) |  /* 10：计数值等于周期值或者锯齿波硬件清零时，HRPWM_<t>_PWMB端口输出不受影响 */
-                          (2 << 6) |  /* 10：计数值等�?时，HRPWM_<t>_PWMB端口输出不受影响 */
-                          (2 << 8) |  /* 00：在向上计数期间，定时器计数值与GCMBR相等时，HRPWM_<t>_PWMB端口输出不受影响 */
-                          (2 << 10) | /* 01：在向下计数期间，定时器计数值与GCMBR相等时，HRPWM_<t>_PWMB端口输出不受影响 */
-                          (1 << 12) | /* 10：在向上计数期间，定时器计数值与GCMBR相等时，HRPWM_<t>_PWMB端口输出设定为高电平 */
-                          (0 << 14) | /* 10：在向下计数期间，定时器计数值与GCMBR相等时，HRPWM_<t>_PWMB端口输出设定为低电平 */
-                          (2 << 16) | /* 10：下周期开始，HRPWM_<t>_PWMB端口输出设定为低电平 �?：该寄存器位可用于实现PWM输出占空�?%�?00%的控�?*/
-                          (0 << 20) | /* 00：被选择的通道发生EMB事件时，HRPWM_<t>_PWMB端口正常输出 */
-                          (0 << 22) | /* 00：被选择的通道EMB事件无效时，立即释放HRPWM_<t>_PWMB端口（One Shot�?*/
-                          (0 << 24) | /* 000：选择EMB事件通道0有效 */
-                          (1 << 28)   /* 0：HRPWM功能时的HRPWM_<t>_PWMB端口输出无效 */
+    CM_HRPWM4->BPCNBR1 |= (2 << 0) |  /* 10��������ʼʱ��HRPWM_<t>_PWMB�˿����������ǰ״̬*/
+                          (0 << 2) |  /* 00������ֹͣʱ��HRPWM_<t>_PWMB�˿�����趨Ϊ�͵�ƽ */
+                          (2 << 4) |  /* 10������ֵ��������ֵ���߾�ݲ�Ӳ������ʱ��HRPWM_<t>_PWMB�˿��������Ӱ�� */
+                          (2 << 6) |  /* 10������ֵ���ʱ��HRPWM_<t>_PWMB�˿��������Ӱ�� */
+                          (2 << 8) |  /* 00�������ϼ����ڼ䣬��ʱ������ֵ��GCMBR���ʱ��HRPWM_<t>_PWMB�˿��������Ӱ�� */
+                          (2 << 10) | /* 01�������¼����ڼ䣬��ʱ������ֵ��GCMBR���ʱ��HRPWM_<t>_PWMB�˿��������Ӱ�� */
+                          (1 << 12) | /* 10�������ϼ����ڼ䣬��ʱ������ֵ��GCMBR���ʱ��HRPWM_<t>_PWMB�˿�����趨Ϊ�ߵ�ƽ */
+                          (0 << 14) | /* 10�������¼����ڼ䣬��ʱ������ֵ��GCMBR���ʱ��HRPWM_<t>_PWMB�˿�����趨Ϊ�͵�ƽ */
+                          (2 << 16) | /* 10�������ڿ�ʼ��HRPWM_<t>_PWMB�˿�����趨Ϊ�͵�ƽ��ע���üĴ���λ������ʵ��PWM���ռ�ձ�0%��100%�Ŀ���*/
+                          (0 << 20) | /* 00����ѡ���ͨ������EMB�¼�ʱ��HRPWM_<t>_PWMB�˿�������� */
+                          (0 << 22) | /* 00����ѡ���ͨ��EMB�¼���Чʱ�������ͷ�HRPWM_<t>_PWMB�˿ڣ�One Shot��*/
+                          (0 << 24) | /* 000��ѡ��EMB�¼�ͨ��0��Ч */
+                          (1 << 28)   /* 0��HRPWM����ʱ��HRPWM_<t>_PWMB�˿������Ч */
         ;
 
     CM_HRPWM5->BPCNAR1 = 0;
 
-    CM_HRPWM5->BPCNAR1 |= (2 << 0) |  /* 10：计数开始时，HRPWM_<t>_PWMA端口输出保持先前状�?*/
-                          (0 << 2) |  /* 00：计数停止时，HRPWM_<t>_PWMA端口输出设定为低电平 */
-                          (2 << 4) |  /* 10：计数值等于周期值或者锯齿波硬件清零时，HRPWM_<t>_PWMA端口输出不受影响 */
-                          (2 << 6) |  /* 10：计数值等�?时，HRPWM_<t>_PWMA端口输出不受影响 */
-                          (1 << 8) |  /* 00：在向上计数期间，定时器计数值与GCMAR相等时，HRPWM_<t>_PWMA端口输出设定为高电平 */
-                          (0 << 10) | /* 01：在向下计数期间，定时器计数值与GCMAR相等时，HRPWM_<t>_PWMA端口输出设定为低电平 */
-                          (2 << 12) | /* 10：在向上计数期间，定时器计数值与GCMBR相等时，HRPWM_<t>_PWMA端口输出不受影响 */
-                          (2 << 14) | /* 10：在向下计数期间，定时器计数值与GCMBR相等时，HRPWM_<t>_PWMA端口输出不受影响 */
-                          (2 << 16) | /* 10：下周期开始，HRPWM_<t>_PWMA端口输出设定为低电平 �?：该寄存器位可用于实现PWM输出占空�?%�?00%的控�?*/
-                          (0 << 20) | /* 00：被选择的通道发生EMB事件时，HRPWM_<t>_PWMA端口正常输出 */
-                          (0 << 22) | /* 00：被选择的通道EMB事件无效时，立即释放HRPWM_<t>_PWMA端口（One Shot�?*/
-                          (0 << 24) | /* 000：选择EMB事件通道0有效 */
-                          (1 << 28)   /* 0：HRPWM功能时的HRPWM_<t>_PWMA端口输出无效 */
+    CM_HRPWM5->BPCNAR1 |= (2 << 0) |  /* 10��������ʼʱ��HRPWM_<t>_PWMA�˿����������ǰ״̬*/
+                          (0 << 2) |  /* 00������ֹͣʱ��HRPWM_<t>_PWMA�˿�����趨Ϊ�͵�ƽ */
+                          (2 << 4) |  /* 10������ֵ��������ֵ���߾�ݲ�Ӳ������ʱ��HRPWM_<t>_PWMA�˿��������Ӱ�� */
+                          (2 << 6) |  /* 10������ֵ���ʱ��HRPWM_<t>_PWMA�˿��������Ӱ�� */
+                          (1 << 8) |  /* 00�������ϼ����ڼ䣬��ʱ������ֵ��GCMAR���ʱ��HRPWM_<t>_PWMA�˿�����趨Ϊ�ߵ�ƽ */
+                          (0 << 10) | /* 01�������¼����ڼ䣬��ʱ������ֵ��GCMAR���ʱ��HRPWM_<t>_PWMA�˿�����趨Ϊ�͵�ƽ */
+                          (2 << 12) | /* 10�������ϼ����ڼ䣬��ʱ������ֵ��GCMBR���ʱ��HRPWM_<t>_PWMA�˿��������Ӱ�� */
+                          (2 << 14) | /* 10�������¼����ڼ䣬��ʱ������ֵ��GCMBR���ʱ��HRPWM_<t>_PWMA�˿��������Ӱ�� */
+                          (2 << 16) | /* 10�������ڿ�ʼ��HRPWM_<t>_PWMA�˿�����趨Ϊ�͵�ƽ��ע���üĴ���λ������ʵ��PWM���ռ�ձ�0%��100%�Ŀ���*/
+                          (0 << 20) | /* 00����ѡ���ͨ������EMB�¼�ʱ��HRPWM_<t>_PWMA�˿�������� */
+                          (0 << 22) | /* 00����ѡ���ͨ��EMB�¼���Чʱ�������ͷ�HRPWM_<t>_PWMA�˿ڣ�One Shot��*/
+                          (0 << 24) | /* 000��ѡ��EMB�¼�ͨ��0��Ч */
+                          (1 << 28)   /* 0��HRPWM����ʱ��HRPWM_<t>_PWMA�˿������Ч */
         ;
 
     CM_HRPWM5->BPCNBR1 = 0;
 
-    CM_HRPWM5->BPCNBR1 |= (2 << 0) |  /* 10：计数开始时，HRPWM_<t>_PWMB端口输出保持先前状�?*/
-                          (0 << 2) |  /* 00：计数停止时，HRPWM_<t>_PWMB端口输出设定为低电平 */
-                          (2 << 4) |  /* 10：计数值等于周期值或者锯齿波硬件清零时，HRPWM_<t>_PWMB端口输出不受影响 */
-                          (2 << 6) |  /* 10：计数值等�?时，HRPWM_<t>_PWMB端口输出不受影响 */
-                          (2 << 8) |  /* 00：在向上计数期间，定时器计数值与GCMBR相等时，HRPWM_<t>_PWMB端口输出不受影响 */
-                          (2 << 10) | /* 01：在向下计数期间，定时器计数值与GCMBR相等时，HRPWM_<t>_PWMB端口输出不受影响 */
-                          (0 << 12) | /* 10：在向上计数期间，定时器计数值与GCMBR相等时，HRPWM_<t>_PWMB端口输出设定为低电平 */
-                          (1 << 14) | /* 10：在向下计数期间，定时器计数值与GCMBR相等时，HRPWM_<t>_PWMB端口输出设定为高电平 */
-                          (2 << 16) | /* 10：下周期开始，HRPWM_<t>_PWMB端口输出设定为低电平 �?：该寄存器位可用于实现PWM输出占空�?%�?00%的控�?*/
-                          (0 << 20) | /* 00：被选择的通道发生EMB事件时，HRPWM_<t>_PWMB端口正常输出 */
-                          (0 << 22) | /* 00：被选择的通道EMB事件无效时，立即释放HRPWM_<t>_PWMB端口（One Shot�?*/
-                          (0 << 24) | /* 000：选择EMB事件通道0有效 */
-                          (1 << 28)   /* 0：HRPWM功能时的HRPWM_<t>_PWMB端口输出无效 */
+    CM_HRPWM5->BPCNBR1 |= (2 << 0) |  /* 10��������ʼʱ��HRPWM_<t>_PWMB�˿����������ǰ״̬*/
+                          (0 << 2) |  /* 00������ֹͣʱ��HRPWM_<t>_PWMB�˿�����趨Ϊ�͵�ƽ */
+                          (2 << 4) |  /* 10������ֵ��������ֵ���߾�ݲ�Ӳ������ʱ��HRPWM_<t>_PWMB�˿��������Ӱ�� */
+                          (2 << 6) |  /* 10������ֵ���ʱ��HRPWM_<t>_PWMB�˿��������Ӱ�� */
+                          (2 << 8) |  /* 00�������ϼ����ڼ䣬��ʱ������ֵ��GCMBR���ʱ��HRPWM_<t>_PWMB�˿��������Ӱ�� */
+                          (2 << 10) | /* 01�������¼����ڼ䣬��ʱ������ֵ��GCMBR���ʱ��HRPWM_<t>_PWMB�˿��������Ӱ�� */
+                          (0 << 12) | /* 10�������ϼ����ڼ䣬��ʱ������ֵ��GCMBR���ʱ��HRPWM_<t>_PWMB�˿�����趨Ϊ�͵�ƽ */
+                          (1 << 14) | /* 10�������¼����ڼ䣬��ʱ������ֵ��GCMBR���ʱ��HRPWM_<t>_PWMB�˿�����趨Ϊ�ߵ�ƽ */
+                          (2 << 16) | /* 10�������ڿ�ʼ��HRPWM_<t>_PWMB�˿�����趨Ϊ�͵�ƽ��ע���üĴ���λ������ʵ��PWM���ռ�ձ�0%��100%�Ŀ���*/
+                          (0 << 20) | /* 00����ѡ���ͨ������EMB�¼�ʱ��HRPWM_<t>_PWMB�˿�������� */
+                          (0 << 22) | /* 00����ѡ���ͨ��EMB�¼���Чʱ�������ͷ�HRPWM_<t>_PWMB�˿ڣ�One Shot��*/
+                          (0 << 24) | /* 000��ѡ��EMB�¼�ͨ��0��Ч */
+                          (1 << 28)   /* 0��HRPWM����ʱ��HRPWM_<t>_PWMB�˿������Ч */
         ;
 
     CM_HRPWM6->BPCNAR1 = 0;
@@ -1712,15 +1712,15 @@ void bsp_pwm_init(void)
     CM_HRPWM3->HRGCMCR = CM_HRPWM3->HRPERBR;
     CM_HRPWM5->HRGCMCR = CM_HRPWM3->HRPERBR;
 
-    CM_HRPWM2->GCONR |= 1 << 2; /* 1：三角波模式 */
+    CM_HRPWM2->GCONR |= 1 << 2; /* 1�����ǲ�ģʽ */
 
-    CM_HRPWM3->GCONR |= 1 << 2; /* 1：三角波模式 */
+    CM_HRPWM3->GCONR |= 1 << 2; /* 1�����ǲ�ģʽ */
 
-    CM_HRPWM4->GCONR |= 1 << 2; /* 1：三角波模式 */
+    CM_HRPWM4->GCONR |= 1 << 2; /* 1�����ǲ�ģʽ */
 
-    CM_HRPWM5->GCONR |= 1 << 2; /* 1：三角波模式 */
+    CM_HRPWM5->GCONR |= 1 << 2; /* 1�����ǲ�ģʽ */
 
-    // bsp_DeadTime_Config(); // 死区时间配置
+    // bsp_DeadTime_Config(); // ����ʱ������
 
     CM_HRPWM6->GCONR |= 1 << 2;
 
@@ -1739,7 +1739,7 @@ void bsp_pwm_init(void)
     NVIC_SetPriority(HRPWM_1_SCMP_IRQn, DDL_IRQ_PRIO_00);
     NVIC_EnableIRQ(HRPWM_1_SCMP_IRQn);
 
-    bCM_HRPWM_COMMON->GBCONR_b.OSTENU1 = 1; /* 1：单�?单次缓存使能 */
+    bCM_HRPWM_COMMON->GBCONR_b.OSTENU1 = 1; /* 1����Ԫ���λ���ʹ�� */
 
     bCM_HRPWM2->GCONR_b.START = 1;
     bCM_HRPWM3->GCONR_b.START = 1;
@@ -1764,83 +1764,83 @@ void bsp_pwm_set_tmr6(float duty,float freq);
 void bsp_tmr6_pwm_init (void)
 {
     CM_TMR6_1->GCONR  = 0;
-    CM_TMR6_1->GCONR |= (0<<0) |        // 0：定时器关闭 1：定时器启动
-                        (1<<1) |        // 0：递减计数   1：递加计数
-                        (1<<2) |        // 0：锯齿波模式 1：三角波模式
-                        (0<<4) |        // 0000：PCLK0
-                                        // 0001：PCLK0/2
-                                        // 0010：PCLK0/4
-                                        // 0011：PCLK0/8
-                                        // 0100：PCLK0/16
-                                        // 0101：PCLK0/32
-                                        // 0110：PCLK0/64
-                                        // 0111：PCLK0/128
-                                        // 1000：PCLK0/256
-                                        // 1001：PCLK0/512
-                                        // 1010：PCLK0/1024
-                        (0<<8) |        // 0：计数器在计数上溢或下溢后，继续计数
-                                        // 1：计数器在计数上溢或下溢后，停止计数
-                        (0<<16)|        // 0：Z相输入时该单元作为公转定时器，在屏蔽周期期间内公转定时器计数功能正常动作
-                                        // 1：Z相输入时该单元作为公转定时器，在屏蔽周期期间内公转定时器计数功能被屏�?
-                        (0<<17)|        // 0：Z相输入时该单元作为位置定时器，在屏蔽周期期间内位置定时器清零功能正常动作
-                                        // 1：Z相输入时该单元作为位置定时器，在屏蔽周期期间内位置定时器清零功能被屏�?
-                        (0<<18)         // 00：Z相输入屏蔽功能无�?
-                                        // 01：位置计数上溢后或下溢后�?个计数周期内的Z相输入被屏蔽
-                                        // 10：位置计数上溢后或下溢后�?个计数周期内的Z相输入被屏蔽
-                                        // 11：位置计数上溢后或下溢后�?6个计数周期内的Z相输入被屏蔽
+    CM_TMR6_1->GCONR |= (0<<0) |        // 0����ʱ���ر� 1����ʱ������
+                        (1<<1) |        // 0���ݼ�����   1���ݼӼ���
+                        (1<<2) |        // 0����ݲ�ģʽ 1�����ǲ�ģʽ
+                        (0<<4) |        // 0000��PCLK0
+                                        // 0001��PCLK0/2
+                                        // 0010��PCLK0/4
+                                        // 0011��PCLK0/8
+                                        // 0100��PCLK0/16
+                                        // 0101��PCLK0/32
+                                        // 0110��PCLK0/64
+                                        // 0111��PCLK0/128
+                                        // 1000��PCLK0/256
+                                        // 1001��PCLK0/512
+                                        // 1010��PCLK0/1024
+                        (0<<8) |        // 0���������ڼ������������󣬼�������
+                                        // 1���������ڼ�������������ֹͣ����
+                        (0<<16)|        // 0��Z������ʱ�õ�Ԫ��Ϊ��ת��ʱ���������������ڼ��ڹ�ת��ʱ������������������
+                                        // 1��Z������ʱ�õ�Ԫ��Ϊ��ת��ʱ���������������ڼ��ڹ�ת��ʱ���������ܱ�����
+                        (0<<17)|        // 0��Z������ʱ�õ�Ԫ��Ϊλ�ö�ʱ���������������ڼ���λ�ö�ʱ�����㹦����������
+                                        // 1��Z������ʱ�õ�Ԫ��Ϊλ�ö�ʱ���������������ڼ���λ�ö�ʱ�����㹦�ܱ�����
+                        (0<<18)         // 00��Z���������ι�����Ч
+                                        // 01��λ�ü��������������4�����������ڵ�Z�����뱻����
+                                        // 10��λ�ü��������������8�����������ڵ�Z�����뱻����
+                                        // 11��λ�ü��������������16�����������ڵ�Z�����뱻����
     ;
     
     CM_TMR6_1->PCNAR  = 0;
-    CM_TMR6_1->PCNAR |= (0<<0) |        // 00：计数开始时，TMR6_<t>_PWMA端口输出设定为低电平
-                                        // 01：计数开始时，TMR6_<t>_PWMA端口输出设定为高电平
-                                        // 10：计数开始时，TMR6_<t>_PWMA端口输出保持先前状�?
-                                        // 11：计数开始时，TMR6_<t>_PWMA端口输出保持先前状�?
-                         (0<<2) |        // 00：计数停止时，TMR6_<t>_PWMA端口输出设定为低电平
-                                         // 01：计数停止时，TMR6_<t>_PWMA端口输出设定为高电平
-                                         // 10：计数停止时，TMR6_<t>_PWMA端口输出保持先前状�?
-                                         // 11：计数停止时，TMR6_<t>_PWMA端口输出保持先前状�?
-                         (2<<4) |        // 00：计数上溢时，TMR6_<t>_PWMA端口输出设定为低电平
-                                         // 01：计数上溢时，TMR6_<t>_PWMA端口输出设定为高电平
-                                         // 10：计数上溢时，TMR6_<t>_PWMA端口输出保持先前状�?
-                                         // 11：计数上溢时，TMR6_<t>_PWMA端口输出设定为反转电�?
-                         (2<<6) |        // 00：计数下溢时，TMR6_<t>_PWMA端口输出设定为低电平
-                                         // 01：计数下溢时，TMR6_<t>_PWMA端口输出设定为高电平
-                                         // 10：计数下溢时，TMR6_<t>_PWMA端口输出保持先前状�?
-                                         // 11：计数下溢时，TMR6_<t>_PWMA端口输出设定为反转电�?
-                         (0<<8) |        // 00 ：在向上计数期间，定时器计数值与 GCMAR 相等时，TMR6_<t>_PWMA端口输出设定为低电平
-                                         // 01 ：在向上计数期间，定时器计数值与 GCMAR 相等时，TMR6_<t>_PWMA端口输出设定为高电平
-                                         // 10 ：在向上计数期间，定时器计数值与 GCMAR 相等时，TMR6_<t>_PWMA端口输出保持先前状�?
-                                         // 11 ：在向上计数期间，定时器计数值与 GCMAR 相等时，TMR6_<t>_PWMA端口输出设定为反转电�?
-                         (1<<10) |       // 00 ：在向下计数期间，定时器计数值与 GCMAR 相等时，TMR6_<t>_PWMA端口输出设定为低电平
-                                         // 01 ：在向下计数期间，定时器计数值与 GCMAR 相等时，TMR6_<t>_PWMA端口输出设定为高电平
-                                         // 10 ：在向下计数期间，定时器计数值与 GCMAR 相等时，TMR6_<t>_PWMA端口输出保持先前状�?
-                                         // 11 ：在向下计数期间，定时器计数值与 GCMAR 相等时，TMR6_<t>_PWMA端口输出设定为反转电�?
-                         (0<<12) |       // 00 ：在向上计数期间，定时器计数值与 GCMBR 相等时，TMR6_<t>_PWMA端口输出设定为低电平
-                                         // 01 ：在向上计数期间，定时器计数值与 GCMBR 相等时，TMR6_<t>_PWMA端口输出设定为高电平
-                                         // 10 ：在向上计数期间，定时器计数值与 GCMBR 相等时，TMR6_<t>_PWMA端口输出保持先前状�?
-                                         // 11 ：在向上计数期间，定时器计数值与 GCMBR 相等时，TMR6_<t>_PWMA端口输出设定为反转电�?
-                         (1<<14) |       // 00 ：在向下计数期间，定时器计数值与 GCMBR 相等时，TMR6_<t>_PWMA端口输出设定为低电平
-                                         // 01 ：在向下计数期间，定时器计数值与 GCMBR 相等时，TMR6_<t>_PWMA端口输出设定为高电平
-                                         // 10 ：在向下计数期间，定时器计数值与 GCMBR 相等时，TMR6_<t>_PWMA端口输出保持先前状�?
-                                         // 11 ：在向下计数期间，定时器计数值与 GCMBR 相等时，TMR6_<t>_PWMA端口输出设定为反转电�?
-                         (0<<16) |       // 0x：设定无效定10：下周期开始，TMR6_<t>_PWMA端口输出设定为低电平
-                                         // 11：下周期开始，TMR6_<t>_PWMA端口输出设定为高电平
-                                         // �?：下周期是指硬件计数模式或锯齿波计数到上溢点或下溢点、三角波计数到谷�?
-                                         // �?：该寄存器位可用于实现PWM输出占空�?%�?00%的控�?
-                         (0<<20) |       // 00：发生EMBSA[1:0]选择EMB控制事件时，TMR6_<t>_PWMA端口正常输出
-                                         // 01：发生EMBSA[1:0]选择EMB控制事件时，TMR6_<t>_PWMA端口输出高阻�?
-                                         // 10：发生EMBSA[1:0]选择EMB控制事件时，TMR6_<t>_PWMA端口输出低电�?
-                                         // 11：发生EMBSA[1:0]选择EMB控制事件时，TMR6_<t>_PWMA端口输出高电�?
-                        (0<<22) |       // 00 �?EMBSA[1:0] 选择�?EMB �?�?事件无效�?，立即释放TMR6_<t>_PWMA端口（One Shot�?
-                                        // 01：EMBSA[1:0]选择的EMB控制事件无效时，等到计数器计数到上溢时释放TMR6_<t>_PWMA端口（Cycle By Cycle 1�?
-                                        // 10：EMBSA[1:0]选择的EMB控制事件无效时，等到计数器计数到下溢时释放TMR6_<t>_PWMA端口（Cycle By Cycle 2�?
-                                        // 11：EMBSA[1:0]选择的EMB控制事件无效时，等到计数器计数到上溢或下溢时释放TMR6_<t>_PWMA端口（Cycle By Cycle 3�?
-                        (0<<24) |       // 00：选择EMB的Group6控制事件有效
-                                        // 01：选择EMB的Group7控制事件有效
-                        (1<<28) |       // 0：Timer6功能时的TMR6_<t>_PWMA端口输出无效
-                                        // 1：Timer6功能时的TMR6_<t>_PWMA端口输出有效
-                        (0<<31)         // 0：比较输出功�?
-                                        // 1：捕获输入功�?
+    CM_TMR6_1->PCNAR |= (0<<0) |        // 00��������ʼʱ��TMR6_<t>_PWMA�˿�����趨Ϊ�͵�ƽ
+                                        // 01��������ʼʱ��TMR6_<t>_PWMA�˿�����趨Ϊ�ߵ�ƽ
+                                        // 10��������ʼʱ��TMR6_<t>_PWMA�˿����������ǰ״̬
+                                        // 11��������ʼʱ��TMR6_<t>_PWMA�˿����������ǰ״̬
+                         (0<<2) |        // 00������ֹͣʱ��TMR6_<t>_PWMA�˿�����趨Ϊ�͵�ƽ
+                                         // 01������ֹͣʱ��TMR6_<t>_PWMA�˿�����趨Ϊ�ߵ�ƽ
+                                         // 10������ֹͣʱ��TMR6_<t>_PWMA�˿����������ǰ״̬
+                                         // 11������ֹͣʱ��TMR6_<t>_PWMA�˿����������ǰ״̬
+                         (2<<4) |        // 00����������ʱ��TMR6_<t>_PWMA�˿�����趨Ϊ�͵�ƽ
+                                         // 01����������ʱ��TMR6_<t>_PWMA�˿�����趨Ϊ�ߵ�ƽ
+                                         // 10����������ʱ��TMR6_<t>_PWMA�˿����������ǰ״̬
+                                         // 11����������ʱ��TMR6_<t>_PWMA�˿�����趨Ϊ��ת��ƽ
+                         (2<<6) |        // 00����������ʱ��TMR6_<t>_PWMA�˿�����趨Ϊ�͵�ƽ
+                                         // 01����������ʱ��TMR6_<t>_PWMA�˿�����趨Ϊ�ߵ�ƽ
+                                         // 10����������ʱ��TMR6_<t>_PWMA�˿����������ǰ״̬
+                                         // 11����������ʱ��TMR6_<t>_PWMA�˿�����趨Ϊ��ת��ƽ
+                         (0<<8) |        // 00 �������ϼ����ڼ䣬��ʱ������ֵ�� GCMAR ���ʱ��TMR6_<t>_PWMA�˿�����趨Ϊ�͵�ƽ
+                                         // 01 �������ϼ����ڼ䣬��ʱ������ֵ�� GCMAR ���ʱ��TMR6_<t>_PWMA�˿�����趨Ϊ�ߵ�ƽ
+                                         // 10 �������ϼ����ڼ䣬��ʱ������ֵ�� GCMAR ���ʱ��TMR6_<t>_PWMA�˿����������ǰ״̬
+                                         // 11 �������ϼ����ڼ䣬��ʱ������ֵ�� GCMAR ���ʱ��TMR6_<t>_PWMA�˿�����趨Ϊ��ת��ƽ
+                         (1<<10) |       // 00 �������¼����ڼ䣬��ʱ������ֵ�� GCMAR ���ʱ��TMR6_<t>_PWMA�˿�����趨Ϊ�͵�ƽ
+                                         // 01 �������¼����ڼ䣬��ʱ������ֵ�� GCMAR ���ʱ��TMR6_<t>_PWMA�˿�����趨Ϊ�ߵ�ƽ
+                                         // 10 �������¼����ڼ䣬��ʱ������ֵ�� GCMAR ���ʱ��TMR6_<t>_PWMA�˿����������ǰ״̬
+                                         // 11 �������¼����ڼ䣬��ʱ������ֵ�� GCMAR ���ʱ��TMR6_<t>_PWMA�˿�����趨Ϊ��ת��ƽ
+                         (0<<12) |       // 00 �������ϼ����ڼ䣬��ʱ������ֵ�� GCMBR ���ʱ��TMR6_<t>_PWMA�˿�����趨Ϊ�͵�ƽ
+                                         // 01 �������ϼ����ڼ䣬��ʱ������ֵ�� GCMBR ���ʱ��TMR6_<t>_PWMA�˿�����趨Ϊ�ߵ�ƽ
+                                         // 10 �������ϼ����ڼ䣬��ʱ������ֵ�� GCMBR ���ʱ��TMR6_<t>_PWMA�˿����������ǰ״̬
+                                         // 11 �������ϼ����ڼ䣬��ʱ������ֵ�� GCMBR ���ʱ��TMR6_<t>_PWMA�˿�����趨Ϊ��ת��ƽ
+                         (1<<14) |       // 00 �������¼����ڼ䣬��ʱ������ֵ�� GCMBR ���ʱ��TMR6_<t>_PWMA�˿�����趨Ϊ�͵�ƽ
+                                         // 01 �������¼����ڼ䣬��ʱ������ֵ�� GCMBR ���ʱ��TMR6_<t>_PWMA�˿�����趨Ϊ�ߵ�ƽ
+                                         // 10 �������¼����ڼ䣬��ʱ������ֵ�� GCMBR ���ʱ��TMR6_<t>_PWMA�˿����������ǰ״̬
+                                         // 11 �������¼����ڼ䣬��ʱ������ֵ�� GCMBR ���ʱ��TMR6_<t>_PWMA�˿�����趨Ϊ��ת��ƽ
+                         (0<<16) |       // 0x���趨��Ч��10�������ڿ�ʼ��TMR6_<t>_PWMA�˿�����趨Ϊ�͵�ƽ
+                                         // 11�������ڿ�ʼ��TMR6_<t>_PWMA�˿�����趨Ϊ�ߵ�ƽ
+                                         // ע����������ָӲ������ģʽ���ݲ�����������������㡢���ǲ���������ֵ
+                                         // ע���üĴ���λ������ʵ��PWM���ռ�ձ�0%��100%�Ŀ���
+                         (0<<20) |       // 00������EMBSA[1:0]ѡ��EMB�����¼�ʱ��TMR6_<t>_PWMA�˿��������
+                                         // 01������EMBSA[1:0]ѡ��EMB�����¼�ʱ��TMR6_<t>_PWMA�˿��������̬
+                                         // 10������EMBSA[1:0]ѡ��EMB�����¼�ʱ��TMR6_<t>_PWMA�˿�����͵�ƽ
+                                         // 11������EMBSA[1:0]ѡ��EMB�����¼�ʱ��TMR6_<t>_PWMA�˿�����ߵ�ƽ
+                        (0<<22) |       // 00 EMBSA[1:0] ѡ��EMB �¼���Ч�������ͷ�TMR6_<t>_PWMA�˿ڣ�One Shot��
+                                        // 01��EMBSA[1:0]ѡ���EMB�����¼���Чʱ���ȵ�����������������ʱ�ͷ�TMR6_<t>_PWMA�˿ڣ�Cycle By Cycle 1��
+                                        // 10��EMBSA[1:0]ѡ���EMB�����¼���Чʱ���ȵ�����������������ʱ�ͷ�TMR6_<t>_PWMA�˿ڣ�Cycle By Cycle 2��
+                                        // 11��EMBSA[1:0]ѡ���EMB�����¼���Чʱ���ȵ����������������������ʱ�ͷ�TMR6_<t>_PWMA�˿ڣ�Cycle By Cycle 3��
+                        (0<<24) |       // 00��ѡ��EMB��Group6�����¼���Ч
+                                        // 01��ѡ��EMB��Group7�����¼���Ч
+                        (1<<28) |       // 0��Timer6����ʱ��TMR6_<t>_PWMA�˿������Ч
+                                        // 1��Timer6����ʱ��TMR6_<t>_PWMA�˿������Ч
+                        (0<<31)         // 0���Ƚ��������
+                                        // 1���������빦��
     ;
 
 
@@ -1848,83 +1848,83 @@ void bsp_tmr6_pwm_init (void)
     CM_TMR6_1->BCONR = (1<<0) | (1<<3)|(1<<8)|(1<<11);
 
     CM_TMR6_2->GCONR  = 0;
-    CM_TMR6_2->GCONR |= (0<<0) |        // 0：定时器关闭 1：定时器启动
-                        (1<<1) |        // 0：递减计数   1：递加计数
-                        (1<<2) |        // 0：锯齿波模式 1：三角波模式
-                        (0<<4) |        // 0000：PCLK0
-                                        // 0001：PCLK0/2
-                                        // 0010：PCLK0/4
-                                        // 0011：PCLK0/8
-                                        // 0100：PCLK0/16
-                                        // 0101：PCLK0/32
-                                        // 0110：PCLK0/64
-                                        // 0111：PCLK0/128
-                                        // 1000：PCLK0/256
-                                        // 1001：PCLK0/512
-                                        // 1010：PCLK0/1024
-                        (0<<8) |        // 0：计数器在计数上溢或下溢后，继续计数
-                                        // 1：计数器在计数上溢或下溢后，停止计数
-                        (0<<16)|        // 0：Z相输入时该单元作为公转定时器，在屏蔽周期期间内公转定时器计数功能正常动作
-                                        // 1：Z相输入时该单元作为公转定时器，在屏蔽周期期间内公转定时器计数功能被屏�?
-                        (0<<17)|        // 0：Z相输入时该单元作为位置定时器，在屏蔽周期期间内位置定时器清零功能正常动作
-                                        // 1：Z相输入时该单元作为位置定时器，在屏蔽周期期间内位置定时器清零功能被屏�?
-                        (0<<18)         // 00：Z相输入屏蔽功能无�?
-                                        // 01：位置计数上溢后或下溢后�?个计数周期内的Z相输入被屏蔽
-                                        // 10：位置计数上溢后或下溢后�?个计数周期内的Z相输入被屏蔽
-                                        // 11：位置计数上溢后或下溢后�?6个计数周期内的Z相输入被屏蔽
+    CM_TMR6_2->GCONR |= (0<<0) |        // 0����ʱ���ر� 1����ʱ������
+                        (1<<1) |        // 0���ݼ�����   1���ݼӼ���
+                        (1<<2) |        // 0����ݲ�ģʽ 1�����ǲ�ģʽ
+                        (0<<4) |        // 0000��PCLK0
+                                        // 0001��PCLK0/2
+                                        // 0010��PCLK0/4
+                                        // 0011��PCLK0/8
+                                        // 0100��PCLK0/16
+                                        // 0101��PCLK0/32
+                                        // 0110��PCLK0/64
+                                        // 0111��PCLK0/128
+                                        // 1000��PCLK0/256
+                                        // 1001��PCLK0/512
+                                        // 1010��PCLK0/1024
+                        (0<<8) |        // 0���������ڼ������������󣬼�������
+                                        // 1���������ڼ�������������ֹͣ����
+                        (0<<16)|        // 0��Z������ʱ�õ�Ԫ��Ϊ��ת��ʱ���������������ڼ��ڹ�ת��ʱ������������������
+                                        // 1��Z������ʱ�õ�Ԫ��Ϊ��ת��ʱ���������������ڼ��ڹ�ת��ʱ���������ܱ�����
+                        (0<<17)|        // 0��Z������ʱ�õ�Ԫ��Ϊλ�ö�ʱ���������������ڼ���λ�ö�ʱ�����㹦����������
+                                        // 1��Z������ʱ�õ�Ԫ��Ϊλ�ö�ʱ���������������ڼ���λ�ö�ʱ�����㹦�ܱ�����
+                        (0<<18)         // 00��Z���������ι�����Ч
+                                        // 01��λ�ü��������������4�����������ڵ�Z�����뱻����
+                                        // 10��λ�ü��������������8�����������ڵ�Z�����뱻����
+                                        // 11��λ�ü��������������16�����������ڵ�Z�����뱻����
     ;
     
     CM_TMR6_2->PCNAR  = 0;
-    CM_TMR6_2->PCNAR |= (0<<0) |        // 00：计数开始时，TMR6_<t>_PWMA端口输出设定为低电平
-                                        // 01：计数开始时，TMR6_<t>_PWMA端口输出设定为高电平
-                                        // 10：计数开始时，TMR6_<t>_PWMA端口输出保持先前状�?
-                                        // 11：计数开始时，TMR6_<t>_PWMA端口输出保持先前状�?
-                         (0<<2) |        // 00：计数停止时，TMR6_<t>_PWMA端口输出设定为低电平
-                                         // 01：计数停止时，TMR6_<t>_PWMA端口输出设定为高电平
-                                         // 10：计数停止时，TMR6_<t>_PWMA端口输出保持先前状�?
-                                         // 11：计数停止时，TMR6_<t>_PWMA端口输出保持先前状�?
-                         (2<<4) |        // 00：计数上溢时，TMR6_<t>_PWMA端口输出设定为低电平
-                                         // 01：计数上溢时，TMR6_<t>_PWMA端口输出设定为高电平
-                                         // 10：计数上溢时，TMR6_<t>_PWMA端口输出保持先前状�?
-                                         // 11：计数上溢时，TMR6_<t>_PWMA端口输出设定为反转电�?
-                         (2<<6) |        // 00：计数下溢时，TMR6_<t>_PWMA端口输出设定为低电平
-                                         // 01：计数下溢时，TMR6_<t>_PWMA端口输出设定为高电平
-                                         // 10：计数下溢时，TMR6_<t>_PWMA端口输出保持先前状�?
-                                         // 11：计数下溢时，TMR6_<t>_PWMA端口输出设定为反转电�?
-                         (0<<8) |        // 00 ：在向上计数期间，定时器计数值与 GCMAR 相等时，TMR6_<t>_PWMA端口输出设定为低电平
-                                         // 01 ：在向上计数期间，定时器计数值与 GCMAR 相等时，TMR6_<t>_PWMA端口输出设定为高电平
-                                         // 10 ：在向上计数期间，定时器计数值与 GCMAR 相等时，TMR6_<t>_PWMA端口输出保持先前状�?
-                                         // 11 ：在向上计数期间，定时器计数值与 GCMAR 相等时，TMR6_<t>_PWMA端口输出设定为反转电�?
-                         (1<<10) |       // 00 ：在向下计数期间，定时器计数值与 GCMAR 相等时，TMR6_<t>_PWMA端口输出设定为低电平
-                                         // 01 ：在向下计数期间，定时器计数值与 GCMAR 相等时，TMR6_<t>_PWMA端口输出设定为高电平
-                                         // 10 ：在向下计数期间，定时器计数值与 GCMAR 相等时，TMR6_<t>_PWMA端口输出保持先前状�?
-                                         // 11 ：在向下计数期间，定时器计数值与 GCMAR 相等时，TMR6_<t>_PWMA端口输出设定为反转电�?
-                         (0<<12) |       // 00 ：在向上计数期间，定时器计数值与 GCMBR 相等时，TMR6_<t>_PWMA端口输出设定为低电平
-                                         // 01 ：在向上计数期间，定时器计数值与 GCMBR 相等时，TMR6_<t>_PWMA端口输出设定为高电平
-                                         // 10 ：在向上计数期间，定时器计数值与 GCMBR 相等时，TMR6_<t>_PWMA端口输出保持先前状�?
-                                         // 11 ：在向上计数期间，定时器计数值与 GCMBR 相等时，TMR6_<t>_PWMA端口输出设定为反转电�?
-                         (1<<14) |       // 00 ：在向下计数期间，定时器计数值与 GCMBR 相等时，TMR6_<t>_PWMA端口输出设定为低电平
-                                         // 01 ：在向下计数期间，定时器计数值与 GCMBR 相等时，TMR6_<t>_PWMA端口输出设定为高电平
-                                         // 10 ：在向下计数期间，定时器计数值与 GCMBR 相等时，TMR6_<t>_PWMA端口输出保持先前状�?
-                                         // 11 ：在向下计数期间，定时器计数值与 GCMBR 相等时，TMR6_<t>_PWMA端口输出设定为反转电�?
-                         (0<<16) |       // 0x：设定无效定10：下周期开始，TMR6_<t>_PWMA端口输出设定为低电平
-                                         // 11：下周期开始，TMR6_<t>_PWMA端口输出设定为高电平
-                                         // �?：下周期是指硬件计数模式或锯齿波计数到上溢点或下溢点、三角波计数到谷�?
-                                         // �?：该寄存器位可用于实现PWM输出占空�?%�?00%的控�?
-                         (0<<20) |       // 00：发生EMBSA[1:0]选择EMB控制事件时，TMR6_<t>_PWMA端口正常输出
-                                         // 01：发生EMBSA[1:0]选择EMB控制事件时，TMR6_<t>_PWMA端口输出高阻�?
-                                         // 10：发生EMBSA[1:0]选择EMB控制事件时，TMR6_<t>_PWMA端口输出低电�?
-                                         // 11：发生EMBSA[1:0]选择EMB控制事件时，TMR6_<t>_PWMA端口输出高电�?
-                        (0<<22) |       // 00 �?EMBSA[1:0] 选择�?EMB �?�?事件无效�?，立即释放TMR6_<t>_PWMA端口（One Shot�?
-                                        // 01：EMBSA[1:0]选择的EMB控制事件无效时，等到计数器计数到上溢时释放TMR6_<t>_PWMA端口（Cycle By Cycle 1�?
-                                        // 10：EMBSA[1:0]选择的EMB控制事件无效时，等到计数器计数到下溢时释放TMR6_<t>_PWMA端口（Cycle By Cycle 2�?
-                                        // 11：EMBSA[1:0]选择的EMB控制事件无效时，等到计数器计数到上溢或下溢时释放TMR6_<t>_PWMA端口（Cycle By Cycle 3�?
-                        (0<<24) |       // 00：选择EMB的Group6控制事件有效
-                                        // 01：选择EMB的Group7控制事件有效
-                        (1<<28) |       // 0：Timer6功能时的TMR6_<t>_PWMA端口输出无效
-                                        // 1：Timer6功能时的TMR6_<t>_PWMA端口输出有效
-                        (0<<31)         // 0：比较输出功�?
-                                        // 1：捕获输入功�?
+    CM_TMR6_2->PCNAR |= (0<<0) |        // 00��������ʼʱ��TMR6_<t>_PWMA�˿�����趨Ϊ�͵�ƽ
+                                        // 01��������ʼʱ��TMR6_<t>_PWMA�˿�����趨Ϊ�ߵ�ƽ
+                                        // 10��������ʼʱ��TMR6_<t>_PWMA�˿����������ǰ״̬
+                                        // 11��������ʼʱ��TMR6_<t>_PWMA�˿����������ǰ״̬
+                         (0<<2) |        // 00������ֹͣʱ��TMR6_<t>_PWMA�˿�����趨Ϊ�͵�ƽ
+                                         // 01������ֹͣʱ��TMR6_<t>_PWMA�˿�����趨Ϊ�ߵ�ƽ
+                                         // 10������ֹͣʱ��TMR6_<t>_PWMA�˿����������ǰ״̬
+                                         // 11������ֹͣʱ��TMR6_<t>_PWMA�˿����������ǰ״̬
+                         (2<<4) |        // 00����������ʱ��TMR6_<t>_PWMA�˿�����趨Ϊ�͵�ƽ
+                                         // 01����������ʱ��TMR6_<t>_PWMA�˿�����趨Ϊ�ߵ�ƽ
+                                         // 10����������ʱ��TMR6_<t>_PWMA�˿����������ǰ״̬
+                                         // 11����������ʱ��TMR6_<t>_PWMA�˿�����趨Ϊ��ת��ƽ
+                         (2<<6) |        // 00����������ʱ��TMR6_<t>_PWMA�˿�����趨Ϊ�͵�ƽ
+                                         // 01����������ʱ��TMR6_<t>_PWMA�˿�����趨Ϊ�ߵ�ƽ
+                                         // 10����������ʱ��TMR6_<t>_PWMA�˿����������ǰ״̬
+                                         // 11����������ʱ��TMR6_<t>_PWMA�˿�����趨Ϊ��ת��ƽ
+                         (0<<8) |        // 00 �������ϼ����ڼ䣬��ʱ������ֵ�� GCMAR ���ʱ��TMR6_<t>_PWMA�˿�����趨Ϊ�͵�ƽ
+                                         // 01 �������ϼ����ڼ䣬��ʱ������ֵ�� GCMAR ���ʱ��TMR6_<t>_PWMA�˿�����趨Ϊ�ߵ�ƽ
+                                         // 10 �������ϼ����ڼ䣬��ʱ������ֵ�� GCMAR ���ʱ��TMR6_<t>_PWMA�˿����������ǰ״̬
+                                         // 11 �������ϼ����ڼ䣬��ʱ������ֵ�� GCMAR ���ʱ��TMR6_<t>_PWMA�˿�����趨Ϊ��ת��ƽ
+                         (1<<10) |       // 00 �������¼����ڼ䣬��ʱ������ֵ�� GCMAR ���ʱ��TMR6_<t>_PWMA�˿�����趨Ϊ�͵�ƽ
+                                         // 01 �������¼����ڼ䣬��ʱ������ֵ�� GCMAR ���ʱ��TMR6_<t>_PWMA�˿�����趨Ϊ�ߵ�ƽ
+                                         // 10 �������¼����ڼ䣬��ʱ������ֵ�� GCMAR ���ʱ��TMR6_<t>_PWMA�˿����������ǰ״̬
+                                         // 11 �������¼����ڼ䣬��ʱ������ֵ�� GCMAR ���ʱ��TMR6_<t>_PWMA�˿�����趨Ϊ��ת��ƽ
+                         (0<<12) |       // 00 �������ϼ����ڼ䣬��ʱ������ֵ�� GCMBR ���ʱ��TMR6_<t>_PWMA�˿�����趨Ϊ�͵�ƽ
+                                         // 01 �������ϼ����ڼ䣬��ʱ������ֵ�� GCMBR ���ʱ��TMR6_<t>_PWMA�˿�����趨Ϊ�ߵ�ƽ
+                                         // 10 �������ϼ����ڼ䣬��ʱ������ֵ�� GCMBR ���ʱ��TMR6_<t>_PWMA�˿����������ǰ״̬
+                                         // 11 �������ϼ����ڼ䣬��ʱ������ֵ�� GCMBR ���ʱ��TMR6_<t>_PWMA�˿�����趨Ϊ��ת��ƽ
+                         (1<<14) |       // 00 �������¼����ڼ䣬��ʱ������ֵ�� GCMBR ���ʱ��TMR6_<t>_PWMA�˿�����趨Ϊ�͵�ƽ
+                                         // 01 �������¼����ڼ䣬��ʱ������ֵ�� GCMBR ���ʱ��TMR6_<t>_PWMA�˿�����趨Ϊ�ߵ�ƽ
+                                         // 10 �������¼����ڼ䣬��ʱ������ֵ�� GCMBR ���ʱ��TMR6_<t>_PWMA�˿����������ǰ״̬
+                                         // 11 �������¼����ڼ䣬��ʱ������ֵ�� GCMBR ���ʱ��TMR6_<t>_PWMA�˿�����趨Ϊ��ת��ƽ
+                         (0<<16) |       // 0x���趨��Ч��10�������ڿ�ʼ��TMR6_<t>_PWMA�˿�����趨Ϊ�͵�ƽ
+                                         // 11�������ڿ�ʼ��TMR6_<t>_PWMA�˿�����趨Ϊ�ߵ�ƽ
+                                         // ע����������ָӲ������ģʽ���ݲ�����������������㡢���ǲ���������ֵ
+                                         // ע���üĴ���λ������ʵ��PWM���ռ�ձ�0%��100%�Ŀ���
+                         (0<<20) |       // 00������EMBSA[1:0]ѡ��EMB�����¼�ʱ��TMR6_<t>_PWMA�˿��������
+                                         // 01������EMBSA[1:0]ѡ��EMB�����¼�ʱ��TMR6_<t>_PWMA�˿��������̬
+                                         // 10������EMBSA[1:0]ѡ��EMB�����¼�ʱ��TMR6_<t>_PWMA�˿�����͵�ƽ
+                                         // 11������EMBSA[1:0]ѡ��EMB�����¼�ʱ��TMR6_<t>_PWMA�˿�����ߵ�ƽ
+                        (0<<22) |       // 00 EMBSA[1:0] ѡ��EMB �¼���Ч�������ͷ�TMR6_<t>_PWMA�˿ڣ�One Shot��
+                                        // 01��EMBSA[1:0]ѡ���EMB�����¼���Чʱ���ȵ�����������������ʱ�ͷ�TMR6_<t>_PWMA�˿ڣ�Cycle By Cycle 1��
+                                        // 10��EMBSA[1:0]ѡ���EMB�����¼���Чʱ���ȵ�����������������ʱ�ͷ�TMR6_<t>_PWMA�˿ڣ�Cycle By Cycle 2��
+                                        // 11��EMBSA[1:0]ѡ���EMB�����¼���Чʱ���ȵ����������������������ʱ�ͷ�TMR6_<t>_PWMA�˿ڣ�Cycle By Cycle 3��
+                        (0<<24) |       // 00��ѡ��EMB��Group6�����¼���Ч
+                                        // 01��ѡ��EMB��Group7�����¼���Ч
+                        (1<<28) |       // 0��Timer6����ʱ��TMR6_<t>_PWMA�˿������Ч
+                                        // 1��Timer6����ʱ��TMR6_<t>_PWMA�˿������Ч
+                        (0<<31)         // 0���Ƚ��������
+                                        // 1���������빦��
     ;
 
     CM_TMR6_2->BCONR = 0;

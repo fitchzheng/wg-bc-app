@@ -4,7 +4,7 @@
 #include "hc32_ll.h"
 #include "hc32_ll_adc.h"
 
-#define SAMPLE_TIME   16 //閲囨牱鍛ㄦ湡
+#define SAMPLE_TIME   16 //采样周期
 #define ADC_ILA_TRIG_EVT EVT_SRC_HRPWM_1_SCMP_A // ADC trigger event for ILA
 #define ADC_ILB_TRIG_EVT EVT_SRC_HRPWM_1_SCMP_B // ADC trigger event for ILB
 

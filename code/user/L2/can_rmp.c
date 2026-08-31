@@ -4,7 +4,7 @@
 
 can_packet_data_value_u valuetype_rmp_buffer[256] = {0};
 
-// RMPç›¸å…³å˜é‡
+// RMPÏà¹Ø±äÁ¿
 can_rmp_msgtype_cmd0_set_req_byte2_t can_rmp_msgtype_cmd0_set_req_byte2 = {0};
 can_rmp_msgtype_cmd0_set_req_byte3_t can_rmp_msgtype_cmd0_set_req_byte3 = {0};
 can_rmp_msgtype_cmd0_set_req_byte4_7_t can_rmp_msgtype_cmd0_set_req_byte4_7 = {0};
@@ -14,7 +14,7 @@ can_rmp_msgtype_cmd2_set_req_byte2_7_t can_rmp_msgtype_cmd2_set_req_byte2_7 = {0
 
 uint8_t can_rmp_msgtype_cmd0_set_req_order[] = CAN_RMP_MSGTYPE_CMD0_SET_REQ_REDATA;
 
-// å‡½æ•°å£°æ˜
+// º¯ÊıÉùÃ÷
 static void can_rmp_handle_cmd0_set_req(const can_packet_t *packet);
 static void can_rmp_handle_cmd1_set_req(const can_packet_t *packet);
 static void can_rmp_handle_cmd2_set_req(const can_packet_t *packet);
@@ -22,7 +22,7 @@ static void can_rmp_handle_byte_read_req(const can_packet_t *packet);
 static void can_rmp_handle_bit_read_req(const can_packet_t *packet);
 static void can_rmp_handle_byte_write_req(const can_packet_t *packet);
 
-// ä¸Šå±‚åˆ†å‘æ¥å£
+// ÉÏ²ã·Ö·¢½Ó¿Ú
 void can_comm_rmp_dispatch(const can_packet_t *packet)
 {
     uint8_t msgtype = packet->data.data.msgtype;
@@ -47,7 +47,7 @@ void can_comm_rmp_dispatch(const can_packet_t *packet)
         can_rmp_handle_byte_write_req(packet);
         break;
     default:
-        // æœªçŸ¥ç±»å‹
+        // Î´ÖªÀàĞÍ
         break;
     }
 }
@@ -63,7 +63,7 @@ static void can_rmp_handle_cmd0_set_req(const can_packet_t *packet)
     {
         can_packet_data.data.err = 0;
         can_packet_data.data.msgtype = packet->data.data.msgtype;
-        can_packet_data.data.errtype = 0; // æ— é”™è¯¯
+        can_packet_data.data.errtype = 0; // ÎŞ´íÎó
         can_packet_data.data.data_info.valueinfo.valuetype.byte2 = 0x00;
         can_packet_data.data.data_info.valueinfo.valuetype.byte3 = cmd0_order[i];
         can_packet_data.data.data_info.valueinfo.value.u32 = valuetype_rmp_buffer[cmd0_order[i]].u32;

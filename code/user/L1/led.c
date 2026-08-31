@@ -57,7 +57,7 @@ static void led_func(void)
         break;
 
     default:
-        // Unknown mode â€?leave all LEDs off
+        // Unknown mode: leave all LEDs off
         break;
     }
 }
